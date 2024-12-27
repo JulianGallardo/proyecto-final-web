@@ -1,5 +1,5 @@
 "use client";
-
+import { loginAction } from "@/actions/auth-actions";
 import { z } from 'zod';
 import { logInSchema } from '@/lib/zod';
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -16,9 +15,17 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Label } from '@radix-ui/react-label';
+import { startTransition, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+    const [error, setError] = useState<string | null>(null);
+    const [isPending, setIsPending] = useTransition();
+    const router = useRouter();
+
+
+
+
     const form = useForm<z.infer<typeof logInSchema>>({
         resolver: zodResolver(logInSchema),
         defaultValues: {
@@ -27,11 +34,17 @@ export default function LoginForm() {
         },
     })
 
-    // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof logInSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        console.log(values)
+    async function onSubmit(values: z.infer<typeof logInSchema>) {
+        setError(null);
+        startTransition(async() => {
+            const response = await loginAction(values);
+            if (response.error) {
+                setError(response.error);
+                console.log(response.error);
+            } else{
+                router.push("/homepage");
+            }
+        });
     }
 
     return (
@@ -43,7 +56,7 @@ export default function LoginForm() {
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                            
+
                             <FormField
                                 control={form.control}
                                 name="email"
@@ -52,13 +65,13 @@ export default function LoginForm() {
                                         <div className="space-y-2">
                                             <FormLabel htmlFor="email">Email</FormLabel>
                                             <FormControl>
-                                            <Input  placeholder="example@example.com" {...field} />
+                                                <Input placeholder="example@example.com" {...field} />
 
                                             </FormControl>
                                         </div>
                                         <FormMessage />
                                     </FormItem>
-                                    
+
                                 )}
                             />
 
@@ -70,18 +83,21 @@ export default function LoginForm() {
                                         <div className="space-y-2">
                                             <FormLabel htmlFor="email">Password</FormLabel>
                                             <FormControl>
-                                            <Input  placeholder="Your password" {...field} />
+                                                <Input placeholder="Your password" {...field} />
 
                                             </FormControl>
                                         </div>
                                         <FormMessage />
                                     </FormItem>
-                                    
+
                                 )}
                             />
+                            {
+                                error && <FormMessage>{error}</FormMessage>
+                            }
 
 
-                            <Button type="submit" className="w-full">Sign In</Button>
+                            <Button type="submit" className="w-full" disabled={isPending}>Sign In</Button>
                         </form>
                     </Form>
                 </CardContent>

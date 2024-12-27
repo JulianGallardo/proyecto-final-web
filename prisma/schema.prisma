@@ -12,18 +12,20 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
- 
+enum Role {
+  user
+  admin
+}
 model User {
   id            String          @id @default(cuid())
   name          String?
   email         String          @unique
-  password      String 
+  password      String? 
   image         String?
   accounts      Account[]
-  sessions      Session[]
+  role          Role            @default(user)
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -48,16 +50,6 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
  
   @@id([provider, providerAccountId])
-}
- 
-model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
  
 model VerificationToken {

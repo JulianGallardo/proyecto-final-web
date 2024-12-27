@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import BtnLogout from "@/components/auth/btn-logout"
  
 export default async function HomePage() {
   const session = await auth()
@@ -10,6 +11,8 @@ export default async function HomePage() {
   return (
     <div className="container">
       <pre>{JSON.stringify(session, null, 2)}</pre>
+      <BtnLogout/>
     </div>
+
   )
 }

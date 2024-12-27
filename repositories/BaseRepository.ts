@@ -23,4 +23,22 @@ export default abstract class BaseRepository<T> {
         return this.modelClient.findUnique({ where: { id } });
     }
 
+    delete(id: number): Promise<T> {
+        return this.modelClient.delete({ where: { id } });
+    }
+
+    create(data: Record<string, any>): Promise<T> {
+        return this.modelClient.create({ data });
+    }
+
+    update(id: number, data: Record<string, any>): Promise<T> {
+        return this.modelClient.update({ where: { id }, data });
+    }
+
+    deleteAll(): Promise<void> {
+        return this.modelClient.deleteMany();
+    }
+
+
+
 }

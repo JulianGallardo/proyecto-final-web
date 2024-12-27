@@ -7,8 +7,14 @@ export default function LoggedInLayout({
 }: {
     children: React.ReactNode
 }) {
-    return <SessionProvider >
-        <Navbar />
-        {children}
-    </SessionProvider>
+    return (
+        <div className="flex flex-col h-screen w-screen">
+            <SessionProvider >
+                <Navbar />
+                {children}
+            </SessionProvider>
+        </div>
+    )
+
+
 }

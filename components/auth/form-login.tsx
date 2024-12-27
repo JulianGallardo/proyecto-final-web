@@ -5,6 +5,7 @@ import { logInSchema } from '@/lib/zod';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
+import { Eye,EyeSlash } from "@mynaui/icons-react";
 import {
     Form,
     FormControl,
@@ -18,10 +19,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { startTransition, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
     const [isPending, setIsPending] = useTransition();
     const router = useRouter();
+    const [showPassword, setShowPassword] = useState("password");
+
+    function toggleShowPassword() {
+        setShowPassword((prev) => prev === "password" ? "text" : "password");
+
+    }
 
 
 
@@ -36,12 +44,12 @@ export default function LoginForm() {
 
     async function onSubmit(values: z.infer<typeof logInSchema>) {
         setError(null);
-        startTransition(async() => {
+        startTransition(async () => {
             const response = await loginAction(values);
             if (response.error) {
                 setError(response.error);
                 console.log(response.error);
-            } else{
+            } else {
                 router.push("/homepage");
             }
         });
@@ -51,7 +59,7 @@ export default function LoginForm() {
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <Card className="w-full max-w-md">
                 <CardHeader>
-                    <CardTitle className="text-center">Sign In</CardTitle>
+                    <CardTitle className="text-center">Login</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -83,15 +91,30 @@ export default function LoginForm() {
                                         <div className="space-y-2">
                                             <FormLabel htmlFor="email">Password</FormLabel>
                                             <FormControl>
-                                                <Input placeholder="Your password" {...field} />
+                                                <div className="flex flex-row gap-2">
+                                                    <Input placeholder="Your password" type={showPassword}  {...field} />
+
+
+                                                    <Button type="button" variant={"outline"}  onClick={toggleShowPassword} className="w-fit">
+                                                        {showPassword === "password" ? <Eye /> : <EyeSlash />}
+                                                    </Button>
+
+                                                </div>
+
 
                                             </FormControl>
+
+
+
                                         </div>
                                         <FormMessage />
                                     </FormItem>
 
                                 )}
                             />
+
+
+
                             {
                                 error && <FormMessage>{error}</FormMessage>
                             }

@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import BtnLogout from "@/components/auth/btn-logout"
+import Navbar from "@/components/navbar"
  
 export default async function HomePage() {
   const session = await auth()
@@ -9,9 +10,10 @@ export default async function HomePage() {
   }
  
   return (
-    <div className="container">
+    <div className="container w-full ">
+
       <pre>{JSON.stringify(session, null, 2)}</pre>
-      <BtnLogout/>
+      <BtnLogout />
     </div>
 
   )

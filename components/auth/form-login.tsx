@@ -50,7 +50,7 @@ export default function LoginForm() {
                 setError(response.error);
                 console.log(response.error);
             } else {
-                router.push("/homepage");
+                router.push("/inicio");
             }
         });
     }

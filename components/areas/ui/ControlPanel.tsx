@@ -12,10 +12,18 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 }
 
 function getRandomColor() {
-    return Math.floor(Math.random() * 16777215).toString(16).padStart(6, "0");
+    const letters = "0123456789ABCDEF";
+    let color = "#";
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
 
+
 export default function Sidebar() {
+    const colorCache: Record<string, string> = {};
+
     const { mymap } = useMap();
     const [zones, setZones] = useState<GeoJSON.Feature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
@@ -46,18 +54,24 @@ export default function Sidebar() {
 
             if (terraDrawInstance) {
                 const handleFinish = (e: any) => {
-                    const color = `#${getRandomColor()}`;
                     const Feature = getFeatureById(draw, e);
-
                     if (Feature) {
-                        Feature.properties = { ...Feature.properties, color };
+                        if (Feature.id){
+                            Feature.properties.color = colorCache[Feature.id];
+                            console.log(Feature.id);
+                            console.log(colorCache);
+                        }
+
+                            
+                        console.log(Feature);
                         setZones((prevZones) => [...prevZones, Feature]);
+
                         terraDrawInstance.setMode("render");
                     }
                 };
 
                 terraDrawInstance.on("finish", handleFinish);
-                
+
                 // Cleanup del evento al desmontar
                 return () => {
                     terraDrawInstance.off("finish", handleFinish);
@@ -69,12 +83,18 @@ export default function Sidebar() {
     /** Funciones de manejo de zonas **/
     const addZone = useCallback(() => {
         if (draw) {
-            const color = `#${getRandomColor()}`;
             const terraDrawInstance = draw.getTerraDrawInstance();
 
             terraDrawInstance?.setModeStyles("polygon", {
-                fillColor: color,
-                outlineColor: color,
+                fillColor: ({ id }) => {
+                    // Get the color from the cache or generate a new one
+                    colorCache[id] = colorCache[id] || getRandomColor();
+                    return colorCache[id];
+                },
+                outlineColor: ({ id }) => {
+                    return colorCache[id];
+                },
+
             });
 
             terraDrawInstance?.setMode("polygon");

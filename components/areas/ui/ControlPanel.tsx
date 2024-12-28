@@ -1,9 +1,31 @@
 // App.jsx
-import React from "react";
+import React, { use, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { MaplibreTerradrawControl } from '@watergis/maplibre-gl-terradraw'
+import '@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css'
+import { useMap } from "@vis.gl/react-maplibre";
 
 export default function Sidebar() {
+
+    const {mymap} = useMap();
+    const draw = new MaplibreTerradrawControl({
+	    modes: ['render','point','linestring','polygon','rectangle','circle','freehand','angled-rectangle','sensor','sector','select','delete-selection','delete','download'],
+	    open: false,
+
+        
+	});
+    
+    useEffect(() => {
+        console.log(mymap);
+        if (!mymap) return;
+        mymap.addControl(draw);
+
+    }, [mymap]);
+
+
+
+
     return (
         <div className="flex flex-col w-1/4 h-full bg-gray-100 shadow-lg p-5">
             {/* Encabezado */}

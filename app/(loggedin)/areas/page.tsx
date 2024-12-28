@@ -1,5 +1,5 @@
 import { auth } from "@/auth"
-import Map from "@/components/areas/maps/map"
+import Areas from "@/components/areas/maps/map"
 
 export default async function HomePage() {
   const session = await auth()
@@ -10,7 +10,7 @@ export default async function HomePage() {
 
   return (
     <div className="flex h-full w-full ">
-      <Map />
+      <Areas />
     </div>
 
   )

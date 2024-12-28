@@ -5,7 +5,6 @@ import { Separator } from "@/components/ui/separator";
 import { MaplibreTerradrawControl } from '@watergis/maplibre-gl-terradraw'
 import '@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css'
 import { useMap } from "@vis.gl/react-maplibre";
-import { Feature } from "maplibre-gl";
 import ZoneCard from "./ZoneCard";
 
 
@@ -14,11 +13,11 @@ export default function Sidebar() {
     const { mymap } = useMap();
     const draw: MaplibreTerradrawControl = new MaplibreTerradrawControl({
         modes: ['render', 'point', 'linestring', 'polygon', 'rectangle', 'circle', 'freehand', 'angled-rectangle', 'sensor', 'sector', 'select', 'delete-selection', 'delete', 'download'],
+
     });
     const [zones, setZones] = useState<GeoJSON.Feature[]>([]);
 
     useEffect(() => {
-        console.log(mymap);
         if (!mymap) return;
         mymap.addControl(draw);
 
@@ -26,9 +25,19 @@ export default function Sidebar() {
 
 
     function addZone(draw: MaplibreTerradrawControl) {
+        const color = getRandomColor();
+        console.log(color);
+        draw.getTerraDrawInstance().setModeStyles('polygon', 
+        {
+            fillColor: `#${color}`,
+            outlineColor: `#${color}`,
+        }
+        );
         draw.getTerraDrawInstance().setMode('polygon');
         draw.getTerraDrawInstance().on('finish', (e: any) => {
             const Feature = getFeatureById(draw, e);
+            Feature?.properties && (Feature.properties.color = `#${color}`);
+
             if (Feature) {
                 setZones([...zones, Feature]);
             }
@@ -53,13 +62,17 @@ export default function Sidebar() {
 
 
 
+
     function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
         const features = draw.getFeatures();
         const feature = features.features.find((feature: any) => feature.id === id);
         return feature;
     }
 
-
+    function getRandomColor() {
+        const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+        return randomColor;
+    }
 
 
 
@@ -97,7 +110,7 @@ export default function Sidebar() {
                             zoneName={zone.properties?.name || 'Zona'}
                             Feature={zone}
                             onEdit={() => editZone(draw)}
-                            onDelete={() => deleteZone(draw, zone)} 
+                            onDelete={() => deleteZone(draw, zone)}
                         />
                     ))}
                 </div>

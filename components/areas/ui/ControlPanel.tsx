@@ -32,14 +32,24 @@ export default function Sidebar() {
         });
     }, [draw]);
 
-    function addZone(draw: MaplibreTerradrawControl) {
+    function addZone(draw: MapLibreTerradrawControl) {
         draw.getTerraDrawInstance().setMode('polygon');
         draw.getTerraDrawInstance().on('finish', (e: any) => {
-            const zone: GeoJSON.Feature = e.data;
-            setZones([...zones, zone]);
+            const Feature = getFeatureById(draw,e);
+            console.log(Feature);
         });
 
+    }
 
+    function editZone(draw: MaplibreTerradrawControl) {
+        console.log(draw.getFeatures() );
+
+    }
+
+    function getFeatureById(draw:MaplibreTerradrawControl,id: string) {
+        const features = draw.getFeatures();
+        const feature = features.features.find((feature: any) => feature.id === id);
+        return feature;
     }
 
 
@@ -57,7 +67,7 @@ export default function Sidebar() {
                 <Button onClick={()=>addZone(draw)} className="w-full" variant="default">
                     Agregar Zona
                 </Button>
-                <Button className="w-full" variant="secondary">
+                <Button onClick={()=>editZone(draw)}className="w-full" variant="secondary">
                     Desplazar
                 </Button>
                 <Button className="w-full" variant="secondary">

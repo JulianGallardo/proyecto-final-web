@@ -1,20 +1,19 @@
 // App.jsx
-import React, { use, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MaplibreTerradrawControl } from '@watergis/maplibre-gl-terradraw'
 import '@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css'
 import { useMap } from "@vis.gl/react-maplibre";
 
+
 export default function Sidebar() {
 
     const {mymap} = useMap();
-    const draw = new MaplibreTerradrawControl({
+    const draw: MaplibreTerradrawControl = new MaplibreTerradrawControl({
 	    modes: ['render','point','linestring','polygon','rectangle','circle','freehand','angled-rectangle','sensor','sector','select','delete-selection','delete','download'],
-	    open: false,
-
-        
 	});
+    const [zones, setZones] = useState< GeoJSON.Feature[]>([]);
     
     useEffect(() => {
         console.log(mymap);
@@ -22,6 +21,26 @@ export default function Sidebar() {
         mymap.addControl(draw);
 
     }, [mymap]);
+
+    useEffect(() => {
+        if (!draw || draw === undefined) return;
+        
+        if (draw.getFeatures() === undefined) return;
+
+        draw.getFeatures().features.forEach((feature: any) => {
+            console.log(feature);
+        });
+    }, [draw]);
+
+    function addZone(draw: MaplibreTerradrawControl) {
+        draw.getTerraDrawInstance().setMode('polygon');
+        draw.getTerraDrawInstance().on('finish', (e: any) => {
+            const zone: GeoJSON.Feature = e.data;
+            setZones([...zones, zone]);
+        });
+
+
+    }
 
 
 
@@ -35,7 +54,7 @@ export default function Sidebar() {
 
             {/* Botones de Acción */}
             <div className="flex flex-col gap-4 mb-5">
-                <Button className="w-full" variant="default">
+                <Button onClick={()=>addZone(draw)} className="w-full" variant="default">
                     Agregar Zona
                 </Button>
                 <Button className="w-full" variant="secondary">

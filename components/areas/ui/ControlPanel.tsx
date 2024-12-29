@@ -5,7 +5,7 @@ import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
 import ZoneCard from "./ZoneCard";
-import { get } from "http";
+import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 
 /** Utilidades generales **/
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
@@ -22,7 +22,7 @@ function getRandomColor() {
 }
 
 
-export default function Sidebar() {
+export default function MapControlPanel() {
     const colorCache: Record<string, string> = {};
 
     const { mymap } = useMap();
@@ -68,8 +68,6 @@ export default function Sidebar() {
                     "render",
                     "polygon",
                     "select",
-                    "delete-selection",
-                    "delete",
                     "download",
                 ],
             });
@@ -147,30 +145,27 @@ export default function Sidebar() {
     }, [draw]);
 
     return (
-        <div className="flex flex-col w-1/4 h-full bg-gray-100 shadow-lg p-5">
-            {/* Encabezado */}
-            <div className="mb-5">
-                <h1 className="text-2xl font-bold text-gray-800">Controles</h1>
-            </div>
-
-            {/* Botones de Acción */}
-            <div className="flex flex-col gap-4 mb-5">
-                <Button onClick={addZone} className="w-full" variant="default">
-                    Agregar Zona
-                </Button>
-                <Button onClick={editZone} className="w-full" variant="secondary">
-                    Desplazar
-                </Button>
-                <Button className="w-full" variant="secondary">
-                    Calcular Zona
-                </Button>
-            </div>
+        <Sidebar >
+            <SidebarHeader className="mb-5">
+                {/* Botones de Acción */}
+                <div className="flex flex-col gap-4 mb-5">
+                    <Button onClick={addZone} className="w-full" variant="default">
+                        Agregar Zona
+                    </Button>
+                    <Button onClick={editZone} className="w-full" variant="secondary">
+                        Desplazar
+                    </Button>
+                    <Button className="w-full" variant="secondary">
+                        Calcular Zona
+                    </Button>
+                </div>
+            </SidebarHeader>
 
             {/* Separador */}
             <Separator className="mb-5" />
 
             {/* Listado de Zonas */}
-            <div>
+            <SidebarContent className="flex flex-col gap-5 items-center">
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">Zonas</h2>
                 <div className="flex flex-col flex-grow gap-2">
                     {zones.map((zone) => (
@@ -183,7 +178,7 @@ export default function Sidebar() {
                         />
                     ))}
                 </div>
-            </div>
-        </div>
+            </SidebarContent>
+        </Sidebar>
     );
 }

@@ -9,7 +9,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex h-full w-full ">
+    <div className="flex h-full w-full  ">
       <Areas />
     </div>
 

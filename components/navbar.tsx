@@ -22,7 +22,7 @@ export default function Navbar() {
           <Link href="/inicio">
             <Button
               type="button"
-              className="flex flex-col items-center justify-center p-4 gap-2 text-white hover:text-blue-400 hover:bg-gray-800 transition-all duration-300"
+              className="flex flex-col items-center justify-center bg-transparent p-4 gap-2 text-white hover:text-blue-400 hover:bg-transparent transition-all duration-300"
             >
               <Home className="w-8 h-8" />
               <span className="text-sm">Inicio</span>

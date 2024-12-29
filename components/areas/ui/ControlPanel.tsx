@@ -5,6 +5,7 @@ import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
 import ZoneCard from "./ZoneCard";
+import { get } from "http";
 
 /** Utilidades generales **/
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
@@ -27,6 +28,37 @@ export default function Sidebar() {
     const { mymap } = useMap();
     const [zones, setZones] = useState<GeoJSON.Feature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
+
+
+
+    // Function to compute a new color based on a key
+    function computeColor(key: string): string {
+        // Simple example: generate a color based on the key's hash code
+        let hash = 0;
+        for (let i = 0; i < key.length; i++) {
+            hash = key.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const color = `#${((hash >> 24) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 16) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 8) & 0xFF).toString(16).padStart(2, '0')}`;
+        return color;
+    }
+
+    // Function to get a color, using the cache
+    function getColor(key: string): string {
+        // Check if the color is already in the cache
+        if (colorCache[key]) {
+            return colorCache[key];
+        }
+
+        // If not in the cache, compute the color
+        const color = computeColor(key);
+
+        // Store the computed color in the cache
+        colorCache[key] = color;
+
+        return color;
+    }
+
+
 
     // Inicializar TerraDraw
     useEffect(() => {
@@ -56,14 +88,10 @@ export default function Sidebar() {
                 const handleFinish = (e: any) => {
                     const Feature = getFeatureById(draw, e);
                     if (Feature) {
-                        if (Feature.id){
-                            Feature.properties.color = colorCache[Feature.id];
-                            console.log(Feature.id);
-                            console.log(colorCache);
+                        if (Feature.id) {
+                            Feature.properties.color = getColor(`"${Feature.id}"`);
                         }
 
-                            
-                        console.log(Feature);
                         setZones((prevZones) => [...prevZones, Feature]);
 
                         terraDrawInstance.setMode("render");
@@ -87,12 +115,10 @@ export default function Sidebar() {
 
             terraDrawInstance?.setModeStyles("polygon", {
                 fillColor: ({ id }) => {
-                    // Get the color from the cache or generate a new one
-                    colorCache[id] = colorCache[id] || getRandomColor();
-                    return colorCache[id];
+                    return getColor(`"${id}"`);
                 },
                 outlineColor: ({ id }) => {
-                    return colorCache[id];
+                    return getColor(`"${id}"`);
                 },
 
             });

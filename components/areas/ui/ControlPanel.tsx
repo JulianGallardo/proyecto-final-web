@@ -7,18 +7,8 @@ import { useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import ZoneList from "./ZoneList";
 
-/** Utilidades generales **/
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
     return draw.getFeatures()?.features?.find((feature: any) => feature.id === id);
-}
-
-function getRandomColor() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
 }
 
 
@@ -31,9 +21,7 @@ export default function MapControlPanel() {
 
 
 
-    // Function to compute a new color based on a key
     function computeColor(key: string): string {
-        // Simple example: generate a color based on the key's hash code
         let hash = 0;
         for (let i = 0; i < key.length; i++) {
             hash = key.charCodeAt(i) + ((hash << 5) - hash);
@@ -107,7 +95,7 @@ export default function MapControlPanel() {
     }, [draw]);
 
     /** Funciones de manejo de zonas **/
-    const addZone = useCallback(() => {
+    const addZone = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
 
@@ -124,7 +112,7 @@ export default function MapControlPanel() {
             terraDrawInstance?.setMode("polygon");
 
         }
-    }, [draw]);
+    };
 
     const deleteZone = useCallback(
         (featureToDelete: GeoJSON.Feature) => {
@@ -140,20 +128,24 @@ export default function MapControlPanel() {
         [zones, draw]
     );
 
-    const editZone = useCallback(() => {
-        draw?.getTerraDrawInstance()?.setMode("select");
-    }, [draw]);
+    const editZone = (feautreToEdit: GeoJSON.Feature) => {
+        if (draw) {
+            const terraDrawInstance = draw.getTerraDrawInstance();
+
+            if(feautreToEdit.id === undefined){
+                throw new Error("Feature ID is undefined");
+            }
+            
+            terraDrawInstance?.selectFeature(feautreToEdit.id);
+        }
+    };
 
     return (
         <Sidebar >
-            <SidebarHeader className=" ">
-                {/* Botones de Acción */}
+            <SidebarHeader>
                 <div className="flex flex-col gap-4 mb-5">
                     <Button onClick={addZone} className="w-full" variant="default">
                         Agregar Zona
-                    </Button>
-                    <Button onClick={editZone} className="w-full" variant="secondary">
-                        Desplazar
                     </Button>
                     <Button className="w-full" variant="secondary">
                         Calcular Zona
@@ -161,10 +153,8 @@ export default function MapControlPanel() {
                 </div>
             </SidebarHeader>
 
-            {/* Separador */}
             <Separator className="mb-5" />
 
-            {/* Listado de Zonas */}
             <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
                 <ZoneList zones={zones} onEdit={editZone} onDelete={deleteZone} />
             </SidebarContent>

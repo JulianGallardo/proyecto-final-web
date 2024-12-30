@@ -4,8 +4,8 @@ import { Separator } from "@/components/ui/separator";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
-import ZoneCard from "./ZoneCard";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
+import ZoneList from "./ZoneList";
 
 /** Utilidades generales **/
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
@@ -166,18 +166,7 @@ export default function MapControlPanel() {
 
             {/* Listado de Zonas */}
             <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
-                <h2 className="text-xl font-semibold text-gray-800 mb-3">Zonas</h2>
-                <div className="flex flex-col flex-grow gap-2">
-                    {zones.map((zone) => (
-                        <ZoneCard
-                            key={zone.id as string}
-                            zoneName={zone.properties?.name || "Zona"}
-                            Feature={zone}
-                            onEdit={editZone}
-                            onDelete={() => deleteZone(zone)}
-                        />
-                    ))}
-                </div>
+                <ZoneList zones={zones} onEdit={editZone} onDelete={deleteZone} />
             </SidebarContent>
         </Sidebar>
     );

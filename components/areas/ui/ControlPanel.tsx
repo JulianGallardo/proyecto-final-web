@@ -139,6 +139,7 @@ export default function MapControlPanel() {
                             }
     
                             terraDrawInstance.setMode("render");
+                            setMode("Sin seleccionar");
                         }
                     }
 

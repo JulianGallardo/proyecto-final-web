@@ -19,8 +19,8 @@ export default function PanelHeader({ onEdit, addZone, mode,saveChanges }: Panel
                 <h4 className="text-sm text-gray-500">Administra las zonas de tu área</h4>
             </div>
 
-            <div className="w-full  bg-gray-200 p-2 rounded-lg text-sm text-gray-500">
-                Modo: {mode}
+            <div className="w-full  bg-gray-200 p-2 rounded-lg text-sm text-center font">
+                <p>Modo: {mode}</p>
             </div>
 
             <div className="flex flex-row gap-5">

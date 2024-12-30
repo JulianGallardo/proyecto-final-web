@@ -6,8 +6,10 @@ import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import ZoneList from "./ZoneList";
-import { set } from "zod";
-import { Feature } from "maplibre-gl";
+import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
+
+
+type HexColorStyling = `#${string}`;
 
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
     return draw.getFeatures()?.features?.find((feature: any) => feature.id === id);
@@ -15,7 +17,7 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 
 export default function MapControlPanel() {
-    const colorCache: Record<string, string> = {};
+    const colorCache: Record<string, HexColorStyling> = {};
 
     const { mymap } = useMap();
     const [zones, setZones] = useState<GeoJSON.Feature[]>([]); // Estado de zonas
@@ -23,17 +25,17 @@ export default function MapControlPanel() {
 
 
 
-    function computeColor(key: string): string {
+    function computeColor(key: string): HexColorStyling {
         let hash = 0;
         for (let i = 0; i < key.length; i++) {
             hash = key.charCodeAt(i) + ((hash << 5) - hash);
         }
-        const color = `#${((hash >> 24) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 16) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 8) & 0xFF).toString(16).padStart(2, '0')}`;
+        const color = `#${((hash >> 24) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 16) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 8) & 0xFF).toString(16).padStart(2, '0')}` as HexColorStyling;
         return color;
     }
 
     // Function to get a color, using the cache
-    function getColor(key: string): string {
+    function getColor(key: string): HexColorStyling  {
         // Check if the color is already in the cache
         if (colorCache[key]) {
             return colorCache[key];
@@ -60,7 +62,43 @@ export default function MapControlPanel() {
                     "select",
                     "download",
                 ],
+                modeOptions: {
+                    select: new TerraDrawSelectMode({
+                        allowManualDeselection: false,
+                        
+                        flags: {
+                            
+                            polygon: {
+
+                                feature: {
+                                    draggable: false,
+                                    rotateable: false,
+                                    scaleable: true,
+                                    coordinates: {
+                                        midpoints: true,
+                                        draggable: true,
+                                        deletable: false
+                                    }
+                                }
+
+                            }
+                        }
+                    }),
+                    polygon: new TerraDrawPolygonMode({
+                        styles: {
+                            fillColor: ({ id }) => {
+                                return getColor(`"${id}"`);
+                            },
+                            outlineColor: ({ id }) => {
+                                return getColor(`"${id}"`);
+                            },
+                        }
+                        
+                    }),
+                }
             });
+        
+
 
             mymap.addControl(newDraw); // Agregar el control al mapa
             setDraw(newDraw); // Guardar el controlador en el estado
@@ -101,15 +139,14 @@ export default function MapControlPanel() {
                                 });
                                 return updatedZones;
                             });
-
-                            terraDrawInstance.setMode("render");
-
-                            
                         }
                     }  
                 };
 
                 terraDrawInstance.on("finish",(id,context) => handleFinish(id,context));
+                
+                
+
 
                 return () => {
                     terraDrawInstance.off("finish", handleFinish);
@@ -122,17 +159,6 @@ export default function MapControlPanel() {
     const addZone = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
-
-            terraDrawInstance?.setModeStyles("polygon", {
-                fillColor: ({ id }) => {
-                    return getColor(`"${id}"`);
-                },
-                outlineColor: ({ id }) => {
-                    return getColor(`"${id}"`);
-                },
-
-            });
-
             terraDrawInstance?.setMode("polygon");
 
         }
@@ -161,6 +187,9 @@ export default function MapControlPanel() {
             }
             
             terraDrawInstance?.selectFeature(feautreToEdit.id);
+
+            
+
         }
     };
 

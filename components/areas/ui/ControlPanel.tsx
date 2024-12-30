@@ -11,6 +11,13 @@ import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 
 type HexColorStyling = `#${string}`;
 
+export interface CustomFeature extends GeoJSON.Feature {
+    id: string;
+    properties: {
+        color: HexColorStyling;
+    };
+}
+
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
     return draw.getFeatures()?.features?.find((feature: any) => feature.id === id);
 }
@@ -18,9 +25,8 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 export default function MapControlPanel() {
     const colorCache: Record<string, HexColorStyling> = {};
-
     const { mymap } = useMap();
-    const [zones, setZones] = useState<GeoJSON.Feature[]>([]); // Estado de zonas
+    const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
 
 
@@ -67,7 +73,6 @@ export default function MapControlPanel() {
                         allowManualDeselection: false,
                         
                         flags: {
-                            
                             polygon: {
 
                                 feature: {
@@ -77,12 +82,13 @@ export default function MapControlPanel() {
                                     coordinates: {
                                         midpoints: true,
                                         draggable: true,
-                                        deletable: false
-                                    }
+                                        deletable: true,
+                                    },
+                                    selfIntersectable: false,
                                 }
 
                             }
-                        }
+                        },
                     }),
                     polygon: new TerraDrawPolygonMode({
                         styles: {
@@ -92,7 +98,8 @@ export default function MapControlPanel() {
                             outlineColor: ({ id }) => {
                                 return getColor(`"${id}"`);
                             },
-                        }
+                        },
+
                         
                     }),
                 }
@@ -120,9 +127,12 @@ export default function MapControlPanel() {
                         if (Feature) {
                             if (Feature.id) {
                                 Feature.properties.color = getColor(`"${Feature.id}"`);
+                                Feature.properties.editable = false;
                             }
     
-                            setZones((prevZones) => [...prevZones, Feature]);
+                            if (Feature && Feature.id) {
+                                setZones((prevZones) => [...prevZones, Feature as CustomFeature]);
+                            }
     
                             terraDrawInstance.setMode("render");
                         }
@@ -133,7 +143,7 @@ export default function MapControlPanel() {
                             setZones((prevZones) => {
                                 const updatedZones = prevZones.map((zone) => {
                                     if (zone.id === Feature.id) {
-                                        return Feature;
+                                        return Feature as CustomFeature;
                                     }
                                     return zone;
                                 });
@@ -165,7 +175,7 @@ export default function MapControlPanel() {
     };
 
     const deleteZone = useCallback(
-        (featureToDelete: GeoJSON.Feature) => {
+        (featureToDelete: CustomFeature) => {
             if (draw) {
                 const updatedZones = zones.filter((zone) => zone.id !== featureToDelete.id);
                 setZones(updatedZones);
@@ -178,17 +188,15 @@ export default function MapControlPanel() {
         [zones, draw]
     );
 
-    const editZone = (feautreToEdit: GeoJSON.Feature) => {
+    const editZone = (featureToEdit: CustomFeature) => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
 
-            if(feautreToEdit.id === undefined){
+            if(featureToEdit.id === undefined){
                 throw new Error("Feature ID is undefined");
             }
             
-            terraDrawInstance?.selectFeature(feautreToEdit.id);
-
-            
+            terraDrawInstance?.selectFeature(featureToEdit.id);
 
         }
     };
@@ -199,9 +207,6 @@ export default function MapControlPanel() {
                 <div className="flex flex-col gap-4 mb-5">
                     <Button onClick={addZone} className="w-full" variant="default">
                         Agregar Zona
-                    </Button>
-                    <Button className="w-full" variant="secondary">
-                        Calcular Zona
                     </Button>
                 </div>
             </SidebarHeader>

@@ -1,10 +1,11 @@
 import ZoneCard from "@/components/areas/ui/ZoneCard";
+import { CustomFeature } from "./ControlPanel";
 
 
 interface ZoneListProps {
-    zones: GeoJSON.Feature[];
-    onEdit: (zone: GeoJSON.Feature) => void;
-    onDelete: (zone: GeoJSON.Feature) => void;
+    zones: CustomFeature[];
+    onEdit: (zone: CustomFeature) => void;
+    onDelete: (zone: CustomFeature) => void;
 }
 
 
@@ -17,7 +18,7 @@ export default function ZoneList({ zones, onEdit, onDelete }: ZoneListProps) {
                 {zones.map((zone) => (
                     <ZoneCard
                         key={zone.id as string}
-                        zoneName={zone.properties?.name || "Zona"}
+                        zoneName={ "Zona"}
                         Feature={zone}
                         onEdit={() => onEdit(zone)}
                         onDelete={() => onDelete(zone)}

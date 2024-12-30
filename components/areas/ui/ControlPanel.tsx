@@ -146,7 +146,7 @@ export default function MapControlPanel() {
 
     return (
         <Sidebar >
-            <SidebarHeader className="mb-5">
+            <SidebarHeader className=" ">
                 {/* Botones de Acción */}
                 <div className="flex flex-col gap-4 mb-5">
                     <Button onClick={addZone} className="w-full" variant="default">
@@ -165,7 +165,7 @@ export default function MapControlPanel() {
             <Separator className="mb-5" />
 
             {/* Listado de Zonas */}
-            <SidebarContent className="flex flex-col gap-5 items-center">
+            <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
                 <h2 className="text-xl font-semibold text-gray-800 mb-3">Zonas</h2>
                 <div className="flex flex-col flex-grow gap-2">
                     {zones.map((zone) => (

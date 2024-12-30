@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import { Trash, Pencil } from "@mynaui/icons-react";
+import { Button } from "@/components/ui/button"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface ZoneCardProps {
     zoneName: string;
@@ -18,7 +25,7 @@ export default function ZoneCard({ zoneName, Feature, onEdit, onDelete }: ZoneCa
     }, [properties?.color]);
 
     return (
-        <div className="flex flex-row items-center justify-between p-5 shadow-lg border border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow w-full">
+        <div className="flex flex-row items-center justify-between gap-4 p-3 shadow-lg border border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow w-full">
             {/* Nombre de la zona e indicador de color */}
             <div className="flex items-center space-x-3">
                 <span className="text-lg font-bold text-gray-800 sm:text-base">{zoneName}</span>
@@ -29,20 +36,31 @@ export default function ZoneCard({ zoneName, Feature, onEdit, onDelete }: ZoneCa
             </div>
 
             {/* Botones de acción */}
-            <div className="flex space-x-3">
-                <button
-                    onClick={onEdit}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300 transition sm:px-2 sm:py-1 sm:text-sm"
-                >
-                    Editar
-                </button>
-                <button
-                    onClick={onDelete}
-                    className="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300 transition sm:px-2 sm:py-1 sm:text-sm"
-                >
-                    Borrar
-                </button>
+            <div className="flex gap-5 w-full">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button className="bg-blue-500 hover:bg-blue-800"   onClick={onEdit}>
+                            <Pencil />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Editar zona</p>
+                    </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button  className="bg-red-500 hover:bg-red-800" onClick={onDelete}>
+                            <Trash />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Borrar Zona</p>
+                    </TooltipContent>
+                </Tooltip>
+
+
             </div>
-        </div>
+        </div >
     );
 }

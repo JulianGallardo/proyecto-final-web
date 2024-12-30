@@ -10,11 +10,10 @@ import {
 interface ZoneCardProps {
     zoneName: string;
     Feature: GeoJSON.Feature;
-    onEdit: () => void;
     onDelete: () => void;
 }
 
-export default function ZoneCard({ zoneName, Feature, onEdit, onDelete }: ZoneCardProps) {
+export default function ZoneCard({ zoneName, Feature, onDelete }: ZoneCardProps) {
     const { properties } = Feature;
     const [zoneColor, setZoneColor] = useState<string>(properties?.color || "#FFFFFF");
 
@@ -39,12 +38,12 @@ export default function ZoneCard({ zoneName, Feature, onEdit, onDelete }: ZoneCa
             <div className="flex gap-5 w-full">
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Button className="bg-blue-500 hover:bg-blue-800"   onClick={onEdit}>
+                        <Button className="bg-blue-500 hover:bg-blue-800" >
                             <Pencil />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Editar zona</p>
+                        <p>Renombrar zona</p>
                     </TooltipContent>
                 </Tooltip>
 

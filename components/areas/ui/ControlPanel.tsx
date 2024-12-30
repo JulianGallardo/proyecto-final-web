@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
@@ -7,6 +6,8 @@ import { useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import ZoneList from "./ZoneList";
 import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
+import PanelHeader from "./PanelHeader";
+import { set } from "zod";
 
 
 type HexColorStyling = `#${string}`;
@@ -21,6 +22,8 @@ export interface CustomFeature extends GeoJSON.Feature {
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
     return draw.getFeatures()?.features?.find((feature: any) => feature.id === id);
 }
+type DrawingModes = "Sin seleccionar" | "Dibujando zona" | "Editando Zonas" ;
+
 
 
 export default function MapControlPanel() {
@@ -28,7 +31,7 @@ export default function MapControlPanel() {
     const { mymap } = useMap();
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
-
+    const [mode, setMode] = useState<DrawingModes>("Sin seleccionar"); // Estado para el modo de dibujo
 
 
     function computeColor(key: string): HexColorStyling {
@@ -89,6 +92,7 @@ export default function MapControlPanel() {
 
                             }
                         },
+
                     }),
                     polygon: new TerraDrawPolygonMode({
                         styles: {
@@ -155,7 +159,6 @@ export default function MapControlPanel() {
 
                 terraDrawInstance.on("finish",(id,context) => handleFinish(id,context));
                 
-                
 
 
                 return () => {
@@ -170,6 +173,7 @@ export default function MapControlPanel() {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
             terraDrawInstance?.setMode("polygon");
+            setMode("Dibujando zona");
 
         }
     };
@@ -188,33 +192,32 @@ export default function MapControlPanel() {
         [zones, draw]
     );
 
-    const editZone = (featureToEdit: CustomFeature) => {
+    const editZone = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
+            terraDrawInstance?.setMode("select");
+            setMode("Editando Zonas");
+        }
+    };
 
-            if(featureToEdit.id === undefined){
-                throw new Error("Feature ID is undefined");
-            }
-            
-            terraDrawInstance?.selectFeature(featureToEdit.id);
-
+    const saveEdits = () => {
+        if (draw) {
+            const terraDrawInstance = draw.getTerraDrawInstance();
+            terraDrawInstance?.setMode("render");
+            setMode("Sin seleccionar");
         }
     };
 
     return (
         <Sidebar >
             <SidebarHeader>
-                <div className="flex flex-col gap-4 mb-5">
-                    <Button onClick={addZone} className="w-full" variant="default">
-                        Agregar Zona
-                    </Button>
-                </div>
+                <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveChanges={saveEdits}/>
             </SidebarHeader>
 
             <Separator className="mb-5" />
 
             <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
-                <ZoneList zones={zones} onEdit={editZone} onDelete={deleteZone} />
+                <ZoneList zones={zones} onDelete={deleteZone} />
             </SidebarContent>
         </Sidebar>
     );

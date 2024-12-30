@@ -8,6 +8,7 @@ import ZoneList from "./ZoneList";
 import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { set } from "zod";
+import { AddZoneDialog } from "./NewZoneDialog";
 
 
 type HexColorStyling = `#${string}`;
@@ -32,6 +33,7 @@ export default function MapControlPanel() {
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
     const [mode, setMode] = useState<DrawingModes>("Sin seleccionar"); // Estado para el modo de dibujo
+    const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
 
 
     function computeColor(key: string): HexColorStyling {
@@ -173,6 +175,8 @@ export default function MapControlPanel() {
     const addZone = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
+
+            setNewZoneDialogOpen(true);
             terraDrawInstance?.setMode("polygon");
             setMode("Dibujando zona");
 
@@ -213,6 +217,7 @@ export default function MapControlPanel() {
         <Sidebar >
             <SidebarHeader>
                 <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveChanges={saveEdits}/>
+                <AddZoneDialog open={newZoneDialogOpen} setOpen={setNewZoneDialogOpen}/>
             </SidebarHeader>
 
             <Separator className="mb-5" />

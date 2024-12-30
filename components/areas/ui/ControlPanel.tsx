@@ -6,6 +6,8 @@ import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar";
 import ZoneList from "./ZoneList";
+import { set } from "zod";
+import { Feature } from "maplibre-gl";
 
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
     return draw.getFeatures()?.features?.find((feature: any) => feature.id === id);
@@ -71,22 +73,44 @@ export default function MapControlPanel() {
             const terraDrawInstance = draw.getTerraDrawInstance();
 
             if (terraDrawInstance) {
-                const handleFinish = (e: any) => {
-                    const Feature = getFeatureById(draw, e);
-                    if (Feature) {
-                        if (Feature.id) {
-                            Feature.properties.color = getColor(`"${Feature.id}"`);
+                const handleFinish = (id:any, context: { action: string, mode: string }) => {
+                    const parsedId = id as string;
+                    const Feature = getFeatureById(draw, parsedId);
+                    const {action,mode} = context;
+
+                    if(action === "draw" && mode === "polygon"){
+                        if (Feature) {
+                            if (Feature.id) {
+                                Feature.properties.color = getColor(`"${Feature.id}"`);
+                            }
+    
+                            setZones((prevZones) => [...prevZones, Feature]);
+    
+                            terraDrawInstance.setMode("render");
                         }
-
-                        setZones((prevZones) => [...prevZones, Feature]);
-
-                        terraDrawInstance.setMode("render");
                     }
+
+                    else if(action === "draw" && mode === "select") {
+                        if (Feature) {
+                            setZones((prevZones) => {
+                                const updatedZones = prevZones.map((zone) => {
+                                    if (zone.id === Feature.id) {
+                                        return Feature;
+                                    }
+                                    return zone;
+                                });
+                                return updatedZones;
+                            });
+
+                            terraDrawInstance.setMode("render");
+
+                            
+                        }
+                    }  
                 };
 
-                terraDrawInstance.on("finish", handleFinish);
+                terraDrawInstance.on("finish",(id,context) => handleFinish(id,context));
 
-                // Cleanup del evento al desmontar
                 return () => {
                     terraDrawInstance.off("finish", handleFinish);
                 };

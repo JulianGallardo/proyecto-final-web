@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { addNewZoneSchema } from "@/lib/zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, UseFormReturn } from "react-hook-form"
 import { z } from "zod"
 import {
     Form,
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CustomFeature } from "@/types/MapTypes"
+import { useEffect, useState } from "react"
 
 interface NewZoneFormProps {
     manageDialog: (open: boolean) => void
@@ -21,30 +22,49 @@ interface NewZoneFormProps {
 }
 
 export default function EditZoneForm({ manageDialog, onDialogSubmit }: NewZoneFormProps) {
-    const zonesLocalStorage = JSON.parse(window.localStorage.getItem("zones") || "[]")
-    const zoneLocalStorage:CustomFeature= zonesLocalStorage[0];
-    if (!zoneLocalStorage)
-        throw new Error("No se encontró la zona");
-
+    const [zoneLocalStorage, setZoneLocalStorage] = useState<CustomFeature | null>(null);
 
     const form = useForm<z.infer<typeof addNewZoneSchema>>({
         resolver: zodResolver(addNewZoneSchema),
         defaultValues: {
-            zoneName: zoneLocalStorage.properties.name,
-            zoneColor: zoneLocalStorage.properties.color,
+            zoneName: zoneLocalStorage?.properties.name,
+            zoneColor: zoneLocalStorage?.properties.color,
             colorOption: "chosen", // Default option is "chosen"
         },
     })
 
+    useEffect(() => {
+        const zonesLocalStorage = JSON.parse(window.localStorage.getItem("zones") || "[]");
+        if (zonesLocalStorage.length === 0) {
+            return;
+        }
+
+        const zone: CustomFeature = zonesLocalStorage[0];
+        setZoneLocalStorage(zone)
+        form.setValue("zoneName", zone.properties.name)
+        form.setValue("zoneColor", zone.properties.color)
+        window.localStorage.removeItem("zones");
+    }, [window.localStorage.getItem("zones")
+    ])
+
+
+
     function registerZone(zone: z.infer<typeof addNewZoneSchema>) {
         const zones = JSON.parse(window.localStorage.getItem("zones") || "[]")
-        
-        const newZone:CustomFeature = zoneLocalStorage;
-        newZone.properties.name = zone.zoneName
-        newZone.properties.color = `#${zone.zoneColor.replace(/^#/, '')}`
 
+        if (zoneLocalStorage === null) {
+            throw new Error("La zona es nula");
+        }
+        const newZone: CustomFeature = {
+            id: zoneLocalStorage.id,
+            type: "Feature",
+            properties: {
+                name: zone.zoneName,
+                color: `#${zone.zoneColor.replace(/^#/, '')}`,
+            },
+            geometry: zoneLocalStorage.geometry
 
-
+        }
         zones.push(newZone)
         window.localStorage.setItem("zones", JSON.stringify(zones))
     }
@@ -55,6 +75,7 @@ export default function EditZoneForm({ manageDialog, onDialogSubmit }: NewZoneFo
     }
 
     return (
+        zoneLocalStorage &&
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 {/* Campo para el nombre de la zona */}

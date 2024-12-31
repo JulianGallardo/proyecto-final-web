@@ -10,11 +10,11 @@ interface AddZoneDialogProps {
 
 
 
-export function EditZoneDialog({ open, setOpen, onDialogSubmit}: AddZoneDialogProps) { 
+export function EditZoneDialog({ open, setOpen, onDialogSubmit }: AddZoneDialogProps) {
     return (
-        <ZoneDialog 
+        <ZoneDialog
             title="Editar Zona"
             description="Edita la zona de tu área"
-        open={open} setOpen={setOpen} onDialogSubmit={onDialogSubmit} Form={EditZoneForm} />
+            open={open} setOpen={setOpen} onDialogSubmit={onDialogSubmit} Form={EditZoneForm} />
     )
 }

@@ -26,7 +26,7 @@ export default function MapControlPanel() {
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
-    
+
     const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
     const [editingZoneDialogOpen, setEditingZoneDialogOpen] = useState(false); // Estado para el dialogo de edición de zona
 
@@ -47,13 +47,28 @@ export default function MapControlPanel() {
 
     function onZoneEdit(zone: CustomFeature) {
         writeZoneInfoToLocalStorage(zone);
-        console.log(zone);
+        console.log("escrito");
         setEditingZoneDialogOpen(true);
 
     }
 
     function onEditZoneDialogSubmit() {
+        const zoneLocalStorage:CustomFeature = getZoneInfoFromLocalStorage();
+        setZones((prevZones) => {
+            const updatedZones = prevZones.map((zone:CustomFeature) => {
+                if (zone.id === zoneLocalStorage.id) {
+                    return zoneLocalStorage;
+                }
+                return zone;
+            });
+            return updatedZones;
+        });
+        colorCache[`"${zoneLocalStorage.id}"`] = zoneLocalStorage.properties.color;
+        console.log("Zona actualizada");
+        console.log(zoneLocalStorage);
+        
         setEditingZoneDialogOpen(false);
+
     }
 
 
@@ -76,7 +91,7 @@ export default function MapControlPanel() {
         setNewZoneDialogOpen(false);
     }
 
-    
+
 
 
     function getZoneInfoFromLocalStorage() {
@@ -299,7 +314,7 @@ export default function MapControlPanel() {
                 <SidebarHeader>
                     <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
                     <AddZoneDialog open={newZoneDialogOpen} setOpen={changeNewZoneDialogState} onDialogSubmit={onNewZoneDialogSubmit} />
-                    <EditZoneDialog open={editingZoneDialogOpen} setOpen={setEditingZoneDialogOpen} onDialogSubmit={onNewZoneDialogSubmit} />
+                    <EditZoneDialog open={editingZoneDialogOpen} setOpen={setEditingZoneDialogOpen} onDialogSubmit={onEditZoneDialogSubmit} />
                 </SidebarHeader>
 
                 <Separator className="mb-5" />

@@ -15,7 +15,6 @@ export function AddZoneDialog({ open, setOpen, onDialogSubmit }: AddZoneDialogPr
         <ZoneDialog
             title="Nueva Zona"
             description="Crea una nueva zona para tu área"
-
             open={open} setOpen={setOpen} onDialogSubmit={onDialogSubmit} Form={NewZoneForm} />
     )
 }

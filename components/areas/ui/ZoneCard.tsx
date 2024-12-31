@@ -11,9 +11,10 @@ interface ZoneCardProps {
     zoneName: string;
     Feature: GeoJSON.Feature;
     onDelete: () => void;
+    editing: boolean;
 }
 
-export default function ZoneCard({ zoneName, Feature, onDelete }: ZoneCardProps) {
+export default function ZoneCard({ zoneName, Feature, onDelete, editing }: ZoneCardProps) {
     const { properties } = Feature;
     const [zoneColor, setZoneColor] = useState<string>(properties?.color || "#FFFFFF");
 
@@ -26,40 +27,41 @@ export default function ZoneCard({ zoneName, Feature, onDelete }: ZoneCardProps)
     return (
         <div className="flex flex-row items-center justify-between gap-4 p-3 shadow-lg border border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow w-full">
             {/* Nombre de la zona e indicador de color */}
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-row items-center justify-between gap-2 w-full">
                 <span className="text-lg font-bold text-gray-800 sm:text-base">{zoneName}</span>
                 <span
-                    className="w-6 h-6 sm:w-4 sm:h-4 rounded-full border border-gray-300"
+                    className="w-8 h-8 sm:w-6 sm:h-6 rounded-full border border-gray-300"
                     style={{ backgroundColor: zoneColor }}
                 ></span>
             </div>
 
-            {/* Botones de acción */}
-            <div className="flex gap-5 w-full">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button className="bg-blue-500 hover:bg-blue-800" >
-                            <Pencil />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>Renombrar zona</p>
-                    </TooltipContent>
-                </Tooltip>
+            {   editing &&
+                <div className="flex gap-4 w-full">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button className="bg-blue-500 hover:bg-blue-800" >
+                                <Pencil />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Renombrar zona</p>
+                        </TooltipContent>
+                    </Tooltip>
 
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button  className="bg-red-500 hover:bg-red-800" onClick={onDelete}>
-                            <Trash />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>Borrar Zona</p>
-                    </TooltipContent>
-                </Tooltip>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button className="bg-red-500 hover:bg-red-800" onClick={onDelete}>
+                                <Trash />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Borrar Zona</p>
+                        </TooltipContent>
+                    </Tooltip>
 
 
-            </div>
+                </div>
+            }
         </div >
     );
 }

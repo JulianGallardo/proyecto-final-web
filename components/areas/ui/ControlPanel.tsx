@@ -276,7 +276,7 @@ export default function MapControlPanel() {
                 <Separator className="mb-5" />
 
                 <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
-                    <ZoneList zones={zones} onDelete={deleteZone} />
+                    <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo}/>
                 </SidebarContent>
             </Sidebar>
 

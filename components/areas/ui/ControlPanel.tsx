@@ -36,6 +36,12 @@ export default function MapControlPanel() {
     const [mode, setMode] = useState<DrawingModes>("Sin seleccionar"); // Estado para el modo de dibujo
     const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
     const [finishedLoading, setFinishedLoading] = useState(false);
+    const [editingZonesInfo, setEditingZonesInfo] = useState(false);
+
+    function changeEditingState(state:boolean) {
+        setEditingZonesInfo(state);
+        console.log("click");
+    }
 
 
     function getZoneInfoFromLocalStorage() {
@@ -247,7 +253,8 @@ export default function MapControlPanel() {
         <div className="flex flex-row w-full h-full ">
             <Sidebar >
                 <SidebarHeader>
-                    <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveChanges={saveEdits} />
+
+                    <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveChanges={saveEdits} editing={editingZonesInfo}  setEditing={changeEditingState}/>
                     <AddZoneDialog open={newZoneDialogOpen} setOpen={setNewZoneDialogOpen} />
                 </SidebarHeader>
 

@@ -40,7 +40,6 @@ export default function MapControlPanel() {
 
     function changeEditingState(state:boolean) {
         setEditingZonesInfo(state);
-        console.log("click");
     }
 
 
@@ -248,13 +247,18 @@ export default function MapControlPanel() {
         }
     };
 
+    const saveChanges = () => {
+        changeEditingState(false);
+        setMode("Sin seleccionar");
+    }
+
     return (
         mymap && draw && finishedLoading &&
         <div className="flex flex-row w-full h-full ">
             <Sidebar >
                 <SidebarHeader>
 
-                    <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveChanges={saveEdits} editing={editingZonesInfo}  setEditing={changeEditingState}/>
+                    <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo}  setEditing={changeEditingState}/>
                     <AddZoneDialog open={newZoneDialogOpen} setOpen={setNewZoneDialogOpen} />
                 </SidebarHeader>
 

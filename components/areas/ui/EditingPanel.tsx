@@ -4,12 +4,13 @@ import { Pencil, Plus, Save } from "@mynaui/icons-react";
 
 interface EditingPanelProps {
     onEdit: () => void;
+    saveZoneEdits: () => void;
     saveChanges: () => void;
     addZone: () => void;
     mode: string;
 }
 
-export default function EditingPanel({ onEdit, addZone, mode, saveChanges }: EditingPanelProps) {
+export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, saveChanges }: EditingPanelProps) {
     return (
         <div className="flex flex-col w-full   gap-5 items-center justify-center">
             <div className="w-full  bg-gray-200 p-2 rounded-lg text-sm text-center font">
@@ -21,7 +22,7 @@ export default function EditingPanel({ onEdit, addZone, mode, saveChanges }: Edi
                     mode === "Sin seleccionar" &&
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button onClick={saveChanges} className="bg-gray-500 hover:bg-gray-800">
+                            <Button onClick={()=>saveChanges()} className="bg-gray-500 hover:bg-gray-800">
                                 <Save />
                             </Button>
                         </TooltipTrigger>
@@ -44,7 +45,7 @@ export default function EditingPanel({ onEdit, addZone, mode, saveChanges }: Edi
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button className="bg-blue-500 hover:bg-blue-800" onClick={
-                            mode === "Editando Zonas" ? saveChanges : onEdit
+                            mode === "Editando Zonas" ? saveZoneEdits : onEdit
                         }>
                             {
                                 mode === "Editando Zonas" ? <Save /> : <Pencil />

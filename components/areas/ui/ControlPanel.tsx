@@ -8,6 +8,7 @@ import ZoneList from "./ZoneList";
 import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "./NewZoneDialog";
+import { boolean } from "zod";
 
 
 type HexColorStyling = `#${string}`;
@@ -40,6 +41,15 @@ export default function MapControlPanel() {
 
     function changeEditingState(state:boolean) {
         setEditingZonesInfo(state);
+    }
+
+    function changeDialogState(state:boolean) {
+        if (!state){
+            const terraDrawInstance = draw?.getTerraDrawInstance();
+            terraDrawInstance?.setMode("render");
+            setMode("Sin seleccionar");
+        }
+        setNewZoneDialogOpen(state);
     }
 
 
@@ -259,7 +269,7 @@ export default function MapControlPanel() {
                 <SidebarHeader>
 
                     <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo}  setEditing={changeEditingState}/>
-                    <AddZoneDialog open={newZoneDialogOpen} setOpen={setNewZoneDialogOpen} />
+                    <AddZoneDialog open={newZoneDialogOpen} setOpen={changeDialogState} />
                 </SidebarHeader>
 
                 <Separator className="mb-5" />

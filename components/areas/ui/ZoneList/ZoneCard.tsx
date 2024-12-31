@@ -12,9 +12,10 @@ interface ZoneCardProps {
     Feature: GeoJSON.Feature;
     onDelete: () => void;
     editing: boolean;
+    onEdit: () => void;
 }
 
-export default function ZoneCard({ zoneName, Feature, onDelete, editing }: ZoneCardProps) {
+export default function ZoneCard({ zoneName, Feature, onDelete, editing , onEdit}: ZoneCardProps) {
     const { properties } = Feature;
     const [zoneColor, setZoneColor] = useState<string>(properties?.color || "#FFFFFF");
 
@@ -45,7 +46,7 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing }: ZoneC
                     {/* Botón Renombrar */}
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button className="bg-blue-500 hover:bg-blue-800">
+                            <Button className="bg-blue-500 hover:bg-blue-800" onClick={onEdit}>
                                 <Pencil />
                             </Button>
                         </TooltipTrigger>

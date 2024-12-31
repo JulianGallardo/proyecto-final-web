@@ -1,16 +1,17 @@
-import ZoneCard from "@/components/areas/ui/ZoneCard";
+import ZoneCard from "@/components/areas/ui/ZoneList/ZoneCard";
 import { CustomFeature } from "@/types/MapTypes";
 
 
 interface ZoneListProps {
     zones: CustomFeature[];
     onDelete: (zone: CustomFeature) => void;
+    onEdit: (zone: CustomFeature) => void;
     editing: boolean;
 }
 
 
 
-export default function ZoneList({ zones, onDelete,editing}: ZoneListProps) {
+export default function ZoneList({ zones, onDelete,editing, onEdit}: ZoneListProps) {
     return (
         <div className="flex flex-col gap-5 items-center w-full  ">
             
@@ -22,6 +23,7 @@ export default function ZoneList({ zones, onDelete,editing}: ZoneListProps) {
                         Feature={zone}
                         onDelete={() => onDelete(zone)}
                         editing={editing}
+                        onEdit={() => onEdit(zone)}
                     />
                 ))}
             </div>

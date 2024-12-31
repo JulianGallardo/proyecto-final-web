@@ -4,11 +4,12 @@ import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar";
-import ZoneList from "./ZoneList";
+import ZoneList from "../ZoneList/ZoneList";
 import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
-import { AddZoneDialog } from "./NewZoneDialog";
+import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
+import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 
 
 
@@ -25,7 +26,11 @@ export default function MapControlPanel() {
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
+    
     const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
+    const [editingZoneDialogOpen, setEditingZoneDialogOpen] = useState(false); // Estado para el dialogo de edición de zona
+
+
     const [finishedLoading, setFinishedLoading] = useState(false);
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
 
@@ -33,12 +38,28 @@ export default function MapControlPanel() {
         setEditingZonesInfo(state);
     }
 
-    function changeDialogState(state: boolean) {
+    function changeNewZoneDialogState(state: boolean) {
         if (!state) {
             setRenderMode();
         }
         setNewZoneDialogOpen(state);
     }
+
+    function onZoneEdit(zone: CustomFeature) {
+        writeZoneInfoToLocalStorage(zone);
+        console.log(zone);
+        setEditingZoneDialogOpen(true);
+
+    }
+
+    function onEditZoneDialogSubmit() {
+        setEditingZoneDialogOpen(false);
+    }
+
+
+
+
+
 
     function setRenderMode() {
         const terraDrawInstance = draw?.getTerraDrawInstance();
@@ -51,9 +72,11 @@ export default function MapControlPanel() {
 
     }
 
-    function onDialogSubmit() {
+    function onNewZoneDialogSubmit() {
         setNewZoneDialogOpen(false);
     }
+
+    
 
 
     function getZoneInfoFromLocalStorage() {
@@ -69,6 +92,10 @@ export default function MapControlPanel() {
 
     function eraseZoneInfoFromLocalStorage() {
         window.localStorage.removeItem("zones");
+    }
+
+    function writeZoneInfoToLocalStorage(zoneInfo: CustomFeature) {
+        window.localStorage.setItem("zones", JSON.stringify([zoneInfo]));
     }
 
     function getZoneColorFromLocalStorage() {
@@ -230,14 +257,6 @@ export default function MapControlPanel() {
         }
     };
 
-    const cancelAddZone = () => {
-        if (draw) {
-            const terraDrawInstance = draw.getTerraDrawInstance();
-            terraDrawInstance?.setMode("render");
-            setMode(DrawingModes.SinSeleccionar);
-        }
-    }
-
     const deleteZone = useCallback(
         (featureToDelete: CustomFeature) => {
             if (draw) {
@@ -279,13 +298,14 @@ export default function MapControlPanel() {
             <Sidebar >
                 <SidebarHeader>
                     <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
-                    <AddZoneDialog open={newZoneDialogOpen} setOpen={changeDialogState} onDialogSubmit={onDialogSubmit} />
+                    <AddZoneDialog open={newZoneDialogOpen} setOpen={changeNewZoneDialogState} onDialogSubmit={onNewZoneDialogSubmit} />
+                    <EditZoneDialog open={editingZoneDialogOpen} setOpen={setEditingZoneDialogOpen} onDialogSubmit={onNewZoneDialogSubmit} />
                 </SidebarHeader>
 
                 <Separator className="mb-5" />
 
                 <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
-                    <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo} />
+                    <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo} onEdit={onZoneEdit} />
                 </SidebarContent>
             </Sidebar>
 

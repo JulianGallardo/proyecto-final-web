@@ -4,7 +4,7 @@ import * as React from "react";
 import { Map } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useMemo } from "react";
-import Sidebar from "@/components/areas/ui/ControlPanel";
+import Sidebar from "@/components/areas/ui/ControlPanel/ControlPanel";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function Areas() {

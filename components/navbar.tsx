@@ -68,7 +68,7 @@ export default function Navbar() {
             </div>
             <nav className="flex-grow">
               {navItems.map((item) => (
-                <SheetTrigger asChild>
+                <SheetTrigger asChild key={item.label}>
                   <Link
                     key={item.label}
                     href={item.href}

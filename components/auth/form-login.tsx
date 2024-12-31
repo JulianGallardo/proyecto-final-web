@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
-    const [isPending, setIsPending] = useTransition();
+    const [isPending] = useTransition();
     const router = useRouter();
     const [showPassword, setShowPassword] = useState("password");
 

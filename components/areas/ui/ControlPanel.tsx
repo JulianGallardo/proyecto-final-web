@@ -7,12 +7,11 @@ import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger } from "@/compon
 import ZoneList from "./ZoneList";
 import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
-import { set } from "zod";
 import { AddZoneDialog } from "./NewZoneDialog";
-import { get } from "http";
 
 
 type HexColorStyling = `#${string}`;
+type FeatureId = string;
 
 export interface CustomFeature extends GeoJSON.Feature {
     id: string;
@@ -145,7 +144,7 @@ export default function MapControlPanel() {
             const terraDrawInstance = draw.getTerraDrawInstance();
 
             if (terraDrawInstance) {
-                const handleFinish = (id: any, context: { action: string, mode: string }) => {
+                const handleFinish = (id: FeatureId, context: { action: string, mode: string }) => {
                     const parsedId = id as string;
                     const Feature = getFeatureById(draw, parsedId);
                     const { action, mode } = context;
@@ -187,13 +186,16 @@ export default function MapControlPanel() {
                     }
                 };
 
-                terraDrawInstance.on("finish", (id, context) => handleFinish(id, context));
+                terraDrawInstance.on("finish", (id, context) => {
+
+
+                    const parseId = id as string;
+                    handleFinish(parseId, context);
+
+                });
 
 
 
-                return () => {
-                    terraDrawInstance.off("finish", handleFinish);
-                };
             }
         }
     }, [draw]);

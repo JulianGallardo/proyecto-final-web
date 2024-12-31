@@ -5,7 +5,7 @@ import { Map } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useMemo } from "react";
 import Sidebar from "@/components/areas/ui/ControlPanel";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function Areas() {
     const center = useMemo(

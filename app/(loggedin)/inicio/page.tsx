@@ -1,5 +1,4 @@
 import { auth } from "@/auth"
-import BtnLogout from "@/components/auth/btn-logout"
 import Menu from "@/components/inicio/menu"
  
 export default async function HomePage() {

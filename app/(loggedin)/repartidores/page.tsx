@@ -1,6 +1,5 @@
 import { auth } from "@/auth"
 import BtnLogout from "@/components/auth/btn-logout"
-import Navbar from "@/components/navbar"
  
 export default async function HomePage() {
   const session = await auth()

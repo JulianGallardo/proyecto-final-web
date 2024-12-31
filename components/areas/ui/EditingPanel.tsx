@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DrawingModes } from "@/types/MapTypes";
-import { Pencil, Plus, Save } from "@mynaui/icons-react";
+import { Pencil, Plus, Save,XOctagon  } from "@mynaui/icons-react";
 
 interface EditingPanelProps {
     onEdit: () => void;
@@ -9,9 +9,10 @@ interface EditingPanelProps {
     saveChanges: () => void;
     addZone: () => void;
     mode: DrawingModes;
+    setRenderMode: () => void;
 }
 
-export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, saveChanges }: EditingPanelProps) {
+export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, saveChanges,setRenderMode }: EditingPanelProps) {
     return (
         <div className="flex flex-col w-full   gap-5 items-center justify-center">
             <div className="w-full  bg-gray-200 p-2 rounded-lg text-sm text-center font">
@@ -32,18 +33,38 @@ export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, sav
                         </TooltipContent>
                     </Tooltip>
                 }
+                {
+                    mode === DrawingModes.SinSeleccionar &&
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button className="bg-green-500 hover:bg-green-800" onClick={addZone}>
+                                <Plus />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Agregar zona</p>
+                        </TooltipContent>
+                    </Tooltip>
 
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button className="bg-green-500 hover:bg-green-800" onClick={addZone}>
-                            <Plus />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>Agregar zona</p>
-                    </TooltipContent>
-                </Tooltip>
-                { 
+                }
+
+                {
+                    mode === DrawingModes.CreandoZonas &&
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button className="bg-red-500 hover:bg-red-800" onClick={setRenderMode} >
+                                <XOctagon />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Cancelar creación</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                }
+
+                {
+                    mode !== DrawingModes.CreandoZonas &&
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button className="bg-blue-500 hover:bg-blue-800" onClick={

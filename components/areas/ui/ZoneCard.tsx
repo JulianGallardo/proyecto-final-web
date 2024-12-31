@@ -25,21 +25,27 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing }: ZoneC
     }, [properties?.color]);
 
     return (
-        <div className="flex flex-row items-center justify-between gap-4 p-3 shadow-lg border border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow w-full">
-            {/* Nombre de la zona e indicador de color */}
-            <div className="flex flex-row items-center justify-between gap-2 w-full">
-                <span className="text-lg font-bold text-gray-800 sm:text-base">{zoneName}</span>
+        <div className="flex flex-col gap-3 p-3 shadow-lg border border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow w-full">
+            {/* Contenedor principal */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 w-full">
+                {/* Nombre de la zona */}
+                <span className="text-sm font-bold md:text-md  truncate w-full">
+                    {zoneName}
+                </span>
+
+                {/* Color de la zona */}
                 <span
                     className="w-8 h-8 sm:w-6 sm:h-6 rounded-full border border-gray-300"
                     style={{ backgroundColor: zoneColor }}
                 ></span>
             </div>
 
-            {   editing &&
-                <div className="flex gap-4 w-full">
+            {editing && (
+                <div className="flex flex-row sm:flex-row gap-4 w-full items-center justify-start">
+                    {/* Botón Renombrar */}
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button className="bg-blue-500 hover:bg-blue-800" >
+                            <Button className="bg-blue-500 hover:bg-blue-800">
                                 <Pencil />
                             </Button>
                         </TooltipTrigger>
@@ -48,6 +54,7 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing }: ZoneC
                         </TooltipContent>
                     </Tooltip>
 
+                    {/* Botón Borrar */}
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Button className="bg-red-500 hover:bg-red-800" onClick={onDelete}>
@@ -58,10 +65,9 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing }: ZoneC
                             <p>Borrar Zona</p>
                         </TooltipContent>
                     </Tooltip>
-
-
                 </div>
-            }
-        </div >
+            )}
+        </div>
     );
 }
+

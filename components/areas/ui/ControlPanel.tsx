@@ -29,20 +29,29 @@ export default function MapControlPanel() {
     const [finishedLoading, setFinishedLoading] = useState(false);
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
 
-    function changeEditingState(state:boolean) {
+    function changeEditingState(state: boolean) {
         setEditingZonesInfo(state);
     }
 
-    function changeDialogState(state:boolean) {
-        if (!state){
-            const terraDrawInstance = draw?.getTerraDrawInstance();
-            terraDrawInstance?.setMode("render");
-            setMode(DrawingModes.SinSeleccionar);
+    function changeDialogState(state: boolean) {
+        if (!state) {
+            setRenderMode();
         }
         setNewZoneDialogOpen(state);
     }
 
-    function onDialogSubmit(){
+    function setRenderMode() {
+        const terraDrawInstance = draw?.getTerraDrawInstance();
+        const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
+        if (zones.length > 0) {
+            eraseZoneInfoFromLocalStorage();
+        }
+        terraDrawInstance?.setMode("render");
+        setMode(DrawingModes.SinSeleccionar);
+
+    }
+
+    function onDialogSubmit() {
         setNewZoneDialogOpen(false);
     }
 
@@ -269,14 +278,14 @@ export default function MapControlPanel() {
         <div className="flex flex-row w-full h-full ">
             <Sidebar >
                 <SidebarHeader>
-                    <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo}  setEditing={changeEditingState}/>
-                    <AddZoneDialog open={newZoneDialogOpen} setOpen={changeDialogState} onDialogSubmit={onDialogSubmit}/>
+                    <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
+                    <AddZoneDialog open={newZoneDialogOpen} setOpen={changeDialogState} onDialogSubmit={onDialogSubmit} />
                 </SidebarHeader>
 
                 <Separator className="mb-5" />
 
                 <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
-                    <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo}/>
+                    <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo} />
                 </SidebarContent>
             </Sidebar>
 

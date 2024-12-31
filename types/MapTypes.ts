@@ -3,7 +3,7 @@ export type FeatureId = string;
 export enum DrawingModes {
     SinSeleccionar = "Sin seleccionar",
     EditandoZonas = "Editando Zonas",
-    CreandoZonas = "Creando Zonas",
+    CreandoZonas = "Creando Zona",
 }
 
 export interface CustomFeature extends GeoJSON.Feature {

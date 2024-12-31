@@ -8,9 +8,16 @@ import {
 
 import NewZoneForm from "./NewZoneForm"
 
+interface AddZoneDialogProps {
+    open: boolean;
+    setOpen: (open: boolean) => void;
+    onDialogSubmit: () => void;
+}
 
 
-export function AddZoneDialog({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
+
+
+export function AddZoneDialog({ open, setOpen, onDialogSubmit}: AddZoneDialogProps) { 
 
     
 
@@ -23,7 +30,7 @@ export function AddZoneDialog({ open, setOpen }: { open: boolean, setOpen: (open
                         Agrega una nueva zona a tu área
                     </DialogDescription>
                 </DialogHeader>
-                <NewZoneForm  manageDialog={setOpen}/>
+                <NewZoneForm  manageDialog={setOpen} onDialogSubmit={onDialogSubmit}/>
             </DialogContent>
         </Dialog>
     )

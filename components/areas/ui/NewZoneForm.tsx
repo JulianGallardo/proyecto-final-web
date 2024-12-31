@@ -16,9 +16,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 interface NewZoneFormProps {
   manageDialog: (open: boolean) => void
+  onDialogSubmit: () => void
 }
 
-export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
+export default function NewZoneForm({ manageDialog, onDialogSubmit }: NewZoneFormProps) {
   const form = useForm<z.infer<typeof addNewZoneSchema>>({
     resolver: zodResolver(addNewZoneSchema),
     defaultValues: {
@@ -43,7 +44,7 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
       values.zoneColor = generateRandomColor()
     }
     registerZone(values)
-    manageDialog(false)
+    onDialogSubmit()
   }
 
   // Function to generate a random color

@@ -52,6 +52,10 @@ export default function MapControlPanel() {
         setNewZoneDialogOpen(state);
     }
 
+    function onDialogSubmit(){
+        setNewZoneDialogOpen(false);
+    }
+
 
     function getZoneInfoFromLocalStorage() {
         const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
@@ -227,6 +231,14 @@ export default function MapControlPanel() {
         }
     };
 
+    const cancelAddZone = () => {
+        if (draw) {
+            const terraDrawInstance = draw.getTerraDrawInstance();
+            terraDrawInstance?.setMode("render");
+            setMode("Sin seleccionar");
+        }
+    }
+
     const deleteZone = useCallback(
         (featureToDelete: CustomFeature) => {
             if (draw) {
@@ -267,9 +279,8 @@ export default function MapControlPanel() {
         <div className="flex flex-row w-full h-full ">
             <Sidebar >
                 <SidebarHeader>
-
                     <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo}  setEditing={changeEditingState}/>
-                    <AddZoneDialog open={newZoneDialogOpen} setOpen={changeDialogState} />
+                    <AddZoneDialog open={newZoneDialogOpen} setOpen={changeDialogState} onDialogSubmit={onDialogSubmit}/>
                 </SidebarHeader>
 
                 <Separator className="mb-5" />

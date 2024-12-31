@@ -45,6 +45,21 @@ export default function MapControlPanel() {
         return color;
     }
 
+    function getZoneInfoFromLocalStorage() {
+        const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
+        if(zones.length > 0){
+            eraseZoneInfoFromLocalStorage();
+            return zones[0];
+        }
+        else{
+            return null;
+        }
+    }
+
+    function eraseZoneInfoFromLocalStorage() {
+        window.localStorage.removeItem("zones");
+    }
+
     // Function to get a color, using the cache
     function getColor(key: string): HexColorStyling  {
         // Check if the color is already in the cache
@@ -115,6 +130,7 @@ export default function MapControlPanel() {
 
             mymap.addControl(newDraw); // Agregar el control al mapa
             setDraw(newDraw); // Guardar el controlador en el estado
+            deleteZone(getZoneInfoFromLocalStorage());
         }
     }, [mymap, draw]);
 
@@ -132,8 +148,12 @@ export default function MapControlPanel() {
                     if(action === "draw" && mode === "polygon"){
                         if (Feature) {
                             if (Feature.id) {
+                                const newZoneInfo = getZoneInfoFromLocalStorage();
+                                console.log(newZoneInfo);
+                                
                                 Feature.properties.color = getColor(`"${Feature.id}"`);
                                 Feature.properties.editable = false;
+                                
                             }
     
                             if (Feature && Feature.id) {

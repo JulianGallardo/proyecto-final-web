@@ -27,9 +27,21 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
     },
   })
 
+
+  function registerZone(zone: z.infer<typeof addNewZoneSchema>) {
+    const zones = JSON.parse(window.localStorage.getItem("zones") || "[]")
+    const newZone = {
+      name: zone.zoneName,
+      color: zone.zoneColor,
+    }
+    zones.push(newZone);
+    window.localStorage.setItem("zones", JSON.stringify(zones));
+  }
+
   function onSubmit(values: z.infer<typeof addNewZoneSchema>) {
-    manageDialog(false)
-    console.log(values)
+    console.log(values);
+    registerZone(values);
+    manageDialog(false);
   }
 
   return (

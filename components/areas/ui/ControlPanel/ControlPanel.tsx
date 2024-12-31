@@ -10,6 +10,7 @@ import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
+import { createNewZone } from "@/actions/zone-actions";
 
 
 
@@ -268,6 +269,8 @@ export default function MapControlPanel() {
                             if (Feature && Feature.id) {
                                 setZones((prevZones) => [...prevZones, Feature as CustomFeature]);
                             }
+
+                            createNewZone(Feature as CustomFeature);
 
                             terraDrawInstance.setMode("render");
                             setMode(DrawingModes.SinSeleccionar);

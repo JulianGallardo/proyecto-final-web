@@ -17,7 +17,7 @@ export default function ZoneList({ zones, onDelete }: ZoneListProps) {
                 {zones.map((zone) => (
                     <ZoneCard
                         key={zone.id as string}
-                        zoneName={ "Zona"}
+                        zoneName={zone.properties.name }
                         Feature={zone}
                         onDelete={() => onDelete(zone)}
                     />

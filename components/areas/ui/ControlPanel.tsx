@@ -17,6 +17,7 @@ export interface CustomFeature extends GeoJSON.Feature {
     id: string;
     properties: {
         color: HexColorStyling;
+        name: string;
     };
 }
 
@@ -149,10 +150,12 @@ export default function MapControlPanel() {
                         if (Feature) {
                             if (Feature.id) {
                                 const newZoneInfo = getZoneInfoFromLocalStorage();
-                                console.log(newZoneInfo);
                                 
                                 Feature.properties.color = getColor(`"${Feature.id}"`);
                                 Feature.properties.editable = false;
+                                Feature.properties.name = newZoneInfo.name;
+
+                                console.log(Feature);
                                 
                             }
     

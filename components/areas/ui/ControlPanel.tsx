@@ -22,7 +22,7 @@ export interface CustomFeature extends GeoJSON.Feature {
 }
 
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
-    return draw.getFeatures()?.features?.find((feature: any) => feature.id === id);
+    return draw.getFeatures()?.features?.find((feature: GeoJSON.Feature) => feature.id === id);
 }
 type DrawingModes = "Sin seleccionar" | "Dibujando zona" | "Editando Zonas";
 

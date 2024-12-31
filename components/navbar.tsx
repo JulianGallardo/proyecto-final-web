@@ -3,13 +3,12 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { Truck, Map, Package, ChartGraph, Home, Logout, Menu, X } from "@mynaui/icons-react"
+import { Truck, Map, Package, ChartGraph, Home, Logout, Menu} from "@mynaui/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
   SheetTrigger,
-  SheetClose,
 } from "@/components/ui/sheet"
 import BtnLogout from "@/components/auth/btn-logout"
 
@@ -71,7 +70,7 @@ export default function Navbar() {
               {navItems.map((item) => (
                 <SheetTrigger asChild>
                   <Link
-                    key={item.href}
+                    key={item.label}
                     href={item.href}
                     className="flex items-center p-4 text-gray-200 hover:bg-gray-700"
                   >

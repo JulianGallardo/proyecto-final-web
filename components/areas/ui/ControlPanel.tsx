@@ -9,6 +9,7 @@ import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { set } from "zod";
 import { AddZoneDialog } from "./NewZoneDialog";
+import { get } from "http";
 
 
 type HexColorStyling = `#${string}`;
@@ -37,15 +38,6 @@ export default function MapControlPanel() {
     const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
 
 
-    function computeColor(key: string): HexColorStyling {
-        let hash = 0;
-        for (let i = 0; i < key.length; i++) {
-            hash = key.charCodeAt(i) + ((hash << 5) - hash);
-        }
-        const color = `#${((hash >> 24) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 16) & 0xFF).toString(16).padStart(2, '0')}${((hash >> 8) & 0xFF).toString(16).padStart(2, '0')}` as HexColorStyling;
-        return color;
-    }
-
     function getZoneInfoFromLocalStorage() {
         const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
         if(zones.length > 0){
@@ -61,6 +53,16 @@ export default function MapControlPanel() {
         window.localStorage.removeItem("zones");
     }
 
+    function getZoneColorFromLocalStorage() {
+        const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
+        if(zones.length > 0){
+            return zones[0].color;
+        }
+        else{
+            return null;
+        }
+    }
+
     // Function to get a color, using the cache
     function getColor(key: string): HexColorStyling  {
         // Check if the color is already in the cache
@@ -69,7 +71,7 @@ export default function MapControlPanel() {
         }
 
         // If not in the cache, compute the color
-        const color = computeColor(key);
+        const color = getZoneColorFromLocalStorage();
 
         // Store the computed color in the cache
         colorCache[key] = color;
@@ -151,7 +153,7 @@ export default function MapControlPanel() {
                             if (Feature.id) {
                                 const newZoneInfo = getZoneInfoFromLocalStorage();
                                 
-                                Feature.properties.color = getColor(`"${Feature.id}"`);
+                                Feature.properties.color = newZoneInfo.color;
                                 Feature.properties.editable = false;
                                 Feature.properties.name = newZoneInfo.name;
 

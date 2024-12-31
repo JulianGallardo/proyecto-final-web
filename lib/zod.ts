@@ -1,4 +1,4 @@
-import { object, string } from "zod"
+import { object, string, z } from "zod"
  
 export const logInSchema = object({
   email: string({ required_error: "Email is required" })
@@ -15,4 +15,6 @@ export const addNewZoneSchema = object({
     .min(1, "Zone Name is required")
     .max(32, "Zone Name must be less than 32 characters"),
   zoneColor: string({ required_error: "Zone Color is required" }),
+  colorOption: z.enum(["random", "chosen"]),
+
 })

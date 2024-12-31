@@ -13,20 +13,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface NewZoneFormProps {
-    manageDialog: (open: boolean) => void
-    }
+  manageDialog: (open: boolean) => void
+}
 
 export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
   const form = useForm<z.infer<typeof addNewZoneSchema>>({
     resolver: zodResolver(addNewZoneSchema),
     defaultValues: {
       zoneName: "",
-      zoneColor: "#000000"
+      zoneColor: "#000000",
+      colorOption: "chosen", // Default option is "chosen"
     },
   })
-
 
   function registerZone(zone: z.infer<typeof addNewZoneSchema>) {
     const zones = JSON.parse(window.localStorage.getItem("zones") || "[]")
@@ -34,14 +35,26 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
       name: zone.zoneName,
       color: zone.zoneColor,
     }
-    zones.push(newZone);
-    window.localStorage.setItem("zones", JSON.stringify(zones));
+    zones.push(newZone)
+    window.localStorage.setItem("zones", JSON.stringify(zones))
   }
 
   function onSubmit(values: z.infer<typeof addNewZoneSchema>) {
-    console.log(values);
-    registerZone(values);
-    manageDialog(false);
+    if (values.colorOption === "random") {
+      values.zoneColor = generateRandomColor()
+    }
+    registerZone(values)
+    manageDialog(false)
+  }
+
+  // Function to generate a random color
+  const generateRandomColor = () => {
+    const letters = '0123456789ABCDEF'
+    let color = '#'
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)]
+    }
+    return color
   }
 
   return (
@@ -65,27 +78,54 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
           )}
         />
 
-        {/* Selector de color */}
+        {/* Opción de color */}
         <FormField
           control={form.control}
-          name="zoneColor"
+          name="colorOption"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Zone Color</FormLabel>
-              <FormControl>
-                <input
-                  type="color"
-                  className="w-full h-10 rounded-lg border-0 p-0"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Pick a color for the zone.
-              </FormDescription>
+              <FormLabel>Selecciona la opcion del color</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una opción de color" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem  value="random">Random</SelectItem>
+                  <SelectItem value="chosen">Color a elección</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Color Picker */}
+        {form.watch("colorOption") === "chosen" && (
+          <FormField
+            control={form.control}
+            name="zoneColor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Zone Color</FormLabel>
+                <FormControl>
+                  <input
+                    type="color"
+                    className="w-full h-10 rounded-lg border-0 p-0"
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Pick a color for the zone.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
+        
 
         <Button type="submit">Save Zone</Button>
       </form>

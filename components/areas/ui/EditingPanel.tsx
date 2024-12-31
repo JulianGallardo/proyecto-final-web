@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { DrawingModes } from "@/types/MapTypes";
 import { Pencil, Plus, Save } from "@mynaui/icons-react";
 
 interface EditingPanelProps {
@@ -7,7 +8,7 @@ interface EditingPanelProps {
     saveZoneEdits: () => void;
     saveChanges: () => void;
     addZone: () => void;
-    mode: string;
+    mode: DrawingModes;
 }
 
 export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, saveChanges }: EditingPanelProps) {
@@ -19,10 +20,10 @@ export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, sav
 
             <div className="flex flex-row gap-5">
                 {
-                    mode === "Sin seleccionar" &&
+                    mode === DrawingModes.SinSeleccionar &&
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button onClick={()=>saveChanges()} className="bg-gray-500 hover:bg-gray-800">
+                            <Button onClick={() => saveChanges()} className="bg-gray-500 hover:bg-gray-800">
                                 <Save />
                             </Button>
                         </TooltipTrigger>
@@ -42,20 +43,26 @@ export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, sav
                         <p>Agregar zona</p>
                     </TooltipContent>
                 </Tooltip>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button className="bg-blue-500 hover:bg-blue-800" onClick={
-                            mode === "Editando Zonas" ? saveZoneEdits : onEdit
-                        }>
-                            {
-                                mode === "Editando Zonas" ? <Save /> : <Pencil />
-                            }
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        <p>{mode === "Editando Zonas" ? "Guardar cambios" : "Editar zonas"}</p>
-                    </TooltipContent>
-                </Tooltip>
+                { 
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button className="bg-blue-500 hover:bg-blue-800" onClick={
+                                mode === DrawingModes.EditandoZonas ? saveZoneEdits : onEdit
+                            }>
+                                {
+                                    mode === DrawingModes.EditandoZonas ? <Save /> : <Pencil />
+                                }
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{mode === DrawingModes.EditandoZonas ? "Guardar cambios" : "Editar zonas"}</p>
+                        </TooltipContent>
+                    </Tooltip>
+
+                }
+
+
+
 
             </div>
 

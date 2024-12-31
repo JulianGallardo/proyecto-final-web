@@ -8,24 +8,14 @@ import ZoneList from "./ZoneList";
 import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "./NewZoneDialog";
-import { boolean } from "zod";
+import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 
 
-type HexColorStyling = `#${string}`;
-type FeatureId = string;
 
-export interface CustomFeature extends GeoJSON.Feature {
-    id: string;
-    properties: {
-        color: HexColorStyling;
-        name: string;
-    };
-}
 
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
     return draw.getFeatures()?.features?.find((feature: GeoJSON.Feature) => feature.id === id);
 }
-type DrawingModes = "Sin seleccionar" | "Dibujando zona" | "Editando Zonas";
 
 
 
@@ -34,7 +24,7 @@ export default function MapControlPanel() {
     const { mymap } = useMap();
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
-    const [mode, setMode] = useState<DrawingModes>("Sin seleccionar"); // Estado para el modo de dibujo
+    const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
     const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
     const [finishedLoading, setFinishedLoading] = useState(false);
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
@@ -47,7 +37,7 @@ export default function MapControlPanel() {
         if (!state){
             const terraDrawInstance = draw?.getTerraDrawInstance();
             terraDrawInstance?.setMode("render");
-            setMode("Sin seleccionar");
+            setMode(DrawingModes.SinSeleccionar);
         }
         setNewZoneDialogOpen(state);
     }
@@ -186,7 +176,7 @@ export default function MapControlPanel() {
                             }
 
                             terraDrawInstance.setMode("render");
-                            setMode("Sin seleccionar");
+                            setMode(DrawingModes.SinSeleccionar);
                         }
                     }
 
@@ -226,7 +216,7 @@ export default function MapControlPanel() {
 
             setNewZoneDialogOpen(true);
             terraDrawInstance?.setMode("polygon");
-            setMode("Dibujando zona");
+            setMode(DrawingModes.CreandoZonas);
 
         }
     };
@@ -235,7 +225,7 @@ export default function MapControlPanel() {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
             terraDrawInstance?.setMode("render");
-            setMode("Sin seleccionar");
+            setMode(DrawingModes.SinSeleccionar);
         }
     }
 
@@ -257,7 +247,7 @@ export default function MapControlPanel() {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
             terraDrawInstance?.setMode("select");
-            setMode("Editando Zonas");
+            setMode(DrawingModes.EditandoZonas);
         }
     };
 
@@ -265,13 +255,13 @@ export default function MapControlPanel() {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
             terraDrawInstance?.setMode("render");
-            setMode("Sin seleccionar");
+            setMode(DrawingModes.SinSeleccionar);
         }
     };
 
     const saveChanges = () => {
         changeEditingState(false);
-        setMode("Sin seleccionar");
+        setMode(DrawingModes.SinSeleccionar);
     }
 
     return (

@@ -63,7 +63,7 @@ export default function Navbar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="top" className="w-full p-0 bg-gray-800 text-white">
-            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+            <div className="flex items-center justify-between p-4 ">
               <span className="text-lg font-semibold text-gray-200">Menú</span>
 
             </div>
@@ -81,9 +81,9 @@ export default function Navbar() {
                 </SheetTrigger>
               ))}
             </nav>
-            <div className="p-4 border-t border-gray-700">
+            <div className="p-4 ">
               <BtnLogout
-                className="w-full flex items-center justify-center bg-transparent p-2 gap-2 text-gray-200 hover:text-red-400 hover:bg-gray-700 transition-all duration-300"
+                className=" flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-gray-200 hover:text-red-400 hover:bg-gray-700 transition-all duration-300"
               >
                 <Logout className="w-6 h-6" />
                 <span className="text-lg">Cerrar sesión</span>

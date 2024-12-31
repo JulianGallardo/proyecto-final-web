@@ -1,13 +1,17 @@
-export type HexColorStyling = `#${string}`;
-export type FeatureId = string;
+import {type HexColor, type GeoJSONStoreFeatures } from 'terra-draw';
+
+
+
+
+export type HexColorStyling = HexColor;
+export type FeatureId = string | number ;
 export enum DrawingModes {
     SinSeleccionar = "Sin seleccionar",
     EditandoZonas = "Editando Zonas",
     CreandoZonas = "Creando Zona",
 }
 
-export interface CustomFeature extends GeoJSON.Feature {
-    id: string;
+export interface CustomFeature extends GeoJSONStoreFeatures {
     properties: {
         color: HexColorStyling;
         name: string;

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Separator } from "@/components/ui/separator";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar";
 import ZoneList from "../ZoneList/ZoneList";
-import { TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
+import { GeoJSONStoreFeatures, TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
@@ -21,7 +21,7 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 
 export default function MapControlPanel() {
-    const colorCache: Record<string, HexColorStyling> = {};
+    const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
     const { mymap } = useMap();
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
@@ -33,6 +33,26 @@ export default function MapControlPanel() {
 
     const [finishedLoading, setFinishedLoading] = useState(false);
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
+
+
+    function fetchDataFromColorCache(key: string) {
+        if (colorCache.has(key)) {
+            return colorCache.get(key);
+        }
+        return null;
+    }
+
+    function saveDataToColorCache(key: string, value: HexColorStyling) {
+        colorCache.set(key, value);
+    }
+
+    function deleteDataInColorCache(key: string, value: HexColorStyling) {
+        colorCache.delete(key);
+    }
+
+
+
+
 
     function changeEditingState(state: boolean) {
         setEditingZonesInfo(state);
@@ -47,15 +67,37 @@ export default function MapControlPanel() {
 
     function onZoneEdit(zone: CustomFeature) {
         writeZoneInfoToLocalStorage(zone);
-        console.log("escrito");
         setEditingZoneDialogOpen(true);
 
     }
 
     function onEditZoneDialogSubmit() {
-        const zoneLocalStorage:CustomFeature = getZoneInfoFromLocalStorage();
+        
+        const terraDrawInstance = draw?.getTerraDrawInstance();
+        const zoneLocalStorage: CustomFeature = getZoneInfoFromLocalStorage();
+        
+        saveDataToColorCache(`"${zoneLocalStorage.id}"`, zoneLocalStorage.properties.color);
+
+        if (zoneLocalStorage.id !== undefined) {
+            terraDrawInstance?.removeFeatures([zoneLocalStorage.id]);
+        }
+        
+        const newZone = {
+            id: zoneLocalStorage.id,
+            type: "Feature",
+            geometry: {
+                type: "Polygon",
+                coordinates: zoneLocalStorage.geometry.coordinates
+            },
+            properties: {
+                mode: "polygon",
+            },
+        } as GeoJSONStoreFeatures;
+
+        terraDrawInstance?.addFeatures([newZone]);
+
         setZones((prevZones) => {
-            const updatedZones = prevZones.map((zone:CustomFeature) => {
+            const updatedZones = prevZones.map((zone: CustomFeature) => {
                 if (zone.id === zoneLocalStorage.id) {
                     return zoneLocalStorage;
                 }
@@ -63,10 +105,9 @@ export default function MapControlPanel() {
             });
             return updatedZones;
         });
-        colorCache[`"${zoneLocalStorage.id}"`] = zoneLocalStorage.properties.color;
-        console.log("Zona actualizada");
-        console.log(zoneLocalStorage);
         
+
+
         setEditingZoneDialogOpen(false);
 
     }
@@ -126,16 +167,18 @@ export default function MapControlPanel() {
     // Function to get a color, using the cache
     function getColor(key: string): HexColorStyling {
         // Check if the color is already in the cache
-        if (colorCache[key]) {
-            return colorCache[key];
+        const get = fetchDataFromColorCache(key);
+        if (get) {
+            return get;
         }
 
         // If not in the cache, compute the color
         const color = getZoneColorFromLocalStorage();
 
-        // Store the computed color in the cache
-        colorCache[key] = color;
-
+        // Save the color in the cache
+        console.log(colorCache);
+        saveDataToColorCache(key, color);
+        console.log(colorCache);
         return color;
     }
 
@@ -280,6 +323,7 @@ export default function MapControlPanel() {
 
                 if (featureToDelete.id) {
                     draw.getTerraDrawInstance()?.removeFeatures([featureToDelete.id]);
+                    deleteDataInColorCache(`"${featureToDelete.id}"`, featureToDelete.properties.color);
                 }
             }
         },

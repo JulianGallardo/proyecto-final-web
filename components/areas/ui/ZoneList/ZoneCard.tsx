@@ -51,7 +51,7 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing , onEdit
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p>Renombrar zona</p>
+                            <p>Customizar Zona</p>
                         </TooltipContent>
                     </Tooltip>
 

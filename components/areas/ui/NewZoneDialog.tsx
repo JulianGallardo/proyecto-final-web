@@ -22,9 +22,9 @@ export function AddZoneDialog({ open, setOpen }: { open: boolean, setOpen: (open
         <Dialog open={open} onOpenChange={setOpen} >
             <DialogContent className="sm:max-w-[425px] rounded-lg">
                 <DialogHeader>
-                    <DialogTitle>Add Zone</DialogTitle>
+                    <DialogTitle>Nueva zona</DialogTitle>
                     <DialogDescription>
-                        Enter the name of the zone and select a color for it.
+                        Agrega una nueva zona a tu área
                     </DialogDescription>
                 </DialogHeader>
                 <NewZoneForm  manageDialog={setOpen}/>

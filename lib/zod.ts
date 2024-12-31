@@ -11,10 +11,10 @@ export const logInSchema = object({
 })
 
 export const addNewZoneSchema = object({
-  zoneName: string({ required_error: "Zone Name is required" })
-    .min(1, "Zone Name is required")
-    .max(32, "Zone Name must be less than 32 characters"),
-  zoneColor: string({ required_error: "Zone Color is required" }),
-  colorOption: z.enum(["random", "chosen"]),
+  zoneName: string({ required_error: "El nombre de la zona es obligatorio." })
+    .min(1, "El nombre de la zona es obligatorio.")
+    .max(32, "El nombre de la zona debe tener menos de 32 caracteres"),
+  zoneColor: string({ required_error: "La seleccion de un color es obligatoria." }),
+  colorOption: z.enum(["chosen", "random"]),
 
 })

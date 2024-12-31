@@ -25,7 +25,7 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
     defaultValues: {
       zoneName: "",
       zoneColor: "#000000",
-      colorOption: "chosen", // Default option is "chosen"
+      colorOption: "random", // Default option is "chosen"
     },
   })
 
@@ -66,13 +66,10 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
           name="zoneName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Zone Name</FormLabel>
+              <FormLabel>Nombre de la zona</FormLabel>
               <FormControl>
-                <Input placeholder="Enter Zone Name" {...field} />
+                <Input placeholder="Ingresa el nombre de la nueva zona" {...field} />
               </FormControl>
-              <FormDescription>
-                This is the name of the zone you are creating.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -82,17 +79,19 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
         <FormField
           control={form.control}
           name="colorOption"
+          defaultValue="random"
+
           render={({ field }) => (
-            <FormItem>
+            <FormItem >
               <FormLabel>Selecciona la opcion del color</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} defaultValue={field.value} >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona una opción de color" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem  value="random">Random</SelectItem>
+                  <SelectItem value="random">Random</SelectItem>
                   <SelectItem value="chosen">Color a elección</SelectItem>
                 </SelectContent>
               </Select>
@@ -108,7 +107,7 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
             name="zoneColor"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Zone Color</FormLabel>
+                <FormLabel>Color de la zona</FormLabel>
                 <FormControl>
                   <input
                     type="color"
@@ -116,18 +115,15 @@ export default function NewZoneForm({ manageDialog }: NewZoneFormProps) {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  Pick a color for the zone.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
         )}
 
-        
 
-        <Button type="submit">Save Zone</Button>
+
+        <Button type="submit">Crear zona</Button>
       </form>
     </Form>
   )

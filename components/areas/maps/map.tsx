@@ -17,7 +17,6 @@ export default function Areas() {
         <div className="flex flex-row w-full h-full ">
             <SidebarProvider className="flex flex-row  bg-gray-100 border-r border-gray-200">
                 <Sidebar />
-                <SidebarTrigger className="flex items-center justify-center h-full " />
             </SidebarProvider>
             <Map
                 id="mymap"

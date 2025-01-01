@@ -165,21 +165,15 @@ export default function MapControlPanel() {
         }
     }
 
-    // Function to get a color, using the cache
     function getColor(key: string): HexColorStyling {
-        // Check if the color is already in the cache
         const get = fetchDataFromColorCache(key);
         if (get) {
             return get;
         }
 
-        // If not in the cache, compute the color
         const color = getZoneColorFromLocalStorage();
 
-        // Save the color in the cache
-        console.log(colorCache);
         saveDataToColorCache(key, color);
-        console.log(colorCache);
         return color;
     }
 
@@ -257,21 +251,14 @@ export default function MapControlPanel() {
                         if (Feature) {
                             if (Feature.id) {
                                 const newZoneInfo = getZoneInfoFromLocalStorage();
-
                                 Feature.properties.color = newZoneInfo.color;
                                 Feature.properties.editable = false;
                                 Feature.properties.name = newZoneInfo.name;
-
-                                console.log(Feature);
-
                             }
 
                             if (Feature && Feature.id) {
                                 setZones((prevZones) => [...prevZones, Feature as CustomFeature]);
                             }
-
-                            createNewZone(Feature as CustomFeature);
-
                             terraDrawInstance.setMode("render");
                             setMode(DrawingModes.SinSeleccionar);
                         }

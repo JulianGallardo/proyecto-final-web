@@ -19,7 +19,7 @@ interface NewZoneFormProps {
   onDialogSubmit: () => void
 }
 
-export default function NewZoneForm({ manageDialog, onDialogSubmit }: NewZoneFormProps) {
+export default function NewZoneForm({  onDialogSubmit }: NewZoneFormProps) {
   const form = useForm<z.infer<typeof addNewZoneSchema>>({
     resolver: zodResolver(addNewZoneSchema),
     defaultValues: {

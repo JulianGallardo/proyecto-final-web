@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { addNewZoneSchema } from "@/lib/zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, UseFormReturn } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { z } from "zod"
 import {
     Form,
@@ -12,7 +12,6 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CustomFeature } from "@/types/MapTypes"
 import { useEffect, useState } from "react"
 
@@ -21,7 +20,7 @@ interface NewZoneFormProps {
     onDialogSubmit: () => void
 }
 
-export default function EditZoneForm({ manageDialog, onDialogSubmit }: NewZoneFormProps) {
+export default function EditZoneForm({  onDialogSubmit }: NewZoneFormProps) {
     const [zoneLocalStorage, setZoneLocalStorage] = useState<CustomFeature | null>(null);
 
     const form = useForm<z.infer<typeof addNewZoneSchema>>({

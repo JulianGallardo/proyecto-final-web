@@ -312,7 +312,7 @@ export default function MapControlPanel() {
 
                 if (featureToDelete.id) {
                     draw.getTerraDrawInstance()?.removeFeatures([featureToDelete.id]);
-                    deleteDataInColorCache(`"${featureToDelete.id}"`, featureToDelete.properties.color);
+                    deleteDataInColorCache(`"${featureToDelete.id}"`);
                 }
             }
         },

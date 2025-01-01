@@ -10,7 +10,6 @@ import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
-import { createNewZone } from "@/actions/zone-actions";
 
 
 
@@ -47,7 +46,7 @@ export default function MapControlPanel() {
         colorCache.set(key, value);
     }
 
-    function deleteDataInColorCache(key: string, value: HexColorStyling) {
+    function deleteDataInColorCache(key: string) {
         colorCache.delete(key);
     }
 

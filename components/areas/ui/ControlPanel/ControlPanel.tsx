@@ -273,7 +273,6 @@ export default function MapControlPanel() {
 
                             if (Feature && Feature.id) {
                                 setZones((prevZones) => [...prevZones, Feature as CustomFeature]);
-                                createNewZone(Feature as CustomFeature);
                             }
                             terraDrawInstance.setMode("render");
                             setMode(DrawingModes.SinSeleccionar);
@@ -380,7 +379,6 @@ export default function MapControlPanel() {
     const saveEdits = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
-            
             terraDrawInstance?.setMode("render");
             setMode(DrawingModes.SinSeleccionar);
         }

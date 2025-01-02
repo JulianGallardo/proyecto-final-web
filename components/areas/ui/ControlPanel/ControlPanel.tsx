@@ -10,7 +10,7 @@ import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
-import {  createNewZones, getAllZones } from "@/actions/zone-actions";
+import { createNewZones, getAllZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -25,8 +25,8 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 export default function MapControlPanel() {
     const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
     const { mymap } = useMap();
-    const {toast} = useToast();
-    
+    const { toast } = useToast();
+
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
@@ -78,16 +78,16 @@ export default function MapControlPanel() {
     }
 
     function onEditZoneDialogSubmit() {
-        
+
         const terraDrawInstance = draw?.getTerraDrawInstance();
         const zoneLocalStorage: CustomFeature = getZoneInfoFromLocalStorage();
-        
+
         saveDataToColorCache(`"${zoneLocalStorage.id}"`, zoneLocalStorage.properties.color);
 
         if (zoneLocalStorage.id !== undefined) {
             terraDrawInstance?.removeFeatures([zoneLocalStorage.id]);
         }
-        
+
         const newZone = {
             id: zoneLocalStorage.id,
             type: "Feature",
@@ -111,7 +111,7 @@ export default function MapControlPanel() {
             });
             return updatedZones;
         });
-        
+
 
 
         setEditingZoneDialogOpen(false);
@@ -247,7 +247,7 @@ export default function MapControlPanel() {
     }, [mymap, draw]);
 
 
-    
+
 
 
 
@@ -269,10 +269,10 @@ export default function MapControlPanel() {
                         if (Feature) {
                             if (Feature.id) {
                                 const newZoneInfo = getZoneInfoFromLocalStorage();
-                                
-                                
-                                
-                                
+
+
+
+
                                 Feature.properties.color = newZoneInfo.color;
                                 Feature.properties.editable = false;
                                 Feature.properties.name = newZoneInfo.name;
@@ -288,8 +288,8 @@ export default function MapControlPanel() {
 
 
 
-                    
-                    
+
+
                     else if (action === "dragCoordinate" && mode === "select") {
                         if (Feature) {
                             setZones((prevZones) => {
@@ -304,7 +304,7 @@ export default function MapControlPanel() {
                         }
                     }
 
-                    
+
                 };
 
                 terraDrawInstance.on("finish", (id, context) => {
@@ -324,7 +324,7 @@ export default function MapControlPanel() {
 
     async function fetchZones(terraDrawInstance: MaplibreTerradrawControl) {
         const zones = await getAllZones();
-        const terraDraw=terraDrawInstance.getTerraDrawInstance();
+        const terraDraw = terraDrawInstance.getTerraDrawInstance();
         zones.forEach((zone) => {
             const newZone = {
                 id: zone.id,
@@ -401,28 +401,38 @@ export default function MapControlPanel() {
             });
             return;
         }
-        
-        
+
+
         changeEditingState(false);
         setMode(DrawingModes.SinSeleccionar);
-        createNewZones(zones).then((response) => {
-            if (response.status === "success") {
-                toast({
-                    title: "Zonas guardadas",
-                    description: "Las zonas han sido guardadas exitosamente",
-                    className: "bg-green-500 text-white",
-                    duration: 2000
-                });
-            }
-            else {
-                toast({
-                    title: "Error",
-                    description: "Ha ocurrido un error al guardar las zonas",
-                    className: "bg-red-500 text-white",
-                    duration: 2000
-                });
-            }
-        });
+        try {
+            createNewZones(zones).then((response) => {
+                if (response.status === "success") {
+                    toast({
+                        title: "Zonas guardadas",
+                        description: "Las zonas han sido guardadas exitosamente",
+                        className: "bg-green-500 text-white",
+                        duration: 2000
+                    });
+                }
+                else {
+                    toast({
+                        title: "Error",
+                        description: "Ha ocurrido un error al guardar las zonas",
+                        className: "bg-red-500 text-white",
+                        duration: 2000
+                    });
+                }
+            });
+        }
+        catch (error) {
+            toast({
+                title: "Error",
+                description: "Ha ocurrido un error al guardar las zonas",
+                className: "bg-red-500 text-white",
+                duration: 2000
+            });
+        }
     }
 
     return (

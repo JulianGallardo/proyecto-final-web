@@ -1,3 +1,4 @@
+import { Zone } from '@prisma/client';
 import {type HexColor, type GeoJSONStoreFeatures } from 'terra-draw';
 
 
@@ -16,5 +17,15 @@ export interface CustomFeature extends GeoJSONStoreFeatures {
     properties: {
         color: HexColorStyling;
         name: string;
+    };
+}
+
+export interface ExtendedZone extends Zone{
+    geometry: {
+        type: string;
+        coordinates: {
+            latitude: number;
+            longitude: number;
+        }[];
     };
 }

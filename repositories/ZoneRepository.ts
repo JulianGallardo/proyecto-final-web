@@ -69,69 +69,74 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     updateZone(id: string, data: CustomFeature) {
 
         prisma.$transaction(async (trx) => {
+            try {
+                const zoneToUpdate = await trx.zone.findUnique({
+                    where: { id: id },
+                    select: {
+                        geometryId: true,
+                        geometry: {
 
-            const zoneToUpdate =await trx.zone.findUnique({
-                where: { id: id },
-                select: {
-                    geometryId: true,
-                    geometry: {
-
-                        select: {
-                            coordinates: {
-                                select: {
-                                    latitude: true,
-                                    longitude: true
+                            select: {
+                                coordinates: {
+                                    select: {
+                                        latitude: true,
+                                        longitude: true
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            }).then((zone) => {
-                if (!zone) {
-                    throw new Error("Zone not found");
-                }
-                return zone as ExtendedZone;
-            }).catch((e) => {
-                throw new Error(e);
-            });
+                }).then((zone) => {
+                    if (!zone) {
+                        throw new Error("Zone not found");
+                    }
+                    return zone as ExtendedZone;
+                }).catch((e) => {
+                    throw new Error(e);
+                });
 
 
-            await trx.coordinates.deleteMany({
-                where: {
-                    geometryAssociatedId: zoneToUpdate.geometryId
-                }
-            });
+                await trx.coordinates.deleteMany({
+                    where: {
+                        geometryAssociatedId: zoneToUpdate.geometryId
+                    }
+                });
 
-            console.log("Coordenadas viejas eliminadas");
+                console.log("Coordenadas viejas eliminadas");
 
-            const updated = await trx.zone.update({
-                where: { id: id },
-                data: {
-                    zoneName: data.properties.name,
-                    zoneColor: data.properties.color,
-                    type: data.type,
-                    geometry: {
-                        update: {
-                            where: {
-                                id: zoneToUpdate.geometryId
-                            }, // Identifica la geometría a actualizar
-                            data: {
-                                coordinates: {
-                                    create: (data.geometry.coordinates as Position[][])[0].map((coord) => {
-                                        return {
-                                            latitude: coord[0],
-                                            longitude: coord[1],
-                                        };
-                                    }),
+                const updated = await trx.zone.update({
+                    where: { id: id },
+                    data: {
+                        zoneName: data.properties.name,
+                        zoneColor: data.properties.color,
+                        type: data.type,
+                        geometry: {
+                            update: {
+                                where: {
+                                    id: zoneToUpdate.geometryId
+                                }, // Identifica la geometría a actualizar
+                                data: {
+                                    coordinates: {
+                                        create: (data.geometry.coordinates as Position[][])[0].map((coord) => {
+                                            return {
+                                                latitude: coord[0],
+                                                longitude: coord[1],
+                                            };
+                                        }),
+                                    },
                                 },
                             },
                         },
+                        updatedAt: new Date(),
                     },
-                    updatedAt: new Date(),
-                },
-            });
+                });
 
-            return updated;
+                return updated;
+            } catch (e) {
+                console.log(e);
+                throw new Error("No fue posible actualizar la zona");
+
+            }
         }
         );
     }

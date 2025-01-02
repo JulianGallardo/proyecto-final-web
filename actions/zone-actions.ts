@@ -1,4 +1,5 @@
 "use server";
+import prisma from "@/lib/db";
 import ZoneRepository from "@/repositories/ZoneRepository";
 import { CustomFeature, Position } from "@/types/MapTypes";
 import { Zone } from "@prisma/client";
@@ -19,48 +20,53 @@ interface ZoneResponse extends Zone {
 const zoneRepo = new ZoneRepository();
 
 
-export async function createNewZone(params:CustomFeature): Promise<Zone> {
+export async function createNewZone(params: CustomFeature): Promise<Zone> {
     return zoneRepo.create(params);
 }
 
 
-export async function createNewZones(params:CustomFeature[]): Promise<Record<string, string>> {
-    const zonesInDb:Zone[] = await zoneRepo.getAll();
+export function createNewZones(params: CustomFeature[]): Promise<Record<string, string>> {
+    const response = prisma.$transaction(async (tsx) => {
+
+        const zonesInDb: Zone[] = await zoneRepo.getAll();
 
 
-    try{
-        zonesInDb.forEach(async (zone) => {
-            if (!params.find((z) => z.id === zone.id)) {
-                await zoneRepo.deleteZone(zone.id);
+        try {
+            zonesInDb.forEach(async (zone) => {
+                if (!params.find((z) => z.id === zone.id)) {
+                    zoneRepo.deleteZone(zone.id);
+                }
+            });
+
+            params.map(async (zone) => {
+                if (!zonesInDb.find((z) => z.id === zone.id)) {
+                    zoneRepo.create(zone);
+                }
+                else if (zonesInDb.find((z) => z.id === zone.id) && typeof zone.id === "string") {
+                    zoneRepo.updateZone(zone.id, zone);
+                }
+            });
+        } catch (e) {
+            console.log(e);
+            return {
+                status: "error"
+
             }
-        });
-    
-        params.map(async (zone) => {
-            if (!zonesInDb.find((z) => z.id === zone.id)) {
-                await zoneRepo.create(zone);
-            }
-            else if (zonesInDb.find((z) => z.id === zone.id) && typeof zone.id === "string") {
-                console.log("updating zone");
-                await zoneRepo.updateZone(zone.id, zone);
-            }
-        });
-    }catch(e){
-        return {
-            status: "error"
         }
-    }
-    
 
-    return {
-        status: "success"
-    }
 
-    
+        return {
+            status: "success"
+        }
+    });
+
+    return response;
+
 }
 
 export async function getAllZones(): Promise<CustomFeature[]> {
-    const zonesBdd:ZoneResponse[] = await zoneRepo.getAll();
-    
+    const zonesBdd: ZoneResponse[] = await zoneRepo.getAll();
+
 
 
     if (!zonesBdd) {
@@ -68,9 +74,9 @@ export async function getAllZones(): Promise<CustomFeature[]> {
     }
 
 
-    const zones:CustomFeature[] = zonesBdd.map((zone) => {
+    const zones: CustomFeature[] = zonesBdd.map((zone) => {
 
-        const coordinates:Position[] = zone.geometry.coordinates.map((coord) => {
+        const coordinates: Position[] = zone.geometry.coordinates.map((coord) => {
             return [coord.latitude, coord.longitude];
         });
 

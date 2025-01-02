@@ -22,7 +22,7 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 
 
-export default function MapControlPanel() {
+export default async function MapControlPanel() {
     const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
     const { mymap } = useMap();
     const { toast } = useToast();
@@ -441,25 +441,33 @@ export default function MapControlPanel() {
         }
     };
 
-
+    
     return (
-        mymap && draw && finishedLoading &&
+
         <div className="flex flex-row w-full h-full ">
-            <Sidebar >
-                <SidebarHeader>
-                    <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
-                    <AddZoneDialog open={newZoneDialogOpen} setOpen={changeNewZoneDialogState} onDialogSubmit={onNewZoneDialogSubmit} />
-                    <EditZoneDialog open={editingZoneDialogOpen} setOpen={setEditingZoneDialogOpen} onDialogSubmit={onEditZoneDialogSubmit} />
-                </SidebarHeader>
+            
+            {finishedLoading && (
+                <div>
+                    <Sidebar >
+                        <SidebarHeader>
+                            <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
+                            <AddZoneDialog open={newZoneDialogOpen} setOpen={changeNewZoneDialogState} onDialogSubmit={onNewZoneDialogSubmit} />
+                            <EditZoneDialog open={editingZoneDialogOpen} setOpen={setEditingZoneDialogOpen} onDialogSubmit={onEditZoneDialogSubmit} />
+                        </SidebarHeader>
 
-                <Separator className="mb-5" />
+                        <Separator className="mb-5" />
 
-                <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
-                    <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo} onEdit={onZoneEdit} />
-                </SidebarContent>
-            </Sidebar>
+                        <SidebarContent className="flex flex-col gap-5 items-center w-full  ">
+                            <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo} onEdit={onZoneEdit} />
+                        </SidebarContent>
+                    </Sidebar>
 
-            <SidebarTrigger className="flex items-center justify-center h-full " />
+                    <SidebarTrigger className="flex items-center justify-center h-full " />
+                </div>
+            )
+
+            }
+
         </div>
     );
 }

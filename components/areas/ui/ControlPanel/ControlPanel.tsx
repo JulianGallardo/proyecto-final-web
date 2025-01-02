@@ -11,6 +11,7 @@ import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { createNewZone, createNewZones, getAllZones } from "@/actions/zone-actions";
+import { set } from "zod";
 
 
 
@@ -242,7 +243,9 @@ export default function MapControlPanel() {
     }, [mymap, draw]);
 
 
-    
+    useEffect(() => {
+        console.log(zones);
+    }, [zones]);
     
 
 
@@ -257,6 +260,8 @@ export default function MapControlPanel() {
                     const parsedId = id as string;
                     const Feature = getFeatureById(draw, parsedId);
                     const { action, mode } = context;
+                    console.log(id);
+                    console.log(action,mode);
 
                     if (action === "draw" && mode === "polygon") {
                         if (Feature) {
@@ -276,7 +281,11 @@ export default function MapControlPanel() {
                         }
                     }
 
-                    else if (action === "draw" && mode === "select") {
+
+
+                    
+                    
+                    else if (action === "dragCoordinate" && mode === "select") {
                         if (Feature) {
                             setZones((prevZones) => {
                                 const updatedZones = prevZones.map((zone) => {
@@ -289,6 +298,8 @@ export default function MapControlPanel() {
                             });
                         }
                     }
+
+                    
                 };
 
                 terraDrawInstance.on("finish", (id, context) => {
@@ -370,6 +381,7 @@ export default function MapControlPanel() {
     const saveEdits = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
+            
             terraDrawInstance?.setMode("render");
             setMode(DrawingModes.SinSeleccionar);
         }

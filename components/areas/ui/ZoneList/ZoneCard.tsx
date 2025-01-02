@@ -28,7 +28,7 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing , onEdit
     return (
         <div className="flex flex-col gap-3 p-3 shadow-lg border border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow w-full">
             {/* Contenedor principal */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 w-full">
+            <div className="flex flex-row  items-center justify-between gap-2 w-full">
                 {/* Nombre de la zona */}
                 <span className="text-sm font-bold md:text-md  truncate w-full">
                     {zoneName}

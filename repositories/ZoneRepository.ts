@@ -8,8 +8,34 @@ export default class ZoneRepository extends BaseRepository<Zone> {
         super(prisma.user);
     }
 
+
+    async getAll() {
+        const zones = await this.modelClient.findMany({
+            select: {
+                id: true,
+                zoneName: true,
+                zoneColor: true,
+                geometry: {
+                    select: {
+                        coordinates: {
+                            select: {
+                                latitude: true,
+                                longitude: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        return zones;
+    }
+
+
+
+
     async create(zone: CustomFeature) {
-        const newZone = await prisma.zone.create({
+        const newZone = await this.modelClient.create({
             data: {
                 zoneName: zone.properties.name,
                 zoneColor: zone.properties.color,
@@ -39,7 +65,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
 
     async updateZone(zoneId: string, updatedZone: CustomFeature) {
 
-        const zoneToUpdate = await prisma.zone.findUnique({
+        const zoneToUpdate = await this.modelClient.findUnique({
             where: { id: zoneId },
             select: {
                 geometryId: true,
@@ -61,7 +87,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
             throw new Error("Zone not found");
         }
 
-        const updated = await prisma.zone.update({
+        const updated = await this.modelClient.update({
             where: { id: zoneId },
             data: {
                 zoneName: updatedZone.properties.name,
@@ -94,7 +120,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     
 
     async deleteZone(zoneId: string) {
-        const deleted = await prisma.zone.delete({
+        const deleted = await this.modelClient.delete({
             where: { id: zoneId }
         });
 

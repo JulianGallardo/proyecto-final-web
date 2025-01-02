@@ -26,42 +26,36 @@ export async function createNewZone(params: CustomFeature): Promise<Zone> {
 
 
 export async function createNewZones(params: CustomFeature[]): Promise<Record<string, string>> {
-    const response = prisma.$transaction(async (tsx) => {
+    try {
+        const result = await prisma.$transaction(async (tsx) => {
+            const zonesInDb: Zone[] = await zoneRepo.getAll();
 
-        const zonesInDb: Zone[] = await zoneRepo.getAll();
-
-
-        try {
-            zonesInDb.forEach(async (zone) => {
+            // Eliminar zonas que no están en los parámetros en paralelo
+            await Promise.all(zonesInDb.map(async (zone) => {
                 if (!params.find((z) => z.id === zone.id)) {
                     await zoneRepo.deleteZone(zone.id);
                 }
-            });
+            }));
 
-            params.map(async (zone) => {
-                if (!zonesInDb.find((z) => z.id === zone.id)) {
+            // Crear o actualizar zonas según sea necesario en paralelo
+            await Promise.all(params.map(async (zone) => {
+                const existingZone = zonesInDb.find((z) => z.id === zone.id);
+                if (!existingZone) {
                     await zoneRepo.create(zone);
-                }
-                else if (zonesInDb.find((z) => z.id === zone.id) && typeof zone.id === "string") {
+                } else if (typeof zone.id === "string") {
                     await zoneRepo.updateZone(zone.id, zone);
                 }
-            });
-        } catch (e) {
-            console.log(e);
-            return {
-                status: "error"
+            }));
 
-            }
-        }
+            return { status: "success" };
+        });
 
-
-        return {
-            status: "success"
-        }
-    });
-
-    return response;
-
+        console.log("Transaction completed successfully.");
+        return result;
+    } catch (error) {
+        console.error("Error in createNewZones:", error);
+        return { status: "error", message: error instanceof Error ? error.message : "Unknown error occurred" };
+    }
 }
 
 export async function getAllZones(): Promise<CustomFeature[]> {

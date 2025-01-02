@@ -391,52 +391,56 @@ export default function MapControlPanel() {
         }
     };
 
-    const saveChanges = () => {
-        if (zones.length !== new Set(zones.map(zone => zone.properties.name)).size) {
+    const saveChanges = async () => {
+        // Verificar nombres duplicados
+        const zoneNames = zones.map(zone => zone.properties.name);
+        if (zoneNames.length !== new Set(zoneNames).size) {
             toast({
                 title: "Error",
                 description: "No pueden haber zonas con el mismo nombre, por favor cambie los nombres de las zonas repetidas",
                 className: "bg-red-500 text-white",
-                duration: 3000
+                duration: 3000,
             });
             return;
         }
 
-
         changeEditingState(false);
         setMode(DrawingModes.SinSeleccionar);
+
         try {
-            createNewZones(zones).then((response) => {
-                if (response.status === "success") {
-                    toast({
-                        title: "Zonas guardadas",
-                        description: "Las zonas han sido guardadas exitosamente",
-                        className: "bg-green-500 text-white",
-                        duration: 2000
-                    });
-                }
-                else {
-                    toast({
-                        title: "Error",
-                        description: "Ha ocurrido un error al guardar las zonas",
-                        className: "bg-red-500 text-white",
-                        duration: 2000
-                    });
-                }
-            });
-        }
-        catch (error) {
-            if (error instanceof Error) {
+            const response = await createNewZones(zones);
+
+            if (response.status === "success") {
+                toast({
+                    title: "Zonas guardadas",
+                    description: "Las zonas han sido guardadas exitosamente",
+                    className: "bg-green-500 text-white",
+                    duration: 2000,
+                });
+            } else {
                 toast({
                     title: "Error",
-                    description: "Ha ocurrido un error al guardar las zonas: " + error.message,
+                    description: response.message || "Ha ocurrido un error al guardar las zonas",
                     className: "bg-red-500 text-white",
-                    duration: 2000
+                    duration: 2000,
                 });
             }
-           
+        } catch (error) {
+            // Manejo de errores inesperados
+            const errorMessage =
+                error instanceof Error
+                    ? `Ha ocurrido un error al guardar las zonas: ${error.message}`
+                    : "Ha ocurrido un error desconocido al guardar las zonas";
+
+            toast({
+                title: "Error",
+                description: errorMessage,
+                className: "bg-red-500 text-white",
+                duration: 2000,
+            });
         }
-    }
+    };
+
 
     return (
         mymap && draw && finishedLoading &&

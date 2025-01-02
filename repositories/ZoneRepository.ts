@@ -1,16 +1,15 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Zone } from "@prisma/client";
-import { CustomFeature, ExtendedZone, Position } from "@/types/MapTypes";
+import { CustomFeature, Position } from "@/types/MapTypes";
 
 export default class ZoneRepository extends BaseRepository<Zone> {
     constructor() {
         super(prisma.zone);
     }
 
-
     async getAll() {
-        const zones = this.modelClient.findMany({
+        return this.modelClient.findMany({
             select: {
                 id: true,
                 zoneName: true,
@@ -27,15 +26,10 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                 }
             }
         });
-
-        return zones;
     }
 
-
-
-
     async create(zone: CustomFeature) {
-        const newZone:Promise<Zone> = this.modelClient.create({
+        return this.modelClient.create({
             data: {
                 id: zone.id,
                 zoneName: zone.properties.name,
@@ -45,131 +39,83 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                     create: {
                         type: zone.geometry.type,
                         coordinates: {
-                            create: (zone.geometry.coordinates as Position[][])[0].map((coord) => {
-                                const newCoord = [coord[0], coord[1]];
-
-                                return {
-                                    latitude: newCoord[0],
-                                    longitude: newCoord[1]
-                                };
-                            })
+                            create: (zone.geometry.coordinates as Position[][])[0].map(([lat, lon]) => ({
+                                latitude: lat,
+                                longitude: lon
+                            }))
                         }
                     }
                 },
-
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
         });
-
-        return newZone;
     }
 
-
-    async updateZone(id: string, data: CustomFeature) {
-
-        prisma.$transaction(async (trx) => {
-            try {
+    async updateZone(id: string, data: CustomFeature): Promise<{ success: boolean; message: string; updatedZone?: any }> {
+        try {
+            const updatedZone = await prisma.$transaction(async (trx) => {
                 const zoneToUpdate = await trx.zone.findUnique({
-                    where: { id: id },
-                    select: {
-                        geometryId: true,
-                        geometry: {
-
-                            select: {
-                                coordinates: {
-                                    select: {
-                                        latitude: true,
-                                        longitude: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }).then((zone) => {
-                    if (!zone) {
-                        throw new Error("Zone not found");
-                    }
-                    return zone as ExtendedZone;
-                }).catch((e) => {
-                    throw new Error(e);
+                    where: { id },
+                    select: { geometryId: true }
                 });
 
+                if (!zoneToUpdate) throw new Error("Zone not found");
 
                 await trx.coordinates.deleteMany({
-                    where: {
-                        geometryAssociatedId: zoneToUpdate.geometryId
-                    }
+                    where: { geometryAssociatedId: zoneToUpdate.geometryId }
                 });
 
-                console.log("Coordenadas viejas eliminadas");
+                const newCoordinates = (data.geometry.coordinates as Position[][])[0].map(([lat, lon]) => ({
+                    latitude: lat,
+                    longitude: lon
+                }));
 
-                const updated = await trx.zone.update({
-                    where: { id: id },
+                return trx.zone.update({
+                    where: { id },
                     data: {
                         zoneName: data.properties.name,
                         zoneColor: data.properties.color,
                         type: data.type,
                         geometry: {
                             update: {
-                                where: {
-                                    id: zoneToUpdate.geometryId
-                                }, // Identifica la geometría a actualizar
-                                data: {
-                                    coordinates: {
-                                        create: (data.geometry.coordinates as Position[][])[0].map((coord) => {
-                                            return {
-                                                latitude: coord[0],
-                                                longitude: coord[1],
-                                            };
-                                        }),
-                                    },
-                                },
-                            },
+                                coordinates: { create: newCoordinates }
+                            }
                         },
-                        updatedAt: new Date(),
-                    },
+                        updatedAt: new Date()
+                    }
                 });
+            });
 
-                return updated;
-            } catch (e) {
-                console.log(e);
-                throw new Error("No fue posible actualizar la zona");
-
-            }
+            return { success: true, message: "Zone updated successfully", updatedZone };
+        } catch (error) {
+            console.error("Error updating zone:", error);
+            return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
         }
-        );
     }
 
+    async deleteZone(zoneId: string): Promise<{ success: boolean; message: string }> {
+        try {
+            await prisma.$transaction(async (trx) => {
+                const zoneToDelete = await trx.zone.findUnique({
+                    where: { id: zoneId },
+                    select: { geometryId: true }
+                });
 
-    async deleteZone(zoneId: string) {
+                if (!zoneToDelete) throw new Error("Zone not found");
 
-        prisma.$transaction(async (trx) => {
-            const zoneToDelete = await trx.zone.findUnique({
-                where: { id: zoneId },
-                select: {
-                    geometryId: true
-                }
-            }).then((zone) => {
-                if (!zone) {
-                    throw new Error("Zone not found");
-                }
-                return zone;
-            }).catch((e) => {
-                throw new Error(e);
+                await Promise.all([
+                    trx.coordinates.deleteMany({
+                        where: { geometryAssociatedId: zoneToDelete.geometryId }
+                    }),
+                    trx.zone.delete({ where: { id: zoneId } })
+                ]);
             });
 
-            await trx.coordinates.deleteMany({
-                where: {
-                    geometryAssociatedId: zoneToDelete.geometryId
-                }
-            });
-
-            const deleted = await trx.zone.delete({
-                where: { id: zoneId }
-            });
-
-            return deleted;
-        });
+            return { success: true, message: "Zone deleted successfully" };
+        } catch (error) {
+            console.error("Error deleting zone:", error);
+            return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
+        }
     }
 }

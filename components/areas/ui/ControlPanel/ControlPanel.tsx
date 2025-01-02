@@ -426,12 +426,15 @@ export default function MapControlPanel() {
             });
         }
         catch (error) {
-            toast({
-                title: "Error",
-                description: "Ha ocurrido un error al guardar las zonas",
-                className: "bg-red-500 text-white",
-                duration: 2000
-            });
+            if (error instanceof Error) {
+                toast({
+                    title: "Error",
+                    description: "Ha ocurrido un error al guardar las zonas: " + error.message,
+                    className: "bg-red-500 text-white",
+                    duration: 2000
+                });
+            }
+           
         }
     }
 

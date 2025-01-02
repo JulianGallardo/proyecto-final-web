@@ -63,11 +63,11 @@ model VerificationToken {
 
 model Coordinates {
   id         String @id @default(cuid())
-  geometryId String @unique
+  geometryAssociatedId String 
   latitude   Float
   longitude  Float
 
-  Geometry Geometry @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+  Geometry Geometry @relation(fields: [geometryAssociatedId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -88,7 +88,7 @@ model Zone {
   zoneColor String
   type      String @default("Feature")
 
-  geometryId String   @unique @default(cuid())
+  geometryId String   @unique
   geometry   Geometry @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
 
   createdAt DateTime @default(now())

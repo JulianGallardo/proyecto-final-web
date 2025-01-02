@@ -10,6 +10,7 @@ import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
+import { createNewZone, getAllZones } from "@/actions/zone-actions";
 
 
 
@@ -231,9 +232,18 @@ export default function MapControlPanel() {
             mymap.addControl(newDraw); // Agregar el control al mapa
             setDraw(newDraw); // Guardar el controlador en el estado
             deleteZone(getZoneInfoFromLocalStorage());
-            setFinishedLoading(true);
+
+            fetchZones().then(() => {
+                setFinishedLoading(true);
+            }).catch((error) => {
+                throw new Error(error);
+            });
         }
     }, [mymap, draw]);
+
+    
+
+
 
     // Manejar el evento "finish"
     useEffect(() => {
@@ -257,6 +267,7 @@ export default function MapControlPanel() {
 
                             if (Feature && Feature.id) {
                                 setZones((prevZones) => [...prevZones, Feature as CustomFeature]);
+                                createNewZone(Feature as CustomFeature);
                             }
                             terraDrawInstance.setMode("render");
                             setMode(DrawingModes.SinSeleccionar);
@@ -291,6 +302,13 @@ export default function MapControlPanel() {
             }
         }
     }, [draw]);
+
+
+    async function fetchZones() {
+        const zones = await getAllZones();
+        setZones(zones);
+    }
+
 
     /** Funciones de manejo de zonas **/
     const addZone = () => {

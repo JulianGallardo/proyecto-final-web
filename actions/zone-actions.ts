@@ -1,6 +1,6 @@
 "use server";
 import ZoneRepository from "@/repositories/ZoneRepository";
-import { CustomFeature } from "@/types/MapTypes";
+import { CustomFeature, Position } from "@/types/MapTypes";
 import { Zone } from "@prisma/client";
 import { HexColor } from "terra-draw";
 
@@ -21,7 +21,7 @@ export async function createNewZone(params:CustomFeature) {
     return zoneRepo.create(params);
 }
 
-export async function getAllZones() {
+export async function getAllZones(): Promise<CustomFeature[]> {
     const zonesBdd:ZoneResponse[] = await zoneRepo.getAll();
     
 
@@ -30,17 +30,24 @@ export async function getAllZones() {
         return [];
     }
 
-    
-    const zones = zonesBdd.map((zone) => {
+
+    const zones:CustomFeature[] = zonesBdd.map((zone) => {
+
+        const coordinates:Position[] = zone.geometry.coordinates.map((coord) => {
+            return [coord.latitude, coord.longitude];
+        });
+
         return {
             id: zone.id,
-            zoneName: zone.zoneName,
-            zoneColor: zone.zoneColor as HexColor,
+            type: "Feature",
+            properties: {
+                type: zone.type,
+                name: zone.zoneName,
+                color: zone.zoneColor as HexColor
+            },
             geometry: {
-                type: zone.geometry.type,
-                coordinates: zone.geometry.coordinates.map((coord) => {
-                    return [coord.latitude, coord.longitude];
-                })
+                type: "Polygon",
+                coordinates: [coordinates]
             }
         };
     });

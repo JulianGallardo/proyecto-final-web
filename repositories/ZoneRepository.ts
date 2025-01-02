@@ -5,12 +5,12 @@ import { CustomFeature, Position } from "@/types/MapTypes";
 
 export default class ZoneRepository extends BaseRepository<Zone> {
     constructor() {
-        super(prisma.user);
+        super(prisma.zone);
     }
 
 
-    async getAll() {
-        const zones = await this.modelClient.findMany({
+    getAll() {
+        const zones =this.modelClient.findMany({
             select: {
                 id: true,
                 zoneName: true,
@@ -34,8 +34,8 @@ export default class ZoneRepository extends BaseRepository<Zone> {
 
 
 
-    async create(zone: CustomFeature) {
-        const newZone = await this.modelClient.create({
+    create(zone: CustomFeature) {
+        const newZone = this.modelClient.create({
             data: {
                 zoneName: zone.properties.name,
                 zoneColor: zone.properties.color,
@@ -55,6 +55,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                         }
                     }
                 },
+                
                 createdAt: new Date(),
                 updatedAt: new Date()
             }

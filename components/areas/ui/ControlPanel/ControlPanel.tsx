@@ -262,10 +262,17 @@ export default function MapControlPanel() {
                     const Feature = getFeatureById(draw, parsedId);
                     const { action, mode } = context;
 
+
+
+
                     if (action === "draw" && mode === "polygon") {
                         if (Feature) {
                             if (Feature.id) {
                                 const newZoneInfo = getZoneInfoFromLocalStorage();
+                                
+                                
+                                
+                                
                                 Feature.properties.color = newZoneInfo.color;
                                 Feature.properties.editable = false;
                                 Feature.properties.name = newZoneInfo.name;
@@ -385,6 +392,17 @@ export default function MapControlPanel() {
     };
 
     const saveChanges = () => {
+        if (zones.length !== new Set(zones.map(zone => zone.properties.name)).size) {
+            toast({
+                title: "Error",
+                description: "No pueden haber zonas con el mismo nombre, por favor cambie los nombres de las zonas repetidas",
+                className: "bg-red-500 text-white",
+                duration: 3000
+            });
+            return;
+        }
+        
+        
         changeEditingState(false);
         setMode(DrawingModes.SinSeleccionar);
         createNewZones(zones).then((response) => {

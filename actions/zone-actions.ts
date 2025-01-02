@@ -2,6 +2,8 @@
 import ZoneRepository from "@/repositories/ZoneRepository";
 import { CustomFeature, Position } from "@/types/MapTypes";
 import { Zone } from "@prisma/client";
+import { error } from "console";
+import { typeOf } from "maplibre-gl";
 import { HexColor } from "terra-draw";
 
 interface ZoneResponse extends Zone {
@@ -17,8 +19,43 @@ interface ZoneResponse extends Zone {
 const zoneRepo = new ZoneRepository();
 
 
-export async function createNewZone(params:CustomFeature) {
+export async function createNewZone(params:CustomFeature): Promise<Zone> {
     return zoneRepo.create(params);
+}
+
+
+export async function createNewZones(params:CustomFeature[]): Promise<Record<string, string>> {
+    const zonesInDb:Zone[] = await zoneRepo.getAll();
+
+
+    try{
+        zonesInDb.forEach(async (zone) => {
+            if (!params.find((z) => z.id === zone.id)) {
+                await zoneRepo.deleteZone(zone.id);
+            }
+        });
+    
+        params.map(async (zone) => {
+            if (!zonesInDb.find((z) => z.id === zone.id)) {
+                await zoneRepo.create(zone);
+            }
+            else if (zonesInDb.find((z) => z.id === zone.id) && typeof zone.id === "string") {
+                console.log("updating zone");
+                await zoneRepo.updateZone(zone.id, zone);
+            }
+        });
+    }catch(e){
+        return {
+            status: "error"
+        }
+    }
+    
+
+    return {
+        status: "success"
+    }
+
+    
 }
 
 export async function getAllZones(): Promise<CustomFeature[]> {

@@ -10,7 +10,7 @@ import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
-import { createNewZone, getAllZones } from "@/actions/zone-actions";
+import { createNewZone, createNewZones, getAllZones } from "@/actions/zone-actions";
 
 
 
@@ -233,7 +233,7 @@ export default function MapControlPanel() {
             setDraw(newDraw); // Guardar el controlador en el estado
             deleteZone(getZoneInfoFromLocalStorage());
 
-            fetchZones().then(() => {
+            fetchZones(newDraw).then(() => {
                 setFinishedLoading(true);
             }).catch((error) => {
                 throw new Error(error);
@@ -304,8 +304,28 @@ export default function MapControlPanel() {
     }, [draw]);
 
 
-    async function fetchZones() {
+    async function fetchZones(terraDrawInstance: MaplibreTerradrawControl) {
         const zones = await getAllZones();
+        const terraDraw=terraDrawInstance.getTerraDrawInstance();
+        zones.forEach((zone) => {
+            const newZone = {
+                id: zone.id,
+                type: "Feature",
+                geometry: {
+                    type: "Polygon",
+                    coordinates: zone.geometry.coordinates
+                },
+                properties: {
+                    mode: "polygon",
+                    color: zone.properties.color,
+                    name: zone.properties.name
+                },
+            } as GeoJSONStoreFeatures;
+
+            saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
+            terraDraw?.addFeatures([newZone]);
+
+        });
         setZones(zones);
     }
 
@@ -356,6 +376,14 @@ export default function MapControlPanel() {
     const saveChanges = () => {
         changeEditingState(false);
         setMode(DrawingModes.SinSeleccionar);
+        createNewZones(zones).then((response) => {
+            if (response.status === "success") {
+                console.log("Zonas guardadas correctamente");
+            }
+            else {
+                throw new Error("Error al guardar las zonas");
+            }
+        });
     }
 
     return (

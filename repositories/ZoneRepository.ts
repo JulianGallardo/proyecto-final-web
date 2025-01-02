@@ -37,6 +37,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     create(zone: CustomFeature) {
         const newZone = this.modelClient.create({
             data: {
+                id: zone.id,
                 zoneName: zone.properties.name,
                 zoneColor: zone.properties.color,
                 type: zone.type,
@@ -64,10 +65,11 @@ export default class ZoneRepository extends BaseRepository<Zone> {
         return newZone;
     }
 
-    async updateZone(zoneId: string, updatedZone: CustomFeature) {
+    
+    updateZone(id: string, data: CustomFeature) {
 
-        const zoneToUpdate = await this.modelClient.findUnique({
-            where: { id: zoneId },
+        const zoneToUpdate = this.modelClient.findUnique({
+            where: { id: id },
             select: {
                 geometryId: true,
                 geometry: {
@@ -88,12 +90,12 @@ export default class ZoneRepository extends BaseRepository<Zone> {
             throw new Error("Zone not found");
         }
 
-        const updated = await this.modelClient.update({
-            where: { id: zoneId },
+        const updated =  this.modelClient.update({
+            where: { id: id },
             data: {
-                zoneName: updatedZone.properties.name,
-                zoneColor: updatedZone.properties.color,
-                type: updatedZone.type,
+                zoneName: data.properties.name,
+                zoneColor: data.properties.color,
+                type: data.type,
                 geometry: {
                     update: {
                         where: {
@@ -102,7 +104,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                         data: {
                             coordinates: {
                                 deleteMany: {}, // Elimina las coordenadas existentes
-                                create: (updatedZone.geometry.coordinates as Position[][])[0].map((coord) => {
+                                create: (data.geometry.coordinates as Position[][])[0].map((coord) => {
                                     return {
                                         latitude: coord[0],
                                         longitude: coord[1],

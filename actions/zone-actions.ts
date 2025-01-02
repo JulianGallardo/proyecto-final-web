@@ -25,7 +25,7 @@ export async function createNewZone(params: CustomFeature): Promise<Zone> {
 }
 
 
-export function createNewZones(params: CustomFeature[]): Promise<Record<string, string>> {
+export async function createNewZones(params: CustomFeature[]): Promise<Record<string, string>> {
     const response = prisma.$transaction(async (tsx) => {
 
         const zonesInDb: Zone[] = await zoneRepo.getAll();
@@ -34,16 +34,16 @@ export function createNewZones(params: CustomFeature[]): Promise<Record<string, 
         try {
             zonesInDb.forEach(async (zone) => {
                 if (!params.find((z) => z.id === zone.id)) {
-                    zoneRepo.deleteZone(zone.id);
+                    await zoneRepo.deleteZone(zone.id);
                 }
             });
 
             params.map(async (zone) => {
                 if (!zonesInDb.find((z) => z.id === zone.id)) {
-                    zoneRepo.create(zone);
+                    await zoneRepo.create(zone);
                 }
                 else if (zonesInDb.find((z) => z.id === zone.id) && typeof zone.id === "string") {
-                    zoneRepo.updateZone(zone.id, zone);
+                    await zoneRepo.updateZone(zone.id, zone);
                 }
             });
         } catch (e) {

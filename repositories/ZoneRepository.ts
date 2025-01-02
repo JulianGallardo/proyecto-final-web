@@ -9,7 +9,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     }
 
 
-    getAll() {
+    async getAll() {
         const zones = this.modelClient.findMany({
             select: {
                 id: true,
@@ -34,8 +34,8 @@ export default class ZoneRepository extends BaseRepository<Zone> {
 
 
 
-    create(zone: CustomFeature) {
-        const newZone = this.modelClient.create({
+    async create(zone: CustomFeature) {
+        const newZone:Promise<Zone> = this.modelClient.create({
             data: {
                 id: zone.id,
                 zoneName: zone.properties.name,
@@ -66,7 +66,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     }
 
 
-    updateZone(id: string, data: CustomFeature) {
+    async updateZone(id: string, data: CustomFeature) {
 
         prisma.$transaction(async (trx) => {
             try {
@@ -142,7 +142,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     }
 
 
-    deleteZone(zoneId: string) {
+    async deleteZone(zoneId: string) {
 
         prisma.$transaction(async (trx) => {
             const zoneToDelete = await trx.zone.findUnique({

@@ -11,7 +11,7 @@ import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { createNewZone, createNewZones, getAllZones } from "@/actions/zone-actions";
-import { set } from "zod";
+import { useToast } from "@/hooks/use-toast";
 
 
 
@@ -25,6 +25,8 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 export default function MapControlPanel() {
     const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
     const { mymap } = useMap();
+    const {toast} = useToast();
+    
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
@@ -35,6 +37,8 @@ export default function MapControlPanel() {
 
     const [finishedLoading, setFinishedLoading] = useState(false);
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
+
+
 
 
     function fetchDataFromColorCache(key: string) {
@@ -243,9 +247,6 @@ export default function MapControlPanel() {
     }, [mymap, draw]);
 
 
-    useEffect(() => {
-        console.log(zones);
-    }, [zones]);
     
 
 
@@ -260,8 +261,6 @@ export default function MapControlPanel() {
                     const parsedId = id as string;
                     const Feature = getFeatureById(draw, parsedId);
                     const { action, mode } = context;
-                    console.log(id);
-                    console.log(action,mode);
 
                     if (action === "draw" && mode === "polygon") {
                         if (Feature) {
@@ -391,11 +390,22 @@ export default function MapControlPanel() {
         changeEditingState(false);
         setMode(DrawingModes.SinSeleccionar);
         createNewZones(zones).then((response) => {
+            console.log(response);
             if (response.status === "success") {
-                console.log("Zonas guardadas correctamente");
+                toast({
+                    title: "Zonas guardadas",
+                    description: "Las zonas han sido guardadas exitosamente",
+                    className: "bg-green-500 text-white",
+                    duration: 2000
+                });
             }
             else {
-                throw new Error("Error al guardar las zonas");
+                toast({
+                    title: "Error",
+                    description: "Ha ocurrido un error al guardar las zonas",
+                    className: "bg-red-500 text-white",
+                    duration: 2000
+                });
             }
         });
     }

@@ -10,7 +10,7 @@ import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
-import { createNewZone, createNewZones, getAllZones } from "@/actions/zone-actions";
+import {  createNewZones, getAllZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
 
 

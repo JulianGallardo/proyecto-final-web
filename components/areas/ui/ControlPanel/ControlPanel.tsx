@@ -406,7 +406,6 @@ export default function MapControlPanel() {
         changeEditingState(false);
         setMode(DrawingModes.SinSeleccionar);
         createNewZones(zones).then((response) => {
-            console.log(response);
             if (response.status === "success") {
                 toast({
                     title: "Zonas guardadas",

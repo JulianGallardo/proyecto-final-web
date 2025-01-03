@@ -1,11 +1,12 @@
 import { auth } from "@/auth"
 import Areas from "@/components/areas/maps/map"
+import NoAutenticado from "@/components/error/errorNoAutenticado"
 
 export default async function HomePage() {
   const session = await auth()
 
   if (!session) {
-    return <div>Not authenticated</div>
+    return <div><NoAutenticado/></div>
   }
 
   return (

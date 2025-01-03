@@ -13,6 +13,7 @@ import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { createNewZones, getAllZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
+import { set } from "zod";
 
 
 
@@ -305,31 +306,9 @@ export default function MapControlPanel() {
                             }
                         }
                     }
-
-
-
-
-
-                    else if (action === "dragCoordinate" && mode === "select") {
-                        if (Feature) {
-                            setZones((prevZones) => {
-                                const updatedZones = prevZones.map((zone) => {
-                                    if (zone.id === Feature.id) {
-                                        return Feature as CustomFeature;
-                                    }
-                                    return zone;
-                                });
-                                return updatedZones;
-                            });
-                        }
-                    }
-
-
                 };
 
                 terraDrawInstance.on("finish", (id, context) => {
-
-
                     const parseId = id as string;
                     handleFinish(parseId, context);
 
@@ -413,6 +392,14 @@ export default function MapControlPanel() {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
             terraDrawInstance?.setMode("render");
+
+            draw.getFeatures()?.features.forEach((feature: GeoJSONStoreFeatures) => {
+                const zone = zones.find((zone) => zone.id === feature.id);
+                if (zone) {
+                    zone.geometry.coordinates = feature.geometry.coordinates;
+                }
+                setZones([...zones]);
+            });
             setMode(DrawingModes.SinSeleccionar);
         }
     };

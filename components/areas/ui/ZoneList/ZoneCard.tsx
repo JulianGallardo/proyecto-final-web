@@ -20,6 +20,9 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing, onEdit 
     const { properties } = Feature;
     const [zoneColor, setZoneColor] = useState<string>(properties?.color || "#FFFFFF");
 
+    const [openDelete, setOpenDelete] = useState(false);
+
+
     useEffect(() => {
         if (properties?.color) {
             setZoneColor(properties.color);
@@ -52,25 +55,31 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing, onEdit 
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p>Customizar Zona</p>
+                            <p>Editar Informacion</p>
                         </TooltipContent>
                     </Tooltip>
 
                     {/* Botón Borrar */}
                     <Tooltip>
                         <TooltipTrigger >
-                            <ConfirmDelete
-                                title="¿Estás seguro de borrar esta zona?"
-                                description="Esta acción no se puede deshacer."
-                                onConfirm={onDelete}
-                                triggerText="Borrar"
-                            />
+                            <Button className="bg-red-500 hover:bg-red-800" onClick={() => setOpenDelete(true)}>
+                                <Trash />
+                            </Button>
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>Borrar Zona</p>
                         </TooltipContent>
 
                     </Tooltip>
+                    <ConfirmDelete
+                        title={"¿Estás seguro de borrar la zona " + zoneName + "?"}
+                        description="Esta acción no se puede deshacer."
+                        onConfirm={onDelete}
+                        triggerText="Borrar"
+                        open={openDelete}
+                        setOpen={setOpenDelete}
+
+                    />
                 </div>
             )}
         </div>

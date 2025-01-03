@@ -44,7 +44,7 @@ export default function Menu() {
           title="Paquetes"
           description="Gestiona y rastrea los paquetes en tránsito."
           icon={Package}
-          onClick={() => router.push("/packages")}
+          onClick={() => router.push("/paquetes")}
         />
 
         {/* Card Reportes */}
@@ -52,7 +52,7 @@ export default function Menu() {
           title="Reportes"
           description="Revisa los datos y genera reportes detallados."
           icon={ChartGraph}
-          onClick={() => router.push("/reports")}
+          onClick={() => router.push("/reportes")}
         />
       </div>
     </div>

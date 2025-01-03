@@ -67,6 +67,7 @@ export default function MapControlPanel() {
 
     function changeEditingState(state: boolean) {
         setEditingZonesInfo(state);
+
     }
 
     function changeNewZoneDialogState(state: boolean) {
@@ -117,7 +118,7 @@ export default function MapControlPanel() {
             return updatedZones;
         });
 
-
+        
 
         setEditingZoneDialogOpen(false);
 
@@ -400,6 +401,11 @@ export default function MapControlPanel() {
             const terraDrawInstance = draw.getTerraDrawInstance();
             terraDrawInstance?.setMode("select");
             setMode(DrawingModes.EditandoZonas);
+            
+            if(isMobile){
+                setOpenMobile(false);
+            }
+
         }
     };
 

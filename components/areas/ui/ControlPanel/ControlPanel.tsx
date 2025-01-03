@@ -12,6 +12,8 @@ import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { createNewZones, getAllZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
+import { LoadSkeleton } from "@/components/areas/maps/map";
+import { set } from "zod";
 
 
 
@@ -22,7 +24,7 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 
 
-export default async function MapControlPanel() {
+export default function MapControlPanel() {
     const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
     const { mymap } = useMap();
     const { toast } = useToast();
@@ -35,7 +37,7 @@ export default async function MapControlPanel() {
     const [editingZoneDialogOpen, setEditingZoneDialogOpen] = useState(false); // Estado para el dialogo de edición de zona
 
 
-    const [finishedLoading, setFinishedLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
 
 
@@ -239,7 +241,7 @@ export default async function MapControlPanel() {
             deleteZone(getZoneInfoFromLocalStorage());
 
             fetchZones(newDraw).then(() => {
-                setFinishedLoading(true);
+                setLoading(false);
             }).catch((error) => {
                 throw new Error(error);
             });
@@ -393,6 +395,7 @@ export default async function MapControlPanel() {
 
     const saveChanges = async () => {
         // Verificar nombres duplicados
+        setLoading(true);
         const zoneNames = zones.map(zone => zone.properties.name);
         if (zoneNames.length !== new Set(zoneNames).size) {
             toast({
@@ -409,7 +412,7 @@ export default async function MapControlPanel() {
 
         try {
             const response = await createNewZones(zones);
-
+            setLoading(false);
             if (response.status === "success") {
                 toast({
                     title: "Zonas guardadas",
@@ -426,7 +429,7 @@ export default async function MapControlPanel() {
                 });
             }
         } catch (error) {
-            // Manejo de errores inesperados
+            setLoading(false);
             const errorMessage =
                 error instanceof Error
                     ? `Ha ocurrido un error al guardar las zonas: ${error.message}`
@@ -441,13 +444,15 @@ export default async function MapControlPanel() {
         }
     };
 
-    
+
     return (
 
         <div className="flex flex-row w-full h-full ">
-            
-            {finishedLoading && (
-                <div>
+
+            {loading ? (
+                <LoadSkeleton />
+            ) : (
+                <div className="w-full h-full flex flex-row">
                     <Sidebar >
                         <SidebarHeader>
                             <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
@@ -461,7 +466,7 @@ export default async function MapControlPanel() {
                             <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo} onEdit={onZoneEdit} />
                         </SidebarContent>
                     </Sidebar>
-
+                    
                     <SidebarTrigger className="flex items-center justify-center h-full " />
                 </div>
             )

@@ -15,29 +15,27 @@ export default function Areas() {
 
     return (
         <div className="flex flex-row w-full h-full ">
-            <Suspense fallback={<LoadSkeleton />}>
                 <SidebarProvider className="flex flex-row  bg-gray-100 border-r border-gray-200">
                     <Sidebar />
                 </SidebarProvider>
 
-            </Suspense>
-            <Map
-                id="mymap"
-                initialViewState={{
-                    longitude: center.lng,
-                    latitude: center.lat,
-                    zoom: 11.5,
-                }}
-                style={{ width: "100%", height: "100%" }}
-                mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+                <Map
+                    id="mymap"
+                    initialViewState={{
+                        longitude: center.lng,
+                        latitude: center.lat,
+                        zoom: 11.5,
+                    }}
+                    style={{ width: "100%", height: "100%" }}
+                    mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 
-            />
+                />
         </div>
     );
 }
 
 
-function LoadSkeleton() {
+export function LoadSkeleton() {
     return (
         <div className="absolute inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center z-50">
             <div className="flex flex-col items-center">

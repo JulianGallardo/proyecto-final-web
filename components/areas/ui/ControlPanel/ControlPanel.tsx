@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import ZoneList from "../ZoneList/ZoneList";
 import { GeoJSONStoreFeatures, TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
@@ -25,6 +25,9 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 export default function MapControlPanel() {
     const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
+    const { open, isMobile, setOpenMobile } = useSidebar();
+
+
     const { mymap } = useMap();
     const { toast } = useToast();
 
@@ -137,6 +140,11 @@ export default function MapControlPanel() {
     }
 
     function onNewZoneDialogSubmit() {
+
+        if (isMobile) {
+            setOpenMobile(false);
+        }
+
         setNewZoneDialogOpen(false);
     }
 
@@ -235,12 +243,12 @@ export default function MapControlPanel() {
 
 
 
-            mymap.addControl(newDraw); 
-            setDraw(newDraw); 
+            mymap.addControl(newDraw);
+            setDraw(newDraw);
 
 
             // Oculto el control de terradraw
-            const mapControl =document.getElementsByClassName("maplibregl-ctrl maplibregl-ctrl-group")[0];
+            const mapControl = document.getElementsByClassName("maplibregl-ctrl maplibregl-ctrl-group")[0];
             mapControl.setAttribute("style", "visibility: hidden;");
 
 
@@ -291,6 +299,9 @@ export default function MapControlPanel() {
                             }
                             terraDrawInstance.setMode("render");
                             setMode(DrawingModes.SinSeleccionar);
+                            if (isMobile) {
+                                setOpenMobile(true);
+                            }
                         }
                     }
 
@@ -364,7 +375,6 @@ export default function MapControlPanel() {
             setNewZoneDialogOpen(true);
             terraDrawInstance?.setMode("polygon");
             setMode(DrawingModes.CreandoZonas);
-
         }
     };
 
@@ -404,6 +414,11 @@ export default function MapControlPanel() {
     const saveChanges = async () => {
         // Verificar nombres duplicados
         setTransactionLoading(true);
+        if (isMobile) {
+            setOpenMobile(false);
+        }
+
+
         const zoneNames = zones.map(zone => zone.properties.name);
         if (zoneNames.length !== new Set(zoneNames).size) {
             toast({
@@ -412,6 +427,10 @@ export default function MapControlPanel() {
                 className: "bg-red-500 text-white",
                 duration: 3000,
             });
+            setTransactionLoading(false);
+            if (isMobile) {
+                setOpenMobile(true);
+            }
             return;
         }
 
@@ -421,6 +440,9 @@ export default function MapControlPanel() {
         try {
             const response = await createNewZones(zones);
             setTransactionLoading(false);
+            if (isMobile) {
+                setOpenMobile(true);
+            }
             if (response.status === "success") {
                 toast({
                     title: "Zonas guardadas",
@@ -438,6 +460,9 @@ export default function MapControlPanel() {
             }
         } catch (error) {
             setTransactionLoading(false);
+            if (isMobile) {
+                setOpenMobile(true);
+            }
             const errorMessage =
                 error instanceof Error
                     ? `Ha ocurrido un error al guardar las zonas: ${error.message}`
@@ -455,6 +480,10 @@ export default function MapControlPanel() {
     const discardChanges = async () => {
 
         setTransactionLoading(true);
+        if (isMobile) {
+            setOpenMobile(false);
+        }
+
 
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
@@ -481,6 +510,9 @@ export default function MapControlPanel() {
                 }, 2000);
                 changeEditingState(false);
                 setTransactionLoading(false);
+                if (isMobile) {
+                    setOpenMobile(true);
+                }
 
             }).catch((error) => {
                 throw new Error(error);
@@ -495,6 +527,11 @@ export default function MapControlPanel() {
                 className: "bg-red-500 text-white",
                 duration: 2000,
             });
+
+            setTransactionLoading(false);
+            if (isMobile) {
+                setOpenMobile(true);
+            }
             throw new Error("No se ha podido descartar los cambios");
         }
 

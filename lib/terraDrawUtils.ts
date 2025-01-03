@@ -1,7 +1,5 @@
 import { Position } from "@/types/MapTypes";
 import * as turf from "@turf/turf";
-import { FeatureCollection } from "geojson";
-import { diff, Feature } from "maplibre-gl";
 import { GeoJSONStoreFeatures } from "terra-draw";
 
 /**

@@ -6,14 +6,17 @@ import { Pencil, Plus, Save, Undo, XOctagon } from "@mynaui/icons-react";
 interface EditingPanelProps {
     onEdit: () => void;
     saveZoneEdits: () => void;
+    discardZoneEdits: () => void;
+
     saveChanges: () => void;
     discardChanges: () => void;
     addZone: () => void;
     mode: DrawingModes;
     setRenderMode: () => void;
+
 }
 
-export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, saveChanges, setRenderMode, discardChanges }: EditingPanelProps) {
+export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, discardZoneEdits, saveChanges, setRenderMode, discardChanges }: EditingPanelProps) {
     return (
         <div className="flex flex-col w-full   gap-5 items-center justify-center">
             <div className="w-full  bg-gray-200 p-2 rounded-lg text-sm text-center font">
@@ -63,7 +66,7 @@ export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, sav
                     </Tooltip>
 
                 }
-                
+
 
                 {
                     mode !== DrawingModes.CreandoZonas &&
@@ -84,13 +87,16 @@ export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, sav
 
                 }
 
-                
-{
-                    mode === DrawingModes.SinSeleccionar &&
+
+                {
+                    (mode === DrawingModes.SinSeleccionar || mode === DrawingModes.EditandoZonas) &&
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button onClick={() => discardChanges()} className="bg-red-500 hover:bg-red-800">
-                                <Undo  />
+                            <Button onClick={
+                                (mode === DrawingModes.SinSeleccionar) ? ()=>discardChanges() : ()=>discardZoneEdits()
+
+                            } className="bg-red-500 hover:bg-red-800">
+                                <Undo />
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>

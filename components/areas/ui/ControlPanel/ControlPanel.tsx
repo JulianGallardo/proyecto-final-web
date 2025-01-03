@@ -5,7 +5,7 @@ import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import ZoneList from "../ZoneList/ZoneList";
-import { GeoJSONStoreFeatures, TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
+import { GeoJSONStoreFeatures, TerraDraw, TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
@@ -26,7 +26,7 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 export default function MapControlPanel() {
     const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
-    const {  isMobile, setOpenMobile } = useSidebar();
+    const { isMobile, setOpenMobile } = useSidebar();
 
 
     const { mymap } = useMap();
@@ -119,7 +119,7 @@ export default function MapControlPanel() {
             return updatedZones;
         });
 
-        
+
 
         setEditingZoneDialogOpen(false);
 
@@ -325,25 +325,32 @@ export default function MapControlPanel() {
         const zones = await getAllZones();
         const terraDraw = terraDrawInstance.getTerraDrawInstance();
         zones.forEach((zone) => {
-            const newZone = {
-                id: zone.id,
-                type: "Feature",
-                geometry: {
-                    type: "Polygon",
-                    coordinates: zone.geometry.coordinates
-                },
-                properties: {
-                    mode: "polygon",
-                    color: zone.properties.color,
-                    name: zone.properties.name
-                },
-            } as GeoJSONStoreFeatures;
-
-            saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
-            terraDraw?.addFeatures([newZone]);
+            addNewZoneToMap(zone, terraDraw);
 
         });
         setZones(zones);
+    }
+
+
+
+    function addNewZoneToMap(zone: CustomFeature, terraDraw: TerraDraw) {
+        const newZone = {
+            id: zone.id,
+            type: "Feature",
+            geometry: {
+                type: "Polygon",
+                coordinates: zone.geometry.coordinates
+            },
+            properties: {
+                mode: "polygon",
+                color: zone.properties.color,
+                name: zone.properties.name
+            },
+        } as GeoJSONStoreFeatures;
+
+        saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
+        terraDraw?.addFeatures([newZone]);
+
     }
 
 
@@ -380,13 +387,36 @@ export default function MapControlPanel() {
             const terraDrawInstance = draw.getTerraDrawInstance();
             terraDrawInstance?.setMode("select");
             setMode(DrawingModes.EditandoZonas);
-            
-            if(isMobile){
+
+            if (isMobile) {
                 setOpenMobile(false);
             }
 
         }
     };
+
+    const discardZoneEdits = () => {
+        if (draw) {
+            const terraDrawInstance = draw.getTerraDrawInstance();
+            zones.forEach((zone) => {
+                if (zone.id) {
+                    terraDrawInstance?.removeFeatures([zone.id]);
+                }
+            });
+
+            zones.forEach((zone) => {
+                addNewZoneToMap(zone, terraDrawInstance);
+            });
+
+
+            terraDrawInstance?.setMode("render");
+            setMode(DrawingModes.SinSeleccionar);
+
+        }
+    };
+
+
+
 
     const saveEdits = () => {
         if (draw) {
@@ -547,7 +577,7 @@ export default function MapControlPanel() {
                     }
                     <Sidebar >
                         <SidebarHeader>
-                            <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} discardChanges={discardChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
+                            <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} discardZoneEdits={discardZoneEdits} saveChanges={saveChanges} discardChanges={discardChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
                             <AddZoneDialog open={newZoneDialogOpen} setOpen={changeNewZoneDialogState} onDialogSubmit={onNewZoneDialogSubmit} />
                             <EditZoneDialog open={editingZoneDialogOpen} setOpen={setEditingZoneDialogOpen} onDialogSubmit={onEditZoneDialogSubmit} />
                         </SidebarHeader>

@@ -8,12 +8,13 @@ import ZoneList from "../ZoneList/ZoneList";
 import { GeoJSONStoreFeatures, TerraDraw, TerraDrawPolygonMode, TerraDrawSelectMode, ValidateNotSelfIntersecting } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
-import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
+import { CustomFeature, DrawingModes, FeatureId, HexColorStyling, Position } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { createNewZones, getAllZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
-import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon } from "@/lib/terraDrawUtils";
+import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon, reDrawPolygonWithNoIntersection } from "@/lib/terraDrawUtils";
+import { validate } from "maplibre-gl";
 
 
 
@@ -278,59 +279,46 @@ export default function MapControlPanel() {
             if (terraDrawInstance) {
                 const handleFinish = (id: FeatureId, context: { action: string, mode: string }) => {
                     const parsedId = id as string;
-                    const Feature = getFeatureById(draw, parsedId);
+                    const newFeature = getFeatureById(draw, parsedId);
                     const { action, mode } = context;
+                    let intersectsWithMapPolygon = false;
 
 
 
 
                     if (action === "draw" && mode === "polygon") {
-                        if (Feature) {
-                            if (Feature.id) {
+                        if (newFeature) {
+                            if (newFeature.id) {
 
-                                if (isSelfIntersectingPolygon(Feature)) {
+                                if (isSelfIntersectingPolygon(newFeature)) {
                                     toast({
                                         title: "Error",
                                         description: "La zona no puede tener intersecciones consigo misma",
                                         className: "bg-red-500 text-white",
                                         duration: 3000,
                                     });
-                                    terraDrawInstance.removeFeatures([Feature.id]);
+                                    terraDrawInstance.removeFeatures([newFeature.id]);
                                     return;
                                 }
-                                /**
-                                 * 
-                                 * 
-                                 * 
-                                 * 
-                                 * draw.getFeatures().features.forEach((feature: GeoJSONStoreFeatures) => {
-                                    if (feature.id !== Feature.id) {
-                                        if (isIntersectingWithMapPolygon(Feature, feature)) {
-                                            toast({
-                                                title: "Error",
-                                                description: "La zona no puede intersectar con otras zonas",
-                                                className: "bg-red-500 text-white",
-                                                duration: 3000,
-                                            });
-                                            if (Feature.id) {
-                                                terraDrawInstance.removeFeatures([Feature.id]);
-                                            }
-                                            return;
 
+                                draw.getFeatures().features.forEach((featureInMap: GeoJSONStoreFeatures) => {
+                                    if (featureInMap.id !== newFeature.id) {
+                                        if (isIntersectingWithMapPolygon(newFeature, featureInMap)) {
+                                            intersectsWithMapPolygon = true;
+
+                                            const changedPolygon = reDrawPolygonWithNoIntersection(newFeature, featureInMap);
+                                            if (changedPolygon !== null) {
+                                                newFeature.geometry.coordinates = changedPolygon.geometry.coordinates as Position[][];
+                                            }
                                         }
                                     }
-                                });
+                                }
+                                );
 
-                                 * 
-                                 * 
-                                 * 
-                                 * 
-                                 * 
-                                 * 
-                                 * 
-                                 * 
-                                 */
+
                                 
+
+
 
 
 
@@ -340,13 +328,22 @@ export default function MapControlPanel() {
 
 
 
-                                Feature.properties.color = newZoneInfo.color;
-                                Feature.properties.editable = false;
-                                Feature.properties.name = newZoneInfo.name;
+                                newFeature.properties.color = newZoneInfo.color;
+                                newFeature.properties.editable = false;
+                                newFeature.properties.name = newZoneInfo.name;
+
+
+                                if (intersectsWithMapPolygon) {
+                                    terraDrawInstance.removeFeatures([newFeature.id]);
+                                    addNewZoneToMap(newFeature as CustomFeature, terraDrawInstance);
+                                }
+
+
+
                             }
 
-                            if (Feature && Feature.id) {
-                                setZones((prevZones) => [...prevZones, Feature as CustomFeature]);
+                            if (newFeature && newFeature.id) {
+                                setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
                             }
                             terraDrawInstance.setMode("render");
                             setMode(DrawingModes.SinSeleccionar);

@@ -5,7 +5,7 @@ import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
 import { useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import ZoneList from "../ZoneList/ZoneList";
-import { GeoJSONStoreFeatures, TerraDraw, TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
+import { GeoJSONStoreFeatures, TerraDraw, TerraDrawPolygonMode, TerraDrawSelectMode, ValidateNotSelfIntersecting } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId, HexColorStyling } from "@/types/MapTypes";
@@ -13,7 +13,7 @@ import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { createNewZones, getAllZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
-import { set } from "zod";
+import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon } from "@/lib/terraDrawUtils";
 
 
 
@@ -224,6 +224,7 @@ export default function MapControlPanel() {
                                     selfIntersectable: false,
                                 }
 
+
                             }
                         },
 
@@ -286,6 +287,54 @@ export default function MapControlPanel() {
                     if (action === "draw" && mode === "polygon") {
                         if (Feature) {
                             if (Feature.id) {
+
+                                if (isSelfIntersectingPolygon(Feature)) {
+                                    toast({
+                                        title: "Error",
+                                        description: "La zona no puede tener intersecciones consigo misma",
+                                        className: "bg-red-500 text-white",
+                                        duration: 3000,
+                                    });
+                                    terraDrawInstance.removeFeatures([Feature.id]);
+                                    return;
+                                }
+                                /**
+                                 * 
+                                 * 
+                                 * 
+                                 * 
+                                 * draw.getFeatures().features.forEach((feature: GeoJSONStoreFeatures) => {
+                                    if (feature.id !== Feature.id) {
+                                        if (isIntersectingWithMapPolygon(Feature, feature)) {
+                                            toast({
+                                                title: "Error",
+                                                description: "La zona no puede intersectar con otras zonas",
+                                                className: "bg-red-500 text-white",
+                                                duration: 3000,
+                                            });
+                                            if (Feature.id) {
+                                                terraDrawInstance.removeFeatures([Feature.id]);
+                                            }
+                                            return;
+
+                                        }
+                                    }
+                                });
+
+                                 * 
+                                 * 
+                                 * 
+                                 * 
+                                 * 
+                                 * 
+                                 * 
+                                 * 
+                                 */
+                                
+
+
+
+
                                 const newZoneInfo = getZoneInfoFromLocalStorage();
 
 

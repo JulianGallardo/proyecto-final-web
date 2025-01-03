@@ -17,12 +17,13 @@ interface AddZoneDialogProps {
     description: string;
 }
 
-export function ZoneDialog({ title,description,open, setOpen, onDialogSubmit, Form }: AddZoneDialogProps) {
+export function ZoneDialog({ title, description, open, setOpen, onDialogSubmit, Form }: AddZoneDialogProps) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-[425px] rounded-lg">
+                <DialogTitle>{title}</DialogTitle>
                 <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
+
                     <DialogDescription>
                         {description}
                     </DialogDescription>

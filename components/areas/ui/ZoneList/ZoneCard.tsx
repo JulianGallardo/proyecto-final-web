@@ -6,6 +6,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { ConfirmDelete } from "../Dialogs/ConfirmDelete";
 
 interface ZoneCardProps {
     zoneName: string;
@@ -15,7 +16,7 @@ interface ZoneCardProps {
     onEdit: () => void;
 }
 
-export default function ZoneCard({ zoneName, Feature, onDelete, editing , onEdit}: ZoneCardProps) {
+export default function ZoneCard({ zoneName, Feature, onDelete, editing, onEdit }: ZoneCardProps) {
     const { properties } = Feature;
     const [zoneColor, setZoneColor] = useState<string>(properties?.color || "#FFFFFF");
 
@@ -57,14 +58,18 @@ export default function ZoneCard({ zoneName, Feature, onDelete, editing , onEdit
 
                     {/* Botón Borrar */}
                     <Tooltip>
-                        <TooltipTrigger asChild>
-                            <Button className="bg-red-500 hover:bg-red-800" onClick={onDelete}>
-                                <Trash />
-                            </Button>
+                        <TooltipTrigger >
+                            <ConfirmDelete
+                                title="¿Estás seguro de borrar esta zona?"
+                                description="Esta acción no se puede deshacer."
+                                onConfirm={onDelete}
+                                triggerText="Borrar"
+                            />
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>Borrar Zona</p>
                         </TooltipContent>
+
                     </Tooltip>
                 </div>
             )}

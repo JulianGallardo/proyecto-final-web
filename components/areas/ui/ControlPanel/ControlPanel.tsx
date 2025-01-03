@@ -194,7 +194,6 @@ export default function MapControlPanel() {
                     "render",
                     "polygon",
                     "select",
-                    "download",
                 ],
                 modeOptions: {
                     select: new TerraDrawSelectMode({
@@ -236,8 +235,15 @@ export default function MapControlPanel() {
 
 
 
-            mymap.addControl(newDraw); // Agregar el control al mapa
-            setDraw(newDraw); // Guardar el controlador en el estado
+            mymap.addControl(newDraw); 
+            setDraw(newDraw); 
+
+
+            // Oculto el control de terradraw
+            const mapControl =document.getElementsByClassName("maplibregl-ctrl maplibregl-ctrl-group")[0];
+            mapControl.setAttribute("style", "visibility: hidden;");
+
+
             deleteZone(getZoneInfoFromLocalStorage());
 
             fetchZones(newDraw).then(() => {
@@ -453,13 +459,13 @@ export default function MapControlPanel() {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
             terraDrawInstance?.setMode("render");
-            
+
             zones.forEach((zone) => {
                 if (zone.id) {
                     terraDrawInstance?.removeFeatures([zone.id]);
                     deleteDataInColorCache(`"${zone.id}"`);
                 }
-            });            
+            });
             setZones([]);
             fetchZones(draw).then(() => {
                 setMode(DrawingModes.SinSeleccionar);
@@ -471,18 +477,18 @@ export default function MapControlPanel() {
                 });
 
                 setTimeout(() => {
-                    
+
                 }, 2000);
                 changeEditingState(false);
                 setTransactionLoading(false);
-                
+
             }).catch((error) => {
                 throw new Error(error);
             });
-            
+
         }
         else {
-            
+
             toast({
                 title: "Error",
                 description: "No se ha podido descartar los cambios",
@@ -492,7 +498,7 @@ export default function MapControlPanel() {
             throw new Error("No se ha podido descartar los cambios");
         }
 
-        
+
     }
 
 
@@ -522,7 +528,7 @@ export default function MapControlPanel() {
                             <ZoneList zones={zones} onDelete={deleteZone} editing={editingZonesInfo} onEdit={onZoneEdit} />
                         </SidebarContent>
                     </Sidebar>
-                    
+
                     <SidebarTrigger className="flex items-center justify-center h-full " />
                 </div>
             )

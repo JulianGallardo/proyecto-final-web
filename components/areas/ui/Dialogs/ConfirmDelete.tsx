@@ -37,12 +37,12 @@ export function ConfirmDelete({
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="max-w-[325px] sm:max-w-[525px] rounded-md flex flex-col gap-2">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     <DialogDescription>{description}</DialogDescription>
                 </DialogHeader>
-                <DialogFooter>
+                <DialogFooter className="flex justify-end gap-2">
                     <Button variant="outline" onClick={() => setOpen(false)}>
                         Cancelar
                     </Button>

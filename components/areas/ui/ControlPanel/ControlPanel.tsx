@@ -25,7 +25,7 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 export default function MapControlPanel() {
     const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
-    const { open, isMobile, setOpenMobile } = useSidebar();
+    const {  isMobile, setOpenMobile } = useSidebar();
 
 
     const { mymap } = useMap();

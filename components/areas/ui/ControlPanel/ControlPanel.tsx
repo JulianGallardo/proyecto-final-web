@@ -13,6 +13,7 @@ import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { createNewZones, getAllZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
+import { z } from "zod";
 
 
 
@@ -377,6 +378,8 @@ export default function MapControlPanel() {
         [zones, draw]
     );
 
+
+
     const editZone = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
@@ -444,6 +447,55 @@ export default function MapControlPanel() {
         }
     };
 
+    const discardChanges = async () => {
+
+        setTransactionLoading(true);
+
+        if (draw) {
+            const terraDrawInstance = draw.getTerraDrawInstance();
+            terraDrawInstance?.setMode("render");
+            
+            zones.forEach((zone) => {
+                if (zone.id) {
+                    terraDrawInstance?.removeFeatures([zone.id]);
+                    deleteDataInColorCache(`"${zone.id}"`);
+                }
+            });            
+            setZones([]);
+            fetchZones(draw).then(() => {
+                setMode(DrawingModes.SinSeleccionar);
+                toast({
+                    title: "Cambios descartados",
+                    description: "Los cambios han sido descartados exitosamente",
+                    className: "bg-green-500 text-white",
+                    duration: 2000,
+                });
+
+                setTimeout(() => {
+                    
+                }, 2000);
+                changeEditingState(false);
+                setTransactionLoading(false);
+                
+            }).catch((error) => {
+                throw new Error(error);
+            });
+            
+        }
+        else {
+            
+            toast({
+                title: "Error",
+                description: "No se ha podido descartar los cambios",
+                className: "bg-red-500 text-white",
+                duration: 2000,
+            });
+            throw new Error("No se ha podido descartar los cambios");
+        }
+
+        
+    }
+
 
     return (
 
@@ -460,7 +512,7 @@ export default function MapControlPanel() {
                     }
                     <Sidebar >
                         <SidebarHeader>
-                            <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
+                            <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} saveChanges={saveChanges} discardChanges={discardChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
                             <AddZoneDialog open={newZoneDialogOpen} setOpen={changeNewZoneDialogState} onDialogSubmit={onNewZoneDialogSubmit} />
                             <EditZoneDialog open={editingZoneDialogOpen} setOpen={setEditingZoneDialogOpen} onDialogSubmit={onEditZoneDialogSubmit} />
                         </SidebarHeader>

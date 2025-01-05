@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, use } from "react";
 import { Separator } from "@/components/ui/separator";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
 import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon, reDrawPolygonWithNoIntersection } from "@/lib/mapUtils/terraDrawUtils";
 import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage, eraseZoneInfoFromLocalStorage, getZoneColorFromLocalStorage } from "@/lib/mapUtils/localStorageUtils";
+import { ColorCache } from "@/lib/mapUtils/colorCache";
 
 
 
@@ -26,7 +27,7 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 
 
 export default function MapControlPanel() {
-    const colorCache = useMemo(() => new Map<string, HexColorStyling>(), []); // Cache de colores
+    const colorCache = useMemo(() => new ColorCache(), []);
     const { isMobile, setOpenMobile } = useSidebar();
 
 
@@ -48,20 +49,7 @@ export default function MapControlPanel() {
 
 
 
-    function fetchDataFromColorCache(key: string) {
-        if (colorCache.has(key)) {
-            return colorCache.get(key);
-        }
-        return null;
-    }
-
-    function saveDataToColorCache(key: string, value: HexColorStyling) {
-        colorCache.set(key, value);
-    }
-
-    function deleteDataInColorCache(key: string) {
-        colorCache.delete(key);
-    }
+    
 
 
 
@@ -95,7 +83,7 @@ export default function MapControlPanel() {
         const terraDrawInstance = draw?.getTerraDrawInstance();
         const zoneLocalStorage: CustomFeature = getZoneInfoFromLocalStorage();
 
-        saveDataToColorCache(`"${zoneLocalStorage.id}"`, zoneLocalStorage.properties.color);
+        colorCache.saveDataToColorCache(`"${zoneLocalStorage.id}"`, zoneLocalStorage.properties.color);
 
         if (zoneLocalStorage.id !== undefined) {
             terraDrawInstance?.removeFeatures([zoneLocalStorage.id]);
@@ -161,14 +149,14 @@ export default function MapControlPanel() {
 
 
     function getColor(key: string): HexColorStyling {
-        const get = fetchDataFromColorCache(key);
+        const get = colorCache.fetchDataFromColorCache(key);
         if (get) {
             return get;
         }
 
         const color = getZoneColorFromLocalStorage();
 
-        saveDataToColorCache(key, color);
+        colorCache.saveDataToColorCache(key, color);
         return color;
     }
 
@@ -242,11 +230,6 @@ export default function MapControlPanel() {
             });
         }
     }, [mymap, draw]);
-
-
-
-
-
 
     // Manejar el evento "finish"
     useEffect(() => {
@@ -371,7 +354,7 @@ export default function MapControlPanel() {
             },
         } as GeoJSONStoreFeatures;
 
-        saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
+        colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
         terraDraw?.addFeatures([newZone]);
 
     }
@@ -396,7 +379,7 @@ export default function MapControlPanel() {
 
                 if (featureToDelete.id) {
                     draw.getTerraDrawInstance()?.removeFeatures([featureToDelete.id]);
-                    deleteDataInColorCache(`"${featureToDelete.id}"`);
+                    colorCache.deleteDataInColorCache(`"${featureToDelete.id}"`);
                 }
             }
         },
@@ -538,7 +521,7 @@ export default function MapControlPanel() {
             zones.forEach((zone) => {
                 if (zone.id) {
                     terraDrawInstance?.removeFeatures([zone.id]);
-                    deleteDataInColorCache(`"${zone.id}"`);
+                    colorCache.deleteDataInColorCache(`"${zone.id}"`);
                 }
             });
             setZones([]);

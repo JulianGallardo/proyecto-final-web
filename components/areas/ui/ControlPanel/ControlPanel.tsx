@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, use } from "react";
 import { Separator } from "@/components/ui/separator";
-import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
+import { MaplibreTerradrawControl, TerradrawControlOptions } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
-import { useMap } from "@vis.gl/react-maplibre";
+import { MapRef, useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import ZoneList from "../ZoneList/ZoneList";
 import { GeoJSONStoreFeatures, TerraDraw, TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
 import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon, reDrawPolygonWithNoIntersection } from "@/lib/mapUtils/terraDrawUtils";
 import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage, eraseZoneInfoFromLocalStorage, getZoneColorFromLocalStorage } from "@/lib/mapUtils/localStorageUtils";
+import { useZones } from "@/hooks/useZones";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
 
 
@@ -24,18 +25,20 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
     return draw.getFeatures()?.features?.find((feature: GeoJSON.Feature) => feature.id === id);
 }
 
+interface MapControlPanelProps {
+    draw: MaplibreTerradrawControl;
+    colorCache: ColorCache;
+}
 
 
-export default function MapControlPanel() {
-    const colorCache = useMemo(() => new ColorCache(), []);
+export default function MapControlPanel({ draw, colorCache }: MapControlPanelProps) {
+
     const { isMobile, setOpenMobile } = useSidebar();
 
 
-    const { mymap } = useMap();
     const { toast } = useToast();
 
-    const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
-    const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
+
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
 
     const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
@@ -46,6 +49,14 @@ export default function MapControlPanel() {
     const [transactionLoading, setTransactionLoading] = useState(false);
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
 
+
+    const {
+        zones,
+        setZones,
+        fetchZones,
+        deleteZone,
+        addNewZoneToMap
+    } = useZones(draw, colorCache);
 
 
     function changeEditingState(state: boolean) {
@@ -112,11 +123,6 @@ export default function MapControlPanel() {
 
     }
 
-
-
-
-
-
     function setRenderMode() {
         const terraDrawInstance = draw?.getTerraDrawInstance();
         const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
@@ -129,11 +135,9 @@ export default function MapControlPanel() {
     }
 
     function onNewZoneDialogSubmit() {
-
         if (isMobile) {
             setOpenMobile(false);
         }
-
         setNewZoneDialogOpen(false);
     }
 
@@ -141,78 +145,23 @@ export default function MapControlPanel() {
 
 
 
-    
+
 
 
 
     // Inicializar TerraDraw
     useEffect(() => {
-        if (mymap && !draw) {
-            const newDraw = new MaplibreTerradrawControl({
-                modes: [
-                    "render",
-                    "polygon",
-                    "select",
-                ],
-                modeOptions: {
-                    select: new TerraDrawSelectMode({
-                        allowManualDeselection: false,
 
-                        flags: {
-                            polygon: {
+        const localStorageZones = getZoneInfoFromLocalStorage();
+        if (localStorageZones !== null)
+            deleteZone(localStorageZones);
 
-                                feature: {
-                                    draggable: false,
-                                    rotateable: false,
-                                    scaleable: true,
-                                    coordinates: {
-                                        midpoints: true,
-                                        draggable: true,
-                                        deletable: true,
-                                    },
-                                    selfIntersectable: false,
-                                }
-
-
-                            }
-                        },
-
-                    }),
-                    polygon: new TerraDrawPolygonMode({
-                        styles: {
-                            fillColor: ({ id }) => {
-                                return colorCache.getColor(`"${id}"`);
-                            },
-                            outlineColor: ({ id }) => {
-                                return colorCache.getColor(`"${id}"`);
-                            },
-                        },
-
-
-                    }),
-                }
-            });
-
-
-
-            mymap.addControl(newDraw);
-            setDraw(newDraw);
-
-
-            // Oculto el control de terradraw
-            const mapControl = document.getElementsByClassName("maplibregl-ctrl maplibregl-ctrl-group")[0];
-            mapControl.setAttribute("style", "visibility: hidden;");
-
-
-            deleteZone(getZoneInfoFromLocalStorage());
-
-            fetchZones(newDraw).then(() => {
-                setLoading(false);
-            }).catch((error) => {
-                throw new Error(error);
-            });
-        }
-    }, [mymap, draw]);
+        fetchZones().then(() => {
+            setLoading(false);
+        }).catch((error) => {
+            throw new Error(error);
+        });
+    }, []);
 
     // Manejar el evento "finish"
     useEffect(() => {
@@ -259,7 +208,7 @@ export default function MapControlPanel() {
                                 );
 
 
-                                
+
 
 
 
@@ -278,7 +227,7 @@ export default function MapControlPanel() {
 
                                 if (intersectsWithMapPolygon) {
                                     terraDrawInstance.removeFeatures([newFeature.id]);
-                                    addNewZoneToMap(newFeature as CustomFeature, terraDrawInstance);
+                                    addNewZoneToMap(newFeature as CustomFeature);
                                 }
 
 
@@ -309,40 +258,6 @@ export default function MapControlPanel() {
         }
     }, [draw]);
 
-
-    async function fetchZones(terraDrawInstance: MaplibreTerradrawControl) {
-        const zones = await getAllZones();
-        const terraDraw = terraDrawInstance.getTerraDrawInstance();
-        zones.forEach((zone) => {
-            addNewZoneToMap(zone, terraDraw);
-
-        });
-        setZones(zones);
-    }
-
-
-
-    function addNewZoneToMap(zone: CustomFeature, terraDraw: TerraDraw) {
-        const newZone = {
-            id: zone.id,
-            type: "Feature",
-            geometry: {
-                type: "Polygon",
-                coordinates: zone.geometry.coordinates
-            },
-            properties: {
-                mode: "polygon",
-                color: zone.properties.color,
-                name: zone.properties.name
-            },
-        } as GeoJSONStoreFeatures;
-
-        colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
-        terraDraw?.addFeatures([newZone]);
-
-    }
-
-
     /** Funciones de manejo de zonas **/
     const addZone = () => {
         if (draw) {
@@ -354,20 +269,6 @@ export default function MapControlPanel() {
         }
     };
 
-    const deleteZone = useCallback(
-        (featureToDelete: CustomFeature) => {
-            if (draw) {
-                const updatedZones = zones.filter((zone) => zone.id !== featureToDelete.id);
-                setZones(updatedZones);
-
-                if (featureToDelete.id) {
-                    draw.getTerraDrawInstance()?.removeFeatures([featureToDelete.id]);
-                    colorCache.deleteDataInColorCache(`"${featureToDelete.id}"`);
-                }
-            }
-        },
-        [zones, draw]
-    );
 
 
 
@@ -394,7 +295,7 @@ export default function MapControlPanel() {
             });
 
             zones.forEach((zone) => {
-                addNewZoneToMap(zone, terraDrawInstance);
+                addNewZoneToMap(zone);
             });
 
 
@@ -508,7 +409,7 @@ export default function MapControlPanel() {
                 }
             });
             setZones([]);
-            fetchZones(draw).then(() => {
+            fetchZones().then(() => {
                 setMode(DrawingModes.SinSeleccionar);
                 toast({
                     title: "Cambios descartados",
@@ -552,9 +453,7 @@ export default function MapControlPanel() {
 
 
     return (
-
         <div className="flex flex-row w-full h-full ">
-
             {loading ? (
                 <LoadSkeleton />
             ) : (

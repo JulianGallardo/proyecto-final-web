@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Map } from "@vis.gl/react-maplibre";
+import { Map, useMap } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {  useMemo } from "react";
 import { ClipLoader } from "react-spinners";
 import Sidebar from "@/components/areas/ui/ControlPanel/ControlPanel";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import TerraDrawHandler from "../terraDrawHandler/terraDrawHandler";
 
 export default function Areas() {
     const center = useMemo(
@@ -14,12 +15,11 @@ export default function Areas() {
         []
     );
 
+
+
     return (
         <div className="flex flex-row w-full h-full ">
-            <SidebarProvider className="flex flex-row  bg-gray-100 border-r border-gray-200">
-                <Sidebar />
-            </SidebarProvider>
-
+            <TerraDrawHandler/>
             <Map
                 id="mymap"
                 initialViewState={{

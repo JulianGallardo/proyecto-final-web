@@ -48,13 +48,6 @@ export default function MapControlPanel() {
 
 
 
-
-    
-
-
-
-
-
     function changeEditingState(state: boolean) {
         setEditingZonesInfo(state);
 
@@ -148,17 +141,7 @@ export default function MapControlPanel() {
 
 
 
-    function getColor(key: string): HexColorStyling {
-        const get = colorCache.fetchDataFromColorCache(key);
-        if (get) {
-            return get;
-        }
-
-        const color = getZoneColorFromLocalStorage();
-
-        colorCache.saveDataToColorCache(key, color);
-        return color;
-    }
+    
 
 
 
@@ -198,10 +181,10 @@ export default function MapControlPanel() {
                     polygon: new TerraDrawPolygonMode({
                         styles: {
                             fillColor: ({ id }) => {
-                                return getColor(`"${id}"`);
+                                return colorCache.getColor(`"${id}"`);
                             },
                             outlineColor: ({ id }) => {
-                                return getColor(`"${id}"`);
+                                return colorCache.getColor(`"${id}"`);
                             },
                         },
 

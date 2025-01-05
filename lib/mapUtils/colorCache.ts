@@ -1,4 +1,5 @@
 import { HexColorStyling } from "@/types/MapTypes";
+import { getZoneColorFromLocalStorage } from "./localStorageUtils";
 
 export class ColorCache {
     private cache: Map<string, HexColorStyling>
@@ -24,6 +25,17 @@ export class ColorCache {
         this.cache.delete(key);
     }
 
+    getColor(key: string): HexColorStyling {
+        const get = this.fetchDataFromColorCache(key);
+        if (get) {
+            return get;
+        }
+
+        const color = getZoneColorFromLocalStorage();
+
+        this.saveDataToColorCache(key, color);
+        return color;
+    }
 
 
 

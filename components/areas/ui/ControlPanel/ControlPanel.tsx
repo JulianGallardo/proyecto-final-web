@@ -13,7 +13,8 @@ import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { createNewZones, getAllZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
-import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon, reDrawPolygonWithNoIntersection } from "@/lib/terraDrawUtils";
+import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon, reDrawPolygonWithNoIntersection } from "@/lib/mapUtils/terraDrawUtils";
+import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage, eraseZoneInfoFromLocalStorage, getZoneColorFromLocalStorage } from "@/lib/mapUtils/localStorageUtils";
 
 
 
@@ -77,6 +78,11 @@ export default function MapControlPanel() {
         }
         setNewZoneDialogOpen(state);
     }
+
+
+
+
+    //
 
     function onZoneEdit(zone: CustomFeature) {
         writeZoneInfoToLocalStorage(zone);
@@ -153,34 +159,6 @@ export default function MapControlPanel() {
 
 
 
-    function getZoneInfoFromLocalStorage() {
-        const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
-        if (zones.length > 0) {
-            eraseZoneInfoFromLocalStorage();
-            return zones[0];
-        }
-        else {
-            return null;
-        }
-    }
-
-    function eraseZoneInfoFromLocalStorage() {
-        window.localStorage.removeItem("zones");
-    }
-
-    function writeZoneInfoToLocalStorage(zoneInfo: CustomFeature) {
-        window.localStorage.setItem("zones", JSON.stringify([zoneInfo]));
-    }
-
-    function getZoneColorFromLocalStorage() {
-        const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
-        if (zones.length > 0) {
-            return zones[0].color;
-        }
-        else {
-            return null;
-        }
-    }
 
     function getColor(key: string): HexColorStyling {
         const get = fetchDataFromColorCache(key);

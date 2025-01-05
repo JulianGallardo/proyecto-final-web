@@ -1,12 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Map, useMap } from "@vis.gl/react-maplibre";
+import { Map } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import {  useMemo } from "react";
+import { useMemo } from "react";
 import { ClipLoader } from "react-spinners";
-import Sidebar from "@/components/areas/ui/ControlPanel/ControlPanel";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import TerraDrawHandler from "../terraDrawHandler/terraDrawHandler";
 
 export default function Areas() {
@@ -19,7 +17,7 @@ export default function Areas() {
 
     return (
         <div className="flex flex-row w-full h-full ">
-            <TerraDrawHandler/>
+            <TerraDrawHandler />
             <Map
                 id="mymap"
                 initialViewState={{

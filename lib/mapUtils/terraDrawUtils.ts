@@ -1,6 +1,90 @@
-import { Position } from "@/types/MapTypes";
+import { toast } from "@/hooks/use-toast";
+import { CustomFeature, DrawingModes, FeatureId, Position } from "@/types/MapTypes";
 import * as turf from "@turf/turf";
 import { GeoJSONStoreFeatures } from "terra-draw";
+import { getZoneInfoFromLocalStorage } from "./localStorageUtils";
+import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
+
+
+function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
+    return draw.getFeatures()?.features?.find((feature: GeoJSON.Feature) => feature.id === id);
+}
+
+function handleFinish(
+    id: FeatureId, 
+    context: { action: string, mode: string }, 
+    draw:MaplibreTerradrawControl,
+    addNewZoneToMap: (zone: CustomFeature) => void,
+    setMode: (mode: DrawingModes) => void,
+    isMobile: boolean,
+    setOpenMobile: (open: boolean) => void,
+    replaceZone: (zone: CustomFeature) => void
+
+){
+    const parsedId = id as string;
+    const newFeature = getFeatureById(draw, parsedId);
+    const { action, mode } = context;
+    let intersectsWithMapPolygon = false;
+    const terraDrawInstance = draw.getTerraDrawInstance();
+
+
+
+
+    if (action === "draw" && mode === "polygon") {
+        if (newFeature) {
+            if (newFeature.id) {
+
+                if (isSelfIntersectingPolygon(newFeature)) {
+                    toast({
+                        title: "Error",
+                        description: "La zona no puede tener intersecciones consigo misma",
+                        className: "bg-red-500 text-white",
+                        duration: 3000,
+                    });
+                    terraDrawInstance.removeFeatures([newFeature.id]);
+                    return;
+                }
+
+                draw.getFeatures().features.forEach((featureInMap: GeoJSONStoreFeatures) => {
+                    if (featureInMap.id !== newFeature.id) {
+                        if (isIntersectingWithMapPolygon(newFeature, featureInMap)) {
+                            intersectsWithMapPolygon = true;
+
+                            const changedPolygon = reDrawPolygonWithNoIntersection(newFeature, featureInMap);
+                            if (changedPolygon !== null) {
+                                newFeature.geometry.coordinates = changedPolygon.geometry.coordinates as Position[][];
+                            }
+                        }
+                    }
+                }
+                );
+
+                const newZoneInfo = getZoneInfoFromLocalStorage();
+
+                newFeature.properties.color = newZoneInfo.color;
+                newFeature.properties.editable = false;
+                newFeature.properties.name = newZoneInfo.name;
+
+
+                if (intersectsWithMapPolygon) {
+                    terraDrawInstance.removeFeatures([newFeature.id]);
+                    addNewZoneToMap(newFeature as CustomFeature);
+                }
+
+            }
+
+            if (newFeature && newFeature.id) {
+                replaceZone(newFeature as CustomFeature);
+            }
+            terraDrawInstance.setMode("render");
+            setMode(DrawingModes.SinSeleccionar);
+            if (isMobile) {
+                setOpenMobile(true);
+            }
+        }
+    }
+};
+
 
 /**
  * Checks if a polygon has self-intersections.
@@ -57,7 +141,7 @@ function reDrawPolygonWithNoIntersection(
         const difference = turf.difference(FeatureCollection);
         //ajustamos la precision de las coordenadas
 
-        if (difference){
+        if (difference) {
             difference.geometry.coordinates = difference.geometry.coordinates.map((coord) => {
                 return coord.map((c) => {
 
@@ -71,7 +155,7 @@ function reDrawPolygonWithNoIntersection(
             });
 
         }
-            
+
 
 
         return difference;
@@ -86,4 +170,4 @@ function reDrawPolygonWithNoIntersection(
 
 
 
-export { isSelfIntersectingPolygon, isIntersectingWithMapPolygon, reDrawPolygonWithNoIntersection };
+export { isSelfIntersectingPolygon, isIntersectingWithMapPolygon, reDrawPolygonWithNoIntersection , handleFinish};

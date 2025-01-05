@@ -1,5 +1,4 @@
 import { getAllZones } from "@/actions/zone-actions";
-import { useSidebar } from "@/components/ui/sidebar";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
 import { CustomFeature } from "@/types/MapTypes";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
@@ -11,8 +10,6 @@ export function useZones(
     colorCache: ColorCache) {
     const [zones, setZones] = useState<CustomFeature[]>([]); // Estado de zonas
     const terraDrawInstance = terraDrawControl.getTerraDrawInstance();
-    const { isMobile, setOpenMobile } = useSidebar();
-
     async function fetchZones() {
         const zones = await getAllZones();
         zones.forEach((zone) => {

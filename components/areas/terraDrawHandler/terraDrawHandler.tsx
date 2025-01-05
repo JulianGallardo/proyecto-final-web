@@ -13,8 +13,6 @@ export default function TerraDrawHandler() {
 
     useEffect(() => {
         if (!mymap) return;
-
-
         const terraDrawOptions: TerradrawControlOptions = generateTerraDrawOptions(colorCache);
         const newDraw = new MaplibreTerradrawControl(
             terraDrawOptions

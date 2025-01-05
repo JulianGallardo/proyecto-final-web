@@ -1,29 +1,22 @@
-import React, { useState, useEffect, useCallback, useMemo, use } from "react";
+import React, { useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
-import { MaplibreTerradrawControl, TerradrawControlOptions } from "@watergis/maplibre-gl-terradraw";
+import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import "@watergis/maplibre-gl-terradraw/dist/maplibre-gl-terradraw.css";
-import { MapRef, useMap } from "@vis.gl/react-maplibre";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import ZoneList from "../ZoneList/ZoneList";
-import { GeoJSONStoreFeatures, TerraDraw, TerraDrawPolygonMode, TerraDrawSelectMode } from "terra-draw";
+import { GeoJSONStoreFeatures } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
-import { CustomFeature, DrawingModes, FeatureId, HexColorStyling, Position } from "@/types/MapTypes";
+import { CustomFeature, DrawingModes, FeatureId } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
-import { createNewZones, getAllZones } from "@/actions/zone-actions";
+import { createNewZones } from "@/actions/zone-actions";
 import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
-import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon, reDrawPolygonWithNoIntersection } from "@/lib/mapUtils/terraDrawUtils";
-import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage, eraseZoneInfoFromLocalStorage, getZoneColorFromLocalStorage } from "@/lib/mapUtils/localStorageUtils";
+import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage, eraseZoneInfoFromLocalStorage } from "@/lib/mapUtils/localStorageUtils";
 import { useZones } from "@/hooks/useZones";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
-
-
-
-
-function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
-    return draw.getFeatures()?.features?.find((feature: GeoJSON.Feature) => feature.id === id);
-}
+import { handleFinish } from "@/lib/mapUtils/terraDrawUtils";
+import {type OnFinishContext} from "terra-draw"
 
 interface MapControlPanelProps {
     draw: MaplibreTerradrawControl;
@@ -32,24 +25,14 @@ interface MapControlPanelProps {
 
 
 export default function MapControlPanel({ draw, colorCache }: MapControlPanelProps) {
-
     const { isMobile, setOpenMobile } = useSidebar();
-
-
     const { toast } = useToast();
-
-
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
-
     const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
     const [editingZoneDialogOpen, setEditingZoneDialogOpen] = useState(false); // Estado para el dialogo de edición de zona
-
-
     const [loading, setLoading] = useState(true);
     const [transactionLoading, setTransactionLoading] = useState(false);
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
-
-
     const {
         zones,
         setZones,
@@ -58,6 +41,45 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
         addNewZoneToMap
     } = useZones(draw, colorCache);
 
+
+    useEffect(() => {
+        const localStorageZones = getZoneInfoFromLocalStorage();
+        if (localStorageZones !== null)
+            deleteZone(localStorageZones);
+
+        fetchZones().then(() => {
+            setLoading(false);
+        }).catch((error) => {
+            throw new Error(error);
+        });
+
+        
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        const callback = (id:FeatureId, context:OnFinishContext) => {
+            const parseId = id as string;
+            handleFinish(
+                parseId,
+                context,
+                draw,
+                addNewZoneToMap,
+                setMode,
+                isMobile,
+                setOpenMobile,
+                replaceZone
+            );
+        }
+
+        draw.getTerraDrawInstance().on("finish", callback);
+
+        return () => {
+            terraDrawInstance.off("finish", callback);
+        };
+    }, [draw]);
+
+
+    const replaceZone = (newFeature: CustomFeature) => {
+        setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
+    }
 
     function changeEditingState(state: boolean) {
         setEditingZonesInfo(state);
@@ -70,12 +92,6 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
         }
         setNewZoneDialogOpen(state);
     }
-
-
-
-
-    //
-
     function onZoneEdit(zone: CustomFeature) {
         writeZoneInfoToLocalStorage(zone);
         setEditingZoneDialogOpen(true);
@@ -117,8 +133,6 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
             return updatedZones;
         });
 
-
-
         setEditingZoneDialogOpen(false);
 
     }
@@ -141,124 +155,6 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
         setNewZoneDialogOpen(false);
     }
 
-
-
-
-
-
-
-
-
-    // Inicializar TerraDraw
-    useEffect(() => {
-
-        const localStorageZones = getZoneInfoFromLocalStorage();
-        if (localStorageZones !== null)
-            deleteZone(localStorageZones);
-
-        fetchZones().then(() => {
-            setLoading(false);
-        }).catch((error) => {
-            throw new Error(error);
-        });
-    }, []);
-
-    // Manejar el evento "finish"
-    useEffect(() => {
-        if (draw) {
-            const terraDrawInstance = draw.getTerraDrawInstance();
-
-            if (terraDrawInstance) {
-                const handleFinish = (id: FeatureId, context: { action: string, mode: string }) => {
-                    const parsedId = id as string;
-                    const newFeature = getFeatureById(draw, parsedId);
-                    const { action, mode } = context;
-                    let intersectsWithMapPolygon = false;
-
-
-
-
-                    if (action === "draw" && mode === "polygon") {
-                        if (newFeature) {
-                            if (newFeature.id) {
-
-                                if (isSelfIntersectingPolygon(newFeature)) {
-                                    toast({
-                                        title: "Error",
-                                        description: "La zona no puede tener intersecciones consigo misma",
-                                        className: "bg-red-500 text-white",
-                                        duration: 3000,
-                                    });
-                                    terraDrawInstance.removeFeatures([newFeature.id]);
-                                    return;
-                                }
-
-                                draw.getFeatures().features.forEach((featureInMap: GeoJSONStoreFeatures) => {
-                                    if (featureInMap.id !== newFeature.id) {
-                                        if (isIntersectingWithMapPolygon(newFeature, featureInMap)) {
-                                            intersectsWithMapPolygon = true;
-
-                                            const changedPolygon = reDrawPolygonWithNoIntersection(newFeature, featureInMap);
-                                            if (changedPolygon !== null) {
-                                                newFeature.geometry.coordinates = changedPolygon.geometry.coordinates as Position[][];
-                                            }
-                                        }
-                                    }
-                                }
-                                );
-
-
-
-
-
-
-
-
-
-                                const newZoneInfo = getZoneInfoFromLocalStorage();
-
-
-
-
-                                newFeature.properties.color = newZoneInfo.color;
-                                newFeature.properties.editable = false;
-                                newFeature.properties.name = newZoneInfo.name;
-
-
-                                if (intersectsWithMapPolygon) {
-                                    terraDrawInstance.removeFeatures([newFeature.id]);
-                                    addNewZoneToMap(newFeature as CustomFeature);
-                                }
-
-
-
-                            }
-
-                            if (newFeature && newFeature.id) {
-                                setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
-                            }
-                            terraDrawInstance.setMode("render");
-                            setMode(DrawingModes.SinSeleccionar);
-                            if (isMobile) {
-                                setOpenMobile(true);
-                            }
-                        }
-                    }
-                };
-
-                terraDrawInstance.on("finish", (id, context) => {
-                    const parseId = id as string;
-                    handleFinish(parseId, context);
-
-                });
-
-
-
-            }
-        }
-    }, [draw]);
-
-    /** Funciones de manejo de zonas **/
     const addZone = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
@@ -268,9 +164,6 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
             setMode(DrawingModes.CreandoZonas);
         }
     };
-
-
-
 
     const editZone = () => {
         if (draw) {
@@ -305,9 +198,6 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
         }
     };
 
-
-
-
     const saveEdits = () => {
         if (draw) {
             const terraDrawInstance = draw.getTerraDrawInstance();
@@ -330,7 +220,6 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
         if (isMobile) {
             setOpenMobile(false);
         }
-
 
         const zoneNames = zones.map(zone => zone.properties.name);
         if (zoneNames.length !== new Set(zoneNames).size) {

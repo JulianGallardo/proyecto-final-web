@@ -1,5 +1,6 @@
 
 import Navbar from "@/components/navbar";
+import { Toaster } from "@/components/ui/toaster";
 import { SessionProvider } from "next-auth/react";
 
 export default function LoggedInLayout({
@@ -7,8 +8,15 @@ export default function LoggedInLayout({
 }: {
     children: React.ReactNode
 }) {
-    return <SessionProvider >
-        <Navbar />
-        {children}
-    </SessionProvider>
+    return (
+        <div className="flex flex-col h-screen w-screen">
+            <SessionProvider >
+                <Navbar />
+                {children}
+            </SessionProvider>
+            <Toaster />
+        </div>
+    )
+
+
 }

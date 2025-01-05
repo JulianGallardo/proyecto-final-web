@@ -1,87 +1,104 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Truck, Map, Package, ChartGraph, Home, Logout } from "@mynaui/icons-react";
-import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
-import BtnLogout from "@/components/auth/btn-logout";
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
+import { Truck, Map, Package, ChartGraph, Home, Logout, Menu} from "@mynaui/icons-react"
+import { Button } from "@/components/ui/button"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import BtnLogout from "@/components/auth/btn-logout"
+
+const navItems = [
+  { href: "/areas", label: "Áreas", icon: Map },
+  { href: "/repartidores", label: "Repartidores", icon: Truck },
+  { href: "/paquetes", label: "Paquetes", icon: Package },
+  { href: "/reportes", label: "Reportes", icon: ChartGraph },
+]
 
 export default function Navbar() {
-  const pathname = usePathname();
-  const { data: session } = useSession();
+  const pathname = usePathname()
+  const { data: session } = useSession()
 
   if (!session) {
-    return null;
+    return null
   }
 
   return (
-    <nav className="flex items-center p-4 bg-gradient-to-r from-gray-900 via-black to-gray-900 w-full shadow-lg">
-      {/* Contenedor de botones centrales */}
-      <div className="flex justify-center gap-6 flex-grow">
-        {pathname !== "/inicio" && (
-          <Link href="/inicio">
-            <Button
-              type="button"
-              className="flex flex-col items-center justify-center p-4 gap-2 text-white hover:text-blue-400 hover:bg-gray-800 transition-all duration-300"
-            >
-              <Home className="w-8 h-8" />
-              <span className="text-sm">Inicio</span>
-            </Button>
-          </Link>
-        )}
-        {pathname !== "/areas" && (
-          <Link href="/areas">
-            <Button
-              type="button"
-              className="flex flex-col items-center bg-transparent justify-center p-4 gap-2 text-white hover:text-green-400 hover:bg-transparent transition-all duration-300"
-            >
-              <Map className="w-8 h-8" />
-              <span className="text-sm">Áreas</span>
-            </Button>
-          </Link>
-        )}
-        {pathname !== "/repartidores" && (
-          <Link href="/repartidores">
-            <Button
-              type="button"
-              className="flex flex-col items-center justify-center bg-transparent p-4 gap-2 text-white hover:text-yellow-400 hover:bg-transparent transition-all duration-300"
-            >
-              <Truck className="w-8 h-8" />
-              <span className="text-sm">Repartidores</span>
-            </Button>
-          </Link>
-        )}
-        {pathname !== "/packages" && (
-          <Link href="/packages">
-            <Button
-              type="button"
-              className="flex flex-col items-center justify-center bg-transparent p-4 gap-2 text-white hover:text-purple-400 hover:bg-transparent transition-all duration-300"
-            >
-              <Package className="w-8 h-8" />
-              <span className="text-sm">Paquetes</span>
-            </Button>
-          </Link>
-        )}
-        {pathname !== "/reportes" && (
-          <Link href="/reports">
-            <Button
-              type="button"
-              className="flex flex-col items-center justify-center bg-transparent p-4 gap-2 text-white hover:text-red-400 hover:bg-transparent transition-all duration-300"
-            >
-              <ChartGraph className="w-8 h-8" />
-              <span className="text-sm">Reportes</span>
-            </Button>
-          </Link>
-        )}
-      </div>
+    <nav className="flex items-center p-4 bg-gray-900 w-full shadow-lg z-50">
+      <div className="flex-grow flex items-center justify-between">
+        <Link href="/inicio" className="">
+          <Button variant="ghost" className="text-gray-200 hover:text-blue-400 ">
+            <Home className="w-6 h-6 " />
+            <span className="text-sm hidden md:flex">Inicio</span>
+          </Button>
+        </Link>
 
-      {/* Botón de Logout alineado a la derecha */}
-      <BtnLogout
-        className="ml-auto flex flex-col items-center justify-center bg-transparent p-4 gap-2 text-white hover:text-red-400 hover:bg-transparent transition-all duration-300"
-      >
-        <Logout className="w-8 h-8" />
-        <span className="text-sm">Logout</span>
-      </BtnLogout>
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex space-x-4 items-center justify-center w-full">
+          {navItems.map((item) => (
+            pathname !== item.href && (
+              <Link key={item.href} href={item.href}>
+                <Button
+                  variant="ghost"
+                  className="flex items-center text-gray-200 hover:text-blue-400"
+                >
+                  <item.icon className="w-5 h-5" />
+                  {item.label}
+                </Button>
+              </Link>
+            )
+          ))}
+        </div>
+
+        {/* Mobile Navigation */}
+        <Sheet >
+          <SheetTrigger asChild>
+            <Button variant="ghost" className="md:hidden text-gray-200">
+              <Menu className="w-6 h-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="top" className="w-full p-0 bg-gray-800 text-white">
+            <div className="flex items-center justify-between p-4 ">
+              <span className="text-lg font-semibold text-gray-200">Menú</span>
+
+            </div>
+            <nav className="flex-grow">
+              {navItems.map((item) => (
+                <SheetTrigger asChild key={item.label}>
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="flex items-center p-4 text-gray-200 hover:bg-gray-700"
+                  >
+                    <item.icon className="w-6 h-6 mr-4" />
+                    <span className="text-lg">{item.label}</span>
+                  </Link>
+                </SheetTrigger>
+              ))}
+            </nav>
+            <div className="p-4 ">
+              <BtnLogout
+                className=" flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-gray-200 hover:text-red-400 hover:bg-gray-700 transition-all duration-300"
+              >
+                <Logout className="w-6 h-6" />
+                <span className="text-lg">Cerrar sesión</span>
+              </BtnLogout>
+            </div>
+          </SheetContent>
+        </Sheet>
+
+        <BtnLogout
+          className=" hidden md:flex items-center justify-center bg-transparent p-2 gap-2 text-gray-200 hover:text-red-400 hover:bg-transparent transition-all duration-300"
+        >
+          <Logout className="w-6 h-6" />
+          <span className="text-sm">Cerrar sesión</span>
+        </BtnLogout>
+      </div>
     </nav>
-  );
+  )
 }
+

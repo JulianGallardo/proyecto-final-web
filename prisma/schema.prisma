@@ -5,9 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  directUrl         = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -18,19 +18,20 @@ enum Role {
   user
   admin
 }
+
 model User {
-  id            String          @id @default(cuid())
-  name          String?
-  email         String          @unique
-  password      String? 
-  image         String?
-  accounts      Account[]
-  role          Role            @default(user)
- 
+  id       String    @id @default(cuid())
+  name     String?
+  email    String    @unique
+  password String?
+  image    String?
+  accounts Account[]
+  role     Role      @default(user)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
- 
+
 model Account {
   userId            String
   type              String
@@ -43,19 +44,53 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
- 
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@id([provider, providerAccountId])
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@id([identifier, token])
+}
+
+model Coordinates {
+  id         String @id @default(cuid())
+  geometryAssociatedId String 
+  latitude   Float
+  longitude  Float
+
+  Geometry Geometry @relation(fields: [geometryAssociatedId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Geometry {
+  id          String        @id @default(cuid())
+  type        String
+  coordinates Coordinates[] // Relación con Coordinates
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  zone        Zone?
+}
+
+model Zone {
+  id        String @id @default(cuid())
+  zoneName  String @unique
+  zoneColor String
+  type      String @default("Feature")
+
+  geometryId String   @unique
+  geometry   Geometry @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

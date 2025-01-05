@@ -1,19 +1,17 @@
 import { auth } from "@/auth"
-import BtnLogout from "@/components/auth/btn-logout"
-import Navbar from "@/components/navbar"
- 
+import Areas from "@/components/areas/maps/map"
+import NoAutenticado from "@/components/error/errorNoAutenticado"
+
 export default async function HomePage() {
   const session = await auth()
- 
-  if (!session) {
-    return <div>Not authenticated</div>
-  }
- 
-  return (
-    <div className="container w-full ">
 
-      <pre>{JSON.stringify(session, null, 2)}</pre>
-      <BtnLogout />
+  if (!session) {
+    return <div><NoAutenticado/></div>
+  }
+
+  return (
+    <div className="flex h-full w-full  ">
+      <Areas />
     </div>
 
   )

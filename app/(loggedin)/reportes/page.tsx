@@ -1,20 +1,29 @@
 import { auth } from "@/auth"
-import BtnLogout from "@/components/auth/btn-logout"
-import Navbar from "@/components/navbar"
+import ErrorNotFound from "@/components/error/error404"
+import NoAutenticado from "@/components/error/errorNoAutenticado"
  
 export default async function HomePage() {
   const session = await auth()
  
   if (!session) {
-    return <div>Not authenticated</div>
+    return <div><NoAutenticado/></div>
   }
  
   return (
-    <div className="container w-full ">
-
-      <pre>{JSON.stringify(session, null, 2)}</pre>
-      <BtnLogout/>
-    </div>
+    <div className="w-full h-full">
+          <ErrorNotFound reset={
+                        async () => 
+                        {
+                          "use server"
+                          window.location.reload()
+                        }
+                      }
+                        error={{
+                          name: "Pagina no implementada",
+                          message: "Aca iria reportes",
+                          stack: "Page not found"
+                        }} />
+        </div>
 
   )
 }

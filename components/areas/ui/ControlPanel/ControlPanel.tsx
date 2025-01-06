@@ -65,7 +65,7 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
                 draw,
                 addNewZoneToMap,
                 setMode,
-                replaceZone
+                setZones
             );
             if (isMobile) {
                 setOpenMobile(true);
@@ -80,9 +80,6 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
     }, [draw]);
 
 
-    const replaceZone = (newFeature: CustomFeature) => {
-        setZones((prevZones) => [...prevZones, newFeature]);
-    }
 
     function changeEditingState(state: boolean) {
         setEditingZonesInfo(state);

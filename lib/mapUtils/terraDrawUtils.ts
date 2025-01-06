@@ -4,6 +4,7 @@ import * as turf from "@turf/turf";
 import { GeoJSONStoreFeatures } from "terra-draw";
 import { getZoneInfoFromLocalStorage } from "./localStorageUtils";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
+import React from "react";
 
 
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
@@ -16,7 +17,7 @@ function handleFinish(
     draw: MaplibreTerradrawControl,
     addNewZoneToMap: (zone: CustomFeature) => void,
     setMode: (mode: DrawingModes) => void,
-    replaceZone: (zone: CustomFeature) => void
+    setZones: React.Dispatch<React.SetStateAction<CustomFeature[]>>,
 
 ) {
     const parsedId = id as string;
@@ -38,33 +39,29 @@ function handleFinish(
             return;
         }
 
-        draw.getFeatures().features.forEach((featureInMap: GeoJSONStoreFeatures) => {
-            if (featureInMap.id !== newFeature.id) {
-                if (isIntersectingWithMapPolygon(newFeature, featureInMap)) {
-                    intersectsWithMapPolygon = true;
-
-                    const changedPolygon = reDrawPolygonWithNoIntersection(newFeature, featureInMap);
-                    if (changedPolygon !== null) {
-                        newFeature.geometry.coordinates = changedPolygon.geometry.coordinates as Position[][];
-                    }
-                }
+        const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature.id);
+        console.log("features en mapa, ",draw.getFeatures()?.features);
+        console.log(newFeature.id);
+        if(isIntersectingWithMapPolygon(newFeature,features)) {
+            intersectsWithMapPolygon = true;
+            const newPolygon = reDrawPolygonWithNoIntersection(newFeature, features);
+            if (newPolygon !== null) {
+                newFeature.geometry.coordinates = newPolygon.geometry.coordinates as Position[][];
             }
         }
-        );
-
+        console.log(intersectsWithMapPolygon);
         const newZoneInfo = getZoneInfoFromLocalStorage();
 
         newFeature.properties.color = newZoneInfo.color;
         newFeature.properties.editable = false;
         newFeature.properties.name = newZoneInfo.name;
 
-
         if (intersectsWithMapPolygon) {
             terraDrawInstance.removeFeatures([newFeature.id]);
             addNewZoneToMap(newFeature as CustomFeature);
         }
 
-        replaceZone(newFeature as CustomFeature);
+        setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
     }
     terraDrawInstance.setMode("render");
     setMode(DrawingModes.SinSeleccionar);
@@ -85,22 +82,32 @@ function isSelfIntersectingPolygon(polygonToDraw: GeoJSONStoreFeatures): boolean
 
 function isIntersectingWithMapPolygon(
     polygonToDraw: GeoJSONStoreFeatures,
-    polygonInMap: GeoJSONStoreFeatures
+    polygonsInMap: GeoJSONStoreFeatures[]
 ): boolean {
+    if (polygonsInMap.length === 0) return false;
+    
     const polygonCoords: Position[][] = polygonToDraw.geometry.coordinates as Position[][];
-    const otherPolygonCoords = polygonInMap.geometry.coordinates as Position[][];
+    const otherPolygonCoords = polygonsInMap.map((polygon) => {
+        return polygon.geometry.coordinates as Position[][];
+    });
 
     const polygon = turf.polygon(polygonCoords);
-    const otherPolygon = turf.polygon(otherPolygonCoords);
+    const otherPolygons= otherPolygonCoords.map((coords) => {
+        return turf.polygon(coords);
+    });
 
-    const FeatureCollection = turf.featureCollection([polygon, otherPolygon]);
-    // Verificar intersección
-    const intersection = turf.intersect(FeatureCollection);
+    let intersection = false;
+    
+    while (otherPolygons.length > 0 && !intersection) {
+        const otherPolygon = otherPolygons.pop();
+        if (!otherPolygon) return false;
+        const intersectionResult = turf.intersect(turf.featureCollection([polygon, otherPolygon]));
+        intersection = !!intersectionResult;
+    }
+   
     if (intersection) {
-        console.log('Los polígonos se intersectan:', intersection);
         return true;
     } else {
-        console.log('No hay intersección');
         return false;
     }
 }
@@ -108,28 +115,27 @@ function isIntersectingWithMapPolygon(
 
 function reDrawPolygonWithNoIntersection(
     polygonToDraw: GeoJSONStoreFeatures,
-    polygonInMap: GeoJSONStoreFeatures
+    polygonsInMap: GeoJSONStoreFeatures[]
 ) {
     const polygonCoords: Position[][] = polygonToDraw.geometry.coordinates as Position[][];
-    const otherPolygonCoords = polygonInMap.geometry.coordinates as Position[][];
+    const otherPolygonCoords = polygonsInMap.map((polygon) => {
+        return polygon.geometry.coordinates as Position[][];
+    });
 
     const polygon = turf.polygon(polygonCoords);
-    const otherPolygon = turf.polygon(otherPolygonCoords);
+    const otherPolygons= otherPolygonCoords.map((coords) => {
+        return turf.polygon(coords);
+    });
 
-    const FeatureCollection = turf.featureCollection([polygon, otherPolygon]);
+    const otherPolygonsCollection = turf.featureCollection([polygon, ...otherPolygons]);
 
-    // Verificar intersección
-    const intersection = turf.intersect(FeatureCollection);
 
-    if (intersection) {
-        // Recalcular polígono
-        const difference = turf.difference(FeatureCollection);
-        //ajustamos la precision de las coordenadas
-
+    const difference = turf.difference(otherPolygonsCollection);
+    console.log("difference,",difference);
+    try {
         if (difference) {
             difference.geometry.coordinates = difference.geometry.coordinates.map((coord) => {
                 return coord.map((c) => {
-
                     const parsedCoords = [
                         Number((c as number[])[0].toFixed(9)),
                         Number((c as number[])[1].toFixed(9)),
@@ -140,11 +146,11 @@ function reDrawPolygonWithNoIntersection(
             });
 
         }
-
-        return difference;
-    } else {
-        return polygon;
+    } catch (error) {
+        throw new Error("Error al intentar dibujar la zona");
     }
+    return difference;
+
 }
 
 

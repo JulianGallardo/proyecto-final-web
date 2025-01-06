@@ -40,9 +40,9 @@ function handleFinish(
         }
 
         const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature.id);
-        console.log("features en mapa, ",draw.getFeatures()?.features);
+        console.log("features en mapa, ", draw.getFeatures()?.features);
         console.log(newFeature.id);
-        if(isIntersectingWithMapPolygon(newFeature,features)) {
+        if (isIntersectingWithMapPolygon(newFeature, features)) {
             intersectsWithMapPolygon = true;
             const newPolygon = reDrawPolygonWithNoIntersection(newFeature, features);
             if (newPolygon !== null) {
@@ -85,26 +85,26 @@ function isIntersectingWithMapPolygon(
     polygonsInMap: GeoJSONStoreFeatures[]
 ): boolean {
     if (polygonsInMap.length === 0) return false;
-    
+
     const polygonCoords: Position[][] = polygonToDraw.geometry.coordinates as Position[][];
     const otherPolygonCoords = polygonsInMap.map((polygon) => {
         return polygon.geometry.coordinates as Position[][];
     });
 
     const polygon = turf.polygon(polygonCoords);
-    const otherPolygons= otherPolygonCoords.map((coords) => {
+    const otherPolygons = otherPolygonCoords.map((coords) => {
         return turf.polygon(coords);
     });
 
     let intersection = false;
-    
+
     while (otherPolygons.length > 0 && !intersection) {
         const otherPolygon = otherPolygons.pop();
         if (!otherPolygon) return false;
         const intersectionResult = turf.intersect(turf.featureCollection([polygon, otherPolygon]));
         intersection = !!intersectionResult;
     }
-   
+
     if (intersection) {
         return true;
     } else {
@@ -123,7 +123,7 @@ function reDrawPolygonWithNoIntersection(
     });
 
     const polygon = turf.polygon(polygonCoords);
-    const otherPolygons= otherPolygonCoords.map((coords) => {
+    const otherPolygons = otherPolygonCoords.map((coords) => {
         return turf.polygon(coords);
     });
 
@@ -131,24 +131,53 @@ function reDrawPolygonWithNoIntersection(
 
 
     const difference = turf.difference(otherPolygonsCollection);
-    console.log("difference,",difference);
-    try {
-        if (difference) {
-            difference.geometry.coordinates = difference.geometry.coordinates.map((coord) => {
-                return coord.map((c) => {
-                    const parsedCoords = [
-                        Number((c as number[])[0].toFixed(9)),
-                        Number((c as number[])[1].toFixed(9)),
-                    ]
 
-                    return parsedCoords;
-                });
+    if (!difference) return null;
+
+    if (difference.geometry.type === "Polygon") {
+        difference.geometry.coordinates = difference.geometry.coordinates.map((coord) => {
+            return coord.map((c) => {
+                const parsedCoords = [
+                    Number((c as number[])[0].toFixed(9)),
+                    Number((c as number[])[1].toFixed(9)),
+                ]
+
+                return parsedCoords;
             });
+        });
+    } else if (difference.geometry.type === "MultiPolygon") {
 
+        console.log(difference.geometry.coordinates);
+        const Polygons = difference.geometry.coordinates.map((polygon) => {
+            return turf.polygon(polygon);
         }
-    } catch (error) {
-        throw new Error("Error al intentar dibujar la zona");
+        );
+
+        const CollectionFeatures = turf.featureCollection(Polygons);
+
+        const unitedPolygons = turf.union(CollectionFeatures);
+
+        if (unitedPolygons === null || unitedPolygons.geometry.type !== "Polygon")
+            throw new Error("La zona tiene agujeros");
+
+        unitedPolygons.geometry.coordinates = unitedPolygons.geometry.coordinates.map((coord) => {
+            return coord.map((c) => {
+                const parsedCoords = [
+                    Number((c as number[])[0].toFixed(9)),
+                    Number((c as number[])[1].toFixed(9)),
+                ]
+
+                return parsedCoords;
+            });
+        }
+        );
+
     }
+
+
+
+
+
     return difference;
 
 }

@@ -141,18 +141,11 @@ function reDrawPolygonWithNoIntersection(
 
         }
 
-
-
         return difference;
     } else {
-        console.log('No hay intersección');
         return polygon;
     }
 }
-
-
-
-
 
 
 export { isSelfIntersectingPolygon, isIntersectingWithMapPolygon, reDrawPolygonWithNoIntersection, handleFinish };

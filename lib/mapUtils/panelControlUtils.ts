@@ -67,7 +67,6 @@ function discardZoneEditsHelper(
         addNewZoneToMap(zone);
     });
 
-
     terraDrawInstance?.setMode("render");
     setMode(DrawingModes.SinSeleccionar);
 };
@@ -171,35 +170,44 @@ async function discardChangesHelper(
     setMode: React.Dispatch<React.SetStateAction<DrawingModes>>,
     changeEditingState: (state: boolean) => void,
     fetchZones: () => Promise<void>,
-    
-) {
-    
 
-    const terraDrawInstance = draw.getTerraDrawInstance();
-    terraDrawInstance?.setMode("render");
+): Promise<void> {
+    const promise = new Promise<void>((resolve, reject) => {
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        terraDrawInstance?.setMode("render");
 
-    zones.forEach((zone) => {
-        if (zone.id) {
-            terraDrawInstance?.removeFeatures([zone.id]);
-            colorCache.deleteDataInColorCache(`"${zone.id}"`);
-        }
-    });
-    setZones([]);
-    fetchZones().then(() => {
-        setMode(DrawingModes.SinSeleccionar);
-        toast({
-            title: "Cambios descartados",
-            description: "Los cambios han sido descartados exitosamente",
-            className: "bg-green-500 text-white",
-            duration: 2000,
+        zones.forEach((zone) => {
+            if (zone.id) {
+                terraDrawInstance?.removeFeatures([zone.id]);
+                colorCache.deleteDataInColorCache(`"${zone.id}"`);
+            }
         });
+        setZones([]);
+        fetchZones().then(() => {
+            setMode(DrawingModes.SinSeleccionar);
+            toast({
+                title: "Cambios descartados",
+                description: "Los cambios han sido descartados exitosamente",
+                className: "bg-green-500 text-white",
+                duration: 2000,
+            });
 
-        changeEditingState(false);
-        
+            changeEditingState(false);
+            resolve();
 
-    }).catch((error) => {
-        throw new Error(error);
+
+        }).catch((error) => {
+            reject(
+                new Error(
+                    error instanceof Error
+                        ? `Ha ocurrido un error al descartar los cambios: ${error.message}`
+                        : "Ha ocurrido un error desconocido al descartar los cambios"
+                )
+            );
+        });
     });
+
+    return promise;
 
 }
 

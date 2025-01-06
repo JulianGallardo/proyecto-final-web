@@ -165,13 +165,14 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
             setMode,
             changeEditingState,
             fetchZones
-
-        );
-
-        setTransactionLoading(false);
-        if (isMobile) {
-            setOpenMobile(true);
-        }
+        ).then(() => {
+            setTransactionLoading(false);
+            if (isMobile) {
+                setOpenMobile(true);
+            }
+        }).catch((error) => {
+            throw new Error(error);
+        });
     }
 
 
@@ -212,7 +213,7 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
         );
     }
 
-    function editZone(){
+    function editZone() {
         editZoneHelper(
             draw,
             setMode,
@@ -221,13 +222,13 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
         );
     }
 
-    function setRenderMode(){
+    function setRenderMode() {
         setRenderModeHelper(
             draw,
             setMode
         );
     }
-    
+
 
     return (
         <div className="flex flex-row w-full h-full ">

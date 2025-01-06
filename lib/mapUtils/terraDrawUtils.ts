@@ -16,8 +16,6 @@ function handleFinish(
     draw:MaplibreTerradrawControl,
     addNewZoneToMap: (zone: CustomFeature) => void,
     setMode: (mode: DrawingModes) => void,
-    isMobile: boolean,
-    setOpenMobile: (open: boolean) => void,
     replaceZone: (zone: CustomFeature) => void
 
 ){
@@ -26,9 +24,6 @@ function handleFinish(
     const { action, mode } = context;
     let intersectsWithMapPolygon = false;
     const terraDrawInstance = draw.getTerraDrawInstance();
-
-
-
 
     if (action === "draw" && mode === "polygon") {
         if (newFeature) {
@@ -73,14 +68,12 @@ function handleFinish(
 
             }
 
-            if (newFeature && newFeature.id) {
+            if (newFeature.id) {
                 replaceZone(newFeature as CustomFeature);
             }
             terraDrawInstance.setMode("render");
             setMode(DrawingModes.SinSeleccionar);
-            if (isMobile) {
-                setOpenMobile(true);
-            }
+            
         }
     }
 };

@@ -65,10 +65,11 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
                 draw,
                 addNewZoneToMap,
                 setMode,
-                isMobile,
-                setOpenMobile,
                 replaceZone
             );
+            if (isMobile) {
+                setOpenMobile(true);
+            }
         }
 
         draw.getTerraDrawInstance().on("finish", callback);

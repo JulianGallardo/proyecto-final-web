@@ -11,73 +11,65 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
 }
 
 function handleFinish(
-    id: FeatureId, 
-    context: { action: string, mode: string }, 
-    draw:MaplibreTerradrawControl,
+    id: FeatureId,
+    context: { action: string, mode: string },
+    draw: MaplibreTerradrawControl,
     addNewZoneToMap: (zone: CustomFeature) => void,
     setMode: (mode: DrawingModes) => void,
     replaceZone: (zone: CustomFeature) => void
 
-){
+) {
     const parsedId = id as string;
     const newFeature = getFeatureById(draw, parsedId);
     const { action, mode } = context;
     let intersectsWithMapPolygon = false;
     const terraDrawInstance = draw.getTerraDrawInstance();
 
-    if (action === "draw" && mode === "polygon") {
-        if (newFeature) {
-            if (newFeature.id) {
+    if (action === "draw" && mode === "polygon" && newFeature?.id) {
 
-                if (isSelfIntersectingPolygon(newFeature)) {
-                    toast({
-                        title: "Error",
-                        description: "La zona no puede tener intersecciones consigo misma",
-                        className: "bg-red-500 text-white",
-                        duration: 3000,
-                    });
-                    terraDrawInstance.removeFeatures([newFeature.id]);
-                    return;
-                }
+        if (isSelfIntersectingPolygon(newFeature)) {
+            toast({
+                title: "Error",
+                description: "La zona no puede tener intersecciones consigo misma",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+            terraDrawInstance.removeFeatures([newFeature.id]);
+            return;
+        }
 
-                draw.getFeatures().features.forEach((featureInMap: GeoJSONStoreFeatures) => {
-                    if (featureInMap.id !== newFeature.id) {
-                        if (isIntersectingWithMapPolygon(newFeature, featureInMap)) {
-                            intersectsWithMapPolygon = true;
+        draw.getFeatures().features.forEach((featureInMap: GeoJSONStoreFeatures) => {
+            if (featureInMap.id !== newFeature.id) {
+                if (isIntersectingWithMapPolygon(newFeature, featureInMap)) {
+                    intersectsWithMapPolygon = true;
 
-                            const changedPolygon = reDrawPolygonWithNoIntersection(newFeature, featureInMap);
-                            if (changedPolygon !== null) {
-                                newFeature.geometry.coordinates = changedPolygon.geometry.coordinates as Position[][];
-                            }
-                        }
+                    const changedPolygon = reDrawPolygonWithNoIntersection(newFeature, featureInMap);
+                    if (changedPolygon !== null) {
+                        newFeature.geometry.coordinates = changedPolygon.geometry.coordinates as Position[][];
                     }
                 }
-                );
-
-                const newZoneInfo = getZoneInfoFromLocalStorage();
-
-                newFeature.properties.color = newZoneInfo.color;
-                newFeature.properties.editable = false;
-                newFeature.properties.name = newZoneInfo.name;
-
-
-                if (intersectsWithMapPolygon) {
-                    terraDrawInstance.removeFeatures([newFeature.id]);
-                    addNewZoneToMap(newFeature as CustomFeature);
-                }
-
             }
-
-            if (newFeature.id) {
-                replaceZone(newFeature as CustomFeature);
-            }
-            terraDrawInstance.setMode("render");
-            setMode(DrawingModes.SinSeleccionar);
-            
         }
-    }
-};
+        );
 
+        const newZoneInfo = getZoneInfoFromLocalStorage();
+
+        newFeature.properties.color = newZoneInfo.color;
+        newFeature.properties.editable = false;
+        newFeature.properties.name = newZoneInfo.name;
+
+
+        if (intersectsWithMapPolygon) {
+            terraDrawInstance.removeFeatures([newFeature.id]);
+            addNewZoneToMap(newFeature as CustomFeature);
+        }
+
+        replaceZone(newFeature as CustomFeature);
+    }
+    terraDrawInstance.setMode("render");
+    setMode(DrawingModes.SinSeleccionar);
+
+}
 
 /**
  * Checks if a polygon has self-intersections.
@@ -163,4 +155,4 @@ function reDrawPolygonWithNoIntersection(
 
 
 
-export { isSelfIntersectingPolygon, isIntersectingWithMapPolygon, reDrawPolygonWithNoIntersection , handleFinish};
+export { isSelfIntersectingPolygon, isIntersectingWithMapPolygon, reDrawPolygonWithNoIntersection, handleFinish };

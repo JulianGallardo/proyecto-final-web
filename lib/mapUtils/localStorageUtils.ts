@@ -1,7 +1,7 @@
 import { CustomFeature } from "@/types/MapTypes";
 
 function getZoneInfoFromLocalStorage() {
-    const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
+    const zones = JSON.parse(window.localStorage.getItem("zones") ?? "[]");
     console.log(zones);
     if (zones.length > 0) {
         eraseZoneInfoFromLocalStorage();
@@ -21,7 +21,7 @@ function writeZoneInfoToLocalStorage(zoneInfo: CustomFeature) {
 }
 
 function getZoneColorFromLocalStorage() {
-    const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
+    const zones = JSON.parse(window.localStorage.getItem("zones") ?? "[]");
     if (zones.length > 0) {
         return zones[0].color;
     }

@@ -24,7 +24,7 @@ interface MapControlPanelProps {
 }
 
 
-export default function MapControlPanel({ draw, colorCache }: MapControlPanelProps) {
+export default function MapControlPanel({ draw, colorCache }: Readonly<MapControlPanelProps>) {
     const { isMobile, setOpenMobile } = useSidebar();
     const { toast } = useToast();
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
@@ -78,7 +78,7 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
 
 
     const replaceZone = (newFeature: CustomFeature) => {
-        setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
+        setZones((prevZones) => [...prevZones, newFeature]);
     }
 
     function changeEditingState(state: boolean) {
@@ -139,7 +139,7 @@ export default function MapControlPanel({ draw, colorCache }: MapControlPanelPro
 
     function setRenderMode() {
         const terraDrawInstance = draw?.getTerraDrawInstance();
-        const zones = JSON.parse(window.localStorage.getItem("zones") || "[]");
+        const zones = JSON.parse(window.localStorage.getItem("zones") ?? "[]");
         if (zones.length > 0) {
             eraseZoneInfoFromLocalStorage();
         }

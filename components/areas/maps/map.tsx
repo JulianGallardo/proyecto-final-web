@@ -13,8 +13,6 @@ export default function Areas() {
         []
     );
 
-
-
     return (
         <div className="flex flex-row w-full h-full ">
             <TerraDrawHandler />

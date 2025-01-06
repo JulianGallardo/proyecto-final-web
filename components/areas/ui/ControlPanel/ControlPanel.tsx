@@ -9,14 +9,13 @@ import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
 import { CustomFeature, DrawingModes, FeatureId } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
-import { createNewZones } from "@/actions/zone-actions";
-import { useToast } from "@/hooks/use-toast";
 import { LoadSkeleton } from "@/components/areas/maps/map";
-import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage, eraseZoneInfoFromLocalStorage } from "@/lib/mapUtils/localStorageUtils";
+import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage } from "@/lib/mapUtils/localStorageUtils";
 import { useZones } from "@/hooks/useZones";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
 import { handleFinish } from "@/lib/mapUtils/terraDrawUtils";
-import {type OnFinishContext} from "terra-draw"
+import { type OnFinishContext } from "terra-draw"
+import { addZoneHelper, discardChangesHelper, discardZoneEditsHelper, editZoneHelper, saveChangesHelper, saveEditsHelper, setRenderModeHelper } from "@/lib/mapUtils/panelControlUtils";
 
 interface MapControlPanelProps {
     draw: MaplibreTerradrawControl;
@@ -26,12 +25,15 @@ interface MapControlPanelProps {
 
 export default function MapControlPanel({ draw, colorCache }: Readonly<MapControlPanelProps>) {
     const { isMobile, setOpenMobile } = useSidebar();
-    const { toast } = useToast();
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
+
+
     const [newZoneDialogOpen, setNewZoneDialogOpen] = useState(false); // Estado para el dialogo de nueva zona
     const [editingZoneDialogOpen, setEditingZoneDialogOpen] = useState(false); // Estado para el dialogo de edición de zona
+
     const [loading, setLoading] = useState(true);
     const [transactionLoading, setTransactionLoading] = useState(false);
+
     const [editingZonesInfo, setEditingZonesInfo] = useState(false);
     const {
         zones,
@@ -53,9 +55,9 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
             throw new Error(error);
         });
 
-        
+
         const terraDrawInstance = draw.getTerraDrawInstance();
-        const callback = (id:FeatureId, context:OnFinishContext) => {
+        const callback = (id: FeatureId, context: OnFinishContext) => {
             const parseId = id as string;
             handleFinish(
                 parseId,
@@ -88,7 +90,10 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
 
     function changeNewZoneDialogState(state: boolean) {
         if (!state) {
-            setRenderMode();
+            setRenderModeHelper(
+                draw,
+                setMode
+            );
         }
         setNewZoneDialogOpen(state);
     }
@@ -137,17 +142,6 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
 
     }
 
-    function setRenderMode() {
-        const terraDrawInstance = draw?.getTerraDrawInstance();
-        const zones = JSON.parse(window.localStorage.getItem("zones") ?? "[]");
-        if (zones.length > 0) {
-            eraseZoneInfoFromLocalStorage();
-        }
-        terraDrawInstance?.setMode("render");
-        setMode(DrawingModes.SinSeleccionar);
-
-    }
-
     function onNewZoneDialogSubmit() {
         if (isMobile) {
             setOpenMobile(false);
@@ -155,191 +149,84 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
         setNewZoneDialogOpen(false);
     }
 
-    const addZone = () => {
-        if (draw) {
-            const terraDrawInstance = draw.getTerraDrawInstance();
 
-            setNewZoneDialogOpen(true);
-            terraDrawInstance?.setMode("polygon");
-            setMode(DrawingModes.CreandoZonas);
-        }
-    };
-
-    const editZone = () => {
-        if (draw) {
-            const terraDrawInstance = draw.getTerraDrawInstance();
-            terraDrawInstance?.setMode("select");
-            setMode(DrawingModes.EditandoZonas);
-
-            if (isMobile) {
-                setOpenMobile(false);
-            }
-
-        }
-    };
-
-    const discardZoneEdits = () => {
-        if (draw) {
-            const terraDrawInstance = draw.getTerraDrawInstance();
-            zones.forEach((zone) => {
-                if (zone.id) {
-                    terraDrawInstance?.removeFeatures([zone.id]);
-                }
-            });
-
-            zones.forEach((zone) => {
-                addNewZoneToMap(zone);
-            });
-
-
-            terraDrawInstance?.setMode("render");
-            setMode(DrawingModes.SinSeleccionar);
-
-        }
-    };
-
-    const saveEdits = () => {
-        if (draw) {
-            const terraDrawInstance = draw.getTerraDrawInstance();
-            terraDrawInstance?.setMode("render");
-
-            draw.getFeatures()?.features.forEach((feature: GeoJSONStoreFeatures) => {
-                const zone = zones.find((zone) => zone.id === feature.id);
-                if (zone) {
-                    zone.geometry.coordinates = feature.geometry.coordinates;
-                }
-                setZones([...zones]);
-            });
-            setMode(DrawingModes.SinSeleccionar);
-        }
-    };
-
-    const saveChanges = async () => {
-        // Verificar nombres duplicados
+    function discardChanges() {
         setTransactionLoading(true);
         if (isMobile) {
             setOpenMobile(false);
         }
 
-        const zoneNames = zones.map(zone => zone.properties.name);
-        if (zoneNames.length !== new Set(zoneNames).size) {
-            toast({
-                title: "Error",
-                description: "No pueden haber zonas con el mismo nombre, por favor cambie los nombres de las zonas repetidas",
-                className: "bg-red-500 text-white",
-                duration: 3000,
-            });
-            setTransactionLoading(false);
-            if (isMobile) {
-                setOpenMobile(true);
-            }
-            return;
-        }
+        discardChangesHelper(
+            zones,
+            draw,
+            colorCache,
+            setZones,
+            setMode,
+            changeEditingState,
+            fetchZones
 
-        changeEditingState(false);
-        setMode(DrawingModes.SinSeleccionar);
+        );
 
-        try {
-            const response = await createNewZones(zones);
-            setTransactionLoading(false);
-            if (isMobile) {
-                setOpenMobile(true);
-            }
-            if (response.status === "success") {
-                toast({
-                    title: "Zonas guardadas",
-                    description: "Las zonas han sido guardadas exitosamente",
-                    className: "bg-green-500 text-white",
-                    duration: 2000,
-                });
-            } else {
-                toast({
-                    title: "Error",
-                    description: response.message || "Ha ocurrido un error al guardar las zonas",
-                    className: "bg-red-500 text-white",
-                    duration: 2000,
-                });
-            }
-        } catch (error) {
-            setTransactionLoading(false);
-            if (isMobile) {
-                setOpenMobile(true);
-            }
-            const errorMessage =
-                error instanceof Error
-                    ? `Ha ocurrido un error al guardar las zonas: ${error.message}`
-                    : "Ha ocurrido un error desconocido al guardar las zonas";
-
-            toast({
-                title: "Error",
-                description: errorMessage,
-                className: "bg-red-500 text-white",
-                duration: 2000,
-            });
-        }
-    };
-
-    const discardChanges = async () => {
-
-        setTransactionLoading(true);
+        setTransactionLoading(false);
         if (isMobile) {
-            setOpenMobile(false);
+            setOpenMobile(true);
         }
-
-
-        if (draw) {
-            const terraDrawInstance = draw.getTerraDrawInstance();
-            terraDrawInstance?.setMode("render");
-
-            zones.forEach((zone) => {
-                if (zone.id) {
-                    terraDrawInstance?.removeFeatures([zone.id]);
-                    colorCache.deleteDataInColorCache(`"${zone.id}"`);
-                }
-            });
-            setZones([]);
-            fetchZones().then(() => {
-                setMode(DrawingModes.SinSeleccionar);
-                toast({
-                    title: "Cambios descartados",
-                    description: "Los cambios han sido descartados exitosamente",
-                    className: "bg-green-500 text-white",
-                    duration: 2000,
-                });
-
-                setTimeout(() => {
-
-                }, 2000);
-                changeEditingState(false);
-                setTransactionLoading(false);
-                if (isMobile) {
-                    setOpenMobile(true);
-                }
-
-            }).catch((error) => {
-                throw new Error(error);
-            });
-
-        }
-        else {
-
-            toast({
-                title: "Error",
-                description: "No se ha podido descartar los cambios",
-                className: "bg-red-500 text-white",
-                duration: 2000,
-            });
-
-            setTransactionLoading(false);
-            if (isMobile) {
-                setOpenMobile(true);
-            }
-            throw new Error("No se ha podido descartar los cambios");
-        }
-
-
     }
 
+
+    function addZone(): void {
+        addZoneHelper(
+            draw,
+            setNewZoneDialogOpen,
+            setMode,
+        );
+    }
+
+    function saveEdits(): void {
+        saveEditsHelper(
+            draw,
+            zones,
+            setZones,
+            setMode,
+        );
+    }
+
+    function discardZoneEdits(): void {
+        discardZoneEditsHelper(
+            draw,
+            zones,
+            setMode,
+            addNewZoneToMap
+        );
+    }
+
+    function saveChanges(): void {
+        saveChangesHelper(
+            setTransactionLoading,
+            isMobile,
+            setOpenMobile,
+            zones,
+            changeEditingState,
+            setMode
+        );
+    }
+
+    function editZone(){
+        editZoneHelper(
+            draw,
+            setMode,
+            isMobile,
+            setOpenMobile
+        );
+    }
+
+    function setRenderMode(){
+        setRenderModeHelper(
+            draw,
+            setMode
+        );
+    }
+    
 
     return (
         <div className="flex flex-row w-full h-full ">

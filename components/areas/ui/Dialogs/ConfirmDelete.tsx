@@ -25,7 +25,7 @@ export function ConfirmDelete({
     onConfirm,
     open,
     setOpen,
-}: ConfirmDeleteProps) {
+}: Readonly<ConfirmDeleteProps>) {
 
     const handleConfirm = () => {
         onConfirm()

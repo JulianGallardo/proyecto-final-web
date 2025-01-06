@@ -10,7 +10,7 @@ interface AddZoneDialogProps {
 
 
 
-export function EditZoneDialog({ open, setOpen, onDialogSubmit }: AddZoneDialogProps) {
+export function EditZoneDialog({ open, setOpen, onDialogSubmit }: Readonly<AddZoneDialogProps>) {
     return (
         <ZoneDialog
             title="Editar Zona"

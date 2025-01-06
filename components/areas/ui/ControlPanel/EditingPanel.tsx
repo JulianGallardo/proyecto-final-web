@@ -16,6 +16,10 @@ interface EditingPanelProps {
 
 }
 
+
+
+
+
 export default function EditingPanel({ onEdit, addZone, mode, saveZoneEdits, discardZoneEdits, saveChanges, setRenderMode, discardChanges }: Readonly<EditingPanelProps>) {
     return (
         <div className="flex flex-col w-full   gap-5 items-center justify-center">

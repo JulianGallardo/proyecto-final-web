@@ -35,7 +35,7 @@ export function useZones(
         } as GeoJSONStoreFeatures;
 
         colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
-        terraDrawInstance.addFeatures([newZone]);
+        console.log("validacion",terraDrawInstance.addFeatures([newZone]))
 
     }
 

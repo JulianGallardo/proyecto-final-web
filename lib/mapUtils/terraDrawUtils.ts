@@ -5,6 +5,7 @@ import { GeoJSONStoreFeatures } from "terra-draw";
 import { getZoneInfoFromLocalStorage } from "./localStorageUtils";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import React from "react";
+import { Feature, GeoJsonProperties, Polygon } from "geojson";
 
 
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
@@ -40,16 +41,16 @@ function handleFinish(
         }
 
         const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature.id);
-        console.log("features en mapa, ", draw.getFeatures()?.features);
-        console.log(newFeature.id);
-        if (isIntersectingWithMapPolygon(newFeature, features)) {
+
+        const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
+        if (intersectsWith.length > 0) {
             intersectsWithMapPolygon = true;
-            const newPolygon = reDrawPolygonWithNoIntersection(newFeature, features);
+            const newPolygon = reDrawPolygonWithNoIntersection(newFeature, intersectsWith);
             if (newPolygon !== null) {
                 newFeature.geometry.coordinates = newPolygon.geometry.coordinates as Position[][];
             }
         }
-        console.log(intersectsWithMapPolygon);
+        console.log(intersectsWith);
         const newZoneInfo = getZoneInfoFromLocalStorage();
 
         newFeature.properties.color = newZoneInfo.color;
@@ -62,9 +63,11 @@ function handleFinish(
         }
 
         setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
+
+
+        terraDrawInstance.setMode("render");
+        setMode(DrawingModes.SinSeleccionar);
     }
-    terraDrawInstance.setMode("render");
-    setMode(DrawingModes.SinSeleccionar);
 
 }
 
@@ -83,8 +86,8 @@ function isSelfIntersectingPolygon(polygonToDraw: GeoJSONStoreFeatures): boolean
 function isIntersectingWithMapPolygon(
     polygonToDraw: GeoJSONStoreFeatures,
     polygonsInMap: GeoJSONStoreFeatures[]
-): boolean {
-    if (polygonsInMap.length === 0) return false;
+): GeoJSONStoreFeatures[] {
+    if (polygonsInMap.length === 0) return [];
 
     const polygonCoords: Position[][] = polygonToDraw.geometry.coordinates as Position[][];
     const otherPolygonCoords = polygonsInMap.map((polygon) => {
@@ -96,20 +99,29 @@ function isIntersectingWithMapPolygon(
         return turf.polygon(coords);
     });
 
-    let intersection = false;
+    const intersectsWith: GeoJSONStoreFeatures[] = [];
 
-    while (otherPolygons.length > 0 && !intersection) {
+    while (otherPolygons.length > 0) {
         const otherPolygon = otherPolygons.pop();
-        if (!otherPolygon) return false;
+        if (!otherPolygon) continue;
+
         const intersectionResult = turf.intersect(turf.featureCollection([polygon, otherPolygon]));
-        intersection = !!intersectionResult;
+        if (intersectionResult) {
+            const intersectedPolygon: GeoJSONStoreFeatures = {
+                type: "Feature",
+                geometry: {
+                    type: "Polygon",
+                    coordinates: intersectionResult.geometry.coordinates as Position[][],
+                },
+                properties: {
+                    type: "polygon"
+                },
+            };
+            intersectsWith.push(intersectedPolygon);
+        }
     }
 
-    if (intersection) {
-        return true;
-    } else {
-        return false;
-    }
+    return intersectsWith
 }
 
 
@@ -127,60 +139,61 @@ function reDrawPolygonWithNoIntersection(
         return turf.polygon(coords);
     });
 
-    const otherPolygonsCollection = turf.featureCollection([polygon, ...otherPolygons]);
+
+    otherPolygons.forEach(polygonToDelete => {
+
+        const intersection = turf.intersect(turf.featureCollection([polygon, polygonToDelete]));
+
+        if (intersection === null) return null;
 
 
-    const difference = turf.difference(otherPolygonsCollection);
+        const difference = turf.difference(turf.featureCollection([polygon, intersection]));
+        if (difference === null) return null;
 
-    if (!difference) return null;
 
-    if (difference.geometry.type === "Polygon") {
-        difference.geometry.coordinates = difference.geometry.coordinates.map((coord) => {
-            return coord.map((c) => {
-                const parsedCoords = [
-                    Number((c as number[])[0].toFixed(9)),
-                    Number((c as number[])[1].toFixed(9)),
-                ]
-
-                return parsedCoords;
-            });
-        });
-    } else if (difference.geometry.type === "MultiPolygon") {
-
-        console.log(difference.geometry.coordinates);
-        const Polygons = difference.geometry.coordinates.map((polygon) => {
-            return turf.polygon(polygon);
+        console.log(difference);
+        if (difference.geometry.type === "Polygon") {
+            const CleanDifference = deletePointsInsidePolygon(difference as Feature<Polygon, GeoJsonProperties>, polygonToDelete);
+            const ParsedCords = turf.truncate(CleanDifference, { precision: 9 });
+            polygon.geometry.coordinates = ParsedCords.geometry.coordinates as Position[][];
         }
-        );
+        else console.warn("No se pudo limpiar la intersección");
+    });
 
-        const CollectionFeatures = turf.featureCollection(Polygons);
+    console.log(polygon)
 
-        const unitedPolygons = turf.union(CollectionFeatures);
-
-        if (unitedPolygons === null || unitedPolygons.geometry.type !== "Polygon")
-            throw new Error("La zona tiene agujeros");
-
-        unitedPolygons.geometry.coordinates = unitedPolygons.geometry.coordinates.map((coord) => {
-            return coord.map((c) => {
-                const parsedCoords = [
-                    Number((c as number[])[0].toFixed(9)),
-                    Number((c as number[])[1].toFixed(9)),
-                ]
-
-                return parsedCoords;
-            });
-        }
-        );
-
-    }
-
-
-
-
-
-    return difference;
+    return polygon;
 
 }
+
+
+
+function deletePointsInsidePolygon(
+    polygonToDeletePoints: Feature<Polygon, GeoJsonProperties>,
+    polygonToDraw: Feature<Polygon, GeoJsonProperties>
+){
+    const pointsToDelete = polygonToDeletePoints.geometry.coordinates[0] ;
+    const pointsPoligonToCheck = polygonToDraw.geometry.coordinates ;
+
+    const polygonToCheck = turf.polygon(pointsPoligonToCheck);
+    const newCoords:Position[] = [
+       
+    ];
+    pointsToDelete.forEach(point => {
+        const pointToCheck = turf.point(point);
+        const isInside = turf.booleanPointInPolygon(pointToCheck, polygonToCheck, {ignoreBoundary: true});
+        if(!isInside){
+            newCoords.push(pointToCheck.geometry.coordinates as Position);
+        }
+    });
+
+    const newPolygon = turf.polygon([newCoords]);
+
+
+    return newPolygon;
+    
+}
+
 
 
 export { isSelfIntersectingPolygon, isIntersectingWithMapPolygon, reDrawPolygonWithNoIntersection, handleFinish };

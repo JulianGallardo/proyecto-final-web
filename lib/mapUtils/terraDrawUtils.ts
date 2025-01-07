@@ -50,7 +50,6 @@ function handleFinish(
                 newFeature.geometry.coordinates = newPolygon.geometry.coordinates as Position[][];
             }
         }
-        console.log(intersectsWith);
         const newZoneInfo = getZoneInfoFromLocalStorage();
 
         newFeature.properties.color = newZoneInfo.color;
@@ -143,28 +142,108 @@ function reDrawPolygonWithNoIntersection(
     const otherPolygonsParsed = turf.truncate(turf.featureCollection(otherPolygons), { precision: 9 });
 
     otherPolygonsParsed.features.forEach(polygonToDelete => {
-
-
         const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
         if (difference === null) return null;
 
-
         if (difference.geometry.type === "Polygon") {
-            const CleanDifference = turf.simplify(difference, { tolerance: 0.0001, highQuality: true });
-            const ParsedCords = turf.truncate(CleanDifference, { precision: 9 });
-            polygon.geometry.coordinates = ParsedCords.geometry.coordinates as Position[][];
+            polygon.geometry.coordinates = difference.geometry.coordinates;
         }
         else console.warn("No se pudo limpiar la intersección");
     });
 
-    console.log(polygon)
+    console.log("Polygon sin intersecciones:", polygon);
 
-    return polygon;
+    const trunquedPolygon = turf.truncate(polygon, { precision: 9 });
+    const picos = detectarPicos(trunquedPolygon.geometry.coordinates[0] as Position[]);
+    console.log("Picos:", picos);
+    if (picos.length > 0) {
+        const newPolygonCoords = eliminarPicos(polygon, picos);
+        trunquedPolygon.geometry.coordinates = [newPolygonCoords];
+    }
+    
+    console.log("Polygon sin picos:", trunquedPolygon);
+    
+
+    return trunquedPolygon;
 
 }
 
 
+function calcularAngulo(p1: Position, p2: Position, p3: Position): number {
+    // Vectores: p1->p2 y p2->p3
+    const v1: Position = [p2[0] - p1[0], p2[1] - p1[1]];
+    const v2: Position = [p3[0] - p2[0], p3[1] - p2[1]];
 
+    // Producto punto de los vectores
+    const productoPunto = v1[0] * v2[0] + v1[1] * v2[1];
+
+    // Magnitudes de los vectores
+    const magnitudV1 = Math.sqrt(v1[0] ** 2 + v1[1] ** 2);
+    const magnitudV2 = Math.sqrt(v2[0] ** 2 + v2[1] ** 2);
+
+    // Cálculo del coseno del ángulo entre los vectores
+    const cosAngulo = productoPunto / (magnitudV1 * magnitudV2);
+
+    // Asegurarse de que el valor esté en el rango [-1, 1] para evitar errores de precisión
+    const cosAnguloAjustado = Math.max(-1, Math.min(1, cosAngulo));
+
+    // Ángulo en radianes, luego convertirlo a grados
+    const angulo = Math.acos(cosAnguloAjustado) * (180 / Math.PI);
+    return angulo;
+}
+
+// Función para eliminar picos del polígono
+function detectarPicos(puntos: Position[], umbralAngulo: number = 30): Position[] {
+    const puntosFiltrados: Position[] = [];
+    const n = puntos.length;
+
+    for (let i = 0; i < n; i++) {
+        // Calcular los puntos anterior y siguiente de manera circular
+        let p1 = puntos[(i - 1 + n) % n]; // Punto anterior (circular)
+        const p2 = puntos[i]; // Punto actual
+        let p3 = puntos[(i + 1) % n]; // Punto siguiente (circular)
+
+        if (p1[0] === p2[0] && p1[1] === p2[1]) {
+            console.log("P1 y P2 iguales");
+            p1 = puntos[(i - 2 + n) % n];
+        }
+        if (p2[0] === p3[0] && p2[1] === p3[1]) {
+            console.log("P2 y P3 iguales");
+            p3 = puntos[(i + 2) % n];
+        }
+
+
+        const angulo = calcularAngulo(p1, p2, p3);
+        console.log("Ángulo entre", p1, p2, p3, "es:", angulo);
+
+        // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
+        if (angulo < umbralAngulo || angulo >= 179) {
+            puntosFiltrados.push(p2);
+        }
+    }
+
+    return puntosFiltrados;
+}
+
+
+
+
+function eliminarPicos(polygon: Feature<Polygon, GeoJsonProperties>, points: Position[]) {
+    const polygonPoints = turf.explode(polygon);
+    const polygonPointsCoords = polygonPoints.features.map((feature) => feature.geometry.coordinates as Position);
+
+    // Filtramos los puntos que no son picos
+    const filteredPoints = polygonPointsCoords.filter((point) => {
+        return points.every((pico) => pico[0] !== point[0] || pico[1] !== point[1]);
+    });
+
+    //chequeamos que el primer punto y el ultimo sean iguales
+    if (filteredPoints[0][0] !== filteredPoints[filteredPoints.length - 1][0] || filteredPoints[0][1] !== filteredPoints[filteredPoints.length - 1][1]) {
+        filteredPoints.push(filteredPoints[0]);
+    }
+
+    return filteredPoints;
+}
 
 
 export { isSelfIntersectingPolygon, isIntersectingWithMapPolygon, reDrawPolygonWithNoIntersection, handleFinish };

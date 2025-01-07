@@ -138,19 +138,23 @@ function reDrawPolygonWithNoIntersection(
         return turf.polygon(coords);
     });
 
-    console.log("otherPolygons ",otherPolygons);
 
     const dissolvedPolygons = turf.dissolve(turf.featureCollection(otherPolygons));
 
-    console.log("Dissolve ",dissolvedPolygons);
 
     dissolvedPolygons.features.forEach(feature => {
         const picos = detectarPicos(feature.geometry.coordinates[0] as Position[]);
         if (picos.length !== 0) console.log("Picos", picos);
         const newPolygonCoords = eliminarPicos(feature, picos);
         feature.geometry.coordinates = [newPolygonCoords];
+
+        const simplifiedPolygon = turf.simplify(feature, { tolerance: 0.0000001, highQuality: true });
+        feature.geometry.coordinates = simplifiedPolygon.geometry.coordinates;
+        
         
     });
+
+
 
     console.log("Dissolve post",dissolvedPolygons);
 
@@ -167,9 +171,6 @@ function reDrawPolygonWithNoIntersection(
         else console.warn("No se pudo limpiar la intersección");
 
     });
-
-
-
 
 
     //redondeo las coordenadas

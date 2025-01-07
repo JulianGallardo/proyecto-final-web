@@ -153,18 +153,25 @@ function reDrawPolygonWithNoIntersection(
 
     console.log("Polygon sin intersecciones:", polygon);
 
-    const trunquedPolygon = turf.truncate(polygon, { precision: 9 });
-    const picos = detectarPicos(trunquedPolygon.geometry.coordinates[0] as Position[]);
+
+
+    //redondeo las coordenadas
+    const roundedPolygon = redondearCoordenadas(polygon);
+    const picos = detectarPicos(roundedPolygon[0]);
     console.log("Picos:", picos);
-    if (picos.length > 0) {
-        const newPolygonCoords = eliminarPicos(polygon, picos);
-        trunquedPolygon.geometry.coordinates = [newPolygonCoords];
-    }
-    
-    console.log("Polygon sin picos:", trunquedPolygon);
+
+    const newPolygonCoords = eliminarPicos(polygon, picos);
+    polygon.geometry.coordinates = [newPolygonCoords];
+
+
+    console.log("Polygon sin picos:", polygon);
+
     
 
-    return trunquedPolygon;
+
+
+
+    return turf.truncate(polygon, { precision: 9 });;
 
 }
 
@@ -204,11 +211,9 @@ function detectarPicos(puntos: Position[], umbralAngulo: number = 30): Position[
         let p3 = puntos[(i + 1) % n]; // Punto siguiente (circular)
 
         if (p1[0] === p2[0] && p1[1] === p2[1]) {
-            console.log("P1 y P2 iguales");
             p1 = puntos[(i - 2 + n) % n];
         }
         if (p2[0] === p3[0] && p2[1] === p3[1]) {
-            console.log("P2 y P3 iguales");
             p3 = puntos[(i + 2) % n];
         }
 
@@ -234,8 +239,12 @@ function eliminarPicos(polygon: Feature<Polygon, GeoJsonProperties>, points: Pos
 
     // Filtramos los puntos que no son picos
     const filteredPoints = polygonPointsCoords.filter((point) => {
-        return points.every((pico) => pico[0] !== point[0] || pico[1] !== point[1]);
-    });
+        const roundedPoint = [turf.round(point[0], 9), turf.round(point[1], 9)];
+        const includes = points.some((p) => p[0] === roundedPoint[0] && p[1] === roundedPoint[1]);
+        console.log("Punto:", roundedPoint, "es pico?", includes);
+        return !includes;
+    }
+    );
 
     //chequeamos que el primer punto y el ultimo sean iguales
     if (filteredPoints[0][0] !== filteredPoints[filteredPoints.length - 1][0] || filteredPoints[0][1] !== filteredPoints[filteredPoints.length - 1][1]) {
@@ -243,6 +252,18 @@ function eliminarPicos(polygon: Feature<Polygon, GeoJsonProperties>, points: Pos
     }
 
     return filteredPoints;
+}
+
+
+function redondearCoordenadas(polygon: Feature<Polygon, GeoJsonProperties>): Position[][] {
+    const polygonCoords = polygon.geometry.coordinates as Position[][];
+    const roundedCoords = polygonCoords.map((coords) => {
+        return coords.map((coord) => {
+            return [turf.round(coord[0], 9), turf.round(coord[1], 9)];
+        });
+    });
+
+    return roundedCoords as Position[][];
 }
 
 

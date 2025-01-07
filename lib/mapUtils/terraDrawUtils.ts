@@ -140,11 +140,21 @@ function reDrawPolygonWithNoIntersection(
 
     console.log("otherPolygons ",otherPolygons);
 
-    console.log("Dissolve ",turf.dissolve(turf.featureCollection(otherPolygons)));
+    const dissolvedPolygons = turf.dissolve(turf.featureCollection(otherPolygons));
 
+    console.log("Dissolve ",dissolvedPolygons);
 
+    dissolvedPolygons.features.forEach(feature => {
+        const picos = detectarPicos(feature.geometry.coordinates[0] as Position[]);
+        if (picos.length !== 0) console.log("Picos", picos);
+        const newPolygonCoords = eliminarPicos(feature, picos);
+        feature.geometry.coordinates = [newPolygonCoords];
+        
+    });
 
-    otherPolygons.forEach(polygonToDelete => {
+    console.log("Dissolve post",dissolvedPolygons);
+
+    dissolvedPolygons.features.forEach(polygonToDelete => {
         const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
         if (difference === null) return null;
 

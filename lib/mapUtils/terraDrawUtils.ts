@@ -140,20 +140,17 @@ function reDrawPolygonWithNoIntersection(
     });
 
 
-    otherPolygons.forEach(polygonToDelete => {
+    const otherPolygonsParsed = turf.truncate(turf.featureCollection(otherPolygons), { precision: 9 });
 
-        const intersection = turf.intersect(turf.featureCollection([polygon, polygonToDelete]));
-
-        if (intersection === null) return null;
+    otherPolygonsParsed.features.forEach(polygonToDelete => {
 
 
-        const difference = turf.difference(turf.featureCollection([polygon, intersection]));
+        const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
         if (difference === null) return null;
 
 
-        console.log(difference);
         if (difference.geometry.type === "Polygon") {
-            const CleanDifference = deletePointsInsidePolygon(difference as Feature<Polygon, GeoJsonProperties>, polygonToDelete);
+            const CleanDifference = turf.simplify(difference, { tolerance: 0.0001, highQuality: true });
             const ParsedCords = turf.truncate(CleanDifference, { precision: 9 });
             polygon.geometry.coordinates = ParsedCords.geometry.coordinates as Position[][];
         }
@@ -167,32 +164,6 @@ function reDrawPolygonWithNoIntersection(
 }
 
 
-
-function deletePointsInsidePolygon(
-    polygonToDeletePoints: Feature<Polygon, GeoJsonProperties>,
-    polygonToDraw: Feature<Polygon, GeoJsonProperties>
-){
-    const pointsToDelete = polygonToDeletePoints.geometry.coordinates[0] ;
-    const pointsPoligonToCheck = polygonToDraw.geometry.coordinates ;
-
-    const polygonToCheck = turf.polygon(pointsPoligonToCheck);
-    const newCoords:Position[] = [
-       
-    ];
-    pointsToDelete.forEach(point => {
-        const pointToCheck = turf.point(point);
-        const isInside = turf.booleanPointInPolygon(pointToCheck, polygonToCheck, {ignoreBoundary: true});
-        if(!isInside){
-            newCoords.push(pointToCheck.geometry.coordinates as Position);
-        }
-    });
-
-    const newPolygon = turf.polygon([newCoords]);
-
-
-    return newPolygon;
-    
-}
 
 
 

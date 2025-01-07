@@ -139,34 +139,31 @@ function reDrawPolygonWithNoIntersection(
     });
 
 
-    const otherPolygonsParsed = turf.truncate(turf.featureCollection(otherPolygons), { precision: 9 });
 
-    otherPolygonsParsed.features.forEach(polygonToDelete => {
+    otherPolygons.forEach(polygonToDelete => {
         const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
         if (difference === null) return null;
 
-        if (difference.geometry.type === "Polygon") {
-            polygon.geometry.coordinates = difference.geometry.coordinates;
+        const cleanDifference = turf.cleanCoords(difference, { mutate: true });
+        
+
+        if (cleanDifference.geometry.type === "Polygon") {
+            polygon.geometry.coordinates = cleanDifference.geometry.coordinates;
         }
         else console.warn("No se pudo limpiar la intersección");
+
     });
 
-    console.log("Polygon sin intersecciones:", polygon);
+
 
 
 
     //redondeo las coordenadas
     const roundedPolygon = redondearCoordenadas(polygon);
     const picos = detectarPicos(roundedPolygon[0]);
-    console.log("Picos:", picos);
 
     const newPolygonCoords = eliminarPicos(polygon, picos);
     polygon.geometry.coordinates = [newPolygonCoords];
-
-
-    console.log("Polygon sin picos:", polygon);
-
-    
 
 
 
@@ -219,7 +216,6 @@ function detectarPicos(puntos: Position[], umbralAngulo: number = 30): Position[
 
 
         const angulo = calcularAngulo(p1, p2, p3);
-        console.log("Ángulo entre", p1, p2, p3, "es:", angulo);
 
         // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
         if (angulo < umbralAngulo || angulo >= 179) {
@@ -241,7 +237,6 @@ function eliminarPicos(polygon: Feature<Polygon, GeoJsonProperties>, points: Pos
     const filteredPoints = polygonPointsCoords.filter((point) => {
         const roundedPoint = [turf.round(point[0], 9), turf.round(point[1], 9)];
         const includes = points.some((p) => p[0] === roundedPoint[0] && p[1] === roundedPoint[1]);
-        console.log("Punto:", roundedPoint, "es pico?", includes);
         return !includes;
     }
     );
@@ -265,6 +260,8 @@ function redondearCoordenadas(polygon: Feature<Polygon, GeoJsonProperties>): Pos
 
     return roundedCoords as Position[][];
 }
+
+
 
 
 export { isSelfIntersectingPolygon, isIntersectingWithMapPolygon, reDrawPolygonWithNoIntersection, handleFinish };

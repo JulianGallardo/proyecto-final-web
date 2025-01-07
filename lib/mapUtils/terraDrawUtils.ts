@@ -110,7 +110,7 @@ function isIntersectingWithMapPolygon(
                 type: "Feature",
                 geometry: {
                     type: "Polygon",
-                    coordinates: intersectionResult.geometry.coordinates as Position[][],
+                    coordinates: otherPolygon.geometry.coordinates as Position[][],
                 },
                 properties: {
                     type: "polygon"
@@ -138,6 +138,10 @@ function reDrawPolygonWithNoIntersection(
         return turf.polygon(coords);
     });
 
+    console.log("otherPolygons ",otherPolygons);
+
+    console.log("Dissolve ",turf.dissolve(turf.featureCollection(otherPolygons)));
+
 
 
     otherPolygons.forEach(polygonToDelete => {
@@ -164,8 +168,6 @@ function reDrawPolygonWithNoIntersection(
 
     const newPolygonCoords = eliminarPicos(polygon, picos);
     polygon.geometry.coordinates = [newPolygonCoords];
-
-
 
 
     return turf.truncate(polygon, { precision: 9 });;

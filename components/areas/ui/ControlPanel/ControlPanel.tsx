@@ -14,13 +14,17 @@ import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage } from "@/lib/
 import { useZones } from "@/hooks/useZones";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
 import { handleFinish } from "@/lib/mapUtils/terraDrawUtils";
-import { type OnFinishContext } from "terra-draw"
 import { addZoneHelper, discardChangesHelper, discardZoneEditsHelper, editZoneHelper, saveChangesHelper, saveEditsHelper, setRenderModeHelper } from "@/lib/mapUtils/panelControlUtils";
 
 interface MapControlPanelProps {
     draw: MaplibreTerradrawControl;
     colorCache: ColorCache;
 }
+
+interface OnFinishContext {
+    action: string, mode: string
+}
+
 
 
 export default function MapControlPanel({ draw, colorCache }: Readonly<MapControlPanelProps>) {

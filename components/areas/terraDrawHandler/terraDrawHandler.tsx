@@ -23,7 +23,7 @@ export default function TerraDrawHandler() {
         const mapControl = document.getElementsByClassName("maplibregl-ctrl maplibregl-ctrl-group")[0];
         mapControl.setAttribute("style", "visibility: hidden;");
 
-    }, [mymap]);
+    }, [mymap, colorCache]);
 
     if (!draw) return null;
 

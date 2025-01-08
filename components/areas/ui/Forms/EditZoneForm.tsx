@@ -33,7 +33,7 @@ export default function EditZoneForm({  onDialogSubmit }: NewZoneFormProps) {
     })
 
     useEffect(() => {
-        const zonesLocalStorage = JSON.parse(window.localStorage.getItem("zones") || "[]");
+        const zonesLocalStorage = JSON.parse(window.localStorage.getItem("zones") ?? "[]");
         if (zonesLocalStorage.length === 0) {
             return;
         }
@@ -43,8 +43,7 @@ export default function EditZoneForm({  onDialogSubmit }: NewZoneFormProps) {
         form.setValue("zoneName", zone.properties.name)
         form.setValue("zoneColor", zone.properties.color)
         window.localStorage.removeItem("zones");
-    }, [window.localStorage.getItem("zones")
-    ])
+    }, [window.localStorage.getItem("zones"),form])
 
 
 

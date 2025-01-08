@@ -81,7 +81,7 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
         return () => {
             terraDrawInstance.off("finish", callback);
         };
-    }, [draw]);
+    }, []);
 
 
 

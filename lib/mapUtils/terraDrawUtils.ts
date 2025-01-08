@@ -16,7 +16,7 @@ function handleFinish(
     id: FeatureId,
     context: { action: string, mode: string },
     draw: MaplibreTerradrawControl,
-    addNewZoneToMap: (zone: CustomFeature,isUpdated?:boolean) => void,
+    addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void,
     setMode: (mode: DrawingModes) => void,
     setZones: React.Dispatch<React.SetStateAction<CustomFeature[]>>,
 
@@ -43,13 +43,27 @@ function handleFinish(
         const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature.id);
 
         const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
-        if (intersectsWith.length > 0) {
-            intersectsWithMapPolygon = true;
-            const newPolygon = reDrawPolygonWithNoIntersection(newFeature, intersectsWith);
-            if (newPolygon !== null) {
-                newFeature.geometry.coordinates = newPolygon.geometry.coordinates as Position[][];
+        try {
+
+            if (intersectsWith.length > 0) {
+                intersectsWithMapPolygon = true;
+                const newPolygon = reDrawPolygonWithNoIntersection(newFeature, intersectsWith);
+                if (newPolygon !== null) {
+                    newFeature.geometry.coordinates = newPolygon.geometry.coordinates as Position[][];
+                }
             }
+
+        }catch (error) {
+            toast({
+                title: "Error",
+                description: "No se puede hacer la diferencia entre los poligonos ya que genera un área partida",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+            terraDrawInstance.removeFeatures([newFeature.id]);
+            return;
         }
+        
         const newZoneInfo = getZoneInfoFromLocalStorage();
 
         newFeature.properties.color = newZoneInfo.color;
@@ -75,25 +89,21 @@ function handleFinish(
 
 }
 
-function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, intersectsWithMapPolygon: boolean, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?:boolean) => void) {
+function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, intersectsWithMapPolygon: boolean, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
     const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
     const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
     if (intersectsWith.length > 0) {
-        intersectsWithMapPolygon = true;
 
         intersectsWith.forEach(featureIntersected => {
-
-
             const newIntersectedFeatured = reDrawPolygonWithNoIntersection(featureIntersected, [newFeature]);
-            if (featureIntersected?.id ){
+            if (featureIntersected?.id) {
                 featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
                 terraDrawInstance.removeFeatures([featureIntersected.id]);
-                addNewZoneToMap(featureIntersected as CustomFeature,true);
+                addNewZoneToMap(featureIntersected as CustomFeature, true);
             }
         });
 
     }
-    console.log("Intersecta con el mapa", intersectsWithMapPolygon);
 }
 
 /**
@@ -117,26 +127,24 @@ function isIntersectingWithMapPolygon(
     const polygonCoords: Position[][] = polygonToDraw.geometry.coordinates as Position[][];
     const otherPolygonCoords = polygonsInMap.map((polygon) => {
         return {
-            "coords":polygon.geometry.coordinates as Position[][],
-            "id":polygon.id
+            "coords": polygon.geometry.coordinates as Position[][],
+            "id": polygon.id
 
         }
     });
 
-    
+
 
     const polygon = turf.polygon(polygonCoords);
     const otherPolygons = otherPolygonCoords.map((coords) => {
-        return turf.polygon(coords.coords, {id:coords.id});
+        return turf.polygon(coords.coords, { id: coords.id });
     });
-    console.log("OtherPolygons", otherPolygons.map((polygon) => polygon.id as string));
     const intersectsWith: GeoJSONStoreFeatures[] = [];
 
     while (otherPolygons.length > 0) {
         const otherPolygon = otherPolygons.pop();
         if (!otherPolygon) continue;
 
-        console.log("OtherPolygon", otherPolygon);
 
         const intersectionResult = turf.intersect(turf.featureCollection([polygon, otherPolygon]));
         if (intersectionResult) {
@@ -179,7 +187,6 @@ function reDrawPolygonWithNoIntersection(
 
     dissolvedPolygons.features.forEach(feature => {
         const picos = detectarPicos(feature.geometry.coordinates[0] as Position[]);
-        if (picos.length !== 0) console.log("Picos", picos);
         const newPolygonCoords = eliminarPicos(feature, picos);
         feature.geometry.coordinates = [newPolygonCoords];
 
@@ -187,7 +194,6 @@ function reDrawPolygonWithNoIntersection(
 
 
 
-    console.log("Dissolve post", dissolvedPolygons);
 
     dissolvedPolygons.features.forEach(polygonToDelete => {
         const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
@@ -199,7 +205,7 @@ function reDrawPolygonWithNoIntersection(
         if (cleanDifference.geometry.type === "Polygon") {
             polygon.geometry.coordinates = cleanDifference.geometry.coordinates;
         }
-        else console.warn("No se pudo limpiar la intersección");
+        else throw new Error("No se puede hacer la diferencia entre los poligonos ya que genera un área partida");
 
     });
 
@@ -261,7 +267,6 @@ function detectarPicos(puntos: Position[], umbralAngulo: number = 10): Position[
 
         const angulo = calcularAngulo(p1, p2, p3);
 
-        console.log("Angulo", angulo , "entre", p1, p2, p3);
 
         // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
         if (angulo < umbralAngulo || angulo >= 179) {

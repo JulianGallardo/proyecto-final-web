@@ -214,6 +214,7 @@ function reDrawPolygonWithNoIntersection(
 
 
 
+
     dissolvedPolygons.features.forEach(polygonToDelete => {
         const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
         if (difference === null) return null;
@@ -266,7 +267,7 @@ function calcularAngulo(p1: Position, p2: Position, p3: Position): number {
 }
 
 // Función para eliminar picos del polígono
-function detectarPicos(puntos: Position[]): Position[] {
+function detectarPicos(puntos: Position[], umbral:number = 10): Position[] {
     const puntosFiltrados: Position[] = [];
     const n = puntos.length;
 
@@ -285,10 +286,8 @@ function detectarPicos(puntos: Position[]): Position[] {
 
 
         const angulo = calcularAngulo(p1, p2, p3);
-
-
         // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
-        if (angulo >= 179) {
+        if (angulo < umbral || angulo >= 179) {
             puntosFiltrados.push(p2);
         }
     }

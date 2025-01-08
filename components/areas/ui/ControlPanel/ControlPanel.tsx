@@ -81,7 +81,8 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
         return () => {
             terraDrawInstance.off("finish", callback);
         };
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [draw]);
 
 
 

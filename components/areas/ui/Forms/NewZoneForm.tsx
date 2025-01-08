@@ -19,7 +19,7 @@ interface NewZoneFormProps {
   onDialogSubmit: () => void
 }
 
-export default function NewZoneForm({  onDialogSubmit }: NewZoneFormProps) {
+export default function NewZoneForm({  onDialogSubmit }: Readonly<NewZoneFormProps>) {
   const form = useForm<z.infer<typeof addNewZoneSchema>>({
     resolver: zodResolver(addNewZoneSchema),
     defaultValues: {
@@ -30,7 +30,7 @@ export default function NewZoneForm({  onDialogSubmit }: NewZoneFormProps) {
   })
 
   function registerZone(zone: z.infer<typeof addNewZoneSchema>) {
-    const zones = JSON.parse(window.localStorage.getItem("zones") || "[]")
+    const zones = JSON.parse(window.localStorage.getItem("zones") ?? "[]")
     const newZone = {
       name: zone.zoneName,
       color: zone.zoneColor,
@@ -91,7 +91,7 @@ export default function NewZoneForm({  onDialogSubmit }: NewZoneFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="random">Random</SelectItem>
+                  <SelectItem value="random">Al Azar</SelectItem>
                   <SelectItem value="chosen">Color a elección</SelectItem>
                 </SelectContent>
               </Select>

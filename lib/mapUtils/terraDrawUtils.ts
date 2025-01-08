@@ -24,66 +24,11 @@ function handleFinish(
     const parsedId = id as string;
     const newFeature = getFeatureById(draw, parsedId);
     const { action, mode } = context;
-    let intersectsWithMapPolygon = false;
+
     const terraDrawInstance = draw.getTerraDrawInstance();
 
-    if (action === "draw" && mode === "polygon" && newFeature?.id) {
-
-        if (isSelfIntersectingPolygon(newFeature)) {
-            toast({
-                title: "Error",
-                description: "La zona no puede tener intersecciones consigo misma",
-                className: "bg-red-500 text-white",
-                duration: 3000,
-            });
-            terraDrawInstance.removeFeatures([newFeature.id]);
-            return;
-        }
-
-        const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature.id);
-
-        const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
-        try {
-
-            if (intersectsWith.length > 0) {
-                intersectsWithMapPolygon = true;
-                const newPolygon = reDrawPolygonWithNoIntersection(newFeature, intersectsWith);
-                if (newPolygon !== null) {
-                    newFeature.geometry.coordinates = newPolygon.geometry.coordinates as Position[][];
-                }
-            }
-
-        }catch (error) {
-            if (error instanceof Error) {
-                toast({
-                    title: "Error",
-                    description: "No se puede hacer la diferencia entre los poligonos ya que genera un área partida",
-                    className: "bg-red-500 text-white",
-                    duration: 3000,
-                });
-                console.warn(error.message);
-                terraDrawInstance.removeFeatures([newFeature.id]);
-                return;
-            }
-            
-        }
-
-        const newZoneInfo = getZoneInfoFromLocalStorage();
-
-        newFeature.properties.color = newZoneInfo.color;
-        newFeature.properties.editable = false;
-        newFeature.properties.name = newZoneInfo.name;
-
-        if (intersectsWithMapPolygon) {
-            terraDrawInstance.removeFeatures([newFeature.id]);
-            addNewZoneToMap(newFeature as CustomFeature);
-        }
-
-        setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
-
-
-        terraDrawInstance.setMode("render");
-        setMode(DrawingModes.SinSeleccionar);
+    if (action === "draw" && mode === "polygon" && newFeature) {
+        handleCreateArea(newFeature, terraDrawInstance, draw, setMode, setZones, addNewZoneToMap);
     }
 
     if (action === "dragCoordinate" && newFeature?.id) {
@@ -91,7 +36,7 @@ function handleFinish(
     }
 }
 
-function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures,  terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
+function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
     const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
     const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
     if (intersectsWith.length > 0) {
@@ -106,6 +51,78 @@ function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: Geo
         });
 
     }
+}
+
+
+
+
+function handleCreateArea(
+    newFeature: GeoJSONStoreFeatures,
+    terraDrawInstance: TerraDraw,
+    draw: MaplibreTerradrawControl,
+    setMode: (mode: DrawingModes) => void,
+    setZones: React.Dispatch<React.SetStateAction<CustomFeature[]>>,
+    addNewZoneToMap: (zone: CustomFeature) => void
+) {
+    let intersectsWithMapPolygon = false;
+
+    if (newFeature?.id === undefined) return; 
+
+    if (isSelfIntersectingPolygon(newFeature)) {
+        toast({
+            title: "Error",
+            description: "La zona no puede tener intersecciones consigo misma",
+            className: "bg-red-500 text-white",
+            duration: 3000,
+        });
+        terraDrawInstance.removeFeatures([newFeature.id]);
+        return;
+    }
+
+    const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature.id);
+
+    const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
+    try {
+
+        if (intersectsWith.length > 0) {
+            intersectsWithMapPolygon = true;
+            const newPolygon = reDrawPolygonWithNoIntersection(newFeature, intersectsWith);
+            if (newPolygon !== null) {
+                newFeature.geometry.coordinates = newPolygon.geometry.coordinates as Position[][];
+            }
+        }
+
+    } catch (error) {
+        if (error instanceof Error) {
+            toast({
+                title: "Error",
+                description: "No se puede hacer la diferencia entre los poligonos ya que genera un área partida",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+            console.warn(error.message);
+            terraDrawInstance.removeFeatures([newFeature.id]);
+            return;
+        }
+
+    }
+
+    const newZoneInfo = getZoneInfoFromLocalStorage();
+
+    newFeature.properties.color = newZoneInfo.color;
+    newFeature.properties.editable = false;
+    newFeature.properties.name = newZoneInfo.name;
+
+    if (intersectsWithMapPolygon) {
+        terraDrawInstance.removeFeatures([newFeature.id]);
+        addNewZoneToMap(newFeature as CustomFeature);
+    }
+
+    setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
+
+
+    terraDrawInstance.setMode("render");
+    setMode(DrawingModes.SinSeleccionar);
 }
 
 /**

@@ -1,7 +1,7 @@
 import { toast } from "@/hooks/use-toast";
 import { CustomFeature, DrawingModes, FeatureId, Position } from "@/types/MapTypes";
 import * as turf from "@turf/turf";
-import { GeoJSONStoreFeatures } from "terra-draw";
+import { GeoJSONStoreFeatures, TerraDraw } from "terra-draw";
 import { getZoneInfoFromLocalStorage } from "./localStorageUtils";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import React from "react";
@@ -16,7 +16,7 @@ function handleFinish(
     id: FeatureId,
     context: { action: string, mode: string },
     draw: MaplibreTerradrawControl,
-    addNewZoneToMap: (zone: CustomFeature) => void,
+    addNewZoneToMap: (zone: CustomFeature,isUpdated?:boolean) => void,
     setMode: (mode: DrawingModes) => void,
     setZones: React.Dispatch<React.SetStateAction<CustomFeature[]>>,
 
@@ -68,6 +68,38 @@ function handleFinish(
         setMode(DrawingModes.SinSeleccionar);
     }
 
+    if (action === "dragCoordinate" && newFeature?.id) {
+        handleEditIntersections(draw, newFeature, intersectsWithMapPolygon, terraDrawInstance, addNewZoneToMap);
+
+    }
+
+}
+
+function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, intersectsWithMapPolygon: boolean, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?:boolean) => void) {
+    const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
+    console.log("Features", features);
+    const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
+    console.log("Intersecta con", intersectsWith);
+    if (intersectsWith.length > 0) {
+        intersectsWithMapPolygon = true;
+
+        intersectsWith.forEach(featureIntersected => {
+
+            console.log("Intersected", featureIntersected);
+
+            const newIntersectedFeatured = reDrawPolygonWithNoIntersection(featureIntersected, [newFeature]);
+            console.log("Intersected", newIntersectedFeatured);
+
+            console.log("Intersected", featureIntersected?.id);
+            if (featureIntersected?.id ){
+                featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
+                terraDrawInstance.removeFeatures([featureIntersected.id]);
+                addNewZoneToMap(featureIntersected as CustomFeature,true);
+            }
+        });
+
+    }
+    console.log("Intersecta con el mapa", intersectsWithMapPolygon);
 }
 
 /**
@@ -90,23 +122,32 @@ function isIntersectingWithMapPolygon(
 
     const polygonCoords: Position[][] = polygonToDraw.geometry.coordinates as Position[][];
     const otherPolygonCoords = polygonsInMap.map((polygon) => {
-        return polygon.geometry.coordinates as Position[][];
+        return {
+            "coords":polygon.geometry.coordinates as Position[][],
+            "id":polygon.id
+
+        }
     });
+
+    
 
     const polygon = turf.polygon(polygonCoords);
     const otherPolygons = otherPolygonCoords.map((coords) => {
-        return turf.polygon(coords);
+        return turf.polygon(coords.coords, {id:coords.id});
     });
-
+    console.log("OtherPolygons", otherPolygons.map((polygon) => polygon.id as string));
     const intersectsWith: GeoJSONStoreFeatures[] = [];
 
     while (otherPolygons.length > 0) {
         const otherPolygon = otherPolygons.pop();
         if (!otherPolygon) continue;
 
+        console.log("OtherPolygon", otherPolygon);
+
         const intersectionResult = turf.intersect(turf.featureCollection([polygon, otherPolygon]));
         if (intersectionResult) {
             const intersectedPolygon: GeoJSONStoreFeatures = {
+                id: otherPolygon.properties.id,
                 type: "Feature",
                 geometry: {
                     type: "Polygon",
@@ -150,20 +191,20 @@ function reDrawPolygonWithNoIntersection(
 
         const simplifiedPolygon = turf.simplify(feature, { tolerance: 0.0000001, highQuality: true });
         feature.geometry.coordinates = simplifiedPolygon.geometry.coordinates;
-        
-        
+
+
     });
 
 
 
-    console.log("Dissolve post",dissolvedPolygons);
+    console.log("Dissolve post", dissolvedPolygons);
 
     dissolvedPolygons.features.forEach(polygonToDelete => {
         const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
         if (difference === null) return null;
 
         const cleanDifference = turf.cleanCoords(difference, { mutate: true });
-        
+
 
         if (cleanDifference.geometry.type === "Polygon") {
             polygon.geometry.coordinates = cleanDifference.geometry.coordinates;

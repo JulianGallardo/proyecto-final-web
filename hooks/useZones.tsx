@@ -19,7 +19,7 @@ export function useZones(
         setZones(zones);
     }
 
-    function addNewZoneToMap(zone: CustomFeature) {
+    function addNewZoneToMap(zone: CustomFeature, isUpdate = false) {
         const newZone = {
             id: zone.id,
             type: "Feature",
@@ -34,8 +34,10 @@ export function useZones(
             },
         } as GeoJSONStoreFeatures;
 
-        colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
-        console.log("validacion",terraDrawInstance.addFeatures([newZone]))
+        if (!isUpdate) {
+            colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
+        }
+        console.log("validacion", terraDrawInstance.addFeatures([newZone]))
 
     }
 

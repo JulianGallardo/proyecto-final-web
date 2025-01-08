@@ -212,6 +212,7 @@ function reDrawPolygonWithNoIntersection(
     });
 
 
+    console.log(dissolvedPolygons);
 
 
 
@@ -286,6 +287,8 @@ function detectarPicos(puntos: Position[], umbral:number = 10): Position[] {
 
 
         const angulo = calcularAngulo(p1, p2, p3);
+        console.log(angulo);
+
         // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
         if (angulo < umbral || angulo >= 179) {
             puntosFiltrados.push(p2);

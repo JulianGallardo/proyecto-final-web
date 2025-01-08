@@ -43,7 +43,6 @@ export default function LoginForm() {
             const response = await loginAction(values);
             if (response.error) {
                 setError(response.error);
-                console.log(response.error);
             } else {
                 router.push("/inicio");
             }

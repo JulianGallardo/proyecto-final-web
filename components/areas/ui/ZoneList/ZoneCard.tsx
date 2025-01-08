@@ -16,7 +16,7 @@ interface ZoneCardProps {
     onEdit: () => void;
 }
 
-export default function ZoneCard({ zoneName, Feature, onDelete, editing, onEdit }: ZoneCardProps) {
+export default function ZoneCard({ zoneName, Feature, onDelete, editing, onEdit }: Readonly<ZoneCardProps>) {
     const { properties } = Feature;
     const [zoneColor, setZoneColor] = useState<string>(properties?.color || "#FFFFFF");
 

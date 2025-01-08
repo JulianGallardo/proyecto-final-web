@@ -4,6 +4,7 @@ import { CustomFeature } from "@/types/MapTypes";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import { useState } from "react";
 import { GeoJSONStoreFeatures } from "terra-draw";
+import { toast } from "./use-toast";
 
 export function useZones(
     terraDrawControl: MaplibreTerradrawControl,
@@ -45,14 +46,26 @@ export function useZones(
 
 
     function deleteZone(featureToDelete: CustomFeature) {
+        try {
+            const updatedZones = zones.filter((zone) => zone.id !== featureToDelete.id);
+            setZones(updatedZones);
 
-        const updatedZones = zones.filter((zone) => zone.id !== featureToDelete.id);
-        setZones(updatedZones);
-
-        if (featureToDelete.id) {
-            terraDrawInstance.removeFeatures([featureToDelete.id]);
-            colorCache.deleteDataInColorCache(`"${featureToDelete.id}"`);
+            if (featureToDelete.id) {
+                terraDrawInstance.removeFeatures([featureToDelete.id]);
+                colorCache.deleteDataInColorCache(`"${featureToDelete.id}"`);
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                toast({
+                    title: "Error",
+                    description: error.message,
+                    className: "bg-red-500 text-white",
+                    duration: 3000,
+                });
+            }
         }
+
+
     }
 
     return {

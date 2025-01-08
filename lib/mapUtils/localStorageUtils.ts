@@ -2,7 +2,6 @@ import { CustomFeature } from "@/types/MapTypes";
 
 function getZoneInfoFromLocalStorage() {
     const zones = JSON.parse(window.localStorage.getItem("zones") ?? "[]");
-    console.log(zones);
     if (zones.length > 0) {
         eraseZoneInfoFromLocalStorage();
         return zones[0];

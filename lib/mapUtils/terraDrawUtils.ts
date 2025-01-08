@@ -63,7 +63,7 @@ function handleFinish(
             terraDrawInstance.removeFeatures([newFeature.id]);
             return;
         }
-        
+
         const newZoneInfo = getZoneInfoFromLocalStorage();
 
         newFeature.properties.color = newZoneInfo.color;
@@ -83,13 +83,11 @@ function handleFinish(
     }
 
     if (action === "dragCoordinate" && newFeature?.id) {
-        handleEditIntersections(draw, newFeature, intersectsWithMapPolygon, terraDrawInstance, addNewZoneToMap);
-
+        handleEditIntersections(draw, newFeature, terraDrawInstance, addNewZoneToMap);
     }
-
 }
 
-function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, intersectsWithMapPolygon: boolean, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
+function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures,  terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
     const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
     const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
     if (intersectsWith.length > 0) {

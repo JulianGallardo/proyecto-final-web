@@ -263,7 +263,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar , open, isMobile} = useSidebar()
+  const { toggleSidebar, open, isMobile } = useSidebar()
 
   return (
     <Button
@@ -279,18 +279,30 @@ const SidebarTrigger = React.forwardRef<
       {...props}
     >
       {
-        isMobile ? (
-            <ChevronRight />
-        ) : (
-          open ? <ChevronLeft /> : <ChevronRight />
-        )
+        selectChevron(isMobile, open)
       }
 
-      
+
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )
 })
+
+function selectChevron(isMobile: boolean, open: boolean): React.ReactNode {
+  if (isMobile) {
+    return <ChevronRight />
+  }
+  if (open) {
+    return <ChevronLeft />
+  }
+  else {
+    return <ChevronRight />
+  }
+}
+
+
+
+
 SidebarTrigger.displayName = "SidebarTrigger"
 
 const SidebarRail = React.forwardRef<
@@ -622,7 +634,7 @@ const SidebarMenuAction = React.forwardRef<
         "peer-data-[size=lg]/menu-button:top-2.5",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
-          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+        "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
         className
       )}
       {...props}
@@ -769,3 +781,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+

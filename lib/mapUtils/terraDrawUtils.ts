@@ -54,14 +54,18 @@ function handleFinish(
             }
 
         }catch (error) {
-            toast({
-                title: "Error",
-                description: "No se puede hacer la diferencia entre los poligonos ya que genera un área partida",
-                className: "bg-red-500 text-white",
-                duration: 3000,
-            });
-            terraDrawInstance.removeFeatures([newFeature.id]);
-            return;
+            if (error instanceof Error) {
+                toast({
+                    title: "Error",
+                    description: "No se puede hacer la diferencia entre los poligonos ya que genera un área partida",
+                    className: "bg-red-500 text-white",
+                    duration: 3000,
+                });
+                console.warn(error.message);
+                terraDrawInstance.removeFeatures([newFeature.id]);
+                return;
+            }
+            
         }
 
         const newZoneInfo = getZoneInfoFromLocalStorage();

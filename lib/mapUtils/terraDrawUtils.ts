@@ -266,7 +266,7 @@ function calcularAngulo(p1: Position, p2: Position, p3: Position): number {
 }
 
 // Función para eliminar picos del polígono
-function detectarPicos(puntos: Position[], umbralAngulo: number = 10): Position[] {
+function detectarPicos(puntos: Position[]): Position[] {
     const puntosFiltrados: Position[] = [];
     const n = puntos.length;
 
@@ -288,7 +288,7 @@ function detectarPicos(puntos: Position[], umbralAngulo: number = 10): Position[
 
 
         // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
-        if (angulo < umbralAngulo || angulo >= 179) {
+        if (angulo >= 179) {
             puntosFiltrados.push(p2);
         }
     }

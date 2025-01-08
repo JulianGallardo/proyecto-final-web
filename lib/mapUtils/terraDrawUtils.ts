@@ -77,20 +77,14 @@ function handleFinish(
 
 function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, intersectsWithMapPolygon: boolean, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?:boolean) => void) {
     const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
-    console.log("Features", features);
     const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
-    console.log("Intersecta con", intersectsWith);
     if (intersectsWith.length > 0) {
         intersectsWithMapPolygon = true;
 
         intersectsWith.forEach(featureIntersected => {
 
-            console.log("Intersected", featureIntersected);
 
             const newIntersectedFeatured = reDrawPolygonWithNoIntersection(featureIntersected, [newFeature]);
-            console.log("Intersected", newIntersectedFeatured);
-
-            console.log("Intersected", featureIntersected?.id);
             if (featureIntersected?.id ){
                 featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
                 terraDrawInstance.removeFeatures([featureIntersected.id]);
@@ -189,10 +183,6 @@ function reDrawPolygonWithNoIntersection(
         const newPolygonCoords = eliminarPicos(feature, picos);
         feature.geometry.coordinates = [newPolygonCoords];
 
-        const simplifiedPolygon = turf.simplify(feature, { tolerance: 0.0000001, highQuality: true });
-        feature.geometry.coordinates = simplifiedPolygon.geometry.coordinates;
-
-
     });
 
 
@@ -251,7 +241,7 @@ function calcularAngulo(p1: Position, p2: Position, p3: Position): number {
 }
 
 // Función para eliminar picos del polígono
-function detectarPicos(puntos: Position[], umbralAngulo: number = 30): Position[] {
+function detectarPicos(puntos: Position[], umbralAngulo: number = 10): Position[] {
     const puntosFiltrados: Position[] = [];
     const n = puntos.length;
 
@@ -270,6 +260,8 @@ function detectarPicos(puntos: Position[], umbralAngulo: number = 30): Position[
 
 
         const angulo = calcularAngulo(p1, p2, p3);
+
+        console.log("Angulo", angulo , "entre", p1, p2, p3);
 
         // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
         if (angulo < umbralAngulo || angulo >= 179) {

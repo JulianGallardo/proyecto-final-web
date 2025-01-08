@@ -34,6 +34,8 @@ export function useZones(
             },
         } as GeoJSONStoreFeatures;
 
+
+
         if (!isUpdate) {
             colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
         }

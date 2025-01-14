@@ -25,8 +25,6 @@ interface OnFinishContext {
     action: string, mode: string
 }
 
-
-
 export default function MapControlPanel({ draw, colorCache }: Readonly<MapControlPanelProps>) {
     const { isMobile, setOpenMobile } = useSidebar();
     const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar); // Estado para el modo de dibujo
@@ -88,7 +86,6 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
 
     function changeEditingState(state: boolean) {
         setEditingZonesInfo(state);
-
     }
 
     function changeNewZoneDialogState(state: boolean) {

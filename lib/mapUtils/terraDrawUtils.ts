@@ -39,19 +39,56 @@ function handleFinish(
 function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
     const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
     const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
-    if (intersectsWith.length > 0) {
+    if (intersectsWith.length <= 0)
+        return;
 
-        intersectsWith.forEach(featureIntersected => {
-            const newIntersectedFeatured = reDrawPolygonWithNoIntersection(featureIntersected, [newFeature]);
-            if (featureIntersected?.id) {
-                featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
-                terraDrawInstance.removeFeatures([featureIntersected.id]);
-                addNewZoneToMap(featureIntersected as CustomFeature, true);
-            }
-        });
+    intersectsWith.forEach(featureIntersected => {
+        const newIntersectedFeatured = reDrawPolygonEditWithNoIntersection(featureIntersected, [newFeature]);
+        if (featureIntersected?.id) {
+            featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
+            terraDrawInstance.removeFeatures([featureIntersected.id]);
+            addNewZoneToMap(featureIntersected as CustomFeature, true);
+        }
+    });
 
-    }
+
 }
+
+function reDrawPolygonEditWithNoIntersection(
+    polygonToDraw: GeoJSONStoreFeatures,
+    polygonsInMap: GeoJSONStoreFeatures[]
+) {
+    const polygonCoords: Position[][] = polygonToDraw.geometry.coordinates as Position[][];
+    const otherPolygonCoords = polygonsInMap.map((polygon) => {
+        return polygon.geometry.coordinates as Position[][];
+    });
+
+    const polygon = turf.polygon(polygonCoords);
+    const otherPolygons = otherPolygonCoords.map((coords) => {
+        return turf.polygon(coords);
+    });
+
+
+    const dissolvedPolygons = turf.dissolve(turf.featureCollection(otherPolygons));
+
+
+    dissolvedPolygons.features.forEach(polygonToDelete => {
+        const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
+        if (difference === null) return null;
+
+
+        if (difference.geometry.type === "Polygon") {
+            polygon.geometry.coordinates = difference.geometry.coordinates;
+        }
+        else throw new Error("No se puede hacer la diferencia entre los poligonos ya que genera un área partida");
+
+    });
+
+
+    return turf.truncate(polygon, { precision: 9 });;
+
+}
+
 
 
 
@@ -66,7 +103,7 @@ function handleCreateArea(
 ) {
     let intersectsWithMapPolygon = false;
 
-    if (newFeature?.id === undefined) return; 
+    if (newFeature?.id === undefined) return;
 
     if (isSelfIntersectingPolygon(newFeature)) {
         toast({
@@ -203,6 +240,7 @@ function reDrawPolygonWithNoIntersection(
 
     const dissolvedPolygons = turf.dissolve(turf.featureCollection(otherPolygons));
 
+    console.log("features pre-dissolved ",dissolvedPolygons);
 
     dissolvedPolygons.features.forEach(feature => {
         const picos = detectarPicos(feature.geometry.coordinates[0] as Position[]);
@@ -212,19 +250,18 @@ function reDrawPolygonWithNoIntersection(
     });
 
 
-    console.log(dissolvedPolygons);
+    console.log("features dissolved",dissolvedPolygons);
 
+    console.log("polygon to draw",polygon);
 
 
     dissolvedPolygons.features.forEach(polygonToDelete => {
         const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
         if (difference === null) return null;
 
-        const cleanDifference = turf.cleanCoords(difference, { mutate: true });
 
-
-        if (cleanDifference.geometry.type === "Polygon") {
-            polygon.geometry.coordinates = cleanDifference.geometry.coordinates;
+        if (difference.geometry.type === "Polygon") {
+            polygon.geometry.coordinates = difference.geometry.coordinates;
         }
         else throw new Error("No se puede hacer la diferencia entre los poligonos ya que genera un área partida");
 
@@ -268,7 +305,7 @@ function calcularAngulo(p1: Position, p2: Position, p3: Position): number {
 }
 
 // Función para eliminar picos del polígono
-function detectarPicos(puntos: Position[], umbral:number = 10): Position[] {
+function detectarPicos(puntos: Position[], umbral: number = 10): Position[] {
     const puntosFiltrados: Position[] = [];
     const n = puntos.length;
 
@@ -287,7 +324,7 @@ function detectarPicos(puntos: Position[], umbral:number = 10): Position[] {
 
 
         const angulo = calcularAngulo(p1, p2, p3);
-        console.log(angulo);
+        console.log(angulo, p1, p2, p3);
 
         // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
         if (angulo < umbral || angulo >= 179) {

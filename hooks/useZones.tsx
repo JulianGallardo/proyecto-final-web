@@ -40,7 +40,7 @@ export function useZones(
         if (!isUpdate) {
             colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
         }
-        console.log("validacion", terraDrawInstance.addFeatures([newZone]))
+        terraDrawInstance.addFeatures([newZone]);
 
     }
 

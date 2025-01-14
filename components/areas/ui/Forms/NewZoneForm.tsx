@@ -83,7 +83,7 @@ export default function NewZoneForm({  onDialogSubmit }: Readonly<NewZoneFormPro
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="random">Al Azar</SelectItem>
+                  <SelectItem value="random">Aleatorio</SelectItem>
                   <SelectItem value="chosen">Color a elección</SelectItem>
                 </SelectContent>
               </Select>

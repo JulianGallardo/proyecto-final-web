@@ -14,6 +14,12 @@ export default function Areas() {
         []
     );
 
+    const bounds = [ //reestringidas a 100 km a la redonda de la ciudad de Bahía Blanca
+        [-63.415665, -39.619154], // Southwest coordinates
+        [-61.103265, -37.817354] // Northeast coordinates
+      ];
+      
+
     return (
         <div className="flex flex-row w-full h-full ">
             <TerraDrawHandler />
@@ -24,6 +30,10 @@ export default function Areas() {
                     latitude: center.lat,
                     zoom: 11.5,
                 }}
+
+                maxBounds= {bounds}
+
+
                 style={{ width: "100%", height: "100%" }}
                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 

@@ -15,10 +15,10 @@ import {
 import BtnLogout from "@/components/auth/btn-logout"
 
 const navItems = [
-  { href: "/areas", label: "Áreas", icon: Map },
-  { href: "/repartidores", label: "Repartidores", icon: Truck },
-  { href: "/paquetes", label: "Paquetes", icon: Package },
-  { href: "/reportes", label: "Reportes", icon: ChartGraph },
+  { href: "/zonas", label: "Zonas", icon: Map },
+  { href: "/agentes", label: "Agente", icon: Truck },
+  { href: "/instrumentos", label: "Instrumentos", icon: Package },
+  { href: "/control", label: "Control", icon: ChartGraph },
 ]
 
 export default function Navbar() {

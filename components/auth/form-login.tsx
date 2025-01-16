@@ -67,7 +67,7 @@ export default function LoginForm() {
                                         <FormLabel className="text-sm font-medium text-gray-700">Email</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="example@example.com"
+                                                placeholder="ejemplo@ejemplo.com"
                                                 {...field}
                                                 className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                                             />
@@ -87,7 +87,7 @@ export default function LoginForm() {
                                         <FormControl>
                                             <div className="flex items-center gap-2">
                                                 <Input
-                                                    placeholder="Your password"
+                                                    placeholder="Tu contraseña"
                                                     type={showPassword}
                                                     {...field}
                                                     className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"

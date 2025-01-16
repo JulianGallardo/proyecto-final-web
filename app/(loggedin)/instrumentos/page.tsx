@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
-import ErrorNotFound from "@/components/error/error404"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
+import { CrudInstrumentos } from "@/components/instrumentos/crud-instrumento"
  
 export default async function HomePage() {
   const session = await auth()
@@ -11,18 +11,7 @@ export default async function HomePage() {
  
   return (
     <div className="w-full h-full">
-      <ErrorNotFound reset={
-                    async () => 
-                    {
-                      "use server"
-                      window.location.reload()
-                    }
-                  }
-                    error={{
-                      name: "Pagina no implementada",
-                      message: "Aca iria paquetes",
-                      stack: "Page not found"
-                    }} />
+      <CrudInstrumentos />
     </div>
 
   )

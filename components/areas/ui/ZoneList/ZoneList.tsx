@@ -11,7 +11,7 @@ interface ZoneListProps {
 
 
 
-export default function ZoneList({ zones, onDelete,editing, onEdit}: ZoneListProps) {
+export default function ZoneList({ zones, onDelete,editing, onEdit}: Readonly<ZoneListProps>) {
     return (
         <div className="flex flex-col gap-5 items-center w-full  ">
             

@@ -13,13 +13,14 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { safeRandomColor } from "@/lib/utils"
 
 interface NewZoneFormProps {
   manageDialog: (open: boolean) => void
   onDialogSubmit: () => void
 }
 
-export default function NewZoneForm({  onDialogSubmit }: NewZoneFormProps) {
+export default function NewZoneForm({  onDialogSubmit }: Readonly<NewZoneFormProps>) {
   const form = useForm<z.infer<typeof addNewZoneSchema>>({
     resolver: zodResolver(addNewZoneSchema),
     defaultValues: {
@@ -30,7 +31,7 @@ export default function NewZoneForm({  onDialogSubmit }: NewZoneFormProps) {
   })
 
   function registerZone(zone: z.infer<typeof addNewZoneSchema>) {
-    const zones = JSON.parse(window.localStorage.getItem("zones") || "[]")
+    const zones = JSON.parse(window.localStorage.getItem("zones") ?? "[]")
     const newZone = {
       name: zone.zoneName,
       color: zone.zoneColor,
@@ -41,22 +42,13 @@ export default function NewZoneForm({  onDialogSubmit }: NewZoneFormProps) {
 
   function onSubmit(values: z.infer<typeof addNewZoneSchema>) {
     if (values.colorOption === "random") {
-      values.zoneColor = generateRandomColor()
+      values.zoneColor = safeRandomColor()
     }
     registerZone(values)
     onDialogSubmit()
   }
 
-  // Function to generate a random color
-  const generateRandomColor = () => {
-    const letters = '0123456789ABCDEF'
-    let color = '#'
-    for (let i = 0; i < 6; i++) {
-      color += letters[Math.floor(Math.random() * 16)]
-    }
-    return color
-  }
-
+  
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -91,7 +83,7 @@ export default function NewZoneForm({  onDialogSubmit }: NewZoneFormProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="random">Random</SelectItem>
+                  <SelectItem value="random">Aleatorio</SelectItem>
                   <SelectItem value="chosen">Color a elección</SelectItem>
                 </SelectContent>
               </Select>

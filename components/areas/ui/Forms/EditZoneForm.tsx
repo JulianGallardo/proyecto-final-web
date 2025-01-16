@@ -31,9 +31,10 @@ export default function EditZoneForm({  onDialogSubmit }: NewZoneFormProps) {
             colorOption: "chosen", // Default option is "chosen"
         },
     })
+    
 
     useEffect(() => {
-        const zonesLocalStorage = JSON.parse(window.localStorage.getItem("zones") || "[]");
+        const zonesLocalStorage = JSON.parse(window.localStorage.getItem("zones") ?? "[]");
         if (zonesLocalStorage.length === 0) {
             return;
         }
@@ -43,13 +44,13 @@ export default function EditZoneForm({  onDialogSubmit }: NewZoneFormProps) {
         form.setValue("zoneName", zone.properties.name)
         form.setValue("zoneColor", zone.properties.color)
         window.localStorage.removeItem("zones");
-    }, [window.localStorage.getItem("zones")
-    ])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [window.localStorage.getItem("zones")])
 
 
 
     function registerZone(zone: z.infer<typeof addNewZoneSchema>) {
-        const zones = JSON.parse(window.localStorage.getItem("zones") || "[]")
+        const zones = JSON.parse(window.localStorage.getItem("zones") ?? "[]")
 
         if (zoneLocalStorage === null) {
             throw new Error("La zona es nula");

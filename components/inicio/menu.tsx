@@ -8,7 +8,7 @@ export default function Menu() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  if (!session || !session.user) {
+  if (!session?.user) {
     return null;
   }
 
@@ -25,34 +25,34 @@ export default function Menu() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 items-center justify-center gap-6 md:gap-6 lg:gap-6 mx-4">
         {/* Card Áreas */}
         <CustomCard
-          title="Áreas"
-          description="Gestiona y visualiza las áreas disponibles en el sistema."
+          title="Zonas"
+          description="Gestiona y visualiza las zonas disponibles en el sistema."
           icon={Map}
-          onClick={() => router.push("/areas")}
+          onClick={() => router.push("/zonas")}
         />
 
         {/* Card Repartidores */}
         <CustomCard
-          title="Repartidores"
-          description="Consulta y administra la información de los repartidores."
+          title="Agentes"
+          description="Consulta y administra la información de los agente."
           icon={Truck}
-          onClick={() => router.push("/repartidores")}
+          onClick={() => router.push("/agentes")}
         />
 
         {/* Card Paquetes */}
         <CustomCard
-          title="Paquetes"
-          description="Gestiona y rastrea los paquetes en tránsito."
+          title="Instrumentos"
+          description="Gestiona y rastrea los instrumentos en tránsito."
           icon={Package}
-          onClick={() => router.push("/paquetes")}
+          onClick={() => router.push("/instrumentos")}
         />
 
         {/* Card Reportes */}
         <CustomCard
-          title="Reportes"
+          title="Control"
           description="Revisa los datos y genera reportes detallados."
           icon={ChartGraph}
-          onClick={() => router.push("/reportes")}
+          onClick={() => router.push("/control")}
         />
       </div>
     </div>

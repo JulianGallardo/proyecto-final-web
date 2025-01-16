@@ -13,7 +13,9 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { TooltipProvider } from "@radix-ui/react-tooltip"
+import { Tooltip, TooltipProvider } from "@radix-ui/react-tooltip"
+import { TooltipContent, TooltipTrigger } from "../ui/tooltip"
+import { Plus } from "@mynaui/icons-react"
 
 // Datos de ejemplo
 const instrumentosEjemplo: Instrumento[] = [
@@ -53,6 +55,19 @@ export function CrudInstrumentos() {
     const [instrumentos, setInstrumentos] = React.useState<Instrumento[]>(instrumentosEjemplo)
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<Instrumento | null>(null)
     const [dialogoAbierto, setDialogoAbierto] = React.useState(false)
+    const [isMobile, setMobile] = React.useState(false)
+
+    React.useEffect(() => {
+        const handleResize = () => {
+            setMobile(window.innerWidth < 640)
+        }
+
+        window.addEventListener("resize", handleResize)
+        handleResize()
+
+        return () => window.removeEventListener("resize", handleResize)
+    }, [])
+    
 
     const handleCrear = (nuevoInstrumento: Instrumento) => {
         setInstrumentos([...instrumentos, nuevoInstrumento])
@@ -76,7 +91,18 @@ export function CrudInstrumentos() {
                     <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
                     <Dialog open={dialogoAbierto} onOpenChange={setDialogoAbierto}>
                         <DialogTrigger asChild>
-                            <Button>Crear Nuevo Instrumento</Button>
+                            {
+                                isMobile ? (
+                                    <Button className="bg-green-500 hover:bg-green-800">
+                                        <Plus />
+                                    </Button>
+                                ) : (
+                                    <Button className="bg-green-500 hover:bg-green-800">
+                                        Agregar Instrumento
+                                        <Plus />
+                                    </Button>
+                                )
+                            }
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
@@ -104,5 +130,9 @@ export function CrudInstrumentos() {
             </TooltipProvider>
         </div>
     )
+}
+
+function UseState(arg0: boolean): any {
+    throw new Error("Function not implemented.")
 }
 

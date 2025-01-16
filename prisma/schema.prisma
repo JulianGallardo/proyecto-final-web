@@ -19,6 +19,7 @@ enum Role {
   admin
 }
 
+
 model User {
   id       String    @id @default(cuid())
   name     String?
@@ -93,4 +94,40 @@ model Zone {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Juzgado{
+  id       String @id @default(cuid())
+  name     String
+  identifier String @unique
+  Instrumentos Instrumento[]
+}
+
+model InstrumentoType{
+  id       String @id @default(cuid())
+  name     String
+  identifier String @unique
+  Instrumentos Instrumento[]
+}
+
+model Instrumento{
+  entryDate DateTime
+  exitDate  DateTime
+
+  caratula  String
+  destinatario String
+
+  address   String //destinatario postal
+  ordenNumber String
+
+  juzgadoId String
+  instrumentoTypeId String
+
+  juzgado Juzgado @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
+  instrumentoType InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([juzgadoId, ordenNumber])
 }

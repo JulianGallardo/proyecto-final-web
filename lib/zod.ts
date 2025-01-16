@@ -1,14 +1,15 @@
 import { object, string, z } from "zod"
  
 export const logInSchema = object({
-  email: string({ required_error: "Email is required" })
-    .min(1, "Email is required")
-    .email("Invalid email"),
-  password: string({ required_error: "Password is required" })
-    .min(1, "Password is required")
-    .min(8, "Password must be more than 8 characters")
-    .max(32, "Password must be less than 32 characters"),
-})
+  email: string({ required_error: "El correo electrónico es obligatorio" })
+    .min(1, "El correo electrónico es obligatorio")
+    .email("Correo electrónico no válido"),
+  password: string({ required_error: "La contraseña es obligatoria" })
+    .min(1, "La contraseña es obligatoria")
+    .min(8, "La contraseña debe tener más de 8 caracteres")
+    .max(32, "La contraseña debe tener menos de 32 caracteres"),
+});
+
 
 export const addNewZoneSchema = object({
   zoneName: string({ required_error: "El nombre de la zona es obligatorio." })

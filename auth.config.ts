@@ -15,7 +15,7 @@ export default {
         const { data, success } = logInSchema.safeParse(credentials);
 
         if (!success) {
-          throw new Error("Invalid credentials");
+          throw new Error("El usuario o la contraseña son incorrectos");
         }
 
         const user = await prisma.user.findUnique({
@@ -24,14 +24,14 @@ export default {
           }
         });
 
-        if (!user || !user.password) {
-          throw new Error("Invalid credentials");
+        if (!user?.password) {
+          throw new Error("El usuario o la contraseña son incorrectos");
         }
 
         const isValid = await bcrypt.compare(data.password, user.password);
 
         if (!isValid) {
-          throw new Error("Contraseña incorrecta");	
+          throw new Error("El usuario o la contraseña son incorrectos");
         }
 
         return user;

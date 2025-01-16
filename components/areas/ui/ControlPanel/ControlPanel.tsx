@@ -240,7 +240,10 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
                             <LoadSkeleton />
                         )
                     }
-                    <Sidebar >
+                    <Sidebar title="Panel de control" description="Panel de control de áreas de reparto." >
+
+
+                        
                         <SidebarHeader>
                             <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} discardZoneEdits={discardZoneEdits} saveChanges={saveChanges} discardChanges={discardChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
                             <AddZoneDialog open={newZoneDialogOpen} setOpen={changeNewZoneDialogState} onDialogSubmit={onNewZoneDialogSubmit} />

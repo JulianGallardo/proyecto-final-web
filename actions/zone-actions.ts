@@ -3,8 +3,6 @@ import prisma from "@/lib/db";
 import ZoneRepository from "@/repositories/ZoneRepository";
 import { CustomFeature, Position } from "@/types/MapTypes";
 import { Zone } from "@prisma/client";
-import { error } from "console";
-import { typeOf } from "maplibre-gl";
 import { HexColor } from "terra-draw";
 
 interface ZoneResponse extends Zone {

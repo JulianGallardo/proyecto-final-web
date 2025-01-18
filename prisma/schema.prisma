@@ -97,14 +97,14 @@ model Zone {
 }
 
 model Juzgado{
-  id       String @id @default(cuid())
+  id       Int @id @default(autoincrement())
   name     String
   identifier String @unique
   Instrumentos Instrumento[]
 }
 
 model InstrumentoType{
-  id       String @id @default(cuid())
+  id       Int @id @default(autoincrement())
   name     String
   identifier String @unique
   Instrumentos Instrumento[]
@@ -120,8 +120,8 @@ model Instrumento{
   address   String //destinatario postal
   ordenNumber String
 
-  juzgadoId String
-  instrumentoTypeId String
+  juzgadoId Int
+  instrumentoTypeId Int
 
   juzgado Juzgado @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
   instrumentoType InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)

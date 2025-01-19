@@ -1,14 +1,14 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Instrumento } from "@prisma/client";
-import { InstrumentoDTO } from "@/types/instrumento";
+import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
     constructor() {
         super(prisma.instrumento);
     }
 
-    async getInstrumentos(): Promise<Instrumento[]> {
+    async getInstrumentos(): Promise<InstrumentoExtendido[]> {
         return this.modelClient.findMany({
             select: {
                 entryDate: true,
@@ -46,8 +46,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 destinatario: data.destinatario,
                 address: data.address,
                 ordenNumber: data.ordenNumber,
-                juzgadoId: data.juzgadoId,
-                instrumentoTypeId: data.instrumentoTypeId,
                 juzgado: {
                     connect: {
                         identifier: data.juzgadoId,

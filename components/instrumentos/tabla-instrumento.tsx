@@ -14,11 +14,10 @@ import {
   useReactTable,
   ColumnDef,
 } from "@tanstack/react-table";
-import { Instrumento } from "@/types/instrumento";
-
+import { InstrumentoExtendido } from "@/types/instrumento";
 interface TablaInstrumentosProps {
-  data: Instrumento[];
-  onEdit: (instrumento: Instrumento) => void;
+  data: InstrumentoExtendido[];
+  onEdit: (instrumento: InstrumentoExtendido) => void;
   onDelete: (id: string) => void;
 }
 
@@ -29,7 +28,7 @@ export default function TablaInstrumentos({
 }: Readonly<TablaInstrumentosProps>) {
   const [openDelete, setOpenDelete] = useState<string | null>(null);
 
-  const columns: ColumnDef<Instrumento>[] = [
+  const columns: ColumnDef<InstrumentoExtendido>[] = [
     {
       accessorKey: "fechaEntrada",
       header: "Fecha de Entrada",
@@ -72,7 +71,7 @@ export default function TablaInstrumentos({
               <TooltipTrigger asChild>
                 <Button
                   className="bg-red-500 hover:bg-red-600"
-                  onClick={() => setOpenDelete(instrumento.id)}
+                  onClick={() => console.log(instrumento.caratula)}
                 >
                   <Trash className="h-4 w-4 text-white" />
                 </Button>
@@ -83,7 +82,7 @@ export default function TablaInstrumentos({
             </Tooltip>
 
             {/* Confirmar Eliminación */}
-            {openDelete === instrumento.id && (
+            {openDelete === instrumento.caratula && (
               <div className="absolute top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center">
                 <div className="bg-white p-4 rounded-lg shadow-md">
                   <p className="text-lg font-bold">
@@ -93,7 +92,7 @@ export default function TablaInstrumentos({
                     <Button
                       className="bg-red-500 hover:bg-red-600"
                       onClick={() => {
-                        onDelete(instrumento.id);
+                        //onDelete(instrumento.id);
                         setOpenDelete(null);
                       }}
                     >

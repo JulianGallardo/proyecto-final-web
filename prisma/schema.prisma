@@ -101,6 +101,9 @@ model Juzgado{
   name     String
   identifier String @unique
   Instrumentos Instrumento[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model InstrumentoType{
@@ -108,11 +111,14 @@ model InstrumentoType{
   name     String
   identifier String @unique
   Instrumentos Instrumento[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Instrumento{
-  entryDate DateTime
-  exitDate  DateTime
+  entryDate DateTime @default(now())
+  exitDate  DateTime?
 
   caratula  String
   destinatario String

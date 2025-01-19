@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Instrumento" ALTER COLUMN "entryDate" SET DEFAULT CURRENT_TIMESTAMP;

@@ -3,7 +3,6 @@
 import * as React from "react"
 import TablaInstrumentos from "./tabla-instrumento"
 import { FormularioInstrumento } from "./formulario-instrumento"
-import { Instrumento } from "@/types/instrumento"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -13,49 +12,29 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { Tooltip, TooltipProvider } from "@radix-ui/react-tooltip"
-import { TooltipContent, TooltipTrigger } from "../ui/tooltip"
+import { TooltipProvider } from "@radix-ui/react-tooltip"
 import { Plus } from "@mynaui/icons-react"
+import { InstrumentoExtendido } from "@/types/instrumento"
+import { getInstrumentos } from "@/actions/instrumentos-actions"
 
 // Datos de ejemplo
-const instrumentosEjemplo: Instrumento[] = [
-    {
-        id: "1",
-        fechaEntrada: new Date("2023-05-15"),
-        caratula: "Caso Pérez vs. González",
-        destinatario: "Juzgado Civil N°5",
-        direccion: "Av. Corrientes 1234, CABA",
-        numeroOrden: "2023-001",
-        identificadorJuzgado: "JC-005",
-        tipoInstrumento: "Demanda Civil"
-    },
-    {
-        id: "2",
-        fechaEntrada: new Date("2023-05-20"),
-        caratula: "Sucesión Rodríguez",
-        destinatario: "Juzgado de Familia N°3",
-        direccion: "Calle Lavalle 2468, CABA",
-        numeroOrden: "2023-002",
-        identificadorJuzgado: "JF-003",
-        tipoInstrumento: "Expediente Sucesorio"
-    },
-    {
-        id: "3",
-        fechaEntrada: new Date("2023-05-25"),
-        caratula: "Ministerio Público vs. Gómez",
-        destinatario: "Tribunal Penal N°2",
-        direccion: "Av. de Mayo 5678, CABA",
-        numeroOrden: "2023-003",
-        identificadorJuzgado: "TP-002",
-        tipoInstrumento: "Causa Penal"
-    }
-]
+
 
 export function CrudInstrumentos() {
-    const [instrumentos, setInstrumentos] = React.useState<Instrumento[]>(instrumentosEjemplo)
-    const [instrumentoEditando, setInstrumentoEditando] = React.useState<Instrumento | null>(null)
+    const [instrumentos, setInstrumentos] = React.useState<InstrumentoExtendido[]>([])
+    const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | null>(null)
     const [dialogoAbierto, setDialogoAbierto] = React.useState(false)
     const [isMobile, setMobile] = React.useState(false)
+
+
+
+    React.useEffect(() => {
+        const fetchInstrumentos = async () => {
+            const instrumentos = await getInstrumentos()
+            setInstrumentos(instrumentos)
+        }
+        fetchInstrumentos()
+    }, [])
 
     React.useEffect(() => {
         const handleResize = () => {
@@ -69,19 +48,19 @@ export function CrudInstrumentos() {
     }, [])
     
 
-    const handleCrear = (nuevoInstrumento: Instrumento) => {
+    const handleCrear = (nuevoInstrumento: InstrumentoExtendido) => {
         setInstrumentos([...instrumentos, nuevoInstrumento])
         setDialogoAbierto(false)
     }
 
-    const handleEditar = (instrumentoEditado: Instrumento) => {
-        setInstrumentos(instrumentos.map(i => i.id === instrumentoEditado.id ? instrumentoEditado : i))
+    const handleEditar = (instrumentoEditado: InstrumentoExtendido) => {
+        setInstrumentos(instrumentos.map(i => i.juzgadoId === instrumentoEditado.juzgadoId && i.ordenNumber === instrumentoEditado.ordenNumber ? instrumentoEditado : i))
         setInstrumentoEditando(null)
         setDialogoAbierto(false)
     }
 
     const handleEliminar = (id: string) => {
-        setInstrumentos(instrumentos.filter(i => i.id !== id))
+        console.log(id)
     }
 
     return (
@@ -121,7 +100,7 @@ export function CrudInstrumentos() {
 
                 <TablaInstrumentos
                     data={instrumentos}
-                    onEdit={(instrumento: Instrumento) => {
+                    onEdit={(instrumento: InstrumentoExtendido) => {
                         setInstrumentoEditando(instrumento)
                         setDialogoAbierto(true)
                     }}
@@ -130,9 +109,5 @@ export function CrudInstrumentos() {
             </TooltipProvider>
         </div>
     )
-}
-
-function UseState(arg0: boolean): any {
-    throw new Error("Function not implemented.")
 }
 

@@ -1,13 +1,4 @@
-export interface Instrumento {
-  id: string;
-  fechaEntrada: Date;
-  caratula: string;
-  destinatario: string;
-  direccion: string;
-  numeroOrden: string;
-  identificadorJuzgado: string;
-  tipoInstrumento: string;
-}
+import { Instrumento } from "@prisma/client";
 
 export interface InstrumentoDTO {
   entryDate: Date;
@@ -18,4 +9,15 @@ export interface InstrumentoDTO {
   ordenNumber: string;
   juzgadoId: string;
   instrumentoTypeId: string;
+}
+
+export interface InstrumentoExtendido extends Instrumento {
+  juzgado: {
+    name: string;
+    identifier: string;
+  };
+  instrumentoType: {
+    name: string;
+    identifier: string;
+  };
 }

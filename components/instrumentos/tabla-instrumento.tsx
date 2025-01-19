@@ -15,11 +15,21 @@ import {
   ColumnDef,
 } from "@tanstack/react-table";
 import { InstrumentoExtendido } from "@/types/instrumento";
+import AccionesList from "./acciones-list";
 interface TablaInstrumentosProps {
   data: InstrumentoExtendido[];
   onEdit: (instrumento: InstrumentoExtendido) => void;
   onDelete: (id: string) => void;
 }
+
+const FechaEntradaCell = ({ row }: { row: any }) => {
+  const fecha: Date = row.getValue("entryDate");
+  if (!fecha) return;
+  return <span>{fecha.toLocaleDateString(
+    "es-ES",
+    { year: "numeric", month: "2-digit", day: "2-digit" }
+  )}</span>;
+};
 
 export default function TablaInstrumentos({
   data,
@@ -30,86 +40,40 @@ export default function TablaInstrumentos({
 
   const columns: ColumnDef<InstrumentoExtendido>[] = [
     {
-      accessorKey: "fechaEntrada",
+      accessorKey: "entryDate",
       header: "Fecha de Entrada",
-      cell: ({ row }) => {
-        const fecha: Date = row.getValue("fechaEntrada");
-        return <span>{fecha.toLocaleDateString()}</span>;
-      },
+      cell: FechaEntradaCell,
     },
     { accessorKey: "caratula", header: "Carátula" },
     { accessorKey: "destinatario", header: "Destinatario" },
-    { accessorKey: "direccion", header: "Dirección" },
-    { accessorKey: "numeroOrden", header: "Número de Orden" },
-    { accessorKey: "identificadorJuzgado", header: "Identificador de Juzgado" },
-    { accessorKey: "tipoInstrumento", header: "Tipo de Instrumento" },
+    { accessorKey: "address", header: "Dirección" },
+    { accessorKey: "ordenNumber", header: "Número de Orden" },
+    { accessorKey: "juzgado", header: "Identificador de Juzgado",
+      cell: ({ row }) => {
+        const juzgado = row.original.juzgado;
+        return <span>{juzgado.identifier}</span>;
+      },
+
+    },
+    { accessorKey: "intrumentoType", header: "Tipo de Instrumento",
+      cell: ({ row }) => {
+        const instrumentoType = row.original.instrumentoType;
+        return <span>{instrumentoType.name}</span>;
+      },
+     },
     {
       id: "acciones",
       header: "Acciones",
       cell: ({ row }) => {
         const instrumento = row.original;
-
-        return (
-          <div className="flex flex-row gap-4 items-center p-2 w-full h-full">
-            {/* Botón Editar */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className="bg-blue-500 hover:bg-blue-600"
-                  onClick={() => onEdit(instrumento)}
-                >
-                  <Pencil className="h-4 w-4 text-white" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Editar</p>
-              </TooltipContent>
-            </Tooltip>
-
-            {/* Botón Eliminar */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  className="bg-red-500 hover:bg-red-600"
-                  onClick={() => console.log(instrumento.caratula)}
-                >
-                  <Trash className="h-4 w-4 text-white" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Eliminar</p>
-              </TooltipContent>
-            </Tooltip>
-
-            {/* Confirmar Eliminación */}
-            {openDelete === instrumento.caratula && (
-              <div className="absolute top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center">
-                <div className="bg-white p-4 rounded-lg shadow-md">
-                  <p className="text-lg font-bold">
-                    ¿Estás seguro de eliminar este instrumento?
-                  </p>
-                  <div className="flex gap-4 mt-4">
-                    <Button
-                      className="bg-red-500 hover:bg-red-600"
-                      onClick={() => {
-                        //onDelete(instrumento.id);
-                        setOpenDelete(null);
-                      }}
-                    >
-                      Confirmar
-                    </Button>
-                    <Button
-                      className="bg-gray-500 hover:bg-gray-600"
-                      onClick={() => setOpenDelete(null)}
-                    >
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        );
+        return AccionesList({
+          onEdit,
+          onDelete,
+          instrumento,
+          openDelete,
+          setOpenDelete,
+        });
+        
       },
     },
   ];
@@ -121,6 +85,7 @@ export default function TablaInstrumentos({
   });
 
   return (
+    data &&
     <div className="overflow-x-auto shadow-lg border border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50">
       <table className="w-full text-sm">
         <thead className="bg-gray-100 text-left">

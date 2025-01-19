@@ -16,30 +16,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { InstrumentoExtendido } from "@/types/instrumento"
 import { instrumentSchema } from "@/lib/zod"
+import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { InstrumentoType, Juzgado } from "@prisma/client"
 
-const formSchema = z.object({
-  fechaEntrada: z.string().min(1, {
-    message: "La fecha de entrada es requerida.",
-  }),
-  caratula: z.string().min(1, {
-    message: "La carátula es requerida.",
-  }),
-  destinatario: z.string().min(1, {
-    message: "El destinatario es requerido.",
-  }),
-  direccion: z.string().min(1, {
-    message: "La dirección es requerida.",
-  }),
-  numeroOrden: z.string().min(1, {
-    message: "El número de orden es requerido.",
-  }),
-  identificadorJuzgado: z.string().min(1, {
-    message: "El identificador de juzgado es requerido.",
-  }),
-  tipoInstrumento: z.string().min(1, {
-    message: "El tipo de instrumento es requerido.",
-  }),
-})
+
+
 
 interface FormularioInstrumentoProps {
   instrumento?: InstrumentoExtendido
@@ -48,35 +30,53 @@ interface FormularioInstrumentoProps {
 
 export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstrumentoProps>) {
   const form = useForm<z.infer<typeof instrumentSchema>>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(instrumentSchema),
     defaultValues: {
-      entryDate: instrumento?.entryDate.toISOString().split("T")[0] || "",
-      caratula: instrumento?.caratula || "",
-      destinatario: instrumento?.destinatario || "",
-      address: instrumento?.address || "",
-      ordenNumber: instrumento?.ordenNumber || "",
-      juzgado: instrumento?.juzgado.identifier || "",
-      instrumentType: instrumento?.instrumentoType.name || "",
+      entryDate: instrumento?.entryDate.toISOString().split("T")[0] ?? "",
+      caratula: instrumento?.caratula ?? "",
+      destinatario: instrumento?.destinatario ?? "",
+      address: instrumento?.address ?? "",
+      ordenNumber: instrumento?.ordenNumber ?? "",
+      juzgado: instrumento?.juzgado.identifier ?? "",
+      instrumentType: instrumento?.instrumentoType.name ?? "",
     },
   })
+
+  const [Juzgados, setJuzgados] = React.useState<Juzgado[]>([])
+  const [instrumentoTypes, setInstrumentoTypes] = React.useState<InstrumentoType[]>([])
+
+  React.useEffect(() => {
+    const fetchJuzgados = async () => {
+      const juzgados = await getJuzgados()
+      setJuzgados(juzgados)
+    }
+    const fetchInstrumentTypes = async () => {
+      const instrumentTypes = await getInstrumentTypes()
+      setInstrumentoTypes(instrumentTypes)
+    }
+    fetchJuzgados()
+    fetchInstrumentTypes()
+
+  }, [])
 
   function handleSubmit(values: z.infer<typeof instrumentSchema>) {
     console.log(values)
   }
 
   return (
+    Juzgados.length === 0 || instrumentoTypes.length === 0 ? <div>Cargando...</div> :
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className=" grid grid-cols-2 gap-6 ">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full h-full  bg-white rounded-lg ">
         <FormField
           control={form.control}
           name="entryDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Fecha de Entrada</FormLabel>
+              <FormLabel className="text-sm font-medium text-gray-700">Fecha de Entrada</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="date" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
           )}
         />
@@ -85,11 +85,11 @@ export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstru
           name="exitDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Fecha de Salida</FormLabel>
+              <FormLabel className="text-sm font-medium text-gray-700">Fecha de Salida</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="date" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
           )}
         />
@@ -98,11 +98,11 @@ export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstru
           name="caratula"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Carátula</FormLabel>
+              <FormLabel className="text-sm font-medium text-gray-700">Carátula</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
           )}
         />
@@ -111,11 +111,11 @@ export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstru
           name="destinatario"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Destinatario</FormLabel>
+              <FormLabel className="text-sm font-medium text-gray-700">Destinatario</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
           )}
         />
@@ -124,11 +124,11 @@ export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstru
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Dirección</FormLabel>
+              <FormLabel className="text-sm font-medium text-gray-700">Dirección</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
           )}
         />
@@ -137,41 +137,74 @@ export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstru
           name="ordenNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Número de Orden</FormLabel>
+              <FormLabel className="text-sm font-medium text-gray-700">Número de Orden</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="juzgado"
+          
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Identificador de Juzgado</FormLabel>
-              <FormControl>
-                <Input {...field} />
+              <FormLabel className="text-sm font-medium text-gray-700">Identificador de Juzgado</FormLabel>
+              <FormControl  >
+                <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value} >
+                  <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                    <SelectValue placeholder="Seleccione un Juzgado"  className="text-sm" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                    <SelectGroup>
+                      {Juzgados.map((juzgado) => (
+                        <SelectItem key={juzgado.id} value={juzgado.identifier} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                          {juzgado.identifier}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
           name="instrumentType"
+          
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Tipo de Instrumento</FormLabel>
-              <FormControl>
-                <Input {...field} />
+            <FormItem >
+              <FormLabel className="text-sm font-medium text-gray-700">Tipo de Instrumento</FormLabel>
+              <FormControl className="w-full h-full ">
+                <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value}  >
+                  <SelectTrigger className="w-full  border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                    <SelectValue  placeholder="Seleccione un tipo de instrumento" className="text-sm w-full" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1" >
+
+                    <SelectGroup >
+                      {instrumentoTypes.map((instrumentoType) => (
+                        <SelectItem key={instrumentoType.id} value={instrumentoType.name} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                          {instrumentoType.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
           )}
         />
-        <Button type="submit">{instrumento ? "Actualizar" : "Crear"} Instrumento</Button>
+        <div className="col-span-full">
+          <Button type="submit" className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-md">
+            {instrumento ? "Actualizar" : "Crear"} Instrumento
+          </Button>
+        </div>
       </form>
     </Form>
   )

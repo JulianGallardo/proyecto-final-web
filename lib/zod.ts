@@ -19,3 +19,14 @@ export const addNewZoneSchema = object({
   colorOption: z.enum(["chosen", "random"]),
 
 })
+
+export const instrumentSchema = object({
+  entryDate: string({ required_error: "La fecha de entrada es requerida." }),
+  exitDate: string(),
+  caratula: string({ required_error: "La carátula es requerida." }),
+  destinatario: string({ required_error: "El destinatario es requerido." }),
+  address: string({ required_error: "La dirección es requerida." }),
+  ordenNumber: string({ required_error: "El número de orden es requerido." }),
+  juzgado: string({ required_error: "El identificador de juzgado es requerido." }),
+  instrumentType: string({ required_error: "El tipo de instrumento es requerido." }),
+})

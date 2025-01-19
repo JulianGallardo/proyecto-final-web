@@ -14,7 +14,8 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Instrumento } from "@/types/instrumento"
+import { InstrumentoExtendido } from "@/types/instrumento"
+import { instrumentSchema } from "@/lib/zod"
 
 const formSchema = z.object({
   fechaEntrada: z.string().min(1, {
@@ -41,44 +42,50 @@ const formSchema = z.object({
 })
 
 interface FormularioInstrumentoProps {
-  instrumento?: Instrumento
-  onSubmit: (data: Instrumento) => void
+  instrumento?: InstrumentoExtendido
+  onSubmit: (data: InstrumentoExtendido) => void
 }
 
-export function FormularioInstrumento({ instrumento, onSubmit }: FormularioInstrumentoProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
+export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstrumentoProps>) {
+  const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: instrumento ? {
-      ...instrumento,
-      fechaEntrada: instrumento.fechaEntrada.toISOString().split('T')[0],
-    } : {
-      fechaEntrada: new Date().toISOString().split('T')[0],
-      caratula: "",
-      destinatario: "",
-      direccion: "",
-      numeroOrden: "",
-      identificadorJuzgado: "",
-      tipoInstrumento: "",
+    defaultValues: {
+      entryDate: instrumento?.entryDate.toISOString().split("T")[0] || "",
+      caratula: instrumento?.caratula || "",
+      destinatario: instrumento?.destinatario || "",
+      address: instrumento?.address || "",
+      ordenNumber: instrumento?.ordenNumber || "",
+      juzgado: instrumento?.juzgado.identifier || "",
+      instrumentType: instrumento?.instrumentoType.name || "",
     },
   })
 
-  function handleSubmit(values: z.infer<typeof formSchema>) {
-    onSubmit({
-      id: instrumento?.id || Date.now().toString(),
-      ...values,
-      fechaEntrada: new Date(values.fechaEntrada),
-    })
+  function handleSubmit(values: z.infer<typeof instrumentSchema>) {
+    console.log(values)
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className=" grid grid-cols-2 gap-6 ">
         <FormField
           control={form.control}
-          name="fechaEntrada"
+          name="entryDate"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Fecha de Entrada</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="exitDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Fecha de Salida</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -114,7 +121,7 @@ export function FormularioInstrumento({ instrumento, onSubmit }: FormularioInstr
         />
         <FormField
           control={form.control}
-          name="direccion"
+          name="address"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Dirección</FormLabel>
@@ -127,7 +134,7 @@ export function FormularioInstrumento({ instrumento, onSubmit }: FormularioInstr
         />
         <FormField
           control={form.control}
-          name="numeroOrden"
+          name="ordenNumber"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Número de Orden</FormLabel>
@@ -140,7 +147,7 @@ export function FormularioInstrumento({ instrumento, onSubmit }: FormularioInstr
         />
         <FormField
           control={form.control}
-          name="identificadorJuzgado"
+          name="juzgado"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Identificador de Juzgado</FormLabel>
@@ -153,7 +160,7 @@ export function FormularioInstrumento({ instrumento, onSubmit }: FormularioInstr
         />
         <FormField
           control={form.control}
-          name="tipoInstrumento"
+          name="instrumentType"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tipo de Instrumento</FormLabel>

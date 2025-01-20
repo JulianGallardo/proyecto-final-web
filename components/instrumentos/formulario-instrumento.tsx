@@ -99,9 +99,11 @@ export function FormularioInstrumento({ instrumento, onSubmit }: Readonly<Formul
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="exitDate"
+          defaultValue={instrumento?.exitDate?.toISOString().split("T")[0] ?? ""}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Fecha de Salida</FormLabel>

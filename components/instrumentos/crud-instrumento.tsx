@@ -51,7 +51,6 @@ export function CrudInstrumentos() {
 
 
     const handleClose = (open: boolean) => {
-        console.log(open)
         if (!open) {
             setDialogoAbierto(false)
             setInstrumentoEditando(null)

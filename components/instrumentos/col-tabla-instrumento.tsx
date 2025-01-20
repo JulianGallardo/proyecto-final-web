@@ -42,12 +42,12 @@ export const columns = ({ onEdit, onDelete, openDelete, setOpenDelete }: Columns
     {
         accessorKey: "entryDate",
         header: "Fecha de Entrada",
-        cell: FechaSalidaCell,
+        cell: FechaEntradaCell,
     },
     {
         accessorKey: "exitDate",
         header: "Fecha de Salida",
-        cell: FechaEntradaCell,
+        cell: FechaSalidaCell,
     },
     { accessorKey: "caratula", header: "Carátula" },
     { accessorKey: "destinatario", header: "Destinatario" },

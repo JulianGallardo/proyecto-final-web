@@ -31,6 +31,7 @@ export function CrudInstrumentos() {
     React.useEffect(() => {
         const fetchInstrumentos = async () => {
             const instrumentos = await getInstrumentos()
+            console.log(instrumentos)
             setInstrumentos(instrumentos)
         }
         fetchInstrumentos()

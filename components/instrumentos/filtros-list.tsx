@@ -9,6 +9,7 @@ import { Checkbox } from "../ui/checkbox"
 import { Input } from "../ui/input"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@radix-ui/react-select"
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 
 interface FiltroListProps {
@@ -17,15 +18,64 @@ interface FiltroListProps {
 }
 
 
+
+
+
+
 export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<FiltroListProps>) {
+    const [Juzgado, setJuzgado] = useState<string | null>(null);
+    const [InstrumentType, setInstrumentType] = useState<string | null>(null);
+    const [open, setOpen] = useState(false);
+    const searchParams = useSearchParams()
+    const pathname = usePathname();
+    const { replace } = useRouter();
+
+    function handleSearch(query: string, term: string) {
+        const params = new URLSearchParams(searchParams)
+        if (term) {
+            params.set(query, term);
+        } else {
+            params.delete(query);
+        }
+
+        replace(`${pathname}?${params.toString()}`);
+
+    }
+
+
+    function deleteParams() {
+        const params = new URLSearchParams(searchParams)
+        params.delete("entryDate");
+        params.delete("exitDate");
+        params.delete("caratula");
+        params.delete("destinatario");
+        params.delete("address");
+        params.delete("ordenNumber");
+        params.delete("juzgado");
+        params.delete("instrumentType");
+        replace(`${pathname}?${params.toString()}`);
+    }
+
+
+    function handleOpen(open: boolean) {
+        console.log(open)
+        if (!open) {
+            deleteParams()
+        }
+        setOpen(open)
+    }
+
     return (
         <Accordion
             type="single"
+            
             collapsible
+            
             className="border border-gray-200 rounded-lg shadow-sm"
+            
         >
             <AccordionItem value="item-1" className="overflow-hidden ">
-                <AccordionTrigger className="flex items-center justify-between px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium">
+                <AccordionTrigger onClick={() => handleOpen(!open)} className="flex items-center justify-between px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium">
                     Filtros
                 </AccordionTrigger>
                 <AccordionContent className="px-4 py-3 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
@@ -34,6 +84,10 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             type="date"
                             className="w-full"
                             placeholder="Fecha de Entrada"
+                            name="entryDate"
+                            onChange={(e) => handleSearch(
+                                e.target.name,
+                                e.target.value)}
                         />
                     </Filtro>
                     <Filtro nameFiltro="Fecha de Salida" >
@@ -41,6 +95,10 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             type="date"
                             className="w-full"
                             placeholder="Fecha de Salida"
+                            name="exitDate"
+                            onChange={(e) => handleSearch(
+                                e.target.name,
+                                e.target.value)}
                         />
                     </Filtro>
                     <Filtro nameFiltro="Carátula" >
@@ -48,6 +106,10 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             type="text"
                             className="w-full"
                             placeholder="Carátula"
+                            name="caratula"
+                            onChange={(e) => handleSearch(
+                                e.target.name,
+                                e.target.value)}
                         />
                     </Filtro>
                     <Filtro nameFiltro="Destinatario" >
@@ -55,6 +117,10 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             type="text"
                             className="w-full"
                             placeholder="Destinatario"
+                            name="destinatario"
+                            onChange={(e) => handleSearch(
+                                e.target.name,
+                                e.target.value)}
                         />
                     </Filtro>
                     <Filtro nameFiltro="Dirección" >
@@ -62,6 +128,10 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             type="text"
                             className="w-full"
                             placeholder="Dirección"
+                            name="address"
+                            onChange={(e) => handleSearch(
+                                e.target.name,
+                                e.target.value)}
                         />
                     </Filtro>
                     <Filtro nameFiltro="Número de Orden" >
@@ -69,10 +139,16 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             type="text"
                             className="w-full"
                             placeholder="Número de Orden"
+                            name="ordenNumber"
+                            onChange={(e) => handleSearch(
+                                e.target.name,
+                                e.target.value)}
                         />
                     </Filtro>
                     <Filtro nameFiltro="Identificador de Juzgado" >
-                        <Select   >
+                        <Select onValueChange={
+                            (e) => handleSearch("juzgado", e.toString())
+                        }  >
                             <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
                                 <SelectValue placeholder="Seleccione un Juzgado" className="text-sm" />
                             </SelectTrigger>
@@ -88,7 +164,14 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                         </Select>
                     </Filtro>
                     <Filtro nameFiltro="Tipo de Instrumento" >
-                        <Select   >
+                        <Select
+
+                            onValueChange={
+                                (e) => {
+
+                                    handleSearch("instrumentType", e.toString())
+                                }
+                            }  >
                             <SelectTrigger className="w-full  border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
                                 <SelectValue placeholder="Seleccione un tipo de instrumento" className="text-sm w-full" />
                             </SelectTrigger>

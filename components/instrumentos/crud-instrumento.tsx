@@ -49,9 +49,6 @@ export function CrudInstrumentos() {
             setInstrumentoTypes(instrumentTypes)
         }
 
-
-
-
         fetchInstrumentos()
         fecthJuzgados()
         fetchInstrumentTypes()

@@ -16,6 +16,7 @@ import { TooltipProvider } from "@radix-ui/react-tooltip"
 import { Plus } from "@mynaui/icons-react"
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
 import { createInstrumento, getInstrumentos, updateInstrumento } from "@/actions/instrumentos-actions"
+import { set } from "zod"
 
 // Datos de ejemplo
 
@@ -49,6 +50,16 @@ export function CrudInstrumentos() {
     }, [])
 
 
+    const handleClose = (open: boolean) => {
+        console.log(open)
+        if (!open) {
+            setDialogoAbierto(false)
+            setInstrumentoEditando(null)
+        }
+        else
+            setDialogoAbierto(open)
+    }
+
     const handleCrear = (nuevoInstrumento: InstrumentoExtendido) => {
         setInstrumentos([...instrumentos, nuevoInstrumento])
         const instrumentDto: InstrumentoDTO = {
@@ -61,14 +72,13 @@ export function CrudInstrumentos() {
             juzgadoId: nuevoInstrumento.juzgadoId,
             instrumentoTypeId: nuevoInstrumento.instrumentoTypeId,
         }
-        console.log(instrumentDto)
         createInstrumento(instrumentDto)
         setDialogoAbierto(false)
     }
 
     const handleEditar = (instrumentoEditado: InstrumentoExtendido) => {
         setInstrumentos(instrumentos.map(i => i.juzgadoId === instrumentoEditado.juzgadoId && i.ordenNumber === instrumentoEditado.ordenNumber ? instrumentoEditado : i))
-        
+
         const instrumentDto: InstrumentoDTO = {
             entryDate: instrumentoEditado.entryDate,
             exitDate: instrumentoEditado.exitDate,
@@ -93,7 +103,7 @@ export function CrudInstrumentos() {
             <TooltipProvider>
                 <div className="flex justify-between items-center">
                     <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
-                    <Dialog open={dialogoAbierto} onOpenChange={setDialogoAbierto}>
+                    <Dialog open={dialogoAbierto} onOpenChange={handleClose} >
                         <DialogTrigger asChild>
                             {
                                 isMobile ? (

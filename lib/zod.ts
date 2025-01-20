@@ -22,7 +22,7 @@ export const addNewZoneSchema = object({
 
 export const instrumentSchema = object({
   entryDate: string({ required_error: "La fecha de entrada es requerida." }),
-  exitDate: string(),
+  exitDate: string({}).optional().or(z.literal("")).default(""),
   caratula: string({ required_error: "La carátula es requerida." }),
   destinatario: string({ required_error: "El destinatario es requerido." }),
   address: string({ required_error: "La dirección es requerida." }),

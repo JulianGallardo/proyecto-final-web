@@ -50,15 +50,15 @@ export async function getInstrumentos() {
 }
 
 export async function createInstrumento(data:InstrumentoDTO) {
-    return instrumentosRepo.createInstrumento(data);
+    return await instrumentosRepo.createInstrumento(data);
 }
 
 export async function deleteInstrumento(juzgadoId: number, ordenNumber:number) {
-    return instrumentosRepo.deleteInstrumento(juzgadoId,ordenNumber);
+    return  await instrumentosRepo.deleteInstrumento(juzgadoId,ordenNumber);
 }
 
 export async function updateInstrumento(juzgadoId: number, ordenNumber:number,  data: InstrumentoDTO) {
-    return instrumentosRepo.updateInstrumento(juzgadoId,ordenNumber, data);
+    return await instrumentosRepo.updateInstrumento(juzgadoId,ordenNumber, data);
 }
 
 

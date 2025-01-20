@@ -58,8 +58,8 @@ export function CrudInstrumentos() {
             setDialogoAbierto(open)
     }
 
-    const handleCrear = (nuevoInstrumento: InstrumentoExtendido) => {
-        setInstrumentos([...instrumentos, nuevoInstrumento])
+    const handleCrear = async (nuevoInstrumento: InstrumentoExtendido) => {
+        
         const instrumentDto: InstrumentoDTO = {
             entryDate: nuevoInstrumento.entryDate,
             exitDate: nuevoInstrumento.exitDate,
@@ -69,12 +69,13 @@ export function CrudInstrumentos() {
             juzgadoIdentifier: nuevoInstrumento.juzgado.identifier,
             instrumentoTypeIdentifier: nuevoInstrumento.instrumentoType.identifier,
         }
-        createInstrumento(instrumentDto)
+        const instrumentoCreado = await createInstrumento(instrumentDto)
+        setInstrumentos([...instrumentos, instrumentoCreado])
         setDialogoAbierto(false)
     }
 
-    const handleEditar = (instrumentoEditado: InstrumentoExtendido) => {
-        setInstrumentos(instrumentos.map(i => i.juzgadoId === instrumentoEditado.juzgadoId && i.ordenNumber === instrumentoEditado.ordenNumber ? instrumentoEditado : i))
+    const handleEditar = async (instrumentoEditado: InstrumentoExtendido) => {
+        if (!instrumentoEditando) return
 
         const instrumentDto: InstrumentoDTO = {
             entryDate: instrumentoEditado.entryDate,
@@ -85,7 +86,12 @@ export function CrudInstrumentos() {
             juzgadoIdentifier: instrumentoEditado.juzgado.identifier,
             instrumentoTypeIdentifier: instrumentoEditado.instrumentoType.identifier,
         }
-        updateInstrumento(instrumentoEditado.juzgadoId, instrumentoEditado.ordenNumber, instrumentDto)
+        const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentDto)
+        console.log(instrumentoActualizado)
+        if (!instrumentoActualizado) return
+
+        setInstrumentos(instrumentos.map(i => i.juzgadoId === instrumentoActualizado.juzgadoId && i.ordenNumber === instrumentoActualizado.ordenNumber ? instrumentoActualizado : i))
+
         setInstrumentoEditando(null)
         setDialogoAbierto(false)
     }

@@ -37,24 +37,28 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
     }
 
-    async calculateOrdenNumber(juzgadoIdentifier: string):Promise<number>{
-        const instrumentos = await this.modelClient.count({
+    async calculateOrdenNumber(juzgadoIdentifier: string): Promise<number> {
+        const maxOrden = await this.modelClient.aggregate({
+            _max: {
+                ordenNumber: true, // Obtén el máximo valor de ordenNumber
+            },
             where: {
                 juzgado: {
                     identifier: juzgadoIdentifier,
                 },
-            }
+            },
         });
-        return instrumentos + 1;
-        
+    
+        // Si no hay valores (primer instrumento), empieza desde 1
+        return (maxOrden._max.ordenNumber || 0) + 1;
     }
 
-    async createInstrumento(data: InstrumentoDTO): Promise<Instrumento> {
+    async createInstrumento(data: InstrumentoDTO): Promise<InstrumentoExtendido> {
         // Espera a que `ordenNumber` sea calculado antes de usarlo
         const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
     
         // Ahora puedes usar el valor numérico resuelto
-        return this.modelClient.create({
+        const creado= await this.modelClient.create({
             data: {
                 entryDate: data.entryDate,
                 exitDate: data.exitDate || undefined,
@@ -73,7 +77,33 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     },
                 },
             },
+            select : {
+                entryDate: true,
+                exitDate: true,
+                caratula: true,
+                destinatario: true,
+                address: true,
+                ordenNumber: true,
+                juzgadoId: true,
+                instrumentoTypeId: true,
+                juzgado: {
+                    select: {
+                        name: true,
+                        identifier: true,
+                    },
+                },
+                instrumentoType: {
+                    select: {
+                        name: true,
+                        identifier: true,
+                    },
+                },
+                createdAt: true,
+                updatedAt: true,
+            }
         });
+
+        return creado;
     }
     
 
@@ -81,7 +111,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         juzgadoId: number,
         ordenNumber: number,
         data: Partial<InstrumentoDTO>
-    ): Promise<Instrumento | null> {
+    ): Promise<InstrumentoExtendido | null> {
 
         let newOrdenNumber = ordenNumber;
 
@@ -98,7 +128,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         }
 
 
-        return this.modelClient.update({
+        const update = await this.modelClient.update({
             where: {
                 juzgadoId_ordenNumber: {
                     juzgadoId,
@@ -124,7 +154,33 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     },
                 },  
             },
+            select : {
+                entryDate: true,
+                exitDate: true,
+                caratula: true,
+                destinatario: true,
+                address: true,
+                ordenNumber: true,
+                juzgadoId: true,
+                instrumentoTypeId: true,
+                juzgado: {
+                    select: {
+                        name: true,
+                        identifier: true,
+                    },
+                },
+                instrumentoType: {
+                    select: {
+                        name: true,
+                        identifier: true,
+                    },
+                },
+                createdAt: true,
+                updatedAt: true,
+            }
         });
+
+        return update;
     }
 
     async deleteInstrumento(juzgadoId: number, ordenNumber: number): Promise<Instrumento | null> {

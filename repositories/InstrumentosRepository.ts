@@ -37,7 +37,23 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
     }
 
+    async calculateOrdenNumber(juzgadoIdentifier: string):Promise<number>{
+        const instrumentos = await this.modelClient.count({
+            where: {
+                juzgado: {
+                    identifier: juzgadoIdentifier,
+                },
+            }
+        });
+        return instrumentos + 1;
+        
+    }
+
     async createInstrumento(data: InstrumentoDTO): Promise<Instrumento> {
+        // Espera a que `ordenNumber` sea calculado antes de usarlo
+        const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
+    
+        // Ahora puedes usar el valor numérico resuelto
         return this.modelClient.create({
             data: {
                 entryDate: data.entryDate,
@@ -45,21 +61,21 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 caratula: data.caratula,
                 destinatario: data.destinatario,
                 address: data.address,
-                ordenNumber: data.ordenNumber,
+                ordenNumber: ordenNumber, // Ya no es un Promise
                 juzgado: {
                     connect: {
-                        id: data.juzgadoId,
+                        identifier: data.juzgadoIdentifier,
                     },
                 },
                 instrumentoType: {
                     connect: {
-                        id: data.instrumentoTypeId,
+                        identifier: data.instrumentoTypeIdentifier,
                     },
                 },
             },
-
         });
     }
+    
 
     async updateInstrumento(
         juzgadoId: number,

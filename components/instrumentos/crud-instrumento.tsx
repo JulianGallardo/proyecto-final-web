@@ -68,8 +68,8 @@ export function CrudInstrumentos() {
             destinatario: nuevoInstrumento.destinatario,
             address: nuevoInstrumento.address,
             ordenNumber: nuevoInstrumento.ordenNumber,
-            juzgadoId: nuevoInstrumento.juzgadoId,
-            instrumentoTypeId: nuevoInstrumento.instrumentoTypeId,
+            juzgadoIdentifier: nuevoInstrumento.juzgado.identifier,
+            instrumentoTypeIdentifier: nuevoInstrumento.instrumentoType.identifier,
         }
         createInstrumento(instrumentDto)
         setDialogoAbierto(false)
@@ -85,8 +85,8 @@ export function CrudInstrumentos() {
             destinatario: instrumentoEditado.destinatario,
             address: instrumentoEditado.address,
             ordenNumber: instrumentoEditado.ordenNumber,
-            juzgadoId: instrumentoEditado.juzgadoId,
-            instrumentoTypeId: instrumentoEditado.instrumentoTypeId,
+            juzgadoIdentifier: instrumentoEditado.juzgado.identifier,
+            instrumentoTypeIdentifier: instrumentoEditado.instrumentoType.identifier,
         }
         updateInstrumento(instrumentoEditado.juzgadoId, instrumentoEditado.instrumentoTypeId, instrumentDto)
         setInstrumentoEditando(null)

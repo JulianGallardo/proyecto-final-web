@@ -124,7 +124,7 @@ model Instrumento{
   destinatario String
 
   address   String //destinatario postal
-  ordenNumber String
+  ordenNumber Int
 
   juzgadoId Int
   instrumentoTypeId Int

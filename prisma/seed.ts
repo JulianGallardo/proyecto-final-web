@@ -119,9 +119,9 @@ const InstrumentosDePrueba: InstrumentoDTO[] = [
         caratula: "Caratula 1",
         destinatario: "Destinatario 1",
         address: "Direccion 1",
-        ordenNumber: "1",
-        juzgadoId: "JCC1",
-        instrumentoTypeId: "C",
+        ordenNumber: 1,
+        juzgadoIdentifier: "JCC1",
+        instrumentoTypeIdentifier: "C",
     },
     {
         entryDate: new Date(),
@@ -129,9 +129,9 @@ const InstrumentosDePrueba: InstrumentoDTO[] = [
         caratula: "Caratula 2",
         destinatario: "Destinatario 2",
         address: "Direccion 2",
-        ordenNumber: "2",
-        juzgadoId: "JCC2",
-        instrumentoTypeId: "C",
+        ordenNumber: 2,
+        juzgadoIdentifier: "JCC2",
+        instrumentoTypeIdentifier: "C",
     },
     {
         entryDate: new Date(),
@@ -139,9 +139,9 @@ const InstrumentosDePrueba: InstrumentoDTO[] = [
         caratula: "Caratula 3",
         destinatario: "Destinatario 3",
         address: "Direccion 3",
-        ordenNumber: "3",
-        juzgadoId: "JCC3",
-        instrumentoTypeId: "C",
+        ordenNumber: 3,
+        juzgadoIdentifier: "JCC3",
+        instrumentoTypeIdentifier: "C",
     },
 ];
 

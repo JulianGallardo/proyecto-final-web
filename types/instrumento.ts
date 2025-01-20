@@ -6,9 +6,9 @@ export interface InstrumentoDTO {
   caratula: string;
   destinatario: string;
   address: string;
-  ordenNumber: string;
-  juzgadoId: number;
-  instrumentoTypeId: number;
+  ordenNumber: number;
+  juzgadoIdentifier: string;
+  instrumentoTypeIdentifier: string;
 }
 
 export interface InstrumentoExtendido extends Instrumento {

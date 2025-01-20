@@ -72,7 +72,7 @@ export function FormularioInstrumento({ instrumento, onSubmit }: Readonly<Formul
       juzgado: Juzgado!,
       instrumentoType: instrumentoType!,
       juzgadoId: Juzgado!.id,
-      ordenNumber: 0,
+      ordenNumber: instrumento?.ordenNumber ?? 0,
       instrumentoTypeId: instrumentoType!.id,
       createdAt: instrumento?.createdAt ?? new Date(),
       updatedAt: new Date(),

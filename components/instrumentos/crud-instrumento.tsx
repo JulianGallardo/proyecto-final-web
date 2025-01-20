@@ -85,7 +85,7 @@ export function CrudInstrumentos() {
             juzgadoIdentifier: instrumentoEditado.juzgado.identifier,
             instrumentoTypeIdentifier: instrumentoEditado.instrumentoType.identifier,
         }
-        updateInstrumento(instrumentoEditado.juzgadoId, instrumentoEditado.instrumentoTypeId, instrumentDto)
+        updateInstrumento(instrumentoEditado.juzgadoId, instrumentoEditado.ordenNumber, instrumentDto)
         setInstrumentoEditando(null)
         setDialogoAbierto(false)
     }

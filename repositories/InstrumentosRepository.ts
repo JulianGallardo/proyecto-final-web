@@ -118,7 +118,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     },
                 },
 
-                instrumentType : {
+                instrumentoType : {
                     connect: {
                         identifier: data.instrumentoTypeIdentifier,
                     },

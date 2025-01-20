@@ -36,7 +36,6 @@ export function FormularioInstrumento({ instrumento, onSubmit }: Readonly<Formul
       caratula: instrumento?.caratula ?? "",
       destinatario: instrumento?.destinatario ?? "",
       address: instrumento?.address ?? "",
-      ordenNumber: instrumento?.ordenNumber ?? "",
       juzgado: instrumento?.juzgado.identifier ?? "",
       instrumentType: instrumento?.instrumentoType.name ?? "",
     },
@@ -70,10 +69,10 @@ export function FormularioInstrumento({ instrumento, onSubmit }: Readonly<Formul
       caratula: values.caratula,
       destinatario: values.destinatario,
       address: values.address,
-      ordenNumber: values.ordenNumber,
       juzgado: Juzgado!,
       instrumentoType: instrumentoType!,
       juzgadoId: Juzgado!.id,
+      ordenNumber: 0,
       instrumentoTypeId: instrumentoType!.id,
       createdAt: instrumento?.createdAt ?? new Date(),
       updatedAt: new Date(),
@@ -146,19 +145,6 @@ export function FormularioInstrumento({ instrumento, onSubmit }: Readonly<Formul
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Dirección</FormLabel>
-              <FormControl>
-                <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
-              </FormControl>
-              <FormMessage className="text-sm text-red-500 mt-1" />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="ordenNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-sm font-medium text-gray-700">Número de Orden</FormLabel>
               <FormControl>
                 <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
               </FormControl>

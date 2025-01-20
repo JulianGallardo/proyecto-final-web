@@ -6,7 +6,6 @@ export interface InstrumentoDTO {
   caratula: string;
   destinatario: string;
   address: string;
-  ordenNumber: number;
   juzgadoIdentifier: string;
   instrumentoTypeIdentifier: string;
 }

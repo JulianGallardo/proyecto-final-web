@@ -82,6 +82,22 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         ordenNumber: number,
         data: Partial<InstrumentoDTO>
     ): Promise<Instrumento | null> {
+
+        let newOrdenNumber = ordenNumber;
+
+        const juzgado = await prisma.juzgado.findUnique({
+            where: {
+                id: juzgadoId,
+            },
+        });
+
+
+        if(data.juzgadoIdentifier !== juzgado?.identifier && data.juzgadoIdentifier){ 
+            const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
+            newOrdenNumber = ordenNumber;
+        }
+
+
         return this.modelClient.update({
             where: {
                 juzgadoId_ordenNumber: {
@@ -90,7 +106,23 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 },
             },
             data: {
-                ...data,
+                entryDate: data.entryDate,
+                exitDate: data.exitDate || undefined,
+                caratula: data.caratula,
+                destinatario: data.destinatario,
+                address: data.address,
+                ordenNumber: newOrdenNumber ,
+                juzgado: {
+                    connect: {
+                        identifier: data.juzgadoIdentifier,
+                    },
+                },
+
+                instrumentType : {
+                    connect: {
+                        identifier: data.instrumentoTypeIdentifier,
+                    },
+                },  
             },
         });
     }

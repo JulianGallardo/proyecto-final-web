@@ -26,7 +26,6 @@ export const instrumentSchema = object({
   caratula: string({ required_error: "La carátula es requerida." }).min(1, "La carátula es requerida."),
   destinatario: string({ required_error: "El destinatario es requerido." }).min(1, "El destinatario es requerido."),
   address: string({ required_error: "La dirección es requerida." }).min(1, "La dirección es requerida."),
-  ordenNumber: string({ required_error: "El número de orden es requerido." }),
   juzgado: string({ required_error: "El identificador de juzgado es requerido." }).min(1, "El identificador de juzgado es requerido."),
   instrumentType: string({ required_error: "El tipo de instrumento es requerido." }).min(1, "El tipo de instrumento es requerido."),
 })

@@ -16,7 +16,6 @@ import { TooltipProvider } from "@radix-ui/react-tooltip"
 import { Plus } from "@mynaui/icons-react"
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
 import { createInstrumento, getInstrumentos, updateInstrumento } from "@/actions/instrumentos-actions"
-import { set } from "zod"
 
 // Datos de ejemplo
 
@@ -67,7 +66,6 @@ export function CrudInstrumentos() {
             caratula: nuevoInstrumento.caratula,
             destinatario: nuevoInstrumento.destinatario,
             address: nuevoInstrumento.address,
-            ordenNumber: nuevoInstrumento.ordenNumber,
             juzgadoIdentifier: nuevoInstrumento.juzgado.identifier,
             instrumentoTypeIdentifier: nuevoInstrumento.instrumentoType.identifier,
         }
@@ -84,7 +82,6 @@ export function CrudInstrumentos() {
             caratula: instrumentoEditado.caratula,
             destinatario: instrumentoEditado.destinatario,
             address: instrumentoEditado.address,
-            ordenNumber: instrumentoEditado.ordenNumber,
             juzgadoIdentifier: instrumentoEditado.juzgado.identifier,
             instrumentoTypeIdentifier: instrumentoEditado.instrumentoType.identifier,
         }

@@ -21,12 +21,12 @@ export const addNewZoneSchema = object({
 })
 
 export const instrumentSchema = object({
-  entryDate: string({ required_error: "La fecha de entrada es requerida." }),
+  entryDate: string({ required_error: "La fecha de entrada es requerida." }).min(1, "La fecha de entrada es requerida."),
   exitDate: string({}).optional().or(z.literal("")).default(""),
-  caratula: string({ required_error: "La carátula es requerida." }),
-  destinatario: string({ required_error: "El destinatario es requerido." }),
-  address: string({ required_error: "La dirección es requerida." }),
+  caratula: string({ required_error: "La carátula es requerida." }).min(1, "La carátula es requerida."),
+  destinatario: string({ required_error: "El destinatario es requerido." }).min(1, "El destinatario es requerido."),
+  address: string({ required_error: "La dirección es requerida." }).min(1, "La dirección es requerida."),
   ordenNumber: string({ required_error: "El número de orden es requerido." }),
-  juzgado: string({ required_error: "El identificador de juzgado es requerido." }),
-  instrumentType: string({ required_error: "El tipo de instrumento es requerido." }),
+  juzgado: string({ required_error: "El identificador de juzgado es requerido." }).min(1, "El identificador de juzgado es requerido."),
+  instrumentType: string({ required_error: "El tipo de instrumento es requerido." }).min(1, "El tipo de instrumento es requerido."),
 })

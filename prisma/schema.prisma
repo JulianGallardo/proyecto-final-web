@@ -118,7 +118,7 @@ model InstrumentoType{
 
 model Instrumento{
   entryDate DateTime @default(now())
-  exitDate  DateTime?
+  exitDate  DateTime? 
 
   caratula  String
   destinatario String

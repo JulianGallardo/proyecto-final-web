@@ -28,7 +28,7 @@ interface FormularioInstrumentoProps {
   onSubmit: (data: InstrumentoExtendido) => void
 }
 
-export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstrumentoProps>) {
+export function FormularioInstrumento({ instrumento, onSubmit }: Readonly<FormularioInstrumentoProps>) {
   const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(instrumentSchema),
     defaultValues: {
@@ -60,8 +60,27 @@ export function FormularioInstrumento({ instrumento }: Readonly<FormularioInstru
   }, [])
 
   function handleSubmit(values: z.infer<typeof instrumentSchema>) {
-    console.log(values)
+
+    const Juzgado = Juzgados.find(juzgado => juzgado.identifier === values.juzgado)
+    const instrumentoType = instrumentoTypes.find(instrumentType => instrumentType.name === values.instrumentType)
+
+    onSubmit({
+      entryDate: new Date(values.entryDate),
+      exitDate: values.exitDate ? new Date(values.exitDate) : null,
+      caratula: values.caratula,
+      destinatario: values.destinatario,
+      address: values.address,
+      ordenNumber: values.ordenNumber,
+      juzgado: Juzgado!,
+      instrumentoType: instrumentoType!,
+      juzgadoId: Juzgado!.id,
+      instrumentoTypeId: instrumentoType!.id,
+      createdAt: instrumento?.createdAt ?? new Date(),
+      updatedAt: new Date(),
+    })
   }
+
+  
 
   return (
     Juzgados.length === 0 || instrumentoTypes.length === 0 ? <div>Cargando...</div> :

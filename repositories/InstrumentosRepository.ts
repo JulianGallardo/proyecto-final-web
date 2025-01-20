@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { Instrumento } from "@prisma/client";
+import { Instrumento, Prisma } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
@@ -41,19 +41,19 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         return this.modelClient.create({
             data: {
                 entryDate: data.entryDate,
-                exitDate: data.exitDate,
+                exitDate: data.exitDate || undefined,
                 caratula: data.caratula,
                 destinatario: data.destinatario,
                 address: data.address,
                 ordenNumber: data.ordenNumber,
                 juzgado: {
                     connect: {
-                        identifier: data.juzgadoId,
+                        id: data.juzgadoId,
                     },
                 },
                 instrumentoType: {
                     connect: {
-                        identifier: data.instrumentoTypeId,
+                        id: data.instrumentoTypeId,
                     },
                 },
             },
@@ -62,8 +62,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
     async updateInstrumento(
-        juzgadoId: string,
-        ordenNumber: string,
+        juzgadoId: number,
+        ordenNumber: number,
         data: Partial<InstrumentoDTO>
     ): Promise<Instrumento | null> {
         return this.modelClient.update({
@@ -79,7 +79,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
     }
 
-    async deleteInstrumento(juzgadoId: string, ordenNumber: string): Promise<Instrumento | null> {
+    async deleteInstrumento(juzgadoId: number, ordenNumber: number): Promise<Instrumento | null> {
         return this.modelClient.delete({
             where: {
                 juzgadoId_ordenNumber: {

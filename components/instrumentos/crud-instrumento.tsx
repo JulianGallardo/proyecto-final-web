@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/dialog"
 import { TooltipProvider } from "@radix-ui/react-tooltip"
 import { Plus } from "@mynaui/icons-react"
-import { InstrumentoExtendido } from "@/types/instrumento"
-import { getInstrumentos } from "@/actions/instrumentos-actions"
+import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
+import { createInstrumento, getInstrumentos, updateInstrumento } from "@/actions/instrumentos-actions"
 
 // Datos de ejemplo
 
@@ -46,15 +46,39 @@ export function CrudInstrumentos() {
 
         return () => window.removeEventListener("resize", handleResize)
     }, [])
-    
+
 
     const handleCrear = (nuevoInstrumento: InstrumentoExtendido) => {
         setInstrumentos([...instrumentos, nuevoInstrumento])
+        const instrumentDto: InstrumentoDTO = {
+            entryDate: nuevoInstrumento.entryDate,
+            exitDate: nuevoInstrumento.exitDate,
+            caratula: nuevoInstrumento.caratula,
+            destinatario: nuevoInstrumento.destinatario,
+            address: nuevoInstrumento.address,
+            ordenNumber: nuevoInstrumento.ordenNumber,
+            juzgadoId: nuevoInstrumento.juzgadoId,
+            instrumentoTypeId: nuevoInstrumento.instrumentoTypeId,
+        }
+        console.log(instrumentDto)
+        createInstrumento(instrumentDto)
         setDialogoAbierto(false)
     }
 
     const handleEditar = (instrumentoEditado: InstrumentoExtendido) => {
         setInstrumentos(instrumentos.map(i => i.juzgadoId === instrumentoEditado.juzgadoId && i.ordenNumber === instrumentoEditado.ordenNumber ? instrumentoEditado : i))
+        
+        const instrumentDto: InstrumentoDTO = {
+            entryDate: instrumentoEditado.entryDate,
+            exitDate: instrumentoEditado.exitDate,
+            caratula: instrumentoEditado.caratula,
+            destinatario: instrumentoEditado.destinatario,
+            address: instrumentoEditado.address,
+            ordenNumber: instrumentoEditado.ordenNumber,
+            juzgadoId: instrumentoEditado.juzgadoId,
+            instrumentoTypeId: instrumentoEditado.instrumentoTypeId,
+        }
+        updateInstrumento(instrumentoEditado.juzgadoId, instrumentoEditado.instrumentoTypeId, instrumentDto)
         setInstrumentoEditando(null)
         setDialogoAbierto(false)
     }

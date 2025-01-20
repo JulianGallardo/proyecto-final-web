@@ -53,11 +53,11 @@ export async function createInstrumento(data:InstrumentoDTO) {
     return instrumentosRepo.createInstrumento(data);
 }
 
-export async function deleteInstrumento(juzgadoId: string, ordenNumber:string) {
+export async function deleteInstrumento(juzgadoId: number, ordenNumber:number) {
     return instrumentosRepo.deleteInstrumento(juzgadoId,ordenNumber);
 }
 
-export async function updateInstrumento(juzgadoId: string, ordenNumber:string,  data: InstrumentoDTO) {
+export async function updateInstrumento(juzgadoId: number, ordenNumber:number,  data: InstrumentoDTO) {
     return instrumentosRepo.updateInstrumento(juzgadoId,ordenNumber, data);
 }
 

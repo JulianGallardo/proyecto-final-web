@@ -15,13 +15,17 @@ import {
 import { TooltipProvider } from "@radix-ui/react-tooltip"
 import { Plus } from "@mynaui/icons-react"
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
-import { createInstrumento, getInstrumentos, updateInstrumento } from "@/actions/instrumentos-actions"
+import { createInstrumento, getInstrumentos, getInstrumentTypes, getJuzgados, updateInstrumento } from "@/actions/instrumentos-actions"
+import FiltrosList from "./filtros-list"
+import { InstrumentoType, Juzgado } from "@prisma/client"
 
 // Datos de ejemplo
 
 
 export function CrudInstrumentos() {
     const [instrumentos, setInstrumentos] = React.useState<InstrumentoExtendido[]>([])
+    const [Juzgados, setJuzgados] = React.useState<Juzgado[]>([])
+    const [instrumentoTypes, setInstrumentoTypes] = React.useState<InstrumentoType[]>([])
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | null>(null)
     const [dialogoAbierto, setDialogoAbierto] = React.useState(false)
     const [isMobile, setMobile] = React.useState(false)
@@ -34,7 +38,23 @@ export function CrudInstrumentos() {
             console.log(instrumentos)
             setInstrumentos(instrumentos)
         }
+
+        const fecthJuzgados = async () => {
+            const juzgados = await getJuzgados()
+            setJuzgados(juzgados)
+        }
+
+        const fetchInstrumentTypes = async () => {
+            const instrumentTypes = await getInstrumentTypes()
+            setInstrumentoTypes(instrumentTypes)
+        }
+
+
+
+
         fetchInstrumentos()
+        fecthJuzgados()
+        fetchInstrumentTypes()
     }, [])
 
     React.useEffect(() => {
@@ -59,7 +79,7 @@ export function CrudInstrumentos() {
     }
 
     const handleCrear = async (nuevoInstrumento: InstrumentoExtendido) => {
-        
+
         const instrumentDto: InstrumentoDTO = {
             entryDate: nuevoInstrumento.entryDate,
             exitDate: nuevoInstrumento.exitDate,
@@ -103,36 +123,41 @@ export function CrudInstrumentos() {
     return (
         <div className="space-y-4 p-4 w-full ">
             <TooltipProvider>
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col  w-full">
                     <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
-                    <Dialog open={dialogoAbierto} onOpenChange={handleClose} >
-                        <DialogTrigger asChild>
-                            {
-                                isMobile ? (
-                                    <Button className="bg-green-500 hover:bg-green-800">
-                                        <Plus />
-                                    </Button>
-                                ) : (
-                                    <Button className="bg-green-500 hover:bg-green-800">
-                                        Agregar Instrumento
-                                        <Plus />
-                                    </Button>
-                                )
-                            }
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>{instrumentoEditando ? "Editar" : "Crear"} Instrumento</DialogTitle>
-                                <DialogDescription>
-                                    {instrumentoEditando ? "Modifica los detalles del instrumento aquí." : "Ingresa los detalles del nuevo instrumento aquí."}
-                                </DialogDescription>
-                            </DialogHeader>
-                            <FormularioInstrumento
-                                instrumento={instrumentoEditando || undefined}
-                                onSubmit={instrumentoEditando ? handleEditar : handleCrear}
-                            />
-                        </DialogContent>
-                    </Dialog>
+                    <div className="flex justify-between items-center">
+                        <FiltrosList Juzgados={Juzgados} InstrumentTypes={instrumentoTypes} />
+                        <Dialog open={dialogoAbierto} onOpenChange={handleClose} >
+                            <DialogTrigger asChild>
+                                {
+                                    isMobile ? (
+                                        <Button className="bg-green-500 hover:bg-green-800">
+                                            <Plus />
+                                        </Button>
+                                    ) : (
+                                        <Button className="bg-green-500 hover:bg-green-800">
+                                            Agregar Instrumento
+                                            <Plus />
+                                        </Button>
+                                    )
+                                }
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                                <DialogHeader>
+                                    <DialogTitle>{instrumentoEditando ? "Editar" : "Crear"} Instrumento</DialogTitle>
+                                    <DialogDescription>
+                                        {instrumentoEditando ? "Modifica los detalles del instrumento aquí." : "Ingresa los detalles del nuevo instrumento aquí."}
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <FormularioInstrumento
+                                    Juzgados={Juzgados}
+                                    instrumentoTypes={instrumentoTypes}
+                                    instrumento={instrumentoEditando || undefined}
+                                    onSubmit={instrumentoEditando ? handleEditar : handleCrear}
+                                />
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                 </div>
 
                 <TablaInstrumentos

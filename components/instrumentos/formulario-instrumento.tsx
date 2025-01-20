@@ -24,11 +24,14 @@ import { InstrumentoType, Juzgado } from "@prisma/client"
 
 
 interface FormularioInstrumentoProps {
-  instrumento?: InstrumentoExtendido
-  onSubmit: (data: InstrumentoExtendido) => void
+  instrumento?: InstrumentoExtendido,
+  onSubmit: (data: InstrumentoExtendido) => void,
+  
+  Juzgados: Juzgado[],
+  instrumentoTypes: InstrumentoType[]
 }
 
-export function FormularioInstrumento({ instrumento, onSubmit }: Readonly<FormularioInstrumentoProps>) {
+export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes }: Readonly<FormularioInstrumentoProps>) {
   const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(instrumentSchema),
     defaultValues: {
@@ -41,22 +44,6 @@ export function FormularioInstrumento({ instrumento, onSubmit }: Readonly<Formul
     },
   })
 
-  const [Juzgados, setJuzgados] = React.useState<Juzgado[]>([])
-  const [instrumentoTypes, setInstrumentoTypes] = React.useState<InstrumentoType[]>([])
-
-  React.useEffect(() => {
-    const fetchJuzgados = async () => {
-      const juzgados = await getJuzgados()
-      setJuzgados(juzgados)
-    }
-    const fetchInstrumentTypes = async () => {
-      const instrumentTypes = await getInstrumentTypes()
-      setInstrumentoTypes(instrumentTypes)
-    }
-    fetchJuzgados()
-    fetchInstrumentTypes()
-
-  }, [])
 
   function handleSubmit(values: z.infer<typeof instrumentSchema>) {
 

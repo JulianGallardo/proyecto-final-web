@@ -8,8 +8,9 @@ import { useState } from "react"
 import { Checkbox } from "../ui/checkbox"
 import { Input } from "../ui/input"
 import { InstrumentoType, Juzgado } from "@prisma/client"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@radix-ui/react-select"
+
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
 
 interface FiltroListProps {
@@ -23,8 +24,8 @@ interface FiltroListProps {
 
 
 export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<FiltroListProps>) {
-    const [Juzgado, setJuzgado] = useState<string | null>(null);
-    const [InstrumentType, setInstrumentType] = useState<string | null>(null);
+    const [juzgado, setJuzgado] = useState<string | null>(null);
+    const [instrumentType, setInstrumentType] = useState<string | null>(null);
     const [open, setOpen] = useState(false);
     const searchParams = useSearchParams()
     const pathname = usePathname();
@@ -146,8 +147,14 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                         />
                     </Filtro>
                     <Filtro nameFiltro="Identificador de Juzgado" >
-                        <Select onValueChange={
-                            (e) => handleSearch("juzgado", e.toString())
+                        <Select
+                        defaultValue={juzgado ?? ""}
+                        value={juzgado ?? ""}
+                        onValueChange={
+                            (e) => {
+                                setJuzgado(e.toString());
+                                handleSearch("juzgado", e.toString())
+                            }
                         }  >
                             <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
                                 <SelectValue placeholder="Seleccione un Juzgado" className="text-sm" />
@@ -165,10 +172,12 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                     </Filtro>
                     <Filtro nameFiltro="Tipo de Instrumento" >
                         <Select
-
+                            defaultValue={instrumentType ?? ""}
+                            value={instrumentType ?? ""}
                             onValueChange={
                                 (e) => {
-
+                                    setInstrumentType(e.toString());
+                                    console.log(e.toString())
                                     handleSearch("instrumentType", e.toString())
                                 }
                             }  >

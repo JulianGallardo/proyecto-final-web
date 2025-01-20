@@ -8,6 +8,55 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         super(prisma.instrumento);
     }
 
+
+    async getInstrumentosPaginated(query: string, page: number){
+
+        const querys = query.split("&");
+        const querysMap = querys.map((query) => {
+            const [key, value] = query.split("=");
+            return {key, value};
+        });
+
+        const itemsPerPage = 5;
+
+       
+
+        const instrumentos = await this.modelClient.findMany({
+            skip: (page - 1) * itemsPerPage,
+            take: itemsPerPage,
+            select: {
+                entryDate: true,
+                exitDate: true,
+                caratula: true,
+                destinatario: true,
+                address: true,
+                ordenNumber: true,
+                juzgadoId: true,
+                instrumentoTypeId: true,
+                juzgado: {
+                    select: {
+                        name: true,
+                        identifier: true,
+                    },
+                },
+                instrumentoType: {
+                    select: {
+                        name: true,
+                        identifier: true,
+                    },
+                },
+                createdAt: true,
+                updatedAt: true,
+            },
+            
+        });
+
+        const totalPages = Math.ceil(instrumentosCount.length / itemsPerPage);
+
+        return {instrumentos, totalPages};
+    }
+
+
     async getInstrumentos(): Promise<InstrumentoExtendido[]> {
         return this.modelClient.findMany({
             select: {

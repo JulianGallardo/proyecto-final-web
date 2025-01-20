@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import TablaInstrumentos from "./tabla-instrumento"
 import { FormularioInstrumento } from "./formulario-instrumento"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,11 +17,15 @@ import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
 import { createInstrumento, getInstrumentos, getInstrumentTypes, getJuzgados, updateInstrumento } from "@/actions/instrumentos-actions"
 import FiltrosList from "./filtros-list"
 import { InstrumentoType, Juzgado } from "@prisma/client"
-
+import ServerSideTable from "./server-side-table"
 // Datos de ejemplo
 
 
 export function CrudInstrumentos() {
+
+    
+
+
     const [instrumentos, setInstrumentos] = React.useState<InstrumentoExtendido[]>([])
     const [Juzgados, setJuzgados] = React.useState<Juzgado[]>([])
     const [instrumentoTypes, setInstrumentoTypes] = React.useState<InstrumentoType[]>([])
@@ -118,7 +121,7 @@ export function CrudInstrumentos() {
     }
 
     return (
-        <div className="space-y-4 p-4 w-full ">
+        <div className="space-y-4 p-4 w-full h-full">
             <TooltipProvider>
                 <div className="flex flex-col  w-full">
                     <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
@@ -157,16 +160,21 @@ export function CrudInstrumentos() {
                     </div>
                 </div>
 
-                <TablaInstrumentos
-                    data={instrumentos}
-                    onEdit={(instrumento: InstrumentoExtendido) => {
+                <ServerSideTable
+                    onEdit={(instrumento) => {
                         setInstrumentoEditando(instrumento)
                         setDialogoAbierto(true)
                     }}
                     onDelete={handleEliminar}
                 />
+
+
+
+
+
             </TooltipProvider>
         </div>
     )
 }
+
 

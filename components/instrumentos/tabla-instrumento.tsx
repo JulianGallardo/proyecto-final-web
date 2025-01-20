@@ -8,27 +8,50 @@ import {
 } from "@tanstack/react-table";
 import { InstrumentoExtendido } from "@/types/instrumento";
 import { columns } from "./col-tabla-instrumento";
+import { TableSkeleton } from "./server-side-table";
+
+
 interface TablaInstrumentosProps {
-  data: InstrumentoExtendido[];
+  data: InstrumentoExtendido[][];
   onEdit: (instrumento: InstrumentoExtendido) => void;
   onDelete: (id: string) => void;
+  loading: boolean;
+  currentPage: number;
 }
 
 
-export default function TablaInstrumentos({
-  data,
+export function TablaInstrumentos({
   onEdit,
   onDelete,
+  data,
+  loading,
+  currentPage,
 }: Readonly<TablaInstrumentosProps>) {
+
   const [openDelete, setOpenDelete] = useState<string | null>(null);
 
-  const tableColumns = columns({ onEdit, onDelete, openDelete, setOpenDelete }); 
+  const tableColumns = columns({ onEdit, onDelete, openDelete, setOpenDelete });
+
+  const dataSelected = data[currentPage-1];
 
   const table = useReactTable({
-    data,
+    data: dataSelected,
     columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+
+
+
+  if (loading){
+    return (
+      <div className="flex flex-col items-center justify-between h-full w-full p-4 bg-white shadow-sm rounded-lg border border-gray-200">
+        <TableSkeleton />
+      </div>
+    )
+
+  }
+
 
   return (
     <div className="overflow-x-auto shadow-md rounded-lg">
@@ -67,6 +90,6 @@ export default function TablaInstrumentos({
       </table>
     </div>
   );
-  
-  
+
+
 }

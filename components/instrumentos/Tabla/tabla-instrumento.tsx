@@ -2,7 +2,6 @@
 
 import {
   flexRender,
-  getPaginationRowModel,
   getCoreRowModel,
   useReactTable,
   SortingState,

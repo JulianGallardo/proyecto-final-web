@@ -126,12 +126,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
                 }}
             />
 
-
-
-
-
-
-
         </div>
     )
 }

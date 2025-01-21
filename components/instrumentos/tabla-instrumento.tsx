@@ -11,7 +11,7 @@ import { columns } from "./col-tabla-instrumento";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "../ui/pagination";
 
 interface TablaInstrumentosProps {
-  data: InstrumentoExtendido[]; // Una sola página de datos
+  data: InstrumentoExtendido[]; 
   totalPages: number;
   currentPage: number;
   onEdit: (instrument: InstrumentoExtendido) => void;
@@ -21,7 +21,6 @@ interface TablaInstrumentosProps {
 }
 
 export function TablaInstrumentos({ data, totalPages, currentPage, onEdit, onDelete, openDelete, setOpenDelete }: Readonly<TablaInstrumentosProps>) {
-
 
   const tableColumns = useMemo(
     () => columns({ onEdit, onDelete, openDelete, setOpenDelete }),
@@ -91,7 +90,7 @@ export function TablaInstrumentos({ data, totalPages, currentPage, onEdit, onDel
               </PaginationItem>
             ))}
         </PaginationContent>
-      </Pagination>
+      </Pagination> 
       <div />
     </div>
   );

@@ -18,6 +18,7 @@ export default async function ServerSideTable({
   return (
     <div className="flex flex-col  bg-white border-gray-200 gap-4">
 
+      
       <TablaInstrumentos data={instrumentos}  />
       <PaginationInstruments currentPage={1} totalPages={totalPages} query={query} />
 

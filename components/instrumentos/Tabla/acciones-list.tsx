@@ -2,6 +2,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip
 import { Pencil, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstrumentoExtendido } from "@/types/instrumento";
+import InstrumentosDialogs from "../Dialogs/instrumentos-Dialogs";
 
 interface AccionesListProps {
     onEdit: (instrumento: InstrumentoExtendido) => void;
@@ -12,17 +13,13 @@ interface AccionesListProps {
     }
 
 
-export default function AccionesList({
-    onEdit,
-    instrumento,
-    openDelete,
-    setOpenDelete,
-    }: Readonly<AccionesListProps>) {
+export default function AccionesList() {
 
 
       
     return (
         <div className="flex flex-row gap-4 items-center p-2 w-full h-full">
+          
           {/* Botón Editar */}
           <Tooltip>
             <TooltipTrigger asChild>

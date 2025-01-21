@@ -24,6 +24,8 @@ export default async function InsturmentosPage(props: Readonly<{
   const [instrumentTypes, juzgados] = await Promise.all([instrumentTypesData, juzgadosData]);
 
 
+  
+
 
   return (
     <div className="w-full h-full flex flex-col gap-4 p-4">

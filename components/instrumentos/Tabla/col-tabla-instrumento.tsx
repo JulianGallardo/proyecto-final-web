@@ -31,7 +31,7 @@ const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 
 
 
-export const columns = ({ onEdit, onDelete, openDelete, setOpenDelete }: ColumnsProps): ColumnDef<InstrumentoExtendido>[] =>
+export const columns = (): ColumnDef<InstrumentoExtendido>[] =>
     [
 
         {
@@ -162,13 +162,7 @@ export const columns = ({ onEdit, onDelete, openDelete, setOpenDelete }: Columns
             },
             cell: ({ row }) => {
                 const instrumento = row.original;
-                return AccionesList({
-                    onEdit,
-                    onDelete,
-                    instrumento,
-                    openDelete,
-                    setOpenDelete,
-                });
+                return AccionesList();
             },
         },
     ];

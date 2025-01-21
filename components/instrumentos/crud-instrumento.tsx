@@ -1,24 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { FormularioInstrumento } from "./Forms/formulario-instrumento"
-import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
 
-import { Plus } from "@mynaui/icons-react"
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
 import { createInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
-import FiltrosList from "./filtros-list"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 import { TablaInstrumentos } from "./Tabla/tabla-instrumento"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "../ui/pagination"
 import InstrumentosDialogs from "./Dialogs/instrumentos-Dialogs"
 
 
@@ -97,15 +84,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
 
             <TablaInstrumentos
                 data={instrumentos}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                openDelete={null}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                setOpenDelete={function (id: string | null): void {
-                    console.log(id)
-                    throw new Error("Function not implemented.")
-                }}
             />
 
             

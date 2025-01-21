@@ -9,23 +9,18 @@ import {
 } from "@tanstack/react-table";
 import { InstrumentoExtendido } from "@/types/instrumento";
 import { columns } from "./col-tabla-instrumento";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 interface TablaInstrumentosProps {
   data: InstrumentoExtendido[];
-  onEdit: (instrument: InstrumentoExtendido) => void;
-  onDelete: (id: string) => void;
-  openDelete: string | null;
-  setOpenDelete: (id: string | null) => void;
 }
 
-export function TablaInstrumentos({ data,onEdit, onDelete, openDelete, setOpenDelete }: Readonly<TablaInstrumentosProps>) {
+export function TablaInstrumentos({ data }: Readonly<TablaInstrumentosProps>) {
 
   const [sorting, setSorting] = useState<SortingState>([])
 
 
-  const tableColumns = columns({ onEdit, onDelete, openDelete, setOpenDelete });
+  const tableColumns = columns();
 
   const coreRowModel = getCoreRowModel<InstrumentoExtendido>();
 

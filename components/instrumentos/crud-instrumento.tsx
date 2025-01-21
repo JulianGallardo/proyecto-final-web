@@ -52,7 +52,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
             juzgadoIdentifier: nuevoInstrumento.juzgado.identifier,
             instrumentoTypeIdentifier: nuevoInstrumento.instrumentoType.identifier,
         }
-        const instrumentoCreado = await createInstrumento(instrumentDto)
+        await createInstrumento(instrumentDto)
         setDialogoAbierto(false)
     }
 
@@ -85,9 +85,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         setDialogoAbierto(false)
     }
 
-    const handleEliminar = (id: string) => {
-        console.log(id)
-    }
 
     return (
         <div className="space-y-4 w-full h-full">
@@ -131,6 +128,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
                 onEdit={onEdit}
                 onDelete={onDelete}
                 setOpenDelete={function (id: string | null): void {
+                    console.log(id)
                     throw new Error("Function not implemented.")
                 }}
             />

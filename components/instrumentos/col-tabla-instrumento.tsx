@@ -1,5 +1,5 @@
 import { InstrumentoExtendido } from "@/types/instrumento";
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import AccionesList from "./acciones-list";
 
 interface ColumnsProps {
@@ -11,7 +11,7 @@ interface ColumnsProps {
 
 
 
-const FechaEntradaCell = ({ row }: { row: any }) => {
+const FechaEntradaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fecha: Date = row.getValue("entryDate");
     if (!fecha) return;
     return <span>{fecha.toLocaleDateString(
@@ -20,7 +20,7 @@ const FechaEntradaCell = ({ row }: { row: any }) => {
     )}</span>;
 };
 
-const FechaSalidaCell = ({ row }: { row: any }) => {
+const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fecha: Date = row.getValue("exitDate");
     if (!fecha) return;
     return <span>{fecha.toLocaleDateString(

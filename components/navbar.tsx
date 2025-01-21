@@ -2,8 +2,6 @@
 
 import { headers } from "next/headers";
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { Truck, Map, Package, ChartGraph, Home, Logout, Menu } from "@mynaui/icons-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -29,6 +27,8 @@ export default async function Navbar() {
  const heads = headers()
 
  const pathname = heads.get('next-url')
+
+ console.log(pathname)
 
   if (!session) {
     return null

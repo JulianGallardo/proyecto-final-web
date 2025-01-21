@@ -14,7 +14,6 @@ interface AccionesListProps {
 
 export default function AccionesList({
     onEdit,
-    onDelete,
     instrumento,
     openDelete,
     setOpenDelete,

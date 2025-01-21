@@ -50,20 +50,25 @@ export async function getInstrumentos() {
 }
 
 export async function getInstrumentosPaginated(query: string, page: number) {
-    const {instrumentos,totalPages} = await instrumentosRepo.getInstrumentosPaginated(query,page);
-    return {instrumentos,totalPages};
+    const instrumentos = await instrumentosRepo.getInstrumentosPaginated(query, page);
+    return instrumentos;
 }
 
-export async function createInstrumento(data:InstrumentoDTO) {
+export async function getTotalPagesInstrumentosPaginated(query: string) {
+    const totalPages = await instrumentosRepo.getTotalPagesInstrumentosPaginated(query);
+    return totalPages;
+}
+
+export async function createInstrumento(data: InstrumentoDTO) {
     return await instrumentosRepo.createInstrumento(data);
 }
 
-export async function deleteInstrumento(juzgadoId: number, ordenNumber:number) {
-    return  await instrumentosRepo.deleteInstrumento(juzgadoId,ordenNumber);
+export async function deleteInstrumento(juzgadoId: number, ordenNumber: number) {
+    return await instrumentosRepo.deleteInstrumento(juzgadoId, ordenNumber);
 }
 
-export async function updateInstrumento(juzgadoId: number, ordenNumber:number,  data: InstrumentoDTO) {
-    return await instrumentosRepo.updateInstrumento(juzgadoId,ordenNumber, data);
+export async function updateInstrumento(juzgadoId: number, ordenNumber: number, data: InstrumentoDTO) {
+    return await instrumentosRepo.updateInstrumento(juzgadoId, ordenNumber, data);
 }
 
 

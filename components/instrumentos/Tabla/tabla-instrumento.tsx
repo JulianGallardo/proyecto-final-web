@@ -1,17 +1,20 @@
-
+"use client";
 
 import {
   flexRender,
+  getPaginationRowModel,
   getCoreRowModel,
   useReactTable,
+  SortingState,
+  getSortedRowModel
 } from "@tanstack/react-table";
 import { InstrumentoExtendido } from "@/types/instrumento";
 import { columns } from "./col-tabla-instrumento";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface TablaInstrumentosProps {
   data: InstrumentoExtendido[];
-  totalPages: number;
-  currentPage: number;
   onEdit: (instrument: InstrumentoExtendido) => void;
   onDelete: (id: string) => void;
   openDelete: string | null;
@@ -20,7 +23,7 @@ interface TablaInstrumentosProps {
 
 export function TablaInstrumentos({ data,onEdit, onDelete, openDelete, setOpenDelete }: Readonly<TablaInstrumentosProps>) {
 
-
+  const [sorting, setSorting] = useState<SortingState>([])
 
 
   const tableColumns = columns({ onEdit, onDelete, openDelete, setOpenDelete });
@@ -31,6 +34,11 @@ export function TablaInstrumentos({ data,onEdit, onDelete, openDelete, setOpenDe
     data,
     columns: tableColumns,
     getCoreRowModel: coreRowModel,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting,
+    },
   });
 
   return (

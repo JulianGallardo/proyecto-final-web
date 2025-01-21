@@ -2,11 +2,33 @@ import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Instrumento } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
+import { skip } from "node:test";
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
     constructor() {
         super(prisma.instrumento);
     }
+
+
+
+    async getTotalPagesInstrumentosPaginated(query: string) {
+        const querys = query.split("&");
+        const querysMap = querys.map((query) => {
+            const [key, value] = query.split("=");
+            return {key, value};
+        });
+
+        const itemsPerPage = 5;
+
+        const instrumentosCountPromise = await this.modelClient.count({});
+
+        const [instrumentosCount] = await Promise.all([instrumentosCountPromise]);
+
+        const totalPages = Math.ceil(instrumentosCount / itemsPerPage);
+
+        return totalPages;
+    }
+
 
 
     async getInstrumentosPaginated(query: string, page: number){
@@ -52,17 +74,10 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             
         });
 
-        
-        const instrumentosCountPromise = await this.modelClient.count({});
+        const [instrumentos] = await Promise.all([instrumentosPromise]);
 
 
-        const [instrumentos, instrumentosCount] = await Promise.all([instrumentosPromise, instrumentosCountPromise]);
-
-
-        const totalPages = Math.ceil(instrumentosCount / itemsPerPage);
-
-
-        return {instrumentos, totalPages};
+        return instrumentos;
     }
 
 

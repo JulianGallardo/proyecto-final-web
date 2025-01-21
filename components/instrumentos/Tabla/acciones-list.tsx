@@ -1,6 +1,6 @@
 import { Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip";
 import { Pencil, Trash } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { InstrumentoExtendido } from "@/types/instrumento";
 
 interface AccionesListProps {

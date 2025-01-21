@@ -7,12 +7,11 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { useState } from "react"
-import { Checkbox } from "../ui/checkbox"
-import { Input } from "../ui/input"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 
 interface FiltroListProps {

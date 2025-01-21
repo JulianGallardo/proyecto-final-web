@@ -1,5 +1,6 @@
-"use client"
 
+
+import { headers } from "next/headers";
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -13,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import BtnLogout from "@/components/auth/btn-logout"
+import { auth } from "@/auth"
 
 const navItems = [
   { href: "/zonas", label: "Zonas", icon: Map },
@@ -21,9 +23,12 @@ const navItems = [
   { href: "/control", label: "Control", icon: ChartGraph },
 ]
 
-export default function Navbar() {
-  const pathname = usePathname()
-  const { data: session } = useSession()
+export default async function Navbar() {
+  const session = await auth()
+
+ const heads = headers()
+
+ const pathname = heads.get('next-url')
 
   if (!session) {
     return null

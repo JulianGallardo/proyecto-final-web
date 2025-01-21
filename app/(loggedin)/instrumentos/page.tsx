@@ -24,7 +24,7 @@ export default async function InsturmentosPage(props: Readonly<{
   const [instrumentTypes, juzgados] = await Promise.all([instrumentTypesData, juzgadosData]);
 
 
-  
+
 
 
   return (
@@ -34,6 +34,9 @@ export default async function InsturmentosPage(props: Readonly<{
       <FiltrosList Juzgados={juzgados} InstrumentTypes={instrumentTypes} />
       <Suspense fallback={<TableSkeleton />}>
         <ServerSideTable
+
+          Juzgados={juzgados}
+          instrumentosType={instrumentTypes}
           currentPage={Number(searchParams?.page) || 1}
           query={searchParams?.query ?? ''}
         />

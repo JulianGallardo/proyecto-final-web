@@ -162,7 +162,11 @@ export const columns = (): ColumnDef<InstrumentoExtendido>[] =>
             },
             cell: ({ row }) => {
                 const instrumento = row.original;
-                return AccionesList();
+                return AccionesList(
+                    {
+                        Instrumento: instrumento,
+                    }
+                );
             },
         },
     ];

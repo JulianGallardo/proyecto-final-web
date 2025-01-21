@@ -12,6 +12,7 @@ import { InstrumentoType, Juzgado } from "@prisma/client"
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 interface FiltroListProps {
@@ -209,9 +210,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
 interface FiltroProps {
     children?: React.ReactNode;
     nameFiltro: string;
-
 }
-
 
 function Filtro({ nameFiltro, children }: Readonly<FiltroProps>) {
     const [activado, setActivado] = useState(false);

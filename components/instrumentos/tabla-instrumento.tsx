@@ -20,7 +20,10 @@ interface TablaInstrumentosProps {
   setOpenDelete: (id: string | null) => void;
 }
 
-export function TablaInstrumentos({ data, totalPages, currentPage, onEdit, onDelete, openDelete, setOpenDelete }: Readonly<TablaInstrumentosProps>) {
+export function TablaInstrumentos({ data, totalPages, currentPage, onEdit, onDelete, openDelete,setOpenDelete }: Readonly<TablaInstrumentosProps>) {
+
+
+
 
   const tableColumns = useMemo(
     () => columns({ onEdit, onDelete, openDelete, setOpenDelete }),

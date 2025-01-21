@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import ServerSideTable, { TableSkeleton } from "./server-side-table";
+import ServerSideTable from "@/components/instrumentos/server-side-table";
+import {TableSkeleton} from "@/components/instrumentos/list-skeleton";
 import {  getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
 
 

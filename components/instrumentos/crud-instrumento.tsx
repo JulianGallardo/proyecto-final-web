@@ -56,6 +56,16 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         setDialogoAbierto(false)
     }
 
+    const onEdit = (instrumento: InstrumentoExtendido) => {
+        setInstrumentoEditando(instrumento)
+        setDialogoAbierto(true)
+    }
+
+    const onDelete = (id: string) => {
+        console.log(id)
+    }
+
+
     const handleEditar = async (instrumentoEditado: InstrumentoExtendido) => {
         if (!instrumentoEditando) return
 
@@ -69,7 +79,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
             instrumentoTypeIdentifier: instrumentoEditado.instrumentoType.identifier,
         }
         const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentDto)
-        console.log(instrumentoActualizado)
         if (!instrumentoActualizado) return
 
         setInstrumentoEditando(null)
@@ -119,8 +128,8 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
                 currentPage={currentPage}
                 totalPages={totalPages}
                 openDelete={null}
-                onEdit={handleEditar}
-                onDelete={handleEliminar}
+                onEdit={onEdit}
+                onDelete={onDelete}
                 setOpenDelete={function (id: string | null): void {
                     throw new Error("Function not implemented.")
                 }}

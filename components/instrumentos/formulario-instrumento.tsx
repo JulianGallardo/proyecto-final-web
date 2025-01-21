@@ -16,7 +16,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { InstrumentoExtendido } from "@/types/instrumento"
 import { instrumentSchema } from "@/lib/zod"
-import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 

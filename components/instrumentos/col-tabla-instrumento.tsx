@@ -2,8 +2,6 @@ import { InstrumentoExtendido } from "@/types/instrumento";
 import { ColumnDef } from "@tanstack/react-table";
 import AccionesList from "./acciones-list";
 
-
-
 interface ColumnsProps {
     onEdit: (instrumento: InstrumentoExtendido) => void;
     onDelete: (id: string) => void;
@@ -34,9 +32,6 @@ const FechaSalidaCell = ({ row }: { row: any }) => {
 
 
 export const columns = ({ onEdit, onDelete, openDelete, setOpenDelete }: ColumnsProps): ColumnDef<InstrumentoExtendido>[] => 
-    
-    
-
 [
 
     {

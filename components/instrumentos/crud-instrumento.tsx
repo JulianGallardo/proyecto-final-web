@@ -31,23 +31,6 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, currentPage, totalPages }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | null>(null)
     const [dialogoAbierto, setDialogoAbierto] = React.useState(false)
-    const [isMobile, setMobile] = React.useState(true)
-
-
-
-
-
-    React.useEffect(() => {
-        const handleResize = () => {
-            setMobile(window.innerWidth < 640)
-        }
-
-        window.addEventListener("resize", handleResize)
-        handleResize()
-
-        return () => window.removeEventListener("resize", handleResize)
-    }, [])
-
 
     const handleClose = (open: boolean) => {
         if (!open) {
@@ -101,22 +84,17 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         <div className="space-y-4 w-full h-full">
 
             <div className="flex flex-col  w-full">
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col md:flex-row md:justify-between gap-4">
                     <FiltrosList Juzgados={Juzgados} InstrumentTypes={instrumentoTypes} />
                     <Dialog open={dialogoAbierto} onOpenChange={handleClose} >
                         <DialogTrigger asChild>
-                            {
-                                isMobile ? (
-                                    <Button className="bg-green-500 hover:bg-green-800">
-                                        <Plus />
-                                    </Button>
-                                ) : (
-                                    <Button className="bg-green-500 hover:bg-green-800">
-                                        Agregar Instrumento
-                                        <Plus />
-                                    </Button>
-                                )
-                            }
+
+                            <Button className="bg-green-500 hover:bg-green-800">
+                                Agregar Instrumento
+                                <Plus />
+                            </Button>
+
+
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
@@ -142,7 +120,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
                 totalPages={totalPages}
                 openDelete={null}
                 onEdit={handleEditar}
-                onDelete={handleEliminar} 
+                onDelete={handleEliminar}
                 setOpenDelete={function (id: string | null): void {
                     throw new Error("Function not implemented.")
                 }}

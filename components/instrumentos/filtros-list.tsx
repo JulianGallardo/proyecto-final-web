@@ -69,17 +69,17 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
     return (
         <Accordion
             type="single"
-            
+
             collapsible
-            
-            className="border border-gray-200 rounded-lg shadow-sm"
-            
+
+            className="border border-gray-200 rounded-lg "
+
         >
-            <AccordionItem value="item-1" className="overflow-hidden ">
+            <AccordionItem value="filtros" className="overflow-hidden ">
                 <AccordionTrigger onClick={() => handleOpen(!open)} className="flex items-center justify-between px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium">
                     Filtros
                 </AccordionTrigger>
-                <AccordionContent className="px-4 py-3 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
+                <AccordionContent className="p-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 ">
                     <Filtro nameFiltro="Fecha de Entrada"  >
                         <Input
                             type="date"
@@ -148,14 +148,14 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                     </Filtro>
                     <Filtro nameFiltro="Identificador de Juzgado" >
                         <Select
-                        defaultValue={juzgado ?? ""}
-                        value={juzgado ?? ""}
-                        onValueChange={
-                            (e) => {
-                                setJuzgado(e.toString());
-                                handleSearch("juzgado", e.toString())
-                            }
-                        }  >
+                            defaultValue={juzgado ?? ""}
+                            value={juzgado ?? ""}
+                            onValueChange={
+                                (e) => {
+                                    setJuzgado(e.toString());
+                                    handleSearch("juzgado", e.toString())
+                                }
+                            }  >
                             <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
                                 <SelectValue placeholder="Seleccione un Juzgado" className="text-sm" />
                             </SelectTrigger>
@@ -218,14 +218,16 @@ function Filtro({ nameFiltro, children }: Readonly<FiltroProps>) {
     const [activado, setActivado] = useState(false);
 
     return (
-        <AccordionContent className="flex items-center space-x-3 px-4 ">
-            <Checkbox
-                checked={activado}
-                onClick={() => setActivado(!activado)}
-                className={`w-5 h-5 border-2 rounded-md ${activado ? "bg-blue-500 border-blue-500" : "border-gray-400"
-                    }`}
-            />
-            <span>{nameFiltro}</span>
+        <AccordionContent className="flex flex-col  gap-2 ">
+            <div className="flex flex-row gap-2">
+                <Checkbox
+                    checked={activado}
+                    onClick={() => setActivado(!activado)}
+                    className={`w-5 h-5 border-2 rounded-md ${activado ? "bg-blue-500 border-blue-500" : "border-gray-400"
+                        }`}
+                />
+                <span>{nameFiltro}</span>
+            </div>
             {activado && (
                 children
             )}

@@ -15,8 +15,11 @@ export default async function InstrumentosPages(props: Readonly<{
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || 1;
 
-    const instrumentTypes = await getInstrumentTypes();
-    const juzgados = await getJuzgados();
+
+    
+    const instrumentTypesData = await getInstrumentTypes();
+    const juzgadosData = await getJuzgados();
+    const [instrumentTypes, juzgados] = await Promise.all([instrumentTypesData, juzgadosData]);
 
     return (
         <div className="w-full h-full">

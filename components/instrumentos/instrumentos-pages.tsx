@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import ServerSideTable from "@/components/instrumentos/server-side-table";
-import {TableSkeleton} from "@/components/instrumentos/list-skeleton";
+import { TableSkeleton } from "./Skeletons/list-skeleton";
 import {  getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
 
 
@@ -24,10 +24,11 @@ export default async function InstrumentosPages(props: Readonly<{
 
     return (
         <div className="w-full h-full">
+
             <Suspense fallback={<TableSkeleton />}>
                 <ServerSideTable
                     Juzgados={juzgados}
-                    instrumentTypes={instrumentTypes}
+                    instrumentoTypes={instrumentTypes}
                     currentPage={currentPage}
                     query={query}
                 />

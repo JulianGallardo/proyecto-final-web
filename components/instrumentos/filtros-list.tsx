@@ -1,3 +1,5 @@
+"use client";
+
 import {
     Accordion,
     AccordionContent,
@@ -19,10 +21,6 @@ interface FiltroListProps {
 }
 
 
-
-
-
-
 export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<FiltroListProps>) {
     const [juzgado, setJuzgado] = useState<string | null>(null);
     const [instrumentType, setInstrumentType] = useState<string | null>(null);
@@ -30,6 +28,8 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
     const searchParams = useSearchParams()
     const pathname = usePathname();
     const { replace } = useRouter();
+
+    
 
     function handleSearch(query: string, term: string) {
         const params = new URLSearchParams(searchParams)

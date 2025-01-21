@@ -18,6 +18,7 @@ import { createInstrumento, updateInstrumento } from "@/actions/instrumentos-act
 import FiltrosList from "./filtros-list"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 import { TablaInstrumentos } from "./tabla-instrumento"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "../ui/pagination"
 
 
 interface CrudInstrumentosProps {
@@ -31,6 +32,7 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, currentPage, totalPages }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | null>(null)
     const [dialogoAbierto, setDialogoAbierto] = React.useState(false)
+    
 
     const handleClose = (open: boolean) => {
         if (!open) {
@@ -89,36 +91,8 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     return (
         <div className="space-y-4 w-full h-full">
 
-            <div className="flex flex-col  w-full">
-                <div className="flex flex-col md:flex-row md:justify-between gap-4">
-                    <FiltrosList Juzgados={Juzgados} InstrumentTypes={instrumentoTypes} />
-                    <Dialog open={dialogoAbierto} onOpenChange={handleClose} >
-                        <DialogTrigger asChild>
+            {Dialogs(dialogoAbierto, handleClose, instrumentoEditando, Juzgados, instrumentoTypes, handleEditar, handleCrear)}
 
-                            <Button className="bg-green-500 hover:bg-green-800">
-                                Agregar Instrumento
-                                <Plus />
-                            </Button>
-
-
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>{instrumentoEditando ? "Editar" : "Crear"} Instrumento</DialogTitle>
-                                <DialogDescription>
-                                    {instrumentoEditando ? "Modifica los detalles del instrumento aquí." : "Ingresa los detalles del nuevo instrumento aquí."}
-                                </DialogDescription>
-                            </DialogHeader>
-                            <FormularioInstrumento
-                                Juzgados={Juzgados}
-                                instrumentoTypes={instrumentoTypes}
-                                instrumento={instrumentoEditando || undefined}
-                                onSubmit={instrumentoEditando ? handleEditar : handleCrear}
-                            />
-                        </DialogContent>
-                    </Dialog>
-                </div>
-            </div>
 
             <TablaInstrumentos
                 data={instrumentos}
@@ -133,8 +107,69 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
                 }}
             />
 
-        </div>
+            <Pagination className="mt-4">
+                <PaginationContent className="flex space-x-2">
+                    {totalPages > 0 &&
+                        Array.from({ length: totalPages }, (_, i) => (
+                            <PaginationItem key={i + 1} className="text-sm">
+                                <PaginationLink
+                                    href={`?page=${i + 1}`}
+                                    className={`px-3 py-1 rounded-md border ${currentPage === i + 1
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-gray-100 border-gray-300 hover:bg-blue-500 hover:text-white"
+                                        } transition-colors duration-200`}
+                                >
+                                    {i + 1}
+                                </PaginationLink>
+                            </PaginationItem>
+                        ))}
+                </PaginationContent>
+            </Pagination>
+
+
+
+        </div >
     )
 }
 
+
+function Dialogs(dialogoAbierto: boolean, handleClose: (open: boolean) => void, instrumentoEditando: InstrumentoExtendido | null, Juzgados: { name: string; id: number; identifier: string; createdAt: Date; updatedAt: Date }[], instrumentoTypes: { name: string; id: number; identifier: string; createdAt: Date; updatedAt: Date }[], handleEditar: (instrumentoEditado: InstrumentoExtendido) => Promise<void>, handleCrear: (nuevoInstrumento: InstrumentoExtendido) => Promise<void>) {
+
+    return (
+        <>
+            <Dialog open={dialogoAbierto} onOpenChange={handleClose}>
+                <DialogTrigger asChild>
+
+                    <Button className="bg-green-500 hover:bg-green-800">
+                        Agregar Instrumento
+                        <Plus />
+                    </Button>
+
+
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>{instrumentoEditando ? "Editar" : "Crear"} Instrumento</DialogTitle>
+                        <DialogDescription>
+                            {instrumentoEditando ? "Modifica los detalles del instrumento aquí." : "Ingresa los detalles del nuevo instrumento aquí."}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <FormularioInstrumento
+                        Juzgados={Juzgados}
+                        instrumentoTypes={instrumentoTypes}
+                        instrumento={instrumentoEditando || undefined}
+                        onSubmit={instrumentoEditando ? handleEditar : handleCrear} />
+                </DialogContent>
+            </Dialog>
+            <>
+                {
+                    //TODO: DELETE DIALOG
+                }
+
+            </>
+
+        </>
+    )
+
+}
 

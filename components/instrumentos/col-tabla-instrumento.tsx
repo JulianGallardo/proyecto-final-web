@@ -31,51 +31,51 @@ const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 
 
 
-export const columns = ({ onEdit, onDelete, openDelete, setOpenDelete }: ColumnsProps): ColumnDef<InstrumentoExtendido>[] => 
-[
+export const columns = ({ onEdit, onDelete, openDelete, setOpenDelete }: ColumnsProps): ColumnDef<InstrumentoExtendido>[] =>
+    [
 
-    {
-        accessorKey: "entryDate",
-        header: "Fecha de Entrada",
-        cell: FechaEntradaCell,
-    },
-    {
-        accessorKey: "exitDate",
-        header: "Fecha de Salida",
-        cell: FechaSalidaCell,
-    },
-    { accessorKey: "caratula", header: "Carátula" },
-    { accessorKey: "destinatario", header: "Destinatario" },
-    { accessorKey: "address", header: "Dirección" },
-    { accessorKey: "ordenNumber", header: "Número de Orden" },
-    {
-        accessorKey: "juzgado", header: "Identificador de Juzgado",
-        cell: ({ row }) => {
-            const juzgado = row.original.juzgado;
-            return <span>{juzgado.identifier}</span>;
+        {
+            accessorKey: "entryDate",
+            header: "Fecha de Entrada",
+            cell: FechaEntradaCell,
         },
-
-    },
-    {
-        accessorKey: "intrumentoType", header: "Tipo de Instrumento",
-        cell: ({ row }) => {
-            const instrumentoType = row.original.instrumentoType;
-            return <span>{instrumentoType.name}</span>;
+        {
+            accessorKey: "exitDate",
+            header: "Fecha de Salida",
+            cell: FechaSalidaCell,
         },
-    },
-    {
-        id: "acciones",
-        header: "Acciones",
-        cell: ({ row }) => {
-            const instrumento = row.original;
-            return AccionesList({
-                onEdit,
-                onDelete,
-                instrumento,
-                openDelete,
-                setOpenDelete,
-            });
+        { accessorKey: "caratula", header: "Carátula" },
+        { accessorKey: "destinatario", header: "Destinatario" },
+        { accessorKey: "address", header: "Dirección" },
+        { accessorKey: "ordenNumber", header: "Número de Orden" },
+        {
+            accessorKey: "juzgado", header: "Identificador de Juzgado",
+            cell: ({ row }) => {
+                const juzgado = row.original.juzgado;
+                return <span>{juzgado.identifier}</span>;
+            },
 
         },
-    },
-  ];
+        {
+            accessorKey: "intrumentoType", header: "Tipo de Instrumento",
+            cell: ({ row }) => {
+                const instrumentoType = row.original.instrumentoType;
+                return <span>{instrumentoType.name}</span>;
+            },
+        },
+        {
+            id: "acciones",
+            header: "Acciones",
+            cell: ({ row }) => {
+                const instrumento = row.original;
+                return AccionesList({
+                    onEdit,
+                    onDelete,
+                    instrumento,
+                    openDelete,
+                    setOpenDelete,
+                });
+
+            },
+        },
+    ];

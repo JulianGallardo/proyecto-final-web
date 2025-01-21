@@ -26,11 +26,11 @@ export function TableSkeleton() {
 
 function FiltersSkeleton() {
     return (
-        <div className="flex flex-col md:flex-row md:justify-between  w-full h-full">
+        <div className="flex flex-col md:flex-row md:justify-between  w-full h-full gap-2">
             {Array.from({ length: 2 }, (_, i) => (
                 <div
                     key={i}
-                    className="w-20 h-10 bg-gray-200 rounded-md"
+                    className="w-full md:w-20 h-full bg-gray-200 rounded-md "
                 ></div>
             ))}
         </div>

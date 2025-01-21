@@ -14,22 +14,17 @@ interface TablaInstrumentosProps {
   data: InstrumentoExtendido[]; // Una sola página de datos
   totalPages: number;
   currentPage: number;
+  onEdit: (instrument: InstrumentoExtendido) => void;
+  onDelete: (id: string) => void;
+  openDelete: string | null;
+  setOpenDelete: (id: string | null) => void;
 }
 
-export function TablaInstrumentos({ data, totalPages, currentPage }: Readonly<TablaInstrumentosProps>) {
+export function TablaInstrumentos({ data, totalPages, currentPage, onEdit, onDelete, openDelete, setOpenDelete }: Readonly<TablaInstrumentosProps>) {
 
-
-  const onEdit = (instrument: InstrumentoExtendido) => {
-    // Implementar funcionalidad de edición
-    console.log("Edit:", instrument);
-  };
-
-  const onDelete = (id: string) => {
-    console.log("Delete:", id);
-  };
 
   const tableColumns = useMemo(
-    () => columns({ onEdit, onDelete, openDelete: null, setOpenDelete: () => { } }),
+    () => columns({ onEdit, onDelete, openDelete, setOpenDelete }),
     [onEdit, onDelete]
   );
 

@@ -17,18 +17,22 @@ import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
 import { createInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import FiltrosList from "./filtros-list"
 import { InstrumentoType, Juzgado } from "@prisma/client"
+import { TablaInstrumentos } from "./tabla-instrumento"
 
 
 interface CrudInstrumentosProps {
     instrumentos: InstrumentoExtendido[]
     Juzgados: Juzgado[]
-    instrumentoTypes: InstrumentoType[]
+    instrumentoTypes: InstrumentoType[],
+    currentPage: number,
+    totalPages: number
 }
 
-export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: Readonly<CrudInstrumentosProps>) {
+export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, currentPage, totalPages }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | null>(null)
     const [dialogoAbierto, setDialogoAbierto] = React.useState(false)
-    const [isMobile, setMobile] = React.useState(false)
+    const [isMobile, setMobile] = React.useState(true)
+
 
 
 
@@ -94,48 +98,58 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
     }
 
     return (
-        <div className="space-y-4 p-4 ">
-            
-                <div className="flex flex-col  w-full">
-                    <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
-                    <div className="flex justify-between items-center">
-                        <FiltrosList Juzgados={Juzgados} InstrumentTypes={instrumentoTypes} />
-                        <Dialog open={dialogoAbierto} onOpenChange={handleClose} >
-                            <DialogTrigger asChild>
-                                {
-                                    isMobile ? (
-                                        <Button className="bg-green-500 hover:bg-green-800">
-                                            <Plus />
-                                        </Button>
-                                    ) : (
-                                        <Button className="bg-green-500 hover:bg-green-800">
-                                            Agregar Instrumento
-                                            <Plus />
-                                        </Button>
-                                    )
-                                }
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                                <DialogHeader>
-                                    <DialogTitle>{instrumentoEditando ? "Editar" : "Crear"} Instrumento</DialogTitle>
-                                    <DialogDescription>
-                                        {instrumentoEditando ? "Modifica los detalles del instrumento aquí." : "Ingresa los detalles del nuevo instrumento aquí."}
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <FormularioInstrumento
-                                    Juzgados={Juzgados}
-                                    instrumentoTypes={instrumentoTypes}
-                                    instrumento={instrumentoEditando || undefined}
-                                    onSubmit={instrumentoEditando ? handleEditar : handleCrear}
-                                />
-                            </DialogContent>
-                        </Dialog>
-                    </div>
+        <div className="space-y-4 w-full h-full">
+
+            <div className="flex flex-col  w-full">
+                <div className="flex justify-between items-center">
+                    <FiltrosList Juzgados={Juzgados} InstrumentTypes={instrumentoTypes} />
+                    <Dialog open={dialogoAbierto} onOpenChange={handleClose} >
+                        <DialogTrigger asChild>
+                            {
+                                isMobile ? (
+                                    <Button className="bg-green-500 hover:bg-green-800">
+                                        <Plus />
+                                    </Button>
+                                ) : (
+                                    <Button className="bg-green-500 hover:bg-green-800">
+                                        Agregar Instrumento
+                                        <Plus />
+                                    </Button>
+                                )
+                            }
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>{instrumentoEditando ? "Editar" : "Crear"} Instrumento</DialogTitle>
+                                <DialogDescription>
+                                    {instrumentoEditando ? "Modifica los detalles del instrumento aquí." : "Ingresa los detalles del nuevo instrumento aquí."}
+                                </DialogDescription>
+                            </DialogHeader>
+                            <FormularioInstrumento
+                                Juzgados={Juzgados}
+                                instrumentoTypes={instrumentoTypes}
+                                instrumento={instrumentoEditando || undefined}
+                                onSubmit={instrumentoEditando ? handleEditar : handleCrear}
+                            />
+                        </DialogContent>
+                    </Dialog>
                 </div>
+            </div>
+
+            <TablaInstrumentos
+                data={instrumentos}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                openDelete={null}
+                onEdit={handleEditar}
+                onDelete={handleEliminar} 
+                setOpenDelete={function (id: string | null): void {
+                    throw new Error("Function not implemented.")
+                }}
+            />
 
 
 
-               
 
 
 

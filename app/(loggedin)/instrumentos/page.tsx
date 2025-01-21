@@ -1,6 +1,5 @@
 import { auth } from "@/auth"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
-import { CrudInstrumentos } from "@/components/instrumentos/crud-instrumento"
 import InstrumentosPages from "@/components/instrumentos/instrumentos-pages"
  
 export default async function InsturmentosPage(props: Readonly<{
@@ -9,7 +8,6 @@ export default async function InsturmentosPage(props: Readonly<{
     page?: string;
   }>;
 }>) {
-  const searchParams = await props.searchParams;
   const session = await auth()
  
   if (!session) {
@@ -17,7 +15,9 @@ export default async function InsturmentosPage(props: Readonly<{
   }
  
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full flex flex-col gap-4 p-4">
+      
+      <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
       <InstrumentosPages searchParams={props.searchParams}/>
     </div>
 

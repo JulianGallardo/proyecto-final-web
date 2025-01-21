@@ -50,55 +50,9 @@ export async function getInstrumentos() {
 }
 
 export async function getInstrumentosPaginated(query: string, page: number) {
-    // Simulación de repositorio (puedes reemplazar esto con tu lógica real)
-    const instrumentos = await instrumentosRepo.getInstrumentos();
-
-    const itemsPerPage = 5;
-
-    // Parsear la query string
-    const queryParams = new URLSearchParams(query);
-    const searchTerm = queryParams.get("query")?.toLowerCase() || "";
-    const entryDate = queryParams.get("entryDate") || "";
-    const address = queryParams.get("address")?.toLowerCase() || "";
-
-    // Filtrar los instrumentos según los criterios
-   /**
-    * const filteredInstrumentos = instrumentos.filter((instrumento) => {
-        const matchesQuery =
-            !searchTerm || instrumento.name.toLowerCase().includes(searchTerm);
-        const matchesEntryDate =
-            !entryDate || instrumento.entryDate === entryDate;
-        const matchesAddress =
-            !address || instrumento.address.toLowerCase().includes(address);
-
-        return matchesQuery && matchesEntryDate && matchesAddress;
-    });
-    */
-    
-
-    // Calcular el total de páginas
-    const instrumentosCount = instrumentos.length;
-    const totalPages = Math.ceil(instrumentosCount / itemsPerPage);
-
-    // Paginar los instrumentos
-    const startIndex = (page - 1) * itemsPerPage;
-
-    const paginatedInstrumentos: InstrumentoExtendido[][] = [];
-    for (let i = 0; i < totalPages; i++) {
-        const startIndex = i * itemsPerPage;
-        const pageData = instrumentos.slice(
-            startIndex,
-            startIndex + itemsPerPage
-        );
-        paginatedInstrumentos.push(pageData);
-    }
-
-    // Retornar los instrumentos paginados y el total de páginas
-    return { paginatedPages: paginatedInstrumentos, totalPages };
+    const {instrumentos,totalPages} = await instrumentosRepo.getInstrumentosPaginated(query,page);
+    return {instrumentos,totalPages};
 }
-
-
-
 
 export async function createInstrumento(data:InstrumentoDTO) {
     return await instrumentosRepo.createInstrumento(data);

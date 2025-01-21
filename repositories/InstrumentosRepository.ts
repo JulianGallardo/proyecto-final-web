@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { Instrumento, Prisma } from "@prisma/client";
+import { Instrumento } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
@@ -19,9 +19,10 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const itemsPerPage = 5;
 
+
        
 
-        const instrumentos = await this.modelClient.findMany({
+        const instrumentosPromise = await this.modelClient.findMany({
             skip: (page - 1) * itemsPerPage,
             take: itemsPerPage,
             select: {
@@ -51,7 +52,15 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             
         });
 
-        const totalPages = Math.ceil(instrumentosCount.length / itemsPerPage);
+        
+        const instrumentosCountPromise = await this.modelClient.count({});
+
+
+        const [instrumentos, instrumentosCount] = await Promise.all([instrumentosPromise, instrumentosCountPromise]);
+
+
+        const totalPages = Math.ceil(instrumentosCount / itemsPerPage);
+
 
         return {instrumentos, totalPages};
     }

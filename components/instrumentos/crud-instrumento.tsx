@@ -11,51 +11,27 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import { TooltipProvider } from "@radix-ui/react-tooltip"
+
 import { Plus } from "@mynaui/icons-react"
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
-import { createInstrumento, getInstrumentos, getInstrumentTypes, getJuzgados, updateInstrumento } from "@/actions/instrumentos-actions"
+import { createInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import FiltrosList from "./filtros-list"
 import { InstrumentoType, Juzgado } from "@prisma/client"
-import ServerSideTable from "./server-side-table"
-// Datos de ejemplo
 
 
-export function CrudInstrumentos() {
+interface CrudInstrumentosProps {
+    instrumentos: InstrumentoExtendido[]
+    Juzgados: Juzgado[]
+    instrumentoTypes: InstrumentoType[]
+}
 
-    
-
-
-    const [instrumentos, setInstrumentos] = React.useState<InstrumentoExtendido[]>([])
-    const [Juzgados, setJuzgados] = React.useState<Juzgado[]>([])
-    const [instrumentoTypes, setInstrumentoTypes] = React.useState<InstrumentoType[]>([])
+export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | null>(null)
     const [dialogoAbierto, setDialogoAbierto] = React.useState(false)
     const [isMobile, setMobile] = React.useState(false)
 
 
 
-    React.useEffect(() => {
-        const fetchInstrumentos = async () => {
-            const instrumentos = await getInstrumentos()
-            console.log(instrumentos)
-            setInstrumentos(instrumentos)
-        }
-
-        const fecthJuzgados = async () => {
-            const juzgados = await getJuzgados()
-            setJuzgados(juzgados)
-        }
-
-        const fetchInstrumentTypes = async () => {
-            const instrumentTypes = await getInstrumentTypes()
-            setInstrumentoTypes(instrumentTypes)
-        }
-
-        fetchInstrumentos()
-        fecthJuzgados()
-        fetchInstrumentTypes()
-    }, [])
 
     React.useEffect(() => {
         const handleResize = () => {
@@ -90,7 +66,6 @@ export function CrudInstrumentos() {
             instrumentoTypeIdentifier: nuevoInstrumento.instrumentoType.identifier,
         }
         const instrumentoCreado = await createInstrumento(instrumentDto)
-        setInstrumentos([...instrumentos, instrumentoCreado])
         setDialogoAbierto(false)
     }
 
@@ -110,8 +85,6 @@ export function CrudInstrumentos() {
         console.log(instrumentoActualizado)
         if (!instrumentoActualizado) return
 
-        setInstrumentos(instrumentos.map(i => i.juzgadoId === instrumentoActualizado.juzgadoId && i.ordenNumber === instrumentoActualizado.ordenNumber ? instrumentoActualizado : i))
-
         setInstrumentoEditando(null)
         setDialogoAbierto(false)
     }
@@ -121,8 +94,8 @@ export function CrudInstrumentos() {
     }
 
     return (
-        <div className="space-y-4 p-4 w-full h-full">
-            <TooltipProvider>
+        <div className="space-y-4 p-4 ">
+            
                 <div className="flex flex-col  w-full">
                     <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
                     <div className="flex justify-between items-center">
@@ -160,19 +133,13 @@ export function CrudInstrumentos() {
                     </div>
                 </div>
 
-                <ServerSideTable
-                    onEdit={(instrumento) => {
-                        setInstrumentoEditando(instrumento)
-                        setDialogoAbierto(true)
-                    }}
-                    onDelete={handleEliminar}
-                />
+
+
+               
 
 
 
 
-
-            </TooltipProvider>
         </div>
     )
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -8,88 +8,96 @@ import {
 } from "@tanstack/react-table";
 import { InstrumentoExtendido } from "@/types/instrumento";
 import { columns } from "./col-tabla-instrumento";
-import { TableSkeleton } from "./server-side-table";
-
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "../ui/pagination";
 
 interface TablaInstrumentosProps {
-  data: InstrumentoExtendido[][];
-  onEdit: (instrumento: InstrumentoExtendido) => void;
-  onDelete: (id: string) => void;
-  loading: boolean;
+  data: InstrumentoExtendido[]; // Una sola página de datos
+  totalPages: number;
   currentPage: number;
 }
 
-
-export function TablaInstrumentos({
-  onEdit,
-  onDelete,
-  data,
-  loading,
-  currentPage,
-}: Readonly<TablaInstrumentosProps>) {
-
-  const [openDelete, setOpenDelete] = useState<string | null>(null);
-
-  const tableColumns = columns({ onEdit, onDelete, openDelete, setOpenDelete });
-
-  const dataSelected = data[currentPage-1];
-
-  const table = useReactTable({
-    data: dataSelected,
-    columns: tableColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+export function TablaInstrumentos({ data, totalPages, currentPage }: Readonly<TablaInstrumentosProps>) {
 
 
+  const onEdit = (instrument: InstrumentoExtendido) => {
+    // Implementar funcionalidad de edición
+    console.log("Edit:", instrument);
+  };
 
+  const onDelete = (id: string) => {
+    console.log("Delete:", id);
+  };
 
-  if (loading){
-    return (
-      <div className="flex flex-col items-center justify-between h-full w-full p-4 bg-white shadow-sm rounded-lg border border-gray-200">
-        <TableSkeleton />
-      </div>
-    )
-
-  }
-
-
-  return (
-    <div className="overflow-x-auto shadow-md rounded-lg">
-      <table className="w-full text-sm border-separate border-spacing-0">
-        <thead className="bg-gray-50">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="px-4 py-2 font-medium text-gray-700 text-center border-b border-gray-200"
-                >
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50">
-              {row.getVisibleCells().map((cell) => (
-                <td
-                  key={cell.id}
-                  className="px-4 py-2 text-gray-600 text-center border-b border-gray-200"
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+  const tableColumns = useMemo(
+    () => columns({ onEdit, onDelete, openDelete: null, setOpenDelete: () => { } }),
+    [onEdit, onDelete]
   );
 
+  const coreRowModel = useMemo(() => getCoreRowModel(), []);
 
+  const table = useReactTable({
+    data,
+    columns: tableColumns,
+    getCoreRowModel: coreRowModel,
+  });
+
+  return (
+    <div>
+      <div className="overflow-x-auto shadow-md rounded-lg">
+        <table className="w-full text-sm border-separate border-spacing-0">
+          <thead className="bg-gray-50">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="px-4 py-2 font-medium text-gray-700 text-center border-b border-gray-200"
+                  >
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="hover:bg-gray-50">
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="px-4 py-2 text-gray-600 text-center border-b border-gray-200"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+      </div>
+      <Pagination className="mt-4">
+        <PaginationContent className="flex space-x-2">
+          {totalPages > 0 &&
+            Array.from({ length: totalPages }, (_, i) => (
+              <PaginationItem key={i + 1} className="text-sm">
+                <PaginationLink
+                  href={`?page=${i + 1}`}
+                  className={`px-3 py-1 rounded-md border ${currentPage === i + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 border-gray-300 hover:bg-blue-500 hover:text-white"
+                    } transition-colors duration-200`}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+        </PaginationContent>
+      </Pagination>
+      <div />
+    </div>
+  );
 }

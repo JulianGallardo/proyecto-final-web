@@ -25,7 +25,7 @@ export default async function ServerSideTable({
 
       
       <CrudInstrumentos instrumentos={instrumentos} currentPage={currentPage} totalPages={totalPages} Juzgados={Juzgados} instrumentoTypes={instrumentosType} />
-      <PaginationInstruments currentPage={1} totalPages={totalPages} query={query} />
+      <PaginationInstruments currentPage={currentPage} totalPages={totalPages} query={query} />
 
 
     </div>

@@ -28,7 +28,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | undefined>(undefined)
 
     const { isOpen, setIsOpen } = useCustomDialog()
-    const { isOpenAlert, setIsOpenAlert } = useCustomAlert()
+    const { setIsOpenAlert } = useCustomAlert()
     const { setJuzgados, setInstrumentoTypes } = useInfoInstrumentos()
 
     React.useEffect(() => {

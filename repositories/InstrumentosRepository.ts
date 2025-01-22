@@ -2,7 +2,9 @@ import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Instrumento } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
-import { skip } from "node:test";
+import SearchParamsInstrumentos from "@/types/searchParams";
+import db from "@/lib/db";
+import { exit } from "process";
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
     constructor() {
@@ -12,18 +14,65 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     itemsPerPage = 10;
 
 
+    filters(searchParams: SearchParamsInstrumentos) {
+        // Construir dinámicamente el objeto "where"
+        const where: any = {
+            OR: [],
+        };
 
-    async getTotalPagesInstrumentosPaginated(query: string) {
-        const querys = query.split("&");
-        const querysMap = querys.map((query) => {
-            const [key, value] = query.split("=");
-            return {key, value};
+        if (searchParams.entryDate) {
+            where.OR.push({ entryDate: { gte: new Date(searchParams.entryDate) } });
+        }
+
+        if (searchParams.exitDate) {
+            where.OR.push({ exitDate: { lte: new Date(searchParams.exitDate) } });
+        }
+
+        if (searchParams.caratula) {
+            where.OR.push({ caratula: { startsWith: searchParams.caratula, mode: "insensitive" } });
+        }
+
+        if (searchParams.destinatario) {
+            where.OR.push({ destinatario: { startsWith: searchParams.destinatario, mode: "insensitive" } });
+        }
+
+        if (searchParams.address) {
+            where.OR.push({ address: { startsWith: searchParams.address, mode: "insensitive" } });
+        }
+
+        if (searchParams.ordenNumber) {
+            where.OR.push({ ordenNumber: { equals: Number(searchParams.ordenNumber) } });
+        }
+
+        if (searchParams.juzgado) {
+            where.OR.push({ juzgado: { identifier: { startsWith: searchParams.juzgado, mode: "insensitive" } } });
+        }
+
+        if (searchParams.instrumentType) {
+            where.OR.push({ instrumentoType: { identifier: { startsWith: searchParams.instrumentType, mode: "insensitive" } } });
+        }
+
+        // Si no hay condiciones en el "OR", eliminamos el campo
+        if (where.OR.length === 0) {
+            delete where.OR;
+        }
+        return where;
+    }
+
+
+
+    async getTotalPagesInstrumentosPaginated(searchParams: SearchParamsInstrumentos) {
+
+
+        const where = this.filters(searchParams);
+
+
+
+
+
+        const instrumentosCountPromise = await this.modelClient.count({
+            where,
         });
-
-
-
-
-        const instrumentosCountPromise = await this.modelClient.count({});
 
         const [instrumentosCount] = await Promise.all([instrumentosCountPromise]);
 
@@ -32,59 +81,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         return totalPages;
     }
 
+    async getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number) {
+        const where = this.filters(searchParams);
 
-
-    async getInstrumentosPaginated(query: string, page: number) {
-        const querys = query.split("&");
-        const querysMap = querys.map((query) => {
-            const [key, value] = query.split("=");
-            return { key, value };
-        });
-
-        console.log(query, "query")
-        console.log(querysMap, "querysMap")
-    
-        const filtersMapping: { [key: string]: any } = {
-            entryDate: (value: string) => ({
-                entryDate: { contains: value, mode: "insensitive" },
-            }),
-            exitDate: (value: string) => ({
-                exitDate: { contains: value, mode: "insensitive" },
-            }),
-            caratula: (value: string) => ({
-                caratula: { contains: value, mode: "insensitive" },
-            }),
-            destinatario: (value: string) => ({
-                destinatario: { contains: value, mode: "insensitive" },
-            }),
-            address: (value: string) => ({
-                address: { contains: value, mode: "insensitive" },
-            }),
-            ordenNumber: (value: string) => ({
-                ordenNumber: { contains: value, mode: "insensitive" },
-            }),
-            juzgadoIdentifier: (value: string) => ({
-                juzgado: { identifier: { contains: value, mode: "insensitive" } },
-            }),
-            instrumentoTypeIdentifier: (value: string) => ({
-                instrumentoType: { identifier: { contains: value, mode: "insensitive" } },
-            }),
-        };
-    
-        const whereConditions = {
-            OR: querysMap
-                .map((query) => {
-                    const filterBuilder = filtersMapping[query.key];
-                    return filterBuilder ? filterBuilder(query.value) : null;
-                })
-                .filter((condition) => condition !== null),
-        };
-
-        console.log(whereConditions, "whereConditions")
-    
         // Realizar la consulta con Prisma
         const instrumentos = await this.modelClient.findMany({
-            where: whereConditions.OR.length > 0 ? whereConditions : undefined,
+            where,
             skip: (page - 1) * this.itemsPerPage,
             take: this.itemsPerPage,
             select: {
@@ -112,10 +114,11 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 updatedAt: true,
             },
         });
-    
+
         return instrumentos;
     }
-    
+
+
 
 
     async getInstrumentos(): Promise<InstrumentoExtendido[]> {
@@ -158,7 +161,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 },
             },
         });
-    
+
         // Si no hay valores (primer instrumento), empieza desde 1
         return (maxOrden._max.ordenNumber || 0) + 1;
     }
@@ -166,9 +169,9 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async createInstrumento(data: InstrumentoDTO): Promise<InstrumentoExtendido> {
         // Espera a que `ordenNumber` sea calculado antes de usarlo
         const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
-    
+
         // Ahora puedes usar el valor numérico resuelto
-        const creado= await this.modelClient.create({
+        const creado = await this.modelClient.create({
             data: {
                 entryDate: data.entryDate,
                 exitDate: data.exitDate || undefined,
@@ -187,7 +190,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     },
                 },
             },
-            select : {
+            select: {
                 entryDate: true,
                 exitDate: true,
                 caratula: true,
@@ -215,7 +218,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         return creado;
     }
-    
+
 
     async updateInstrumento(
         juzgadoId: number,
@@ -232,7 +235,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
 
 
-        if(data.juzgadoIdentifier !== juzgado?.identifier && data.juzgadoIdentifier){ 
+        if (data.juzgadoIdentifier !== juzgado?.identifier && data.juzgadoIdentifier) {
             const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
             newOrdenNumber = ordenNumber;
         }
@@ -251,20 +254,20 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 caratula: data.caratula,
                 destinatario: data.destinatario,
                 address: data.address,
-                ordenNumber: newOrdenNumber ,
+                ordenNumber: newOrdenNumber,
                 juzgado: {
                     connect: {
                         identifier: data.juzgadoIdentifier,
                     },
                 },
 
-                instrumentoType : {
+                instrumentoType: {
                     connect: {
                         identifier: data.instrumentoTypeIdentifier,
                     },
-                },  
+                },
             },
-            select : {
+            select: {
                 entryDate: true,
                 exitDate: true,
                 caratula: true,

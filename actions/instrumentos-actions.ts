@@ -5,6 +5,7 @@ import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import { InstrumentoDTO } from "@/types/instrumento";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import SearchParamsInstrumentos from "@/types/searchParams";
 
 
 const instrumentosRepo = new InstrumentosRepository();
@@ -50,13 +51,13 @@ export async function getInstrumentos() {
     return instrumentosRepo.getInstrumentos();
 }
 
-export async function getInstrumentosPaginated(query: string, page: number) {
-    const instrumentos = await instrumentosRepo.getInstrumentosPaginated(query, page);
+export async function getInstrumentosPaginated(searchParams:SearchParamsInstrumentos, page: number) {
+    const instrumentos = await instrumentosRepo.getInstrumentosPaginated(searchParams, page);
     return instrumentos;
 }
 
-export async function getTotalPagesInstrumentosPaginated(query: string) {
-    const totalPages = await instrumentosRepo.getTotalPagesInstrumentosPaginated(query);
+export async function getTotalPagesInstrumentosPaginated(searchParams: SearchParamsInstrumentos) {
+    const totalPages = await instrumentosRepo.getTotalPagesInstrumentosPaginated(searchParams);
     return totalPages;
 }
 

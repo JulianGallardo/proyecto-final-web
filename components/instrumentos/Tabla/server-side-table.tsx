@@ -2,24 +2,25 @@ import {getInstrumentosPaginated, getTotalPagesInstrumentosPaginated } from "@/a
 import PaginationInstruments from "./Pagination";
 import { CrudInstrumentos } from "../crud-instrumento";
 import { Juzgado, InstrumentoType } from "@prisma/client";
+import SearchParamsInstrumentos from "@/types/searchParams";
 
 interface ServerSideTableProps {
-  query: string;
+  searchParams: SearchParamsInstrumentos;
   currentPage: number;
   Juzgados: Juzgado[];
   instrumentosType: InstrumentoType[];
 }
 
 export default async function ServerSideTable({
-  query,
+  searchParams,
   currentPage,
   Juzgados,
   instrumentosType
 }: Readonly<ServerSideTableProps>) {
 
 
-  const instrumentos = await getInstrumentosPaginated(query, currentPage);
-  const totalPages = await getTotalPagesInstrumentosPaginated(query);
+  const instrumentos = await getInstrumentosPaginated(searchParams, currentPage);
+  const totalPages = await getTotalPagesInstrumentosPaginated(searchParams);
 
   return (
     <div className="flex flex-col  bg-white border-gray-200 gap-4">

@@ -4,13 +4,14 @@ import NoAutenticado from "@/components/error/errorNoAutenticado"
 import FiltrosList from "@/components/instrumentos/Filtros/filtros-list";
 import { TableSkeleton } from "@/components/instrumentos/Skeletons/list-skeleton";
 import ServerSideTable from "@/components/instrumentos/Tabla/server-side-table";
+import SearchParamsInstrumentos from "@/types/searchParams";
 import { Suspense } from "react";
 
+
+
 export default async function InsturmentosPage(props: Readonly<{
-  searchParams?: Promise<{
-    query?: string;
-    page?: string;
-  }>;
+  searchParams?: Promise<SearchParamsInstrumentos>
+  
 }>) {
   const session = await auth()
   const searchParams = await props.searchParams;
@@ -19,7 +20,6 @@ export default async function InsturmentosPage(props: Readonly<{
     return <div><NoAutenticado /></div>
   }
   
-  console.log(searchParams, "searchParams")
 
 
   const instrumentTypesData = await getInstrumentTypes();
@@ -36,7 +36,7 @@ export default async function InsturmentosPage(props: Readonly<{
           Juzgados={juzgados}
           instrumentosType={instrumentTypes}
           currentPage={Number(searchParams?.page) || 1}
-          query={searchParams?.query ?? ''}
+          searchParams={searchParams || {} as SearchParamsInstrumentos}
         />
       </Suspense>
 

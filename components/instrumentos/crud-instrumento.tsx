@@ -6,7 +6,10 @@ import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
 import { createInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 import { TablaInstrumentos } from "./Tabla/tabla-instrumento"
-import InstrumentosDialogs from "./Dialogs/instrumentos-Dialogs"
+import CustomDialog from "./Dialogs/dialog"
+import { FormularioInstrumento } from "./Forms/formulario-instrumento"
+import useInfoInstrumentos from "@/hooks/useInfoInstrumentos"
+import { useCustomDialog } from "@/hooks/useCustomDialog"
 
 
 interface CrudInstrumentosProps {
@@ -18,17 +21,25 @@ interface CrudInstrumentosProps {
 }
 
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, currentPage, totalPages }: Readonly<CrudInstrumentosProps>) {
-    const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | null>(null)
-    const [dialogoAbierto, setDialogoAbierto] = React.useState(false)
+    const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | undefined>(undefined)
+
+    const { isOpen, setIsOpen } = useCustomDialog()
+    const { setJuzgados, setInstrumentoTypes } = useInfoInstrumentos()
+
+    React.useEffect(() => {
+        setJuzgados(Juzgados)
+        setInstrumentoTypes(instrumentoTypes)
+    }, [Juzgados, instrumentoTypes])
+
 
 
     const handleClose = (open: boolean) => {
         if (!open) {
-            setDialogoAbierto(false)
-            setInstrumentoEditando(null)
+            setIsOpen(false)
+            setInstrumentoEditando(undefined)
         }
         else
-            setDialogoAbierto(open)
+            setIsOpen(open)
     }
 
     const handleCrear = async (nuevoInstrumento: InstrumentoExtendido) => {
@@ -43,16 +54,17 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
             instrumentoTypeIdentifier: nuevoInstrumento.instrumentoType.identifier,
         }
         await createInstrumento(instrumentDto)
-        setDialogoAbierto(false)
+        setIsOpen(false)
     }
 
     const onEdit = (instrumento: InstrumentoExtendido) => {
+        console.log("Se edito"+instrumento.caratula)
         setInstrumentoEditando(instrumento)
-        setDialogoAbierto(true)
+        setIsOpen(true)
     }
 
-    const onDelete = (id: string) => {
-        console.log(id)
+    const onDelete = (instrumento: InstrumentoExtendido) => {
+        console.log("Se elimino")
     }
 
 
@@ -71,22 +83,38 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentDto)
         if (!instrumentoActualizado) return
 
-        setInstrumentoEditando(null)
-        setDialogoAbierto(false)
+        setInstrumentoEditando(undefined)
+        setIsOpen(false)
     }
 
 
     return (
         <div className="space-y-4 w-full h-full">
 
-            {InstrumentosDialogs(dialogoAbierto, handleClose, instrumentoEditando, Juzgados, instrumentoTypes, handleEditar, handleCrear)}
+            <CustomDialog
+                dialogTitle={instrumentoEditando ? `Editar Instrumento ${instrumentoEditando.ordenNumber} ${instrumentoEditando.juzgado.identifier}` : "Crear Instrumento"}
+                dialogDescription={instrumentoEditando ? "Edita los campos del instrumento" : "Crea un nuevo instrumento"}
+                propDialogContent={
+                    <FormularioInstrumento
+                        instrumentoTypes={instrumentoTypes}
+                        Juzgados={Juzgados}
+                        onSubmit={instrumentoEditando ? handleEditar : handleCrear}
+                        instrumento={instrumentoEditando}
+                    />
+                }
+                customClose={true}
+                onClose={handleClose}
+            />
 
 
             <TablaInstrumentos
                 data={instrumentos}
+                onEdit={onEdit}
+                onDelete={onDelete}
+
             />
 
-            
+
 
 
 

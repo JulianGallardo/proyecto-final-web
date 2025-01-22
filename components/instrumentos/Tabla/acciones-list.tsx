@@ -2,33 +2,26 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip
 import { Pencil, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstrumentoExtendido } from "@/types/instrumento";
-import { useRouter } from "next/navigation";
 
 
 interface ColumnsProps {
   Instrumento: InstrumentoExtendido;
+  onEdit: (Instrumento:InstrumentoExtendido) => void;
+  onDelete: (Instrumento:InstrumentoExtendido) => void;
 }
 
-export default function AccionesList({ Instrumento }: Readonly<ColumnsProps>) {
+export default function AccionesList({ Instrumento, onEdit,onDelete }: Readonly<ColumnsProps>) {
 
-  const router = useRouter();
-
-  function onEdit() {
-    router.push(`/instrumentos/edit/${Instrumento.ordenNumber + '&' + Instrumento.juzgado.identifier}`);
-  }
-
-
-
-      
-    return (
+  return (
     <div className="flex flex-row gap-4 items-center p-2 w-full h-full">
+      
 
       {/* Botón Editar */}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             className="bg-blue-500 hover:bg-blue-600"
-            onClick={() => onEdit()}
+            onClick={() => onEdit(Instrumento)}
           >
             <Pencil className="h-4 w-4 text-white" />
           </Button>
@@ -43,7 +36,7 @@ export default function AccionesList({ Instrumento }: Readonly<ColumnsProps>) {
         <TooltipTrigger asChild>
           <Button
             className="bg-red-500 hover:bg-red-600"
-            onClick={() => console.log(Instrumento.caratula)}
+            onClick={() => onDelete(Instrumento)}
           >
             <Trash className="h-4 w-4 text-white" />
           </Button>

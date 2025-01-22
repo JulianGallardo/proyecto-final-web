@@ -24,17 +24,12 @@ export default async function InsturmentosPage(props: Readonly<{
   const [instrumentTypes, juzgados] = await Promise.all([instrumentTypesData, juzgadosData]);
 
 
-
-
-
   return (
     <div className="w-full h-full flex flex-col gap-4 p-4">
-
       <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
       <FiltrosList Juzgados={juzgados} InstrumentTypes={instrumentTypes} />
       <Suspense fallback={<TableSkeleton />}>
         <ServerSideTable
-
           Juzgados={juzgados}
           instrumentosType={instrumentTypes}
           currentPage={Number(searchParams?.page) || 1}

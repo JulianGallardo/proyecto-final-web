@@ -4,9 +4,7 @@ import AccionesList from "./acciones-list";
 import { Button } from "../../ui/button";
 interface ColumnsProps {
     onEdit: (instrumento: InstrumentoExtendido) => void;
-    onDelete: (id: string) => void;
-    openDelete: string | null;
-    setOpenDelete: (id: string | null) => void;
+    onDelete: (instrumento: InstrumentoExtendido) => void;
 }
 
 
@@ -31,7 +29,7 @@ const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 
 
 
-export const columns = (): ColumnDef<InstrumentoExtendido>[] =>
+export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>):ColumnDef<InstrumentoExtendido>[] =>
     [
 
         {
@@ -165,6 +163,8 @@ export const columns = (): ColumnDef<InstrumentoExtendido>[] =>
                 return AccionesList(
                     {
                         Instrumento: instrumento,
+                        onEdit,
+                        onDelete
                     }
                 );
             },

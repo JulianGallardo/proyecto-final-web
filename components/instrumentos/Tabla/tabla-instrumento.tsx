@@ -13,14 +13,16 @@ import { useState } from "react";
 
 interface TablaInstrumentosProps {
   data: InstrumentoExtendido[];
+  onEdit: (instrumento: InstrumentoExtendido) => void;
+  onDelete: (instrumento: InstrumentoExtendido) => void;
 }
 
-export function TablaInstrumentos({ data }: Readonly<TablaInstrumentosProps>) {
+export function TablaInstrumentos({ data,onEdit,onDelete }: Readonly<TablaInstrumentosProps>) {
 
   const [sorting, setSorting] = useState<SortingState>([])
 
 
-  const tableColumns = columns();
+  const tableColumns = columns({ onEdit, onDelete });
 
   const coreRowModel = getCoreRowModel<InstrumentoExtendido>();
 

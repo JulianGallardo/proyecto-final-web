@@ -32,6 +32,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     }, [Juzgados, instrumentoTypes])
 
 
+    React.useEffect(() => {
+        console.log(isOpen, "is open from crud")
+    }
+        , [isOpen])
 
     const handleClose = (open: boolean) => {
         if (!open) {
@@ -58,9 +62,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     }
 
     const onEdit = (instrumento: InstrumentoExtendido) => {
-        console.log("Se edito"+instrumento.caratula)
+        console.log("Se edito" + instrumento.caratula)
         setInstrumentoEditando(instrumento)
         setIsOpen(true)
+        console.log(isOpen, "is open from onEdit")
     }
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
@@ -82,9 +87,9 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         }
         const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentDto)
         if (!instrumentoActualizado) return
-
-        setInstrumentoEditando(undefined)
+        
         setIsOpen(false)
+        setInstrumentoEditando(undefined)
     }
 
 

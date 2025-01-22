@@ -1,11 +1,11 @@
-import * as React from "react"
+import {create} from 'zustand';
 
-export function useCustomDialog() {
-  const [isOpen, setIsOpen] = React.useState<boolean >(false)
-
-  return {
-    isOpen,
-    setIsOpen,
-  }
-
+interface CustomDialogProps{
+    isOpen:boolean
+    setIsOpen:(open:boolean) => void
 }
+
+export const useCustomDialog = create<CustomDialogProps>((set) => ({
+    isOpen:false,
+    setIsOpen: (open:boolean) => set({isOpen:open})
+}))

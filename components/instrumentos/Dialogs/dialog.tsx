@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useCustomDialog } from "@/hooks/useCustomDialog"
+import { use, useEffect } from "react"
 
 
 interface DialogProps{
@@ -16,8 +17,9 @@ export default function CustomDialog({propDialogTrigger,propDialogContent,dialog
 
     const {isOpen,setIsOpen} = useCustomDialog()
 
+    
     return (
-        <Dialog open={isOpen} onOpenChange={customClose ? onClose : setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={ setIsOpen}>
             <DialogTrigger asChild>
                 {propDialogTrigger}
             </DialogTrigger>

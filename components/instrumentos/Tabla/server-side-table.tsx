@@ -26,7 +26,7 @@ export default async function ServerSideTable({
     <div className="flex flex-col  bg-white border-gray-200 gap-4">
 
       
-      <CrudInstrumentos instrumentos={instrumentos} currentPage={currentPage} totalPages={totalPages} Juzgados={Juzgados} instrumentoTypes={instrumentosType} />
+      <CrudInstrumentos instrumentos={instrumentos} Juzgados={Juzgados} instrumentoTypes={instrumentosType} />
       <PaginationInstruments totalPages={totalPages} />
 
 

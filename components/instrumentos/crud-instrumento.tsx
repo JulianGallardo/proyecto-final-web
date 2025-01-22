@@ -10,6 +10,8 @@ import CustomDialog from "./Dialogs/dialog"
 import { FormularioInstrumento } from "./Forms/formulario-instrumento"
 import useInfoInstrumentos from "@/hooks/useInfoInstrumentos"
 import { useCustomDialog } from "@/hooks/useCustomDialog"
+import { Button } from "../ui/button"
+import { Plus } from "@mynaui/icons-react"
 
 
 interface CrudInstrumentosProps {
@@ -32,11 +34,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     }, [Juzgados, instrumentoTypes])
 
 
-    React.useEffect(() => {
-        console.log(isOpen, "is open from crud")
-    }
-        , [isOpen])
-
     const handleClose = (open: boolean) => {
         if (!open) {
             setIsOpen(false)
@@ -45,6 +42,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         else
             setIsOpen(open)
     }
+
 
     const handleCrear = async (nuevoInstrumento: InstrumentoExtendido) => {
 
@@ -61,8 +59,13 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         setIsOpen(false)
     }
 
+    
+    const onCreate = () => {
+        setInstrumentoEditando(undefined)
+        setIsOpen(true)
+    }
+    
     const onEdit = (instrumento: InstrumentoExtendido) => {
-        console.log("Se edito" + instrumento.caratula)
         setInstrumentoEditando(instrumento)
         setIsOpen(true)
         console.log(isOpen, "is open from onEdit")
@@ -71,6 +74,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     const onDelete = (instrumento: InstrumentoExtendido) => {
         console.log("Se elimino")
     }
+
 
 
     const handleEditar = async (instrumentoEditado: InstrumentoExtendido) => {
@@ -110,6 +114,17 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
                 customClose={true}
                 onClose={handleClose}
             />
+
+
+
+
+            <Button 
+                onClick={onCreate}
+                className="bg-green-500 hover:bg-green-600"
+            >
+                Crear Instrumento 
+                <Plus className="h-4 w-4 text-white" />
+            </Button>
 
 
             <TablaInstrumentos

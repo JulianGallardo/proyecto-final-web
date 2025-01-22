@@ -14,6 +14,7 @@ import { Button } from "../ui/button"
 import { Plus } from "@mynaui/icons-react"
 import CustomAlert from "./Dialogs/alert"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
+import { toast } from "@/hooks/use-toast";
 
 
 interface CrudInstrumentosProps {
@@ -59,9 +60,36 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
             juzgadoIdentifier: nuevoInstrumento.juzgado.identifier,
             instrumentoTypeIdentifier: nuevoInstrumento.instrumentoType.identifier,
         }
-        await createInstrumento(instrumentDto)
+
+        try {
+
+            const instrumentoCreado = await createInstrumento(instrumentDto)
+
+            if (!instrumentoCreado) return
+
+        } catch (error) {
+
+            toast({
+                title: "Error",
+                description: (error instanceof Error ? error.message : "Ha ocurrido un error al crear el instrumento"),
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+        }
+
+        toast({
+            title: "Éxito",
+            description: "Instrumento creado correctamente",
+            className: "bg-green-500 text-white",
+            duration: 3000,
+        });
+
+
+
+
         setIsOpen(false)
-        
+
+
     }
 
 
@@ -73,7 +101,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     const onEdit = (instrumento: InstrumentoExtendido) => {
         setInstrumentoEditando(instrumento)
         setIsOpen(true)
-        console.log(isOpen, "is open from onEdit")
     }
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
@@ -94,8 +121,26 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
             juzgadoIdentifier: instrumentoEditado.juzgado.identifier,
             instrumentoTypeIdentifier: instrumentoEditado.instrumentoType.identifier,
         }
-        const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentDto)
-        if (!instrumentoActualizado) return
+        try {
+            const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentDto)
+            if (!instrumentoActualizado) return
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: (error instanceof Error ? error.message : "Ha ocurrido un error al editar el instrumento"),
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+
+        }
+
+
+        toast({
+            title: "Éxito",
+            description: "Instrumento actualizado correctamente",
+            className: "bg-green-500 text-white",
+            duration: 3000,
+        });
 
         setIsOpen(false)
         setInstrumentoEditando(undefined)

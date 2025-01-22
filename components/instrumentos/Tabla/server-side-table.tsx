@@ -17,6 +17,7 @@ export default async function ServerSideTable({
   instrumentosType
 }: Readonly<ServerSideTableProps>) {
 
+
   const instrumentos = await getInstrumentosPaginated(query, currentPage);
   const totalPages = await getTotalPagesInstrumentosPaginated(query);
 
@@ -25,7 +26,7 @@ export default async function ServerSideTable({
 
       
       <CrudInstrumentos instrumentos={instrumentos} currentPage={currentPage} totalPages={totalPages} Juzgados={Juzgados} instrumentoTypes={instrumentosType} />
-      <PaginationInstruments currentPage={currentPage} totalPages={totalPages} query={query} />
+      <PaginationInstruments totalPages={totalPages} />
 
 
     </div>

@@ -35,7 +35,7 @@ export default async function Navbar() {
   }
 
   return (
-    <nav className="flex items-center p-4  bg-gray-900 w-full shadow-lg z-50 overflow-hidden">
+    <nav className="flex items-center p-4  bg-gray-900 w-full shadow-lg z-50 ">
 
       <div className="flex-grow flex items-center justify-between">
         <Link href="/inicio" className="">

@@ -1,33 +1,29 @@
 
-
-import { Pagination,  PaginationContent, PaginationLink } from "@/components/ui/pagination"
+"use client";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination"
+import { usePathname, useSearchParams } from "next/navigation";
 
 interface PaginationInstrumentsProps {
-    currentPage: number;
     totalPages: number;
-    query?: string;
 }
-export default function PaginationInstruments({ currentPage, totalPages,query }: Readonly<PaginationInstrumentsProps>) {
-    
-  
-    const urlParams = new URLSearchParams(query)
+export default function PaginationInstruments({ totalPages }: Readonly<PaginationInstrumentsProps>) {
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const currentPage = Number(searchParams.get('page')) || 1;
 
-    function replacePage(page: number) {
-        
-        urlParams.set('page', page.toString())
-        return urlParams.toString()
-    }
+    const createPageURL = (pageNumber: number | string) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', pageNumber.toString());
+        return `${pathname}?${params.toString()}`;
+    };
 
-    
 
     return (
         <Pagination >
             <PaginationContent>
                 {totalPages > 1 &&
                     Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                       <PaginationLink key={page} href={`?${replacePage(page)}`} isActive={page === currentPage} size="icon">
-                            {page}
-                        </PaginationLink>
+                        <PaginationLink key={page} isActive={page===currentPage} href={createPageURL(page)}>{page}</PaginationLink>
                     ))
                 }
 

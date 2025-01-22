@@ -21,6 +21,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
 
 
+
+
         const instrumentosCountPromise = await this.modelClient.count({});
 
         const [instrumentosCount] = await Promise.all([instrumentosCountPromise]);
@@ -32,19 +34,57 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
 
 
-    async getInstrumentosPaginated(query: string, page: number){
-
+    async getInstrumentosPaginated(query: string, page: number) {
         const querys = query.split("&");
         const querysMap = querys.map((query) => {
             const [key, value] = query.split("=");
-            return {key, value};
+            return { key, value };
         });
 
+        console.log(query, "query")
+        console.log(querysMap, "querysMap")
+    
+        const filtersMapping: { [key: string]: any } = {
+            entryDate: (value: string) => ({
+                entryDate: { contains: value, mode: "insensitive" },
+            }),
+            exitDate: (value: string) => ({
+                exitDate: { contains: value, mode: "insensitive" },
+            }),
+            caratula: (value: string) => ({
+                caratula: { contains: value, mode: "insensitive" },
+            }),
+            destinatario: (value: string) => ({
+                destinatario: { contains: value, mode: "insensitive" },
+            }),
+            address: (value: string) => ({
+                address: { contains: value, mode: "insensitive" },
+            }),
+            ordenNumber: (value: string) => ({
+                ordenNumber: { contains: value, mode: "insensitive" },
+            }),
+            juzgadoIdentifier: (value: string) => ({
+                juzgado: { identifier: { contains: value, mode: "insensitive" } },
+            }),
+            instrumentoTypeIdentifier: (value: string) => ({
+                instrumentoType: { identifier: { contains: value, mode: "insensitive" } },
+            }),
+        };
+    
+        const whereConditions = {
+            OR: querysMap
+                .map((query) => {
+                    const filterBuilder = filtersMapping[query.key];
+                    return filterBuilder ? filterBuilder(query.value) : null;
+                })
+                .filter((condition) => condition !== null),
+        };
 
-
-       
-
-        const instrumentosPromise = await this.modelClient.findMany({
+        console.log(whereConditions, "whereConditions")
+    
+        // Realizar la consulta con Prisma
+        const instrumentos = await this.modelClient.findMany({
+            where: whereConditions.OR.length > 0 ? whereConditions : undefined,
             skip: (page - 1) * this.itemsPerPage,
             take: this.itemsPerPage,
             select: {
@@ -71,14 +111,11 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 createdAt: true,
                 updatedAt: true,
             },
-            
         });
-
-        const [instrumentos] = await Promise.all([instrumentosPromise]);
-
-
+    
         return instrumentos;
     }
+    
 
 
     async getInstrumentos(): Promise<InstrumentoExtendido[]> {

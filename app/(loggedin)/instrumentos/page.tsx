@@ -18,6 +18,9 @@ export default async function InsturmentosPage(props: Readonly<{
   if (!session) {
     return <div><NoAutenticado /></div>
   }
+  
+  console.log(searchParams, "searchParams")
+
 
   const instrumentTypesData = await getInstrumentTypes();
   const juzgadosData = await getJuzgados();
@@ -25,7 +28,7 @@ export default async function InsturmentosPage(props: Readonly<{
 
 
   return (
-    <div className="w-full h-full flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4 m-4 ">
       <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
       <FiltrosList Juzgados={juzgados} InstrumentTypes={instrumentTypes} />
       <Suspense fallback={<TableSkeleton />}>

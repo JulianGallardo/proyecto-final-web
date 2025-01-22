@@ -34,6 +34,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     React.useEffect(() => {
         setJuzgados(Juzgados)
         setInstrumentoTypes(instrumentoTypes)
+        console.log(instrumentos)
     }, [Juzgados, instrumentoTypes])
 
 

@@ -12,6 +12,8 @@ import useInfoInstrumentos from "@/hooks/useInfoInstrumentos"
 import { useCustomDialog } from "@/hooks/useCustomDialog"
 import { Button } from "../ui/button"
 import { Plus } from "@mynaui/icons-react"
+import CustomAlert from "./Dialogs/alert"
+import { useCustomAlert } from "@/hooks/useCustomAlert"
 
 
 interface CrudInstrumentosProps {
@@ -26,6 +28,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | undefined>(undefined)
 
     const { isOpen, setIsOpen } = useCustomDialog()
+    const { isOpenAlert, setIsOpenAlert } = useCustomAlert()
     const { setJuzgados, setInstrumentoTypes } = useInfoInstrumentos()
 
     React.useEffect(() => {
@@ -59,12 +62,12 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         setIsOpen(false)
     }
 
-    
+
     const onCreate = () => {
         setInstrumentoEditando(undefined)
         setIsOpen(true)
     }
-    
+
     const onEdit = (instrumento: InstrumentoExtendido) => {
         setInstrumentoEditando(instrumento)
         setIsOpen(true)
@@ -72,7 +75,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
     }
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
-        console.log("Se elimino")
+        setIsOpenAlert(true)
     }
 
 
@@ -91,7 +94,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         }
         const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentDto)
         if (!instrumentoActualizado) return
-        
+
         setIsOpen(false)
         setInstrumentoEditando(undefined)
     }
@@ -114,15 +117,37 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
                 customClose={true}
                 onClose={handleClose}
             />
+            <CustomAlert
+                AlertTitle="Eliminar Instrumento"
+                AlertDescription="¿Estás seguro de que deseas eliminar este instrumento?"
+                propAlertDialogContent={
+                    <div className="flex flex-row justify-center gap-4">
+                        <Button
+                            className="bg-red-500 hover:bg-red-600"
+                            onClick={() => setIsOpenAlert(false)}
+                        >
+                            Eliminar
+                        </Button>
+                        <Button
+                            className="bg-blue-500 hover:bg-blue-600"
+                            onClick={() => setIsOpenAlert(false)}
+                        >
+                            Cancelar
+                        </Button>
+                    </div>
+                }
+            />
 
 
 
 
-            <Button 
+
+
+            <Button
                 onClick={onCreate}
                 className="bg-green-500 hover:bg-green-600"
             >
-                Crear Instrumento 
+                Crear Instrumento
                 <Plus className="h-4 w-4 text-white" />
             </Button>
 

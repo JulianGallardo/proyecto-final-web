@@ -18,7 +18,7 @@ export default function CustomDialog({propDialogTrigger,propDialogContent,dialog
 
     
     return (
-        <Dialog open={isOpen} onOpenChange={ setIsOpen}>
+        <Dialog open={isOpen} onOpenChange={ customClose ? onClose : setIsOpen}>
             <DialogTrigger asChild>
                 {propDialogTrigger}
             </DialogTrigger>

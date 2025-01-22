@@ -8,13 +8,17 @@ const Table = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div className="relative w-full overflow-auto">
     <table
+    
       ref={ref}
       className={cn("w-full caption-bottom text-sm", className)}
       {...props}
     >
       <thead className="hidden">
-        Tabla
+        <tr>
+          <th />
+        </tr>
       </thead>
+      
     </table>
   </div>
 ))

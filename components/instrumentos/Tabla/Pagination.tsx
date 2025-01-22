@@ -1,6 +1,6 @@
 
 "use client";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination"
+import { Pagination, PaginationContent, PaginationLink } from "@/components/ui/pagination"
 import { usePathname, useSearchParams } from "next/navigation";
 
 interface PaginationInstrumentsProps {

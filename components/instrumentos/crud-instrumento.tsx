@@ -102,6 +102,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
     }
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
+        console.log(instrumento)
         setIsOpenAlert(true)
     }
 

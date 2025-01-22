@@ -2,8 +2,9 @@
 import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
-import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
+import { InstrumentoDTO } from "@/types/instrumento";
 import { Prisma } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 
 const instrumentosRepo = new InstrumentosRepository();
@@ -60,15 +61,22 @@ export async function getTotalPagesInstrumentosPaginated(query: string) {
 }
 
 export async function createInstrumento(data: InstrumentoDTO) {
-    return await instrumentosRepo.createInstrumento(data);
+    const instrumento =  await instrumentosRepo.createInstrumento(data);
+    revalidatePath("/instrumentos");
+    return instrumento;
+    
 }
 
 export async function deleteInstrumento(juzgadoId: number, ordenNumber: number) {
-    return await instrumentosRepo.deleteInstrumento(juzgadoId, ordenNumber);
+   const deleted = await instrumentosRepo.deleteInstrumento(juzgadoId, ordenNumber);
+    revalidatePath("/instrumentos");
+    return deleted;
 }
 
 export async function updateInstrumento(juzgadoId: number, ordenNumber: number, data: InstrumentoDTO) {
-    return await instrumentosRepo.updateInstrumento(juzgadoId, ordenNumber, data);
+    const updated = await instrumentosRepo.updateInstrumento(juzgadoId, ordenNumber, data);
+    revalidatePath("/instrumentos");
+    return updated;
 }
 
 

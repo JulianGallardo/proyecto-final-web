@@ -60,6 +60,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, cur
         }
         await createInstrumento(instrumentDto)
         setIsOpen(false)
+        
     }
 
 

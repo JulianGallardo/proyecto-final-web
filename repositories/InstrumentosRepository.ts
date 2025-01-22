@@ -9,6 +9,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         super(prisma.instrumento);
     }
 
+    itemsPerPage = 10;
+
 
 
     async getTotalPagesInstrumentosPaginated(query: string) {
@@ -18,13 +20,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             return {key, value};
         });
 
-        const itemsPerPage = 5;
 
         const instrumentosCountPromise = await this.modelClient.count({});
 
         const [instrumentosCount] = await Promise.all([instrumentosCountPromise]);
 
-        const totalPages = Math.ceil(instrumentosCount / itemsPerPage);
+        const totalPages = Math.ceil(instrumentosCount / this.itemsPerPage);
 
         return totalPages;
     }
@@ -39,14 +40,13 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             return {key, value};
         });
 
-        const itemsPerPage = 5;
 
 
        
 
         const instrumentosPromise = await this.modelClient.findMany({
-            skip: (page - 1) * itemsPerPage,
-            take: itemsPerPage,
+            skip: (page - 1) * this.itemsPerPage,
+            take: this.itemsPerPage,
             select: {
                 entryDate: true,
                 exitDate: true,

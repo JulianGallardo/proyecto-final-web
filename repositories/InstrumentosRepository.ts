@@ -3,8 +3,6 @@ import BaseRepository from "./BaseRepository";
 import { Instrumento } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
 import SearchParamsInstrumentos from "@/types/searchParams";
-import db from "@/lib/db";
-import { exit } from "process";
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
     constructor() {
@@ -15,21 +13,25 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
 
     filters(searchParams: SearchParamsInstrumentos) {
+
+        const parseString = (value: string) => value.replace(/\+/g, " ");
+
+
         // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
         const filterMapping: { [key: string]: (value: any) => any } = {
             entryDate: (value) => ({ entryDate: { gte: new Date(value) } }),
             exitDate: (value) => ({ exitDate: { lte: new Date(value) } }),
-            caratula: (value) => ({ caratula: { startsWith: value, mode: "insensitive" } }),
-            destinatario: (value) => ({ destinatario: { startsWith: value, mode: "insensitive" } }),
-            address: (value) => ({ address: { startsWith: value, mode: "insensitive" } }),
+            caratula: (value) => ({ caratula: { startsWith: parseString(value), mode: "insensitive" } }),
+            destinatario: (value) => ({ destinatario: { startsWith: parseString(value), mode: "insensitive" } }),
+            address: (value) => ({ address: { startsWith: parseString(value), mode: "insensitive" } }),
             ordenNumber: (value) => ({ ordenNumber: { equals: Number(value) } }),
-            juzgado: (value) => ({ juzgado: { identifier: { startsWith: value, mode: "insensitive" } } }),
-            instrumentType: (value) => ({ instrumentoType: { identifier: { startsWith: value, mode: "insensitive" } } }),
+            juzgado: (value) => ({ juzgado: { identifier: { startsWith: parseString(value), mode: "insensitive" } } }),
+            instrumentType: (value) => ({ instrumentoType: { identifier: { startsWith: parseString(value), mode: "insensitive" } } }),
         };
     
         // Construir dinámicamente el objeto "where"
         const where: any = {
-            OR: Object.entries(searchParams)
+            AND: Object.entries(searchParams)
                 .map(([key, value]) => {
                     const filterBuilder = filterMapping[key];
                     return filterBuilder ? filterBuilder(value) : null; // Construye la condición si existe en el mapeo
@@ -38,7 +40,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         };
     
         // Si no hay condiciones en el "OR", eliminamos el campo
-        if (where.OR.length === 0) {
+        if (where.AND.length === 0) {
             delete where.OR;
         }
     

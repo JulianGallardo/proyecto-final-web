@@ -58,6 +58,12 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
         replace(`${pathname}?${params.toString()}`);
     }
 
+    function clearFilter(param: string) {
+        const params = new URLSearchParams(searchParams);
+        params.delete(param);
+        replace(`${pathname}?${params.toString()}`);
+    }
+
     // Limpia todos los parámetros
     function clearFilters() {
         const params = new URLSearchParams(searchParams);
@@ -86,7 +92,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             key={filtro.param}
                             param={filtro.param}
                             displayName={filtro.displayName}
-                            onChange={(value) => handleSearch(filtro.param, value)}
+                            clearFilter={clearFilter}
                         >
                             {filtro.type === "select" ? (
                                 <Select onValueChange={(value) => handleSearch(filtro.param, value)}>
@@ -123,14 +129,14 @@ interface FiltroProps {
     param: string;
     displayName: string;
     children: React.ReactNode;
-    onChange: (value: string | null) => void;
+    clearFilter: (param:string) => void;
 }
 
-function Filtro({ param, displayName, children, onChange }: Readonly<FiltroProps>) {
+function Filtro({ param, displayName, children, clearFilter }: Readonly<FiltroProps>) {
     const [isActive, setIsActive] = useState(false);
 
     useEffect(() => {
-        if (!isActive) onChange(null); // Limpia el filtro si se desactiva
+        if (!isActive) clearFilter(param) // Limpia el filtro si se desactiva
     }, [isActive]);
 
     return (

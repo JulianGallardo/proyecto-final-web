@@ -15,49 +15,36 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
 
     filters(searchParams: SearchParamsInstrumentos) {
+        // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
+        const filterMapping: { [key: string]: (value: any) => any } = {
+            entryDate: (value) => ({ entryDate: { gte: new Date(value) } }),
+            exitDate: (value) => ({ exitDate: { lte: new Date(value) } }),
+            caratula: (value) => ({ caratula: { startsWith: value, mode: "insensitive" } }),
+            destinatario: (value) => ({ destinatario: { startsWith: value, mode: "insensitive" } }),
+            address: (value) => ({ address: { startsWith: value, mode: "insensitive" } }),
+            ordenNumber: (value) => ({ ordenNumber: { equals: Number(value) } }),
+            juzgado: (value) => ({ juzgado: { identifier: { startsWith: value, mode: "insensitive" } } }),
+            instrumentType: (value) => ({ instrumentoType: { identifier: { startsWith: value, mode: "insensitive" } } }),
+        };
+    
         // Construir dinámicamente el objeto "where"
         const where: any = {
-            OR: [],
+            OR: Object.entries(searchParams)
+                .map(([key, value]) => {
+                    const filterBuilder = filterMapping[key];
+                    return filterBuilder ? filterBuilder(value) : null; // Construye la condición si existe en el mapeo
+                })
+                .filter((condition) => condition !== null), // Elimina las condiciones nulas
         };
-
-        if (searchParams.entryDate) {
-            where.OR.push({ entryDate: { gte: new Date(searchParams.entryDate) } });
-        }
-
-        if (searchParams.exitDate) {
-            where.OR.push({ exitDate: { lte: new Date(searchParams.exitDate) } });
-        }
-
-        if (searchParams.caratula) {
-            where.OR.push({ caratula: { startsWith: searchParams.caratula, mode: "insensitive" } });
-        }
-
-        if (searchParams.destinatario) {
-            where.OR.push({ destinatario: { startsWith: searchParams.destinatario, mode: "insensitive" } });
-        }
-
-        if (searchParams.address) {
-            where.OR.push({ address: { startsWith: searchParams.address, mode: "insensitive" } });
-        }
-
-        if (searchParams.ordenNumber) {
-            where.OR.push({ ordenNumber: { equals: Number(searchParams.ordenNumber) } });
-        }
-
-        if (searchParams.juzgado) {
-            where.OR.push({ juzgado: { identifier: { startsWith: searchParams.juzgado, mode: "insensitive" } } });
-        }
-
-        if (searchParams.instrumentType) {
-            where.OR.push({ instrumentoType: { identifier: { startsWith: searchParams.instrumentType, mode: "insensitive" } } });
-        }
-
+    
         // Si no hay condiciones en el "OR", eliminamos el campo
         if (where.OR.length === 0) {
             delete where.OR;
         }
+    
         return where;
     }
+    
 
 
 

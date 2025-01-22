@@ -7,8 +7,6 @@ interface ColumnsProps {
     onDelete: (instrumento: InstrumentoExtendido) => void;
 }
 
-
-
 const FechaEntradaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fecha: Date = row.getValue("entryDate");
     if (!fecha) return;
@@ -20,16 +18,19 @@ const FechaEntradaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 
 const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fecha: Date = row.getValue("exitDate");
-    if (!fecha) return;
-    return <span>{fecha.toLocaleDateString(
-        "es-ES",
-        { year: "numeric", month: "2-digit", day: "2-digit" }
-    )}</span>;
+    return <span>{
+
+        fecha ?
+            fecha.toLocaleDateString(
+                "es-ES",
+                { year: "numeric", month: "2-digit", day: "2-digit" }) : "No registrada"
+    }
+    </span>;
 };
 
 
 
-export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>):ColumnDef<InstrumentoExtendido>[] =>
+export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef<InstrumentoExtendido>[] =>
     [
 
         {

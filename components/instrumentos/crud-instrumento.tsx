@@ -21,14 +21,12 @@ interface CrudInstrumentosProps {
     instrumentos: InstrumentoExtendido[]
     Juzgados: Juzgado[]
     instrumentoTypes: InstrumentoType[],
-    currentPage: number,
-    totalPages: number
 }
 
-export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, currentPage, totalPages }: Readonly<CrudInstrumentosProps>) {
+export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | undefined>(undefined)
 
-    const { isOpen, setIsOpen } = useCustomDialog()
+    const {  setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
     const { setJuzgados, setInstrumentoTypes } = useInfoInstrumentos()
 

@@ -12,6 +12,9 @@ const Table = React.forwardRef<
       className={cn("w-full caption-bottom text-sm", className)}
       {...props}
     >
+      <thead className="hidden">
+        Tabla
+      </thead>
     </table>
   </div>
 ))

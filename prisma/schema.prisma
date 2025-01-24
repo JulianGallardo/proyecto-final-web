@@ -19,7 +19,6 @@ enum Role {
   admin
 }
 
-
 model User {
   id       String    @id @default(cuid())
   name     String?
@@ -63,10 +62,10 @@ model VerificationToken {
 }
 
 model Coordinates {
-  id         String @id @default(cuid())
-  geometryAssociatedId String 
-  latitude   Float
-  longitude  Float
+  id                   String @id @default(cuid())
+  geometryAssociatedId String
+  latitude             Float
+  longitude            Float
 
   Geometry Geometry @relation(fields: [geometryAssociatedId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
 
@@ -96,44 +95,47 @@ model Zone {
   updatedAt DateTime @updatedAt
 }
 
-model Juzgado{
-  id       Int @id @default(autoincrement())
-  name     String
-  identifier String @unique
+model Juzgado {
+  id           Int           @id @default(autoincrement())
+  name         String
+  identifier   String        @unique
   Instrumentos Instrumento[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model InstrumentoType{
-  id       Int @id @default(autoincrement())
-  name     String
-  identifier String @unique
+model InstrumentoType {
+  id           Int           @id @default(autoincrement())
+  name         String
+  identifier   String        @unique
   Instrumentos Instrumento[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Instrumento{
-  entryDate DateTime @default(now())
-  exitDate  DateTime? 
+model Instrumento {
+  entryDate DateTime  @default(now())
+  exitDate  DateTime?
 
-  caratula  String
+  caratula     String
   destinatario String
 
-  address   String //destinatario postal
+  address     String //destinatario postal
   ordenNumber Int
 
-  juzgadoId Int
+  juzgadoId         Int
   instrumentoTypeId Int
 
-  juzgado Juzgado @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
+  juzgado         Juzgado         @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
   instrumentoType InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  deleted Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@id([juzgadoId, ordenNumber])
 }

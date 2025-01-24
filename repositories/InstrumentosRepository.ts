@@ -28,7 +28,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             juzgado: (value) => ({ juzgado: { identifier: { startsWith: parseString(value), mode: "insensitive" } } }),
             instrumentType: (value) => ({ instrumentoType: { identifier: { startsWith: parseString(value), mode: "insensitive" } } }),
         };
-    
+
         // Construir dinámicamente el objeto "where"
         const where: any = {
             AND: Object.entries(searchParams)
@@ -38,6 +38,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 })
                 .filter((condition) => condition !== null), // Elimina las condiciones nulas
         };
+
+        where.AND.push({ deleted: false }); // Añadir condición para mostrar solo los registros no eliminados
     
         // Si no hay condiciones en el "OR", eliminamos el campo
         if (where.AND.length === 0) {
@@ -286,12 +288,16 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
     async deleteInstrumento(juzgadoId: number, ordenNumber: number): Promise<Instrumento | null> {
-        return this.modelClient.delete({
+        return this.modelClient.update({
             where: {
                 juzgadoId_ordenNumber: {
                     juzgadoId,
                     ordenNumber,
                 },
+            },
+            data: {
+                deletedAt: new Date(),
+                deleted: true,
             },
         });
     }

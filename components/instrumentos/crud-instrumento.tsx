@@ -3,7 +3,7 @@
 import * as React from "react"
 
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
-import { createInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
+import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 import { TablaInstrumentos } from "./Tabla/tabla-instrumento"
 import CustomDialog from "./Dialogs/dialog"
@@ -26,6 +26,7 @@ interface CrudInstrumentosProps {
 
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | undefined>(undefined)
+    const [instrumentoEliminando, setInstrumentoEliminando] = React.useState<InstrumentoExtendido | undefined>(undefined)
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
@@ -103,7 +104,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
     }
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
-        console.log(instrumento)
+        setInstrumentoEliminando(instrumento)
         setIsOpenAlert(true)
     }
 
@@ -147,6 +148,33 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
     }
 
 
+    const handleEliminar = async () => {    
+        if (!instrumentoEliminando){
+            toast({
+                title: "Error",
+                description: "Ha ocurrido un error al eliminar el instrumento",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+            setIsOpenAlert(false)
+            return
+        }
+        const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.juzgadoId, instrumentoEliminando.ordenNumber)
+        if (!instrumentoEliminado) return
+        setIsOpenAlert(false)
+        setInstrumentoEditando(undefined)
+        toast({
+          title: "Éxito",
+          description: "Instrumento eliminado correctamente",
+             className: "bg-green-500 text-white",
+            duration: 3000,
+        });
+    }
+
+    const cancelEliminar = () => {
+        setInstrumentoEliminando(undefined)
+        setIsOpenAlert(false)
+    }
 
 
 
@@ -169,19 +197,19 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                 onClose={handleClose}
             />
             <CustomAlert
-                AlertTitle="Eliminar Instrumento"
+                AlertTitle={"Eliminar Instrumento "+(instrumentoEliminando?.ordenNumber ?? "") + " " + (instrumentoEliminando?.juzgado.identifier || "")}
                 AlertDescription="¿Estás seguro de que deseas eliminar este instrumento?"
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">
                         <Button
                             className="bg-red-500 hover:bg-red-600"
-                            onClick={() => setIsOpenAlert(false)}
+                            onClick={() => handleEliminar()}
                         >
                             Eliminar
                         </Button>
                         <Button
                             className="bg-blue-500 hover:bg-blue-600"
-                            onClick={() => setIsOpenAlert(false)}
+                            onClick={() => cancelEliminar()}
                         >
                             Cancelar
                         </Button>

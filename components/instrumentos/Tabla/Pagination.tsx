@@ -21,13 +21,20 @@ export default function PaginationInstruments({ totalPages }: Readonly<Paginatio
     return (
         <Pagination >
             <PaginationContent>
-                <PaginationPrevious href={createPageURL(currentPage - 1)} hidden={currentPage === 1} />
+
+                {
+                    currentPage > 1 && <PaginationPrevious href={createPageURL(currentPage - 1)} />
+                }
+
                 {totalPages > 1 &&
                     Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                        <PaginationLink key={page} isActive={page===currentPage} href={createPageURL(page)}>{page}</PaginationLink>
+                        <PaginationLink key={page} isActive={page === currentPage} href={createPageURL(page)}>{page}</PaginationLink>
                     ))
                 }
-                <PaginationNext href={createPageURL(currentPage + 1)} hidden={currentPage === totalPages} />
+                {
+                    currentPage < totalPages && <PaginationNext href={createPageURL(currentPage + 1)} />
+                    }
+
 
             </PaginationContent>
 

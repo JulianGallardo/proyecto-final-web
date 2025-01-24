@@ -15,6 +15,7 @@ import { Plus } from "@mynaui/icons-react"
 import CustomAlert from "./Dialogs/alert"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
 import { toast } from "@/hooks/use-toast";
+import PDFUploader from "./inputPdf/inputPdf"
 
 
 interface CrudInstrumentosProps {
@@ -26,7 +27,7 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | undefined>(undefined)
 
-    const {  setIsOpen } = useCustomDialog()
+    const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
     const { setJuzgados, setInstrumentoTypes } = useInfoInstrumentos()
 
@@ -147,7 +148,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
 
 
-    
+
 
 
     return (
@@ -192,14 +193,17 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
 
 
-            
-            <Button
-                onClick={onCreate}
-                className="bg-green-500 hover:bg-green-600"
-            >
-                Crear Instrumento
-                <Plus className="h-4 w-4 text-white" />
-            </Button>
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <Button
+                    onClick={onCreate}
+                    className="bg-green-500 hover:bg-green-600"
+                >
+                    Crear Instrumento
+                    <Plus className="h-4 w-4 text-white" />
+                </Button>
+
+                <PDFUploader />
+            </div>
 
 
 

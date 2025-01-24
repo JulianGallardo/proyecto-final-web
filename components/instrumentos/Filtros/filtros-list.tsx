@@ -140,11 +140,8 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             />
                         ))}
                     </div>
-
-
                 </div>
             }
-
         </div>
     );
 }

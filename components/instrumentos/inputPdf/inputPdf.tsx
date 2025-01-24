@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AlertCircle, FileUp } from "lucide-react"
+import {extractTextFromPDFAndParse} from "@/lib/readPdf"
 
 export default function PDFUploader() {
   const [file, setFile] = useState<File | null>(null)
@@ -19,15 +20,13 @@ export default function PDFUploader() {
     }
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (file) {
-      // Aquí puedes agregar la lógica para enviar el archivo al servidor
-      console.log("Archivo seleccionado:", file.name)
-      // Por ejemplo, podrías usar FormData y fetch para enviar el archivo
-      // const formData = new FormData()
-      // formData.append('pdf', file)
-      // fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await extractTextFromPDFAndParse(file)
+
+      console.log(data)
+      
     }
   }
 

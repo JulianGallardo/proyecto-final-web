@@ -1,9 +1,9 @@
-import fs from "fs";
-// Importar la versión 'legacy' de pdfjs-dist para Node.js
+"use Server";
 import * as pdfjsLib from "pdfjs-dist";
+import "pdfjs-dist/build/pdf.worker";
 
-// Ruta del archivo PDF
-const pdfPath = "./pdfInstrumentos.pdf";
+
+
 
 // Función para procesar cada bloque de texto y extraer campos clave
 function parseTextToJson(text: string): object[] {
@@ -40,9 +40,9 @@ function parseTextToJson(text: string): object[] {
     return data;
 }
 
-async function extractTextFromPDF(pdfPath: string) {
+async function extractTextFromPDF(File: File) {
     // Leer el archivo como un buffer y convertirlo a Uint8Array
-    const pdfBuffer = fs.readFileSync(pdfPath);
+    const pdfBuffer = await File.arrayBuffer();
     const pdfData = new Uint8Array(pdfBuffer);
 
     // Usar el build 'legacy' para cargar el documento PDF
@@ -60,13 +60,8 @@ async function extractTextFromPDF(pdfPath: string) {
     return fullText;
 }
 
-extractTextFromPDF(pdfPath).then((text) => {
-    const jsonData = parseTextToJson(text);
-
-    // Guardar el JSON en un archivo
-    fs.writeFileSync("datosExtraidos.json", JSON.stringify(jsonData, null, 2));
-
-    console.log("Datos extraídos y guardados en datosExtraidos.json");
-}).catch((error) => {
-    console.error("Error extrayendo texto:", error);
-});
+export async function extractTextFromPDFAndParse(File: File) {
+    const pdfText = await extractTextFromPDF(File);
+    const pdfData = parseTextToJson(pdfText);
+    return pdfData;
+}

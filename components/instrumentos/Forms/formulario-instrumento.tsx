@@ -62,6 +62,8 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       instrumentoTypeId: instrumentoType!.id,
       createdAt: instrumento?.createdAt ?? new Date(),
       updatedAt: new Date(),
+      deleted: false,
+      deletedAt: null
     })
   }
 

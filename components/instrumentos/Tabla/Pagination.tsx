@@ -1,6 +1,6 @@
 
 "use client";
-import { Pagination, PaginationContent, PaginationLink } from "@/components/ui/pagination"
+import { Pagination, PaginationContent, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { usePathname, useSearchParams } from "next/navigation";
 
 interface PaginationInstrumentsProps {
@@ -21,11 +21,13 @@ export default function PaginationInstruments({ totalPages }: Readonly<Paginatio
     return (
         <Pagination >
             <PaginationContent>
+                <PaginationPrevious href={createPageURL(currentPage - 1)} hidden={currentPage === 1} />
                 {totalPages > 1 &&
                     Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                         <PaginationLink key={page} isActive={page===currentPage} href={createPageURL(page)}>{page}</PaginationLink>
                     ))
                 }
+                <PaginationNext href={createPageURL(currentPage + 1)} hidden={currentPage === totalPages} />
 
             </PaginationContent>
 

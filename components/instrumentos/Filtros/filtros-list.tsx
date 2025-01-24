@@ -93,9 +93,12 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             param={filtro.param}
                             displayName={filtro.displayName}
                             clearFilter={clearFilter}
+
                         >
                             {filtro.type === "select" ? (
-                                <Select onValueChange={(value) => handleSearch(filtro.param, value)}>
+                                <Select defaultValue={
+                                    searchParams.get(filtro.param) ?? ""
+                                } onValueChange={(value) => handleSearch(filtro.param, value)}>
                                     <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm bg-white px-3 py-2 hover:ring hover:ring-blue-500 focus:ring focus:ring-blue-500 focus:outline-none">
                                         <SelectValue placeholder={`Seleccione ${filtro.displayName}`} className="text-sm text-gray-700" />
                                     </SelectTrigger>
@@ -115,6 +118,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                                     placeholder={filtro.displayName}
                                     className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring focus:ring-blue-500 focus:outline-none"
                                     onChange={(e) => handleSearch(filtro.param, e.target.value)}
+                                    defaultValue={searchParams.get(filtro.param) ?? ""}
                                 />
                             )}
                         </Filtro>
@@ -133,6 +137,15 @@ interface FiltroProps {
 }
 
 function Filtro({ param, displayName, children, clearFilter }: Readonly<FiltroProps>) {
+
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        if (searchParams.has(param)) setIsActive(true);
+    }
+    , []);
+
+
     const [isActive, setIsActive] = useState(false);
 
     useEffect(() => {

@@ -146,6 +146,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
     }
 
 
+
+    
+
+
     return (
         <div className="space-y-4 w-full h-full">
 
@@ -188,7 +192,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
 
 
-
+            
             <Button
                 onClick={onCreate}
                 className="bg-green-500 hover:bg-green-600"
@@ -196,6 +200,8 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                 Crear Instrumento
                 <Plus className="h-4 w-4 text-white" />
             </Button>
+
+
 
 
             <TablaInstrumentos

@@ -77,7 +77,7 @@ export default function PDFUploadProcess() {
         setCurrentPage((page) => Math.max(page - 1, 1));
 
     return (
-        <div className="flex flex-col items-center w-full h-full py-4 gap-2">
+        <div className="flex flex-col items-center w-full h-full py-4 gap-2 px-2 overflow-x-hidden">
             <div className="flex flex-col  gap-4 w-full max-w-3xl">
                 <Button variant="outline" className="flex flex-row w-fit  gap-2">
                     <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit ">
@@ -167,7 +167,7 @@ export default function PDFUploadProcess() {
                                         onClick={goToPreviousPage}
                                         disabled={currentPage === 1}
                                     >
-                                        <ChevronLeftIcon className="h-4 w-4" /> Anterior
+                                        <ChevronLeftIcon className="h-4 w-4" />
                                     </Button>
                                     <span className="text-sm text-gray-600">
                                         Página {currentPage} de {totalPages}
@@ -177,24 +177,19 @@ export default function PDFUploadProcess() {
                                         onClick={goToNextPage}
                                         disabled={currentPage === totalPages}
                                     >
-                                        Siguiente <ChevronRightIcon className="h-4 w-4" />
+                                        <ChevronRightIcon className="h-4 w-4" />
                                     </Button>
                                 </div>
                                 <div className="flex justify-between mt-6">
-                                    <Button variant="outline" onClick={() => setStep(1)}>
-                                        Seleccionar otro archivo
+                                    <Button className=" bg-blue-500 hover:bg-blue-600" onClick={() => setStep(1)}>
+                                        <ChevronLeftIcon className="h-4 w-4" />
+                                        Volver
                                     </Button>
-                                    <Button onClick={confirmUpload}>
+                                    <Button className=" bg-green-500 hover:bg-green-600" onClick={confirmUpload}>
                                         Confirmar carga
+                                        <ChevronRightIcon className="h-4 w-4" />
                                     </Button>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    className="mt-4 w-full"
-                                    onClick={handleCancel}
-                                >
-                                    Cancelar
-                                </Button>
                             </div>
                         )}
 

@@ -16,6 +16,7 @@ import CustomAlert from "./Dialogs/alert"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
 import { toast } from "@/hooks/use-toast";
 import PDFUploader from "./inputPdf/inputPdf"
+import Link from "next/link"
 
 
 interface CrudInstrumentosProps {
@@ -148,8 +149,8 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
     }
 
 
-    const handleEliminar = async () => {    
-        if (!instrumentoEliminando){
+    const handleEliminar = async () => {
+        if (!instrumentoEliminando) {
             toast({
                 title: "Error",
                 description: "Ha ocurrido un error al eliminar el instrumento",
@@ -164,9 +165,9 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         setIsOpenAlert(false)
         setInstrumentoEditando(undefined)
         toast({
-          title: "Éxito",
-          description: "Instrumento eliminado correctamente",
-             className: "bg-green-500 text-white",
+            title: "Éxito",
+            description: "Instrumento eliminado correctamente",
+            className: "bg-green-500 text-white",
             duration: 3000,
         });
     }
@@ -197,7 +198,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                 onClose={handleClose}
             />
             <CustomAlert
-                AlertTitle={"Eliminar Instrumento "+(instrumentoEliminando?.ordenNumber ?? "") + " " + (instrumentoEliminando?.juzgado.identifier || "")}
+                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.ordenNumber ?? "") + " " + (instrumentoEliminando?.juzgado.identifier || "")}
                 AlertDescription="¿Estás seguro de que deseas eliminar este instrumento?"
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">
@@ -230,7 +231,14 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                     <Plus className="h-4 w-4 text-white" />
                 </Button>
 
-                <PDFUploader />
+                <Button
+                    className="bg-blue-500 hover:bg-blue-600"
+                >
+                    <Link href="/instrumentos/upload">
+
+                        Cargar instrumentos por PDF
+                    </Link>
+                </Button>
             </div>
 
 

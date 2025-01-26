@@ -14,27 +14,18 @@ import {
 } from "lucide-react";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
 import Link from "next/link";
+import { createInstrumentoFromPDF } from "@/actions/instrumentos-actions";
+import { InstrumentPDFDTO } from "@/types/instrumento";
+import { toast } from "@/hooks/use-toast";
 
 const ITEMS_PER_PAGE = 10;
 
-interface InstrumentDTO {
-    organismo: string;
-    caratula: string;
-    numero: number;
-    destinatario: string;
-    domicilio: string;
-    destinatarioPostal: string;
-    altaDisponibilidad: string;
-    notificacion: string;
-    tramite: string;
-    codigo: string;
-    estado: string;
-}
+
 
 export default function PDFUploadProcess() {
     const [step, setStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
-    const [data, setData] = useState<InstrumentDTO[]>([]);
+    const [data, setData] = useState<InstrumentPDFDTO[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,13 +41,30 @@ export default function PDFUploadProcess() {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (file) {
-            const parsedData = await extractTextFromPDFAndParse(file) as InstrumentDTO[];
+            const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
+            console.log(parsedData);
             setData(parsedData);
             setStep(2);
         }
     };
 
-    const confirmUpload = () => setStep(3);
+    const confirmUpload = async () => {
+        try {
+            for (const element of data) {
+                await createInstrumentoFromPDF(element);
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: (error instanceof Error ? error.message : "Ha ocurrido un error al crear el instrumento"),
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+            return;
+        }
+
+        setStep(3);
+    }
 
     const handleCancel = () => {
         setFile(null);
@@ -79,13 +87,14 @@ export default function PDFUploadProcess() {
     return (
         <div className="flex flex-col items-center w-full h-full py-4 gap-2 px-2 overflow-x-hidden">
             <div className="flex flex-col  gap-4 w-full max-w-3xl">
-                <Button variant="outline" className="flex flex-row w-fit  gap-2">
-                    <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit ">
+                <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit ">
+                    <Button variant="outline" className="flex flex-row w-fit  gap-2">
+
 
                         <ChevronLeftIcon className="h-4 w-4" />
                         Volver al listado
-                    </Link>
-                </Button>
+                    </Button>
+                </Link>
 
                 <Card className="w-full max-w-3xl shadow-md">
 
@@ -206,13 +215,15 @@ export default function PDFUploadProcess() {
                                     <Button onClick={handleCancel}>
                                         Cargar otro archivo
                                     </Button>
-                                    <Button
-                                        variant="outline"
-                                    >
-                                        <Link href="/instrumentos">
+                                    <Link href="/instrumentos">
+                                        <Button
+                                            variant="outline"
+                                        >
+
                                             Volver al listado
-                                        </Link>
-                                    </Button>
+
+                                        </Button>
+                                    </Link>
                                 </div>
 
 

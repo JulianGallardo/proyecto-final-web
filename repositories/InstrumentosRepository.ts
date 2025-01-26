@@ -173,6 +173,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 juzgado: {
                     connect: {
                         identifier: data.juzgadoIdentifier,
+                        
                     },
                 },
                 instrumentoType: {

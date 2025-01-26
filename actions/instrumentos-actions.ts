@@ -2,15 +2,21 @@
 import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
-import { InstrumentoDTO } from "@/types/instrumento";
+import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumento";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import SearchParamsInstrumentos from "@/types/searchParams";
+import InstrumentoService from "@/lib/instrumentoService";
 
 
 const instrumentosRepo = new InstrumentosRepository();
 const juzgadosRepo = new JuzgadoRepository();
 const instrumentTypesRepo = new InstrumentTypeRepository();
+const instrumentoService = new InstrumentoService(
+    juzgadosRepo,
+    instrumentTypesRepo,
+    instrumentosRepo
+);
 
 
 export async function getJuzgados() {
@@ -48,36 +54,42 @@ export async function deleteInstrumentType(id: number) {
 //----------------------------------------------- Instrumentos----------------------------------------------------------------
 
 export async function getInstrumentos() {
-    return instrumentosRepo.getInstrumentos();
+    return instrumentoService.getInstrumentos();
 }
 
 export async function getInstrumentosPaginated(searchParams:SearchParamsInstrumentos, page: number) {
-    const instrumentos = await instrumentosRepo.getInstrumentosPaginated(searchParams, page);
+    const instrumentos = await instrumentoService.getInstrumentosPaginated(searchParams, page);
     return instrumentos;
 }
 
 export async function getTotalPagesInstrumentosPaginated(searchParams: SearchParamsInstrumentos) {
-    const totalPages = await instrumentosRepo.getTotalPagesInstrumentosPaginated(searchParams);
+    const totalPages = await instrumentoService.getTotalPagesInstrumentosPaginated(searchParams);
     return totalPages;
 }
 
 export async function createInstrumento(data: InstrumentoDTO) {
-    const instrumento =  await instrumentosRepo.createInstrumento(data);
+    const instrumento =  await instrumentoService.createInstrumento(data);
     revalidatePath("/instrumentos");
     return instrumento;
     
 }
 
 export async function deleteInstrumento(juzgadoId: number, ordenNumber: number) {
-   const deleted = await instrumentosRepo.deleteInstrumento(juzgadoId, ordenNumber);
+   const deleted = await instrumentoService.deleteInstrumento(juzgadoId, ordenNumber);
     revalidatePath("/instrumentos");
     return deleted;
 }
 
 export async function updateInstrumento(juzgadoId: number, ordenNumber: number, data: InstrumentoDTO) {
-    const updated = await instrumentosRepo.updateInstrumento(juzgadoId, ordenNumber, data);
+    const updated = await instrumentoService.updateInstrumento(juzgadoId, ordenNumber, data);
     revalidatePath("/instrumentos");
     return updated;
+}
+
+export async function createInstrumentoFromPDF(instrumento: InstrumentPDFDTO) {
+    const created = await instrumentoService.createInstrumentoFromPDF(instrumento);
+    revalidatePath("/instrumentos");
+    return created;
 }
 
 

@@ -230,15 +230,16 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                     Crear Instrumento
                     <Plus className="h-4 w-4 text-white" />
                 </Button>
+                <Link href="/instrumentos/upload">
+                    <Button
+                        className="bg-blue-500 hover:bg-blue-600"
+                    >
 
-                <Button
-                    className="bg-blue-500 hover:bg-blue-600"
-                >
-                    <Link href="/instrumentos/upload">
 
                         Cargar instrumentos por PDF
-                    </Link>
-                </Button>
+
+                    </Button>
+                </Link>
             </div>
 
 

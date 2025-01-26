@@ -1,3 +1,4 @@
+import { deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
 import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
@@ -65,12 +66,20 @@ export default class InstrumentoService {
 
     async createInstrumento(data: InstrumentoDTO) {
         const instrumento = await this.instrumentoRepository.createInstrumento(data);
+
         return instrumento;
 
     }
 
     async createInstrumentoFromPDF(instrumento: InstrumentPDFDTO) {
         const instrumentoDto = await this.getInstrumentoDto(instrumento);
+
+        const isInDb = await this.instrumentoRepository.getInstrumento(instrumentoDto.juzgadoIdentifier, instrumentoDto.caratula, instrumentoDto.destinatario);
+
+        if (isInDb) {
+            throw new Error("El instrumento ya existe en la bdd");
+        }
+
         const created = await this.createInstrumento(instrumentoDto);
         return created;
     }
@@ -83,5 +92,31 @@ export default class InstrumentoService {
     async updateInstrumento(juzgadoId: number, ordenNumber: number, data: InstrumentoDTO) {
         const updated = await this.instrumentoRepository.updateInstrumento(juzgadoId, ordenNumber, data);
         return updated;
+    }
+
+    async deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {
+        const filteredInstrument = [];
+        const instrumentsWithJuzgadoError = [];
+        const instrumentsWithInstrumentTypeError = [];
+        for (const instrumento of instrumentos) {
+            const instrumentoDto = await this.getInstrumentoDto(instrumento);
+            try {
+
+                const isInDb = await this.instrumentoRepository.getInstrumento(instrumentoDto.juzgadoIdentifier, instrumentoDto.caratula, instrumentoDto.destinatario);
+                if (!isInDb) {
+                    filteredInstrument.push(instrumento);
+                }
+            }
+            catch (e) {
+                if ((e as Error).message === "No se encontro el juzgado") {
+                    instrumentsWithJuzgadoError.push(instrumento);
+                }
+                else if ((e as Error).message === "No se encontro el tipo de instrumento") {
+                    instrumentsWithInstrumentTypeError.push(instrumento);
+                }
+            }
+
+        }
+        return { filteredInstrument, instrumentsWithJuzgadoError, instrumentsWithInstrumentTypeError };
     }
 }

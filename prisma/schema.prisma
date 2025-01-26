@@ -15,8 +15,9 @@ generator client {
 }
 
 enum Role {
-  user
-  admin
+  agente
+  mesa_de_entrada
+  jefatura
 }
 
 model User {
@@ -26,7 +27,7 @@ model User {
   password String?
   image    String?
   accounts Account[]
-  role     Role      @default(user)
+  role     Role      @default(agente)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -138,4 +139,5 @@ model Instrumento {
   deletedAt DateTime?
 
   @@id([juzgadoId, ordenNumber])
+  @@unique([juzgadoId, caratula, destinatario])
 }

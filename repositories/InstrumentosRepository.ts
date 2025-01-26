@@ -4,6 +4,34 @@ import { Instrumento } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
 import SearchParamsInstrumentos from "@/types/searchParams";
 
+
+const selectOptions = {
+    entryDate: true,
+    exitDate: true,
+    caratula: true,
+    destinatario: true,
+    address: true,
+    ordenNumber: true,
+    juzgadoId: true,
+    instrumentoTypeId: true,
+    juzgado: {
+        select: {
+            name: true,
+            identifier: true,
+        },
+    },
+    instrumentoType: {
+        select: {
+            name: true,
+            identifier: true,
+        },
+    },
+    createdAt: true,
+    updatedAt: true,
+};
+
+
+
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
     constructor() {
         super(prisma.instrumento);
@@ -50,6 +78,30 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
     
 
+    async getInstrumentoById(juzgadoId: number, ordenNumber: number): Promise<InstrumentoExtendido | null> {
+        return this.modelClient.findUnique({
+            where: {
+                juzgadoId_ordenNumber: {
+                    juzgadoId,
+                    ordenNumber,
+                },
+            },
+            select: selectOptions,
+        });
+    }
+
+    async getInstrumento(juzgadoIdentifier:string,caratula:string,destinatario:string): Promise<InstrumentoExtendido | null> {
+        return this.modelClient.findFirst({
+            where: {
+                caratula: caratula,
+                destinatario: destinatario,
+                juzgado: {
+                    identifier: juzgadoIdentifier,
+                },
+            },
+            select: selectOptions,
+        });
+    }
 
 
     async getTotalPagesInstrumentosPaginated(searchParams: SearchParamsInstrumentos) {
@@ -76,30 +128,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             where,
             skip: (page - 1) * this.itemsPerPage,
             take: this.itemsPerPage,
-            select: {
-                entryDate: true,
-                exitDate: true,
-                caratula: true,
-                destinatario: true,
-                address: true,
-                ordenNumber: true,
-                juzgadoId: true,
-                instrumentoTypeId: true,
-                juzgado: {
-                    select: {
-                        name: true,
-                        identifier: true,
-                    },
-                },
-                instrumentoType: {
-                    select: {
-                        name: true,
-                        identifier: true,
-                    },
-                },
-                createdAt: true,
-                updatedAt: true,
-            },
+            select: selectOptions,
         });
 
         return instrumentos;
@@ -110,30 +139,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
     async getInstrumentos(): Promise<InstrumentoExtendido[]> {
         return this.modelClient.findMany({
-            select: {
-                entryDate: true,
-                exitDate: true,
-                caratula: true,
-                destinatario: true,
-                address: true,
-                ordenNumber: true,
-                juzgadoId: true,
-                instrumentoTypeId: true,
-                juzgado: {
-                    select: {
-                        name: true,
-                        identifier: true,
-                    },
-                },
-                instrumentoType: {
-                    select: {
-                        name: true,
-                        identifier: true,
-                    },
-                },
-                createdAt: true,
-                updatedAt: true,
-            },
+            select: selectOptions,
         });
     }
 
@@ -165,7 +171,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 caratula: data.caratula,
                 destinatario: data.destinatario,
                 address: data.address,
-                ordenNumber: ordenNumber, // Ya no es un Promise
+                ordenNumber: ordenNumber, 
                 juzgado: {
                     connect: {
                         identifier: data.juzgadoIdentifier,
@@ -178,30 +184,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     },
                 },
             },
-            select: {
-                entryDate: true,
-                exitDate: true,
-                caratula: true,
-                destinatario: true,
-                address: true,
-                ordenNumber: true,
-                juzgadoId: true,
-                instrumentoTypeId: true,
-                juzgado: {
-                    select: {
-                        name: true,
-                        identifier: true,
-                    },
-                },
-                instrumentoType: {
-                    select: {
-                        name: true,
-                        identifier: true,
-                    },
-                },
-                createdAt: true,
-                updatedAt: true,
-            }
+            select: selectOptions
         });
 
         return creado;
@@ -255,30 +238,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     },
                 },
             },
-            select: {
-                entryDate: true,
-                exitDate: true,
-                caratula: true,
-                destinatario: true,
-                address: true,
-                ordenNumber: true,
-                juzgadoId: true,
-                instrumentoTypeId: true,
-                juzgado: {
-                    select: {
-                        name: true,
-                        identifier: true,
-                    },
-                },
-                instrumentoType: {
-                    select: {
-                        name: true,
-                        identifier: true,
-                    },
-                },
-                createdAt: true,
-                updatedAt: true,
-            }
+            select: selectOptions
         });
 
         return update;

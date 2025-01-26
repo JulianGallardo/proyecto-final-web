@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
 import Link from "next/link";
-import { createInstrumentoFromPDF } from "@/actions/instrumentos-actions";
+import { createInstrumentoFromPDF, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
 import { InstrumentPDFDTO } from "@/types/instrumento";
 import { toast } from "@/hooks/use-toast";
 
@@ -26,6 +26,7 @@ export default function PDFUploadProcess() {
     const [step, setStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
     const [data, setData] = useState<InstrumentPDFDTO[]>([]);
+    const [instrumnetsWithErrors, setInstrumentsWithErrors] = useState<InstrumentPDFDTO[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,11 +42,26 @@ export default function PDFUploadProcess() {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (file) {
-            const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
-            console.log(parsedData);
-            setData(parsedData);
-            setStep(2);
-        }
+            try {
+                const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
+                if (!parsedData) {
+                    throw new Error("No se pudo extraer información del PDF");
+                }
+                const { filteredInstrument, instrumentsWithJuzgadoError, instrumentsWithInstrumentTypeError } = await deleteDuplicatePdfEntries(parsedData);
+
+
+                setData(filteredInstrument);
+                setStep(2);
+            } catch (error) {
+                toast({
+                    title: "Error",
+                    description: (error instanceof Error ? error.message : "Ha ocurrido un error al procesar el PDF"),
+                    className: "bg-red-500 text-white",
+                    duration: 3000,
+                });
+                return;
+            }
+        };
     };
 
     const confirmUpload = async () => {
@@ -89,8 +105,6 @@ export default function PDFUploadProcess() {
             <div className="flex flex-col  gap-4 w-full max-w-3xl">
                 <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit ">
                     <Button variant="outline" className="flex flex-row w-fit  gap-2">
-
-
                         <ChevronLeftIcon className="h-4 w-4" />
                         Volver al listado
                     </Button>

@@ -99,9 +99,9 @@ export default class InstrumentoService {
         const instrumentsWithJuzgadoError = [];
         const instrumentsWithInstrumentTypeError = [];
         for (const instrumento of instrumentos) {
-            const instrumentoDto = await this.getInstrumentoDto(instrumento);
+            
             try {
-
+                const instrumentoDto = await this.getInstrumentoDto(instrumento);
                 const isInDb = await this.instrumentoRepository.getInstrumento(instrumentoDto.juzgadoIdentifier, instrumentoDto.caratula, instrumentoDto.destinatario);
                 if (!isInDb) {
                     filteredInstrument.push(instrumento);

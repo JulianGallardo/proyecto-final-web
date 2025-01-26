@@ -26,7 +26,8 @@ export default function PDFUploadProcess() {
     const [step, setStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
     const [data, setData] = useState<InstrumentPDFDTO[]>([]);
-    const [instrumnetsWithErrors, setInstrumentsWithErrors] = useState<InstrumentPDFDTO[]>([]);
+    const [instrumentsWithJuzgadoError, setInstrumentsWithJuzgadoError] = useState<InstrumentPDFDTO[]>([]);
+    const [instrumentsWithInstrumentTypeError, setInstrumentsWithInstrumentTypeError] = useState<InstrumentPDFDTO[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,8 +51,18 @@ export default function PDFUploadProcess() {
                 const { filteredInstrument, instrumentsWithJuzgadoError, instrumentsWithInstrumentTypeError } = await deleteDuplicatePdfEntries(parsedData);
 
 
+                if(instrumentsWithInstrumentTypeError.length === 0 && instrumentsWithJuzgadoError.length === 0){
+                    setData(filteredInstrument);
+                    setStep(3);
+                    return;
+                }
+                
+
+                setInstrumentsWithJuzgadoError(instrumentsWithJuzgadoError);
+                setInstrumentsWithInstrumentTypeError(instrumentsWithInstrumentTypeError);
                 setData(filteredInstrument);
                 setStep(2);
+
             } catch (error) {
                 toast({
                     title: "Error",
@@ -144,6 +155,7 @@ export default function PDFUploadProcess() {
                                         Archivo seleccionado: <strong>{file.name}</strong>
                                     </p>
                                 )}
+
                                 <Button
                                     className="w-full mt-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-300"
                                     disabled={!file}
@@ -154,8 +166,87 @@ export default function PDFUploadProcess() {
                                 </Button>
                             </div>
                         )}
-
                         {step === 2 && (
+
+                            <div className="flex flex-col gap-4">
+                                <h2 className="text-2xl font-semibold text-gray-800">
+                                    Datos procesados
+                                </h2>
+
+                                {instrumentsWithJuzgadoError.length > 0 && (
+                                    <div className="flex flex-col gap-4">
+                                        <h3 className="text-lg font-semibold text-red-600">Errores de juzgado</h3>
+                                        <ul className="space-y-2">
+                                            {instrumentsWithJuzgadoError.map((item, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="flex flex-col  bg-red-100 p-3 rounded-lg"
+                                                >
+                                                    <div className="flex flex-row items-center gap-2">
+                                                        <FileIcon className="h-5 w-5 text-red-500" />
+                                                        <span className="text-sm text-gray-800 font-medium">
+                                                            {item.caratula}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-sm text-gray-600">
+                                                        Error: No se encontro el juzgado
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                                {instrumentsWithInstrumentTypeError.length > 0 && (
+                                    <div className="flex flex-col gap-4">
+                                        <h3 className="text-lg font-semibold text-red-600">Errores de tipo de instrumento</h3>
+                                        <ul className="space-y-2">
+                                            {instrumentsWithInstrumentTypeError.map((item, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="flex flex-col  bg-red-100 p-3 rounded-lg"
+                                                >
+                                                    <div className="flex flex-row items-center gap-2">
+                                                        <FileIcon className="h-5 w-5 text-red-500" />
+                                                        <span className="text-sm text-gray-800 font-medium">
+                                                            {item.caratula}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-sm text-gray-600">
+                                                        Error: No se encontro el tipo de instrumento
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+
+                                <div className="flex justify-between mt-6">
+                                    <Button
+                                        className=" mt-4 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300"
+                                        onClick={() => setStep(1)}
+                                    >
+
+                                        <ChevronLeftIcon className="h-4 w-4" />
+                                        Volver
+                                    </Button>
+                                    <Button
+                                        className=" mt-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-300"
+                                        disabled={!file}
+                                        onClick={handleSubmit as any}
+                                    >
+                                        Siguiente paso
+                                        <ChevronRightIcon className="h-4 w-4" />
+                                    </Button>
+                                </div>
+
+
+
+
+                            </div>
+                        )}
+
+                        {step === 3 && (
                             <div className="flex flex-col gap-4">
                                 <h2 className="text-2xl font-semibold text-gray-800">
                                     Datos procesados
@@ -216,7 +307,7 @@ export default function PDFUploadProcess() {
                             </div>
                         )}
 
-                        {step === 3 && (
+                        {step === 4 && (
                             <div className="flex flex-col gap-2 text-center items-center justify-center w-full h-full">
                                 <CheckIcon className="h-12 w-12 text-green-500" />
                                 <h2 className=" text-2xl font-semibold text-gray-800">

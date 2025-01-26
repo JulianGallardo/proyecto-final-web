@@ -17,6 +17,7 @@ import { extractTextFromPDFAndParse } from "@/lib/readPdf";
 import { createInstrumentoFromPDF, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
 import { InstrumentPDFDTO } from "@/types/instrumento";
 import { toast } from "@/hooks/use-toast";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,9 +25,14 @@ const ITEMS_PER_PAGE = 10;
 function StepFileUpload({ file, onFileChange, onNext }: Readonly<{
     file: File | null;
     onFileChange: (file: File | null) => void;
-    onNext: () => void;
+    onNext: () => Promise<void>;
 }>) {
+
+
+    const [loading, setLoading] = useState(false);
+
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
         const selectedFile = event.target.files?.[0];
         if (selectedFile && selectedFile.type === "application/pdf") {
             onFileChange(selectedFile);
@@ -35,6 +41,11 @@ function StepFileUpload({ file, onFileChange, onNext }: Readonly<{
             alert("Por favor, selecciona un archivo PDF válido.");
         }
     };
+
+    const handleOnNext = async () => {
+        setLoading(true);
+        onNext().finally(() => setLoading(false));
+    }
 
     return (
         <div className="flex flex-col gap-4">
@@ -56,17 +67,32 @@ function StepFileUpload({ file, onFileChange, onNext }: Readonly<{
                         accept=".pdf"
                         className="hidden"
                         onChange={handleFileChange}
+                        disabled={loading}
                     />
                 </Label>
             </div>
             {file && <p className="mt-2 text-sm text-gray-600">Archivo seleccionado: <strong>{file.name}</strong></p>}
             <Button
                 className="w-full mt-4 bg-green-500 hover:bg-green-600 disabled:bg-gray-300"
-                disabled={!file}
-                onClick={onNext}
+                disabled={!file || loading}
+                onClick={handleOnNext}
             >
-                Siguiente paso
-                <ChevronRightIcon className="h-4 w-4" />
+                {
+                    loading ?
+
+                        <ClipLoader
+                            loading
+                            size={20}
+                            speedMultiplier={1}
+                            color="#ffffff"
+                        />
+                        :
+                        <>
+                            Siguiente paso
+                            <ChevronRightIcon className="h-4 w-4" />
+                        </>
+                }
+
             </Button>
         </div>
     );

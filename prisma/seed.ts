@@ -43,7 +43,7 @@ const instrumentTypes: Prisma.InstrumentoTypeCreateInput[] = [
 ]
 
 const Juzgados: Prisma.JuzgadoCreateInput[] = [
-    { name: "Juzgado en lo Civil y Comercial N° 1", identifier: "JCC1" },
+    { name: "JUZGADO EN LO CIVIL Y COMERCIAL Nº 1 - BAHIA BLANCA", identifier: "JCC1" },
     { name: "Juzgado en lo Civil y Comercial N° 2", identifier: "JCC2" },
     { name: "Juzgado en lo Civil y Comercial N° 3", identifier: "JCC3" },
     { name: "Juzgado en lo Civil y Comercial N° 4", identifier: "JCC4" },
@@ -53,7 +53,7 @@ const Juzgados: Prisma.JuzgadoCreateInput[] = [
     { name: "Juzgado en lo Civil y Comercial N° 8", identifier: "JCC8" },
     { name: "Tribunal de Trabajo N° 1", identifier: "TT1" },
     { name: "Tribunal de Trabajo N° 2", identifier: "TT2" },
-    { name: "Juzgado de Familia N° 1", identifier: "JF1" },
+    { name: "JUZGADO DE FAMILIA N° 1 - BAHIA BLANCA", identifier: "JF1" },
     { name: "Juzgado de Familia N° 2", identifier: "JF2" },
     { name: "Juzgado de Familia N° 3", identifier: "JF3" },
     { name: "Juzgado de Familia N° 4", identifier: "JF4" },

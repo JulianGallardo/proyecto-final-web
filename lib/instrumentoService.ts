@@ -20,12 +20,20 @@ export default class InstrumentoService {
     async getInstrumentoDto(instrumento: InstrumentPDFDTO): Promise<InstrumentoDTO> {
         console.log(instrumento);
         const juzgadoPromise = this.juzgadosRepository.getByName(instrumento.organismo);
-        const instrumentoTypePromise = this.instrumentoTypeRepository.getByName(instrumento.tramite);
+
+        const instrumentoTypeParsed = instrumento.tramite.split(" ")[0];
+        console.log(instrumentoTypeParsed);
+
+        const instrumentoTypePromise = this.instrumentoTypeRepository.getByName(instrumentoTypeParsed);
 
         const [juzgado, instrumentoType] = await Promise.all([juzgadoPromise, instrumentoTypePromise]);
 
-        if (!juzgado || !instrumentoType) {
-            throw new Error("No se encontró el juzgado o el tipo de instrumento");
+        if (!juzgado) {
+            throw new Error("No se encontro el juzgado");
+        }
+
+        if (!instrumentoType) {
+            throw new Error("No se encontro el tipo de instrumento");
         }
 
         return {

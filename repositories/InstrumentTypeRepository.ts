@@ -8,10 +8,20 @@ export default class InstrumentTypeRepository extends BaseRepository<Instrumento
     }
 
     getByName(name: string): Promise<InstrumentoType | null> {
-        return this.modelClient.findFirst({ where: { name } });
+        return this.modelClient.findFirst({
+            where: {
+                name:
+                    { startsWith: name, mode: "insensitive" }
+            }
+        });
     }
 
     getByIdentifier(identifier: string): Promise<InstrumentoType | null> {
-        return this.modelClient.findFirst({ where: { identifier } });
+        return this.modelClient.findFirst({
+            where: {
+                identifier:
+                    { startsWith: identifier, mode: "insensitive" }
+            }
+        });
     }
 }

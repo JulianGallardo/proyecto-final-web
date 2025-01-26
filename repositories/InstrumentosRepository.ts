@@ -57,10 +57,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const where = this.filters(searchParams);
 
-
-
-
-
         const instrumentosCountPromise = await this.modelClient.count({
             where,
         });

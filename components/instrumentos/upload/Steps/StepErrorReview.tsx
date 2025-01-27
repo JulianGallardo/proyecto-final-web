@@ -1,6 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { InstrumentPDFDTO } from "@/types/instrumento";
+import { useCustomDialog } from "@/hooks/useCustomDialog";
+import { InstrumentoDTO, InstrumentoExtendido, InstrumentPDFDTO } from "@/types/instrumento";
 import { ChevronLeftIcon, ChevronRightIcon, FileIcon } from "lucide-react";
+import CustomDialog from "../../Dialogs/dialog";
+import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
+import { useEffect, useState } from "react";
+import { getInstrumentoExtendido, getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
+import { InstrumentoType, Juzgado } from "@prisma/client";
 
 export default function StepErrorReview({
     data,
@@ -8,8 +14,8 @@ export default function StepErrorReview({
     onBack,
     onNext
 }: Readonly<{
-    data: InstrumentPDFDTO[];
-    errors: { juzgadoErrors: InstrumentPDFDTO[]; typeErrors: InstrumentPDFDTO[] };
+    data: InstrumentoDTO[];
+    errors: { juzgadoErrors: InstrumentoDTO[]; typeErrors: InstrumentoDTO[] };
     onBack: () => void;
     onNext: () => void;
 }>) {
@@ -20,14 +26,14 @@ export default function StepErrorReview({
             {errors.juzgadoErrors.length > 0 && (
                 <ErrorList
                     title="Errores de juzgado"
-                    errors={errors.juzgadoErrors.map(e => ({ message: "No se encontró el juzgado", caratula: e.caratula }))}
+                    instrumentErrors={errors.juzgadoErrors}
                 />
             )}
 
             {errors.typeErrors.length > 0 && (
                 <ErrorList
                     title="Errores de tipo de instrumento"
-                    errors={errors.typeErrors.map(e => ({ message: "No se encontró el tipo de instrumento", caratula: e.caratula }))}
+                    instrumentErrors={errors.typeErrors}
                 />
             )}
 
@@ -53,18 +59,102 @@ export default function StepErrorReview({
 }
 
 /** Error List Component */
-function ErrorList({ title, errors }: Readonly<{ title: string; errors: { caratula: string; message: string }[] }>) {
+function ErrorList({ title, instrumentErrors }: Readonly<{ title: string; instrumentErrors: InstrumentoDTO[] }>) {
+
+
+
+
+    const {setIsOpen} = useCustomDialog();
+    const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined);
+    const [instrumentoTypes, setInstrumentoTypes] = useState<InstrumentoType[]>([]);
+    const [juzgados, setJuzgados] = useState<Juzgado[]>([]);
+
+    useEffect(() => {
+        const fetchInstrumentoTypes = async () => {
+            const instrumentoTypes = await getInstrumentTypes();
+            setInstrumentoTypes(instrumentoTypes);
+        }
+
+        const fetchJuzgados = async () => {
+            const juzgadosFetch = await getJuzgados();
+            setJuzgados(juzgadosFetch);
+        }
+
+        fetchInstrumentoTypes();
+        fetchJuzgados();
+    }, []);
+
+    
+    const handleClose = () => {
+        setIsOpen(false);
+    }
+
+    const handleEditar = (data: InstrumentoExtendido) => {
+        console.log(data);
+    }
+    
+
+    const handleSetInstrumentoEditando = (instrumento: InstrumentoDTO) => {
+        getInstrumentoExtendido(instrumento).then(instrumentoExtendido => {
+            const extendedInstrumento: InstrumentoExtendido = {
+                ...instrumentoExtendido,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                ordenNumber: 0,
+                juzgadoId: 0,
+                instrumentoTypeId: 0,
+                deleted: false,
+                deletedAt: null,
+                // Add other missing properties with default values
+            };
+
+        
+            setInstrumentoEditando(extendedInstrumento);
+
+            
+            setIsOpen(true);
+        });
+    }
+
+
+
+
+
+
     return (
         <div className="flex flex-col gap-4">
+            <CustomDialog
+                dialogTitle={"Completar Información"}
+                dialogDescription={"Completa la información del instrumento faltante"}
+                propDialogContent={
+                    <FormularioInstrumento
+                        instrumentoTypes={instrumentoTypes}
+                        Juzgados={juzgados}
+                        onSubmit={handleEditar}
+                        instrumento={instrumentoEditando}
+                    />
+                }
+                customClose={true}
+                onClose={handleClose}
+            />
             <h3 className="text-lg font-semibold text-red-600">{title}</h3>
             <ul className="space-y-2">
-                {errors.map((error, index) => (
+                {instrumentErrors.map((error, index) => (
                     <li key={index} className="flex flex-col bg-red-100 p-3 rounded-lg">
                         <div className="flex flex-row items-center gap-2">
                             <FileIcon className="h-5 w-5 text-red-500" />
                             <span className="text-sm text-gray-800 font-medium">{error.caratula}</span>
+
                         </div>
-                        <span className="text-sm text-gray-600">Error: {error.message}</span>
+                        <Button
+                            className="bg-blue-500 hover:bg-blue-600"
+                            onClick={() => {
+                                 handleSetInstrumentoEditando(error);
+                            }}
+                        >
+                            Completar Información
+                        </Button>
+
                     </li>
                 ))}
             </ul>

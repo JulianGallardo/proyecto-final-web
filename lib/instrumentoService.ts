@@ -89,9 +89,9 @@ export default class InstrumentoService {
     }
 
     async deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {
-        const filteredInstrument: InstrumentPDFDTO[] = [];
-        const instrumentsWithJuzgadoError: InstrumentPDFDTO[] = [];
-        const instrumentsWithInstrumentTypeError: InstrumentPDFDTO[] = [];
+        const filteredInstrument: InstrumentoDTO[] = [];
+        const instrumentsWithJuzgadoError: InstrumentoDTO[] = [];
+        const instrumentsWithInstrumentTypeError: InstrumentoDTO[] = [];
     
         // Procesa todos los instrumentos en paralelo
         await Promise.all(
@@ -101,12 +101,12 @@ export default class InstrumentoService {
                     
                     // Revisa si el juzgado y el tipo de instrumento son válidos
                     if (!instrumentoDto.juzgadoIdentifier || instrumentoDto.juzgadoIdentifier === "") {
-                        instrumentsWithJuzgadoError.push(instrumento);
+                        instrumentsWithJuzgadoError.push(instrumentoDto);
                         return;
                     }
     
                     if (!instrumentoDto.instrumentoTypeIdentifier || instrumentoDto.instrumentoTypeIdentifier === "") {
-                        instrumentsWithInstrumentTypeError.push(instrumento);
+                        instrumentsWithInstrumentTypeError.push(instrumentoDto);
                         return;
                     }
     
@@ -118,7 +118,7 @@ export default class InstrumentoService {
                     );
     
                     if (!isInDb) {
-                        filteredInstrument.push(instrumento);
+                        filteredInstrument.push(instrumentoDto);
                     }
                 } catch (e) {
                     console.error(`Error procesando instrumento: ${instrumento.caratula}. Error: ${(e as Error).message}`);
@@ -127,6 +127,19 @@ export default class InstrumentoService {
         );
     
         return { filteredInstrument, instrumentsWithJuzgadoError, instrumentsWithInstrumentTypeError };
+    }
+
+    async getInstrumentoExtendido(instrumento:InstrumentoDTO){
+        const juzgado = await this.juzgadosRepository.getByIdentifier(instrumento.juzgadoIdentifier);
+        const instrumentoType = await this.instrumentoTypeRepository.getByIdentifier(instrumento.instrumentoTypeIdentifier);
+
+
+
+        return {
+            ...instrumento,
+            juzgado: juzgado ? { name: juzgado.name, identifier: juzgado.identifier } : { name: "", identifier: "" },
+            instrumentoType: instrumentoType ? { name: instrumentoType.name, identifier: instrumentoType.identifier } : { name: "", identifier: "" }
+        }
     }
 
 }

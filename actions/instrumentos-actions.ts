@@ -97,4 +97,7 @@ export async function deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]
     return { filteredInstrument, instrumentsWithJuzgadoError, instrumentsWithInstrumentTypeError };
 }
 
+export async function getInstrumentoExtendido(instrumento: InstrumentoDTO) {
+    return instrumentoService.getInstrumentoExtendido(instrumento);
+}
 

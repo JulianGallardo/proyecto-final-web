@@ -68,15 +68,15 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         };
 
         where.AND.push({ deleted: false }); // Añadir condición para mostrar solo los registros no eliminados
-    
+
         // Si no hay condiciones en el "OR", eliminamos el campo
         if (where.AND.length === 0) {
             delete where.OR;
         }
-    
+
         return where;
     }
-    
+
 
     async getInstrumentoById(juzgadoId: number, ordenNumber: number): Promise<InstrumentoExtendido | null> {
         return this.modelClient.findUnique({
@@ -90,7 +90,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
     }
 
-    async getInstrumento(juzgadoIdentifier:string,caratula:string,destinatario:string): Promise<InstrumentoExtendido | null> {
+    async getInstrumento(juzgadoIdentifier: string, caratula: string, destinatario: string): Promise<InstrumentoExtendido | null> {
         return this.modelClient.findFirst({
             where: {
                 caratula: caratula,
@@ -163,31 +163,38 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         // Espera a que `ordenNumber` sea calculado antes de usarlo
         const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
 
-        // Ahora puedes usar el valor numérico resuelto
-        const creado = await this.modelClient.create({
-            data: {
-                entryDate: data.entryDate,
-                exitDate: data.exitDate || undefined,
-                caratula: data.caratula,
-                destinatario: data.destinatario,
-                address: data.address,
-                ordenNumber: ordenNumber, 
-                juzgado: {
-                    connect: {
-                        identifier: data.juzgadoIdentifier,
-                        
-                    },
-                },
-                instrumentoType: {
-                    connect: {
-                        identifier: data.instrumentoTypeIdentifier,
-                    },
-                },
-            },
-            select: selectOptions
-        });
+        console.log(data);
+        try {
+            const creado = await this.modelClient.create({
+                data: {
+                    entryDate: data.entryDate,
+                    exitDate: data.exitDate || undefined,
+                    caratula: data.caratula,
+                    destinatario: data.destinatario,
+                    address: data.address,
+                    ordenNumber: ordenNumber,
+                    juzgado: {
+                        connect: {
+                            identifier: data.juzgadoIdentifier,
 
-        return creado;
+                        },
+                    },
+                    instrumentoType: {
+                        connect: {
+                            identifier: data.instrumentoTypeIdentifier,
+                        },
+                    },
+                },
+                select: selectOptions
+            });
+
+            return creado;
+
+        } catch (error) {
+            throw new Error("Ocurrio un error al intentar crear el instrumento, intente de nuevo.");
+
+        }
+
     }
 
 

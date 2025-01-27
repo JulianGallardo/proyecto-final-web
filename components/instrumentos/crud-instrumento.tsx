@@ -158,17 +158,9 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         setIsOpenAlert(false)
     }
 
-    const convertToDto = (instrumento: InstrumentoExtendido|undefined): InstrumentoDTO => {
+    const convertToDto = (instrumento: InstrumentoExtendido|undefined): InstrumentoDTO|undefined => {
         if (!instrumento){
-            return {
-                entryDate: new Date(),
-                exitDate: null,
-                caratula: "",
-                destinatario: "",
-                address: "",
-                juzgadoIdentifier: "",
-                instrumentoTypeIdentifier: ""
-            }
+            return undefined
         }
 
         

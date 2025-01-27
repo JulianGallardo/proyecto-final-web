@@ -51,7 +51,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
   function handleSubmit(values: z.infer<typeof instrumentSchema>) {
 
     const Juzgado = Juzgados.find(juzgado => juzgado.identifier === values.juzgado)
-    const instrumentoType = instrumentoTypes.find(instrumentType => instrumentType.name === values.instrumentType)
+    const instrumentoType = instrumentoTypes.find(instrumentType => instrumentType.identifier === values.instrumentType)
 
     onSubmit({
       entryDate: new Date(values.entryDate),
@@ -60,7 +60,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       destinatario: values.destinatario,
       address: values.address,
       juzgadoIdentifier: Juzgado?.identifier ?? "",
-      instrumentoTypeIdentifier: instrumentoType?.name ?? "",
+      instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
     })
   }
 

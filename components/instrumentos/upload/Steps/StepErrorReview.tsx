@@ -125,38 +125,25 @@ interface ErrorListProps {
 }
 
 /** Error List Component */
-function ErrorList({ title, instrumentErrors,handleSetInstrumentoEditando }: Readonly<ErrorListProps>) {
-
-
-
-
-
-
-
-
-
-
-
+function ErrorList({ title, instrumentErrors, handleSetInstrumentoEditando }: Readonly<ErrorListProps>) {
     return (
-        <div className="flex flex-col gap-4">
-
-            <h3 className="text-lg font-semibold text-red-600">{title}</h3>
-            <ul className="space-y-2">
-                {instrumentErrors.map((error, index,) => (
-                    <li key={index} className="flex flex-col bg-red-100 p-3 rounded-lg">
-                        <div className="flex flex-row items-center gap-2">
-                            <FileIcon className="h-5 w-5 text-red-500" />
-                            <span className="text-sm text-gray-800 font-medium">{error.caratula}</span>
-
+        <div className="flex flex-col gap-6 p-4 bg-red-50 rounded-lg shadow-md">
+            <h3 className="text-xl font-bold text-red-700 border-b border-red-300 pb-2">{title}</h3>
+            <ul className="space-y-4">
+                {instrumentErrors.map((error, index) => (
+                    <li 
+                        key={index} 
+                        className="flex flex-col gap-3 bg-red-100 p-4 rounded-lg shadow-sm border border-red-200 hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3">
+                            <FileIcon className="h-6 w-6 text-red-600" />
+                            <span className="text-base font-medium text-gray-900">{error.caratula}</span>
                         </div>
                         <Button
-                            className="bg-blue-500 hover:bg-blue-600 w-fit"
+                            className="px-4 py-2 text-sm font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
                             onClick={() => handleSetInstrumentoEditando(error)}
-
                         >
                             Completar Información
                         </Button>
-
                     </li>
                 ))}
             </ul>

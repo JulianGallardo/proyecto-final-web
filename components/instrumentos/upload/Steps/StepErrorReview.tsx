@@ -15,7 +15,7 @@ export default function StepErrorReview({
     onNext
 }: Readonly<{
     editInstrumentDataError: (instrumento: InstrumentoDTO) => void;
-    errors: { juzgadoErrors: InstrumentoDTO[]; typeErrors: InstrumentoDTO[] };
+    errors: InstrumentoDTO[];
     onBack: () => void;
     onNext: () => void;
 }>) {
@@ -80,25 +80,17 @@ export default function StepErrorReview({
                 onClose={handleClose}
             />
 
-            {errors.juzgadoErrors.length > 0 && (
+            {errors.length > 0 && (
                 <ErrorList
-                    title="Errores de juzgado"
-                    instrumentErrors={errors.juzgadoErrors}
+                    title="Información incompleta"
+                    instrumentErrors={errors}
                     handleSetInstrumentoEditando={handleSetInstrumentoEditando}
 
-                />
-            )}
-
-            {errors.typeErrors.length > 0 && (
-                <ErrorList
-                    title="Errores de tipo de instrumento"
-                    instrumentErrors={errors.typeErrors}
-                    handleSetInstrumentoEditando={handleSetInstrumentoEditando}
                 />
             )}
 
             {
-                errors.juzgadoErrors.length === 0 && errors.typeErrors.length === 0 && (
+                errors.length === 0 && (
                     <div className="bg-green-100 p-4 rounded-lg">
                         <p className="text-green-600">No se han encontrado errores en los datos procesados</p>
                     </div>
@@ -115,7 +107,7 @@ export default function StepErrorReview({
                 </Button>
                 <Button
                     className="bg-green-500 hover:bg-green-600 disabled:bg-gray-300"
-                    disabled={errors.juzgadoErrors.length > 0 || errors.typeErrors.length > 0}
+                    disabled={errors.length > 0 }
                     onClick={onNext}
                 >
                     Siguiente paso

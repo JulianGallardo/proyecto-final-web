@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
-import {  createInstrumentos, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
+import { createInstrumentos, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
 import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { toast } from "@/hooks/use-toast";
 import StepDataReview from "@/components/instrumentos/upload/Steps/StepDataReview";
@@ -24,8 +24,7 @@ export default function PDFUploadProcess() {
     const [step, setStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
     const [data, setData] = useState<InstrumentoDTO[]>([]);
-    const [instrumentsWithJuzgadoError, setInstrumentsWithJuzgadoError] = useState<InstrumentoDTO[]>([]);
-    const [instrumentsWithInstrumentTypeError, setInstrumentsWithInstrumentTypeError] = useState<InstrumentoDTO[]>([]);
+    const [instrumentosConErrores, setinstrumentosConErrores] = useState<InstrumentoDTO[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleFileUpload = async () => {
@@ -34,13 +33,12 @@ export default function PDFUploadProcess() {
                 const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
                 if (!parsedData) throw new Error("No se pudo extraer información del PDF");
 
-                const { filteredInstrument, instrumentsWithJuzgadoError, instrumentsWithInstrumentTypeError } = await deleteDuplicatePdfEntries(parsedData);
+                const { filteredInstrument, instrumentosWithErrors } = await deleteDuplicatePdfEntries(parsedData);
 
-                setInstrumentsWithJuzgadoError(instrumentsWithJuzgadoError);
-                setInstrumentsWithInstrumentTypeError(instrumentsWithInstrumentTypeError);
                 setData(filteredInstrument);
+                setinstrumentosConErrores(instrumentosWithErrors);
 
-                setStep(instrumentsWithJuzgadoError.length || instrumentsWithInstrumentTypeError.length ? 2 : 3);
+                setStep(instrumentosConErrores.length ? 2 : 3);
             } catch (error) {
                 toast({
                     title: "Error",
@@ -70,8 +68,13 @@ export default function PDFUploadProcess() {
 
     const editInstrumentDataError = (instrument: InstrumentoDTO) => {
         if (instrument.juzgadoIdentifier !== "" && instrument.instrumentoTypeIdentifier !== "") {
-            setInstrumentsWithJuzgadoError((prev) => prev.filter((item) => item.caratula !== instrument.caratula));
-            setInstrumentsWithInstrumentTypeError((prev) => prev.filter((item) => item.caratula !== instrument.caratula));
+            const index = instrumentosConErrores.findIndex((i) => i.caratula === instrument.caratula);
+            if (index !== -1) {
+                const newErrors = [...instrumentosConErrores];
+                newErrors.splice(index, 1);
+                setinstrumentosConErrores(newErrors);
+                setData((prev) => [...prev, instrument]);
+            }
             setData((prev) => [...prev, instrument]);
         }
     };
@@ -100,10 +103,7 @@ export default function PDFUploadProcess() {
 
                         {step === 2 && (
                             <StepErrorReview
-                                errors={{
-                                    juzgadoErrors: instrumentsWithJuzgadoError,
-                                    typeErrors: instrumentsWithInstrumentTypeError
-                                }}
+                                errors={instrumentosConErrores}
                                 editInstrumentDataError={editInstrumentDataError}
 
                                 onBack={() => setStep(1)}

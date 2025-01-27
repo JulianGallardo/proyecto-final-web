@@ -1,4 +1,3 @@
-import { deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
 import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
@@ -83,8 +82,7 @@ export default class InstrumentoService {
 
     async deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {
         const filteredInstrument: InstrumentoDTO[] = [];
-        const instrumentsWithJuzgadoError: InstrumentoDTO[] = [];
-        const instrumentsWithInstrumentTypeError: InstrumentoDTO[] = [];
+        const instrumentosWithErrors: InstrumentoDTO[] = [];
     
         // Procesa todos los instrumentos en paralelo
         await Promise.all(
@@ -93,13 +91,8 @@ export default class InstrumentoService {
                     const instrumentoDto = await this.getInstrumentoDto(instrumento);
                     
                     // Revisa si el juzgado y el tipo de instrumento son válidos
-                    if (!instrumentoDto.juzgadoIdentifier || instrumentoDto.juzgadoIdentifier === "") {
-                        instrumentsWithJuzgadoError.push(instrumentoDto);
-                        return;
-                    }
-    
-                    if (!instrumentoDto.instrumentoTypeIdentifier || instrumentoDto.instrumentoTypeIdentifier === "") {
-                        instrumentsWithInstrumentTypeError.push(instrumentoDto);
+                    if ( instrumentoDto.juzgadoIdentifier === "" || instrumentoDto.instrumentoTypeIdentifier === "") {
+                        instrumentosWithErrors.push(instrumentoDto);
                         return;
                     }
     
@@ -119,7 +112,7 @@ export default class InstrumentoService {
             })
         );
     
-        return { filteredInstrument, instrumentsWithJuzgadoError, instrumentsWithInstrumentTypeError };
+        return { filteredInstrument, instrumentosWithErrors };
     }
 
     async getInstrumentoExtendido(instrumento:InstrumentoDTO){

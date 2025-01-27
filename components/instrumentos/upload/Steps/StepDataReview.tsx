@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { InstrumentPDFDTO } from "@/types/instrumentoTypes";
+import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { FileIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 
@@ -14,7 +14,7 @@ export default function StepDataReview({
     onBack,
     onConfirm
 }: Readonly<{
-    data: InstrumentPDFDTO[];
+    data: InstrumentoDTO[];
     currentPage: number;
     totalPages: number;
     onNextPage: () => void;
@@ -34,9 +34,9 @@ export default function StepDataReview({
                             <FileIcon className="h-5 w-5 text-blue-500" />
                             <span className="text-sm text-gray-800 font-medium">{item.caratula}</span>
                         </div>
-                        <span className="text-sm text-gray-600">Organismo: {item.organismo}</span>
-                        <span className="text-sm text-gray-600">Tramite: {item.tramite}</span>
-                        <span className="text-sm text-gray-600">Fecha: {item.altaDisponibilidad}</span>
+                        <span className="text-sm text-gray-600">Organismo: {item.juzgadoIdentifier}</span>
+                        <span className="text-sm text-gray-600">Tramite: {item.instrumentoTypeIdentifier}</span>
+                        <span className="text-sm text-gray-600">Fecha: {item.entryDate.toLocaleDateString()}</span>
                     </li>
                 ))}
             </ul>

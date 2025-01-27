@@ -65,16 +65,9 @@ export default class InstrumentoService {
 
     }
 
-    async createInstrumentoFromPDF(instrumento: InstrumentPDFDTO) {
-        const instrumentoDto = await this.getInstrumentoDto(instrumento);
-
-        const isInDb = await this.instrumentoRepository.getInstrumento(instrumentoDto.juzgadoIdentifier, instrumentoDto.caratula, instrumentoDto.destinatario);
-
-        if (isInDb) {
-            throw new Error("El instrumento ya existe en la bdd");
-        }
-
-        const created = await this.createInstrumento(instrumentoDto);
+    async createInstrumentos(instrumentos: InstrumentoDTO[]) {
+        const promises = instrumentos.map((instrumento) => this.createInstrumento(instrumento));
+        const created = await Promise.all(promises);
         return created;
     }
 

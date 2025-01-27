@@ -86,8 +86,8 @@ export async function updateInstrumento(juzgadoId: number, ordenNumber: number, 
     return updated;
 }
 
-export async function createInstrumentoFromPDF(instrumento: InstrumentPDFDTO) {
-    const created = await instrumentoService.createInstrumentoFromPDF(instrumento);
+export async function createInstrumentos(instrumentos: InstrumentoDTO[]) {
+    const created = await instrumentoService.createInstrumentos(instrumentos);
     revalidatePath("/instrumentos");
     return created;
 }

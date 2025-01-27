@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
-import { createInstrumentoFromPDF, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
+import {  createInstrumentos, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
 import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { toast } from "@/hooks/use-toast";
 import StepDataReview from "@/components/instrumentos/upload/Steps/StepDataReview";
@@ -54,9 +54,7 @@ export default function PDFUploadProcess() {
 
     const confirmUpload = async () => {
         try {
-            for (const element of data) {
-                await createInstrumentoFromPDF(element);
-            }
+            await createInstrumentos(data);
             setStep(4);
         } catch (error) {
             toast({
@@ -102,7 +100,6 @@ export default function PDFUploadProcess() {
 
                         {step === 2 && (
                             <StepErrorReview
-                                data={data}
                                 errors={{
                                     juzgadoErrors: instrumentsWithJuzgadoError,
                                     typeErrors: instrumentsWithInstrumentTypeError

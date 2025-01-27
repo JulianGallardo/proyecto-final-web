@@ -163,37 +163,31 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         // Espera a que `ordenNumber` sea calculado antes de usarlo
         const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
 
-        console.log(data);
-        try {
-            const creado = await this.modelClient.create({
-                data: {
-                    entryDate: data.entryDate,
-                    exitDate: data.exitDate || undefined,
-                    caratula: data.caratula,
-                    destinatario: data.destinatario,
-                    address: data.address,
-                    ordenNumber: ordenNumber,
-                    juzgado: {
-                        connect: {
-                            identifier: data.juzgadoIdentifier,
+        const creado = await this.modelClient.create({
+            data: {
+                entryDate: data.entryDate,
+                exitDate: data.exitDate || undefined,
+                caratula: data.caratula,
+                destinatario: data.destinatario,
+                address: data.address,
+                ordenNumber: ordenNumber,
+                juzgado: {
+                    connect: {
+                        identifier: data.juzgadoIdentifier,
 
-                        },
-                    },
-                    instrumentoType: {
-                        connect: {
-                            identifier: data.instrumentoTypeIdentifier,
-                        },
                     },
                 },
-                select: selectOptions
-            });
+                instrumentoType: {
+                    connect: {
+                        identifier: data.instrumentoTypeIdentifier,
+                    },
+                },
+            },
+            select: selectOptions
+        });
 
-            return creado;
+        return creado;
 
-        } catch (error) {
-            throw new Error("Ocurrio un error al intentar crear el instrumento, intente de nuevo.");
-
-        }
 
     }
 

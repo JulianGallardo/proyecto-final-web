@@ -33,8 +33,6 @@ interface FormularioInstrumentoProps {
 export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes }: Readonly<FormularioInstrumentoProps>) {
   const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(instrumentSchema),
-
-    
     defaultValues: {
       entryDate: instrumento?.entryDate.toISOString().split("T")[0] ?? "",
       caratula: instrumento?.caratula ?? "",
@@ -44,8 +42,6 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       instrumentType: instrumento?.instrumentoTypeIdentifier ,
     },
   })
-
-  console.log(instrumento)
 
 
   function handleSubmit(values: z.infer<typeof instrumentSchema>) {

@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
 import { createInstrumentoFromPDF, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
-import { InstrumentPDFDTO } from "@/types/instrumentoTypes";
+import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { toast } from "@/hooks/use-toast";
 import StepDataReview from "@/components/instrumentos/upload/Steps/StepDataReview";
 import StepErrorReview from "@/components/instrumentos/upload/Steps/StepErrorReview";
@@ -23,9 +23,9 @@ const ITEMS_PER_PAGE = 10;
 export default function PDFUploadProcess() {
     const [step, setStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
-    const [data, setData] = useState<InstrumentPDFDTO[]>([]);
-    const [instrumentsWithJuzgadoError, setInstrumentsWithJuzgadoError] = useState<InstrumentPDFDTO[]>([]);
-    const [instrumentsWithInstrumentTypeError, setInstrumentsWithInstrumentTypeError] = useState<InstrumentPDFDTO[]>([]);
+    const [data, setData] = useState<InstrumentoDTO[]>([]);
+    const [instrumentsWithJuzgadoError, setInstrumentsWithJuzgadoError] = useState<InstrumentoDTO[]>([]);
+    const [instrumentsWithInstrumentTypeError, setInstrumentsWithInstrumentTypeError] = useState<InstrumentoDTO[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleFileUpload = async () => {
@@ -68,6 +68,16 @@ export default function PDFUploadProcess() {
         }
     };
 
+
+
+    const editInstrumentDataError = (instrument: InstrumentoDTO) => {
+        if (instrument.juzgadoIdentifier !== "" && instrument.instrumentoTypeIdentifier !== "") {
+            setInstrumentsWithJuzgadoError((prev) => prev.filter((item) => item.caratula !== instrument.caratula));
+            setInstrumentsWithInstrumentTypeError((prev) => prev.filter((item) => item.caratula !== instrument.caratula));
+            setData((prev) => [...prev, instrument]);
+        }
+    };
+
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
 
     return (
@@ -97,6 +107,8 @@ export default function PDFUploadProcess() {
                                     juzgadoErrors: instrumentsWithJuzgadoError,
                                     typeErrors: instrumentsWithInstrumentTypeError
                                 }}
+                                editInstrumentDataError={editInstrumentDataError}
+
                                 onBack={() => setStep(1)}
                                 onNext={() => setStep(3)}
                             />

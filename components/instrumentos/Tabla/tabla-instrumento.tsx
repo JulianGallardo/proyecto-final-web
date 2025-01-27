@@ -7,7 +7,7 @@ import {
   SortingState,
   getSortedRowModel
 } from "@tanstack/react-table";
-import { InstrumentoExtendido } from "@/types/instrumento";
+import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { columns } from "./col-tabla-instrumento";
 import { useState } from "react";
 import { SearchX  } from "@mynaui/icons-react";

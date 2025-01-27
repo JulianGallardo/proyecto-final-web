@@ -14,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { InstrumentoExtendido } from "@/types/instrumento"
+import { InstrumentoDTO } from "@/types/instrumentoTypes"
 import { instrumentSchema } from "@/lib/zod"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { InstrumentoType, Juzgado } from "@prisma/client"
@@ -23,8 +23,8 @@ import { InstrumentoType, Juzgado } from "@prisma/client"
 
 
 interface FormularioInstrumentoProps {
-  instrumento?: InstrumentoExtendido,
-  onSubmit: (data: InstrumentoExtendido) => void,
+  instrumento?: InstrumentoDTO,
+  onSubmit: (data: InstrumentoDTO) => void,
   
   Juzgados: Juzgado[],
   instrumentoTypes: InstrumentoType[]
@@ -33,15 +33,19 @@ interface FormularioInstrumentoProps {
 export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes }: Readonly<FormularioInstrumentoProps>) {
   const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(instrumentSchema),
+
+    
     defaultValues: {
       entryDate: instrumento?.entryDate.toISOString().split("T")[0] ?? "",
       caratula: instrumento?.caratula ?? "",
       destinatario: instrumento?.destinatario ?? "",
       address: instrumento?.address ?? "",
-      juzgado: instrumento?.juzgado.identifier ?? "",
-      instrumentType: instrumento?.instrumentoType.name ?? "",
+      juzgado: instrumento?.juzgadoIdentifier,
+      instrumentType: instrumento?.instrumentoTypeIdentifier ,
     },
   })
+
+  console.log(instrumento)
 
 
   function handleSubmit(values: z.infer<typeof instrumentSchema>) {
@@ -55,15 +59,8 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       caratula: values.caratula,
       destinatario: values.destinatario,
       address: values.address,
-      juzgado: Juzgado!,
-      instrumentoType: instrumentoType!,
-      juzgadoId: Juzgado!.id,
-      ordenNumber: instrumento?.ordenNumber ?? 0,
-      instrumentoTypeId: instrumentoType!.id,
-      createdAt: instrumento?.createdAt ?? new Date(),
-      updatedAt: new Date(),
-      deleted: false,
-      deletedAt: null
+      juzgadoIdentifier: Juzgado?.identifier ?? "",
+      instrumentoTypeIdentifier: instrumentoType?.name ?? "",
     })
   }
 
@@ -183,7 +180,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
 
                     <SelectGroup >
                       {instrumentoTypes.map((instrumentoType) => (
-                        <SelectItem key={instrumentoType.id} value={instrumentoType.name} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                        <SelectItem key={instrumentoType.id} value={instrumentoType.identifier} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
                           {instrumentoType.name}
                         </SelectItem>
                       ))}

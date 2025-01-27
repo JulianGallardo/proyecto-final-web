@@ -1,4 +1,4 @@
-import { InstrumentoExtendido } from "@/types/instrumento";
+import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import AccionesList from "./acciones-list";
 import { Button } from "../../ui/button";

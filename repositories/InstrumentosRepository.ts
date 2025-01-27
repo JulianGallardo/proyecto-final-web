@@ -1,7 +1,7 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Instrumento } from "@prisma/client";
-import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento";
+import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 
 

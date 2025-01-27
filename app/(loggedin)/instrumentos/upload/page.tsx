@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
 import { createInstrumentoFromPDF, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
-import { InstrumentPDFDTO } from "@/types/instrumento";
+import { InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { toast } from "@/hooks/use-toast";
 import StepDataReview from "@/components/instrumentos/upload/Steps/StepDataReview";
 import StepErrorReview from "@/components/instrumentos/upload/Steps/StepErrorReview";

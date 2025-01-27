@@ -1,7 +1,7 @@
 import { Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip";
 import { Pencil, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { InstrumentoExtendido } from "@/types/instrumento";
+import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 
 
 interface ColumnsProps {

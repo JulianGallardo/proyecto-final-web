@@ -2,7 +2,7 @@
 import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
-import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumento";
+import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import SearchParamsInstrumentos from "@/types/searchParams";

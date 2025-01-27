@@ -2,7 +2,7 @@ import { deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
 import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
-import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumento";
+import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 
 export default class InstrumentoService {

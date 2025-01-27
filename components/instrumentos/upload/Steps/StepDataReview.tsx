@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { InstrumentPDFDTO } from "@/types/instrumento";
+import { InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { FileIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 

@@ -2,7 +2,7 @@ import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import UserRepository from "@/repositories/UserRepository";
-import { InstrumentoDTO } from "@/types/instrumento";
+import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { Prisma, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 

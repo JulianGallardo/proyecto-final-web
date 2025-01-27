@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
-import { InstrumentoDTO, InstrumentoExtendido, InstrumentPDFDTO } from "@/types/instrumento";
+import { InstrumentoDTO, InstrumentoExtendido, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { ChevronLeftIcon, ChevronRightIcon, FileIcon } from "lucide-react";
 import CustomDialog from "../../Dialogs/dialog";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";

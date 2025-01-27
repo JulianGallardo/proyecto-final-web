@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumento"
+import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes"
 import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 import { TablaInstrumentos } from "./Tabla/tabla-instrumento"
@@ -15,7 +15,6 @@ import { Plus } from "@mynaui/icons-react"
 import CustomAlert from "./Dialogs/alert"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
 import { toast } from "@/hooks/use-toast";
-import PDFUploader from "./inputPdf/inputPdf"
 import Link from "next/link"
 
 
@@ -50,21 +49,12 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
     }
 
 
-    const handleCrear = async (nuevoInstrumento: InstrumentoExtendido) => {
+    const handleCrear = async (nuevoInstrumento: InstrumentoDTO) => {
 
-        const instrumentDto: InstrumentoDTO = {
-            entryDate: nuevoInstrumento.entryDate,
-            exitDate: nuevoInstrumento.exitDate,
-            caratula: nuevoInstrumento.caratula,
-            destinatario: nuevoInstrumento.destinatario,
-            address: nuevoInstrumento.address,
-            juzgadoIdentifier: nuevoInstrumento.juzgado.identifier,
-            instrumentoTypeIdentifier: nuevoInstrumento.instrumentoType.identifier,
-        }
 
         try {
 
-            const instrumentoCreado = await createInstrumento(instrumentDto)
+            const instrumentoCreado = await createInstrumento(nuevoInstrumento)
 
             if (!instrumentoCreado) return
 
@@ -111,20 +101,11 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
 
 
-    const handleEditar = async (instrumentoEditado: InstrumentoExtendido) => {
+    const handleEditar = async (instrumentoEditado: InstrumentoDTO) => {
         if (!instrumentoEditando) return
 
-        const instrumentDto: InstrumentoDTO = {
-            entryDate: instrumentoEditado.entryDate,
-            exitDate: instrumentoEditado.exitDate,
-            caratula: instrumentoEditado.caratula,
-            destinatario: instrumentoEditado.destinatario,
-            address: instrumentoEditado.address,
-            juzgadoIdentifier: instrumentoEditado.juzgado.identifier,
-            instrumentoTypeIdentifier: instrumentoEditado.instrumentoType.identifier,
-        }
         try {
-            const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentDto)
+            const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentoEditado)
             if (!instrumentoActualizado) return
         } catch (error) {
             toast({
@@ -177,6 +158,33 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         setIsOpenAlert(false)
     }
 
+    const convertToDto = (instrumento: InstrumentoExtendido|undefined): InstrumentoDTO => {
+        if (!instrumento){
+            return {
+                entryDate: new Date(),
+                exitDate: null,
+                caratula: "",
+                destinatario: "",
+                address: "",
+                juzgadoIdentifier: "",
+                instrumentoTypeIdentifier: ""
+            }
+        }
+
+        
+        const instrumentoDto: InstrumentoDTO = {
+            entryDate: instrumento.entryDate,
+            exitDate: instrumento.exitDate,
+            caratula: instrumento.caratula,
+            destinatario: instrumento.destinatario,
+            address: instrumento.address,
+            juzgadoIdentifier: instrumento.juzgado.identifier,
+            instrumentoTypeIdentifier: instrumento.instrumentoType.identifier
+        }
+
+        return instrumentoDto
+    }
+
 
 
 
@@ -191,7 +199,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                         instrumentoTypes={instrumentoTypes}
                         Juzgados={Juzgados}
                         onSubmit={instrumentoEditando ? handleEditar : handleCrear}
-                        instrumento={instrumentoEditando}
+                        instrumento={convertToDto(instrumentoEditando)}
                     />
                 }
                 customClose={true}

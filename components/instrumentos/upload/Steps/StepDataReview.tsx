@@ -11,11 +11,14 @@ import { Accordion } from "@/components/ui/accordion";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
 import { ArrowDown } from "@mynaui/icons-react";
 import { parseDate } from "@/lib/utils";
+import CustomAlert from "../../Dialogs/alert";
+import { useCustomAlert } from "@/hooks/useCustomAlert";
 
 
 const ITEMS_PER_PAGE = 10;
 
 export default function StepDataReview({
+    deleteInstrumentData,
     editInstrumentData,
     data,
     currentPage,
@@ -25,6 +28,7 @@ export default function StepDataReview({
     onBack,
     onConfirm
 }: Readonly<{
+    deleteInstrumentData: (instrumento: InstrumentoDTO) => void;
     editInstrumentData: (instrumento: InstrumentoDTO) => void;
     data: InstrumentoDTO[];
     currentPage: number;
@@ -37,7 +41,9 @@ export default function StepDataReview({
 
     const paginatedData = data.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
     const { setIsOpen } = useCustomDialog();
+    const { setIsOpenAlert } = useCustomAlert();
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoDTO | undefined>(undefined);
+    const [instrumentoCancelando, setInstrumentoCancelando] = useState<InstrumentoDTO | undefined>(undefined);
 
     const [instrumentoTypes, setInstrumentoTypes] = useState<InstrumentoType[]>([]);
     const [juzgados, setJuzgados] = useState<Juzgado[]>([]);
@@ -77,6 +83,29 @@ export default function StepDataReview({
     }
 
 
+    //Cancelar carga
+
+    const onCancelarCarga = (instrumento:InstrumentoDTO) => {
+        setInstrumentoCancelando(instrumento);
+        setIsOpenAlert(true);
+    }
+
+
+    const handleEliminar = () => {
+        if (!instrumentoCancelando) return;
+        deleteInstrumentData(instrumentoCancelando);
+        setIsOpenAlert(false);
+    }
+
+    const cancelEliminar = () => {
+        setInstrumentoCancelando(undefined);
+        setIsOpenAlert(false);
+    }
+
+
+
+
+
 
     return (
         <div className="flex flex-col gap-4">
@@ -95,12 +124,34 @@ export default function StepDataReview({
                 onClose={handleClose}
             />
 
+            <CustomAlert
+                AlertTitle={"Cancelar Carga"}
+                AlertDescription="¿Estás seguro de que deseas cancelar la carga del instrumento?"
+                propAlertDialogContent={
+                    <div className="flex flex-row justify-center gap-4">
+                        <Button
+                            className="bg-red-500 hover:bg-red-600"
+                            onClick={() => handleEliminar()}
+                        >
+                            Eliminar
+                        </Button>
+                        <Button
+                            className="bg-blue-500 hover:bg-blue-600"
+                            onClick={() => cancelEliminar()}
+                        >
+                            Cancelar
+                        </Button>
+                    </div>
+                }
+
+            />
+
 
             <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
             <div className="flex flex-col gap-4 w-full">
 
                 {paginatedData.map((item, index) => (
-                    <InstrumentoDataView key={index} instrumento={item} handleSetInstrumentoEditando={handleSetInstrumentoEditando} />
+                    <InstrumentoDataView key={index} instrumento={item} handleSetInstrumentoEditando={handleSetInstrumentoEditando} onCancel={onCancelarCarga} />
                 ))}
             </div>
             <div className="flex items-center justify-between mt-4">
@@ -126,7 +177,7 @@ export default function StepDataReview({
     );
 }
 
-function InstrumentoDataView({ instrumento, handleSetInstrumentoEditando }: Readonly<{ instrumento: InstrumentoDTO, handleSetInstrumentoEditando: (instrumento: InstrumentoDTO) => void }>) {
+function InstrumentoDataView({ instrumento, handleSetInstrumentoEditando, onCancel }: Readonly<{ instrumento: InstrumentoDTO, handleSetInstrumentoEditando: (instrumento: InstrumentoDTO) => void, onCancel: (instrumento: InstrumentoDTO) => void }>) {
     return (
         <div className="flex flex-col items-center gap-4 p-4 bg-white shadow-lg rounded-2xl w-full  border border-gray-200">
             <div className="flex items-center gap-3 bg-gray-100 p-3 rounded-lg w-full">
@@ -144,11 +195,16 @@ function InstrumentoDataView({ instrumento, handleSetInstrumentoEditando }: Read
                             <span className="text-sm text-gray-700"><strong>Juzgado:</strong> {instrumento.juzgadoIdentifier}</span>
                             <span className="text-sm text-gray-700"><strong>Tipo de instrumento:</strong> {instrumento.instrumentoTypeIdentifier}</span>
                             <span className="text-sm text-gray-700"><strong>Fecha de ingreso:</strong> {parseDate(instrumento.fecha_de_ingreso.toISOString())}</span>
-                            <span className="text-sm text-gray-700"><strong>Fecha de salida:</strong> {instrumento.fecha_de_salida ? parseDate(instrumento.fecha_de_salida.toISOString()): "Sin fecha"}</span>
+                            <span className="text-sm text-gray-700"><strong>Fecha de salida:</strong> {instrumento.fecha_de_salida ? parseDate(instrumento.fecha_de_salida.toISOString()) : "Sin fecha"}</span>
                             <span className="text-sm text-gray-700"><strong>Domicilio Denunciado:</strong> {instrumento.domicilio_denunciado}</span>
-                            <Button className="w-full bg-blue-600 hover:bg-blue-700 transition-all" onClick={() => handleSetInstrumentoEditando(instrumento)}>
-                                Modificar información
-                            </Button>
+                            <div className="flex flex-col md:flex-row md:justify-between gap-2">
+                                <Button className="w-full bg-blue-600 hover:bg-blue-700 transition-all" onClick={() => handleSetInstrumentoEditando(instrumento)}>
+                                    Modificar información
+                                </Button>
+                                <Button className="w-full bg-red-600 hover:bg-red-700 transition-all" onClick={() => onCancel(instrumento)}>
+                                    Cancelar Carga
+                                </Button>
+                            </div>
                         </div>
                     </AccordionContent>
                 </AccordionItem>

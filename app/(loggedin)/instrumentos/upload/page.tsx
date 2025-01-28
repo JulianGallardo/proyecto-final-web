@@ -91,6 +91,24 @@ export default function PDFUploadProcess() {
         }
     };
 
+    const deleteInstrumentData = (instrument: InstrumentoDTO) => {
+        const index = data.findIndex((i) => i.caratula === instrument.caratula);
+        if (index !== -1) {
+            const newData = [...data];
+            newData.splice(index, 1);
+            setData(newData);
+        }
+    }
+
+    const deleteInstrumentErrorData = (instrument: InstrumentoDTO) => {
+        const index = instrumentosConErrores.findIndex((i) => i.caratula === instrument.caratula);
+        if (index !== -1) {
+            const newData = [...instrumentosConErrores];
+            newData.splice(index, 1);
+            setInstrumentosConErrores(newData);
+        }
+    }
+
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
 
     return (
@@ -115,6 +133,7 @@ export default function PDFUploadProcess() {
 
                         {step === 2 && (
                             <StepErrorReview
+                                deleteInstrumento={deleteInstrumentErrorData}
                                 errors={instrumentosConErrores}
                                 editInstrumentDataError={editInstrumentDataError}
 
@@ -127,6 +146,7 @@ export default function PDFUploadProcess() {
                             <StepDataReview
                                 data={data}
                                 editInstrumentData={editInstrumentData}
+                                deleteInstrumentData={deleteInstrumentData}
                                 currentPage={currentPage}
                                 totalPages={totalPages}
                                 onNextPage={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}

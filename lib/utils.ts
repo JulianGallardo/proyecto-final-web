@@ -24,3 +24,10 @@ export const parseDate = (date: string) => {
   const dateInArgentina = dateParsed.toLocaleString(DateTime.DATE_FULL);
   return dateInArgentina;
 }
+
+export const parseDataToYear = (date: string) => {
+  const year = date.split("/")[2];
+  const month = date.split("/")[1];
+  const day = date.split("/")[0];
+  return `${year}-${month}-${day}`;
+}

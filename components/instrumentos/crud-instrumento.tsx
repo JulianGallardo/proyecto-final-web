@@ -104,7 +104,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         if (!instrumentoEditando) return
 
         try {
-            console.log(instrumentoEditando)
             const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.identifier, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
             if (!instrumentoActualizado) return
         } catch (error) {

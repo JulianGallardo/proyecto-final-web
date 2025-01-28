@@ -1,6 +1,7 @@
 import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
+import OrdenRepository from "@/repositories/OrdenRepository";
 import UserRepository from "@/repositories/UserRepository";
 import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { Prisma, Role } from "@prisma/client";
@@ -10,7 +11,8 @@ import bcrypt from "bcryptjs";
 const userRepository = new UserRepository();
 const instrumentTypeRepository = new InstrumentTypeRepository();
 const juzgadoRepository = new JuzgadoRepository();
-const instrumentosRepository = new InstrumentosRepository();
+const ordenRepository = new OrdenRepository();
+const instrumentosRepository = new InstrumentosRepository(ordenRepository);
 const saltNumber = 10;
 
 
@@ -91,29 +93,29 @@ async function createJuzgados() {
 
 const InstrumentosDePrueba: InstrumentoDTO[] = [
     {
-        entryDate: new Date(),
-        exitDate: new Date(),
+        fecha_de_ingreso: new Date(),
+        fecha_de_salida: new Date(),
         caratula: "Caratula 1",
         destinatario: "Destinatario 1",
-        address: "Direccion 1",
+        domicilio_denunciado: "Direccion 1",
         juzgadoIdentifier: "JCC1",
         instrumentoTypeIdentifier: "C",
     },
     {
-        entryDate: new Date(),
-        exitDate: new Date(),
+        fecha_de_ingreso: new Date(),
+        fecha_de_salida: new Date(),
         caratula: "Caratula 2",
         destinatario: "Destinatario 2",
-        address: "Direccion 2",
+        domicilio_denunciado: "Direccion 2",
         juzgadoIdentifier: "JCC2",
         instrumentoTypeIdentifier: "C",
     },
     {
-        entryDate: new Date(),
-        exitDate: null,
+        fecha_de_ingreso: new Date(),
+        fecha_de_salida: null,
         caratula: "Caratula 3",
         destinatario: "Destinatario 3",
-        address: "Direccion 3",
+        domicilio_denunciado: "Direccion 3",
         juzgadoIdentifier: "JCC3",
         instrumentoTypeIdentifier: "C",
     },

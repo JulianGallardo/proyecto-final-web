@@ -18,6 +18,7 @@ import { InstrumentoDTO } from "@/types/instrumentoTypes"
 import { instrumentSchema } from "@/lib/zod"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { InstrumentoType, Juzgado } from "@prisma/client"
+import { parseDataToYear } from "@/lib/utils"
 
 
 
@@ -49,9 +50,19 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
     const Juzgado = Juzgados.find(juzgado => juzgado.identifier === values.juzgado)
     const instrumentoType = instrumentoTypes.find(instrumentType => instrumentType.identifier === values.instrumentType)
 
+
+    const parseDate = (date: string) => {
+      const [year, month, day] = date.split("-")
+      return new Date(Number(year), Number(month) - 1, Number(day))
+    }
+
+    const fecha_de_ingreso_parsed = parseDate(values.entryDate)
+    const fecha_de_salida_parsed = values.exitDate ? parseDate(values.exitDate) : null
+
+
     onSubmit({
-      fecha_de_ingreso: new Date(values.entryDate),
-      fecha_de_salida: values.exitDate ? new Date(values.exitDate) : null,
+      fecha_de_ingreso: fecha_de_ingreso_parsed,
+      fecha_de_salida: fecha_de_salida_parsed,
       caratula: values.caratula,
       destinatario: values.destinatario,
       domicilio_denunciado: values.address,
@@ -197,4 +208,5 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
     </Form>
   )
 }
+
 

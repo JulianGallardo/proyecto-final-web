@@ -97,13 +97,14 @@ model Zone {
 }
 
 model Juzgado {
-  id           Int           @id @default(autoincrement())
-  name         String
-  identifier   String        @unique
-  Instrumentos Instrumento[]
+  id         Int    @id @default(autoincrement())
+  name       String
+  identifier String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  OrdenId Orden[]
 }
 
 model InstrumentoType {
@@ -116,28 +117,40 @@ model InstrumentoType {
   updatedAt DateTime @updatedAt
 }
 
+model Orden {
+  id            Int          @id @default(autoincrement())
+  ordenNumber   Int
+  juzgadoId     Int
+  juzgado       Juzgado      @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
+  instrumentoId Int
+  instrumento   Instrumento?
+}
+
 model Instrumento {
-  entryDate DateTime  @default(now())
-  exitDate  DateTime?
+  instrumentoId Int   @default(autoincrement())
+  ordenId       Int   @unique
+  orden         Orden @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
-  caratula     String
-  destinatario String
+  fecha_de_ingreso            DateTime  @default(now())
+  fecha_de_salida             DateTime?
 
-  address     String //destinatario postal
-  ordenNumber Int
 
-  juzgadoId         Int
+  caratula             String
+  destinatario         String
+  domicilio_denunciado String
+
+  positiva Boolean
+
   instrumentoTypeId Int
+  instrumentoType   InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
 
-  juzgado         Juzgado         @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
-  instrumentoType InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
+  
 
   deleted Boolean @default(false)
-
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@id([juzgadoId, ordenNumber])
-  @@unique([juzgadoId, caratula, destinatario])
+  @@id([instrumentoId, ordenId])
+  @@unique([fecha_de_ingreso, caratula])
 }

@@ -3,21 +3,26 @@ import BaseRepository from "./BaseRepository";
 import { Instrumento } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
+import OrdenRepository from "./OrdenRepository";
 
 
 const selectOptions = {
-    entryDate: true,
-    exitDate: true,
+    fecha_de_ingreso: true,
+    fecha_de_salida: true,
     caratula: true,
     destinatario: true,
-    address: true,
-    ordenNumber: true,
-    juzgadoId: true,
+    domicilio_denunciado: true,
+    ordenId: true,
     instrumentoTypeId: true,
-    juzgado: {
+    orden: {
         select: {
-            name: true,
-            identifier: true,
+            ordenNumber: true,
+            juzgado: {
+                select: {
+                    identifier: true,
+                    name: true,
+                }
+            }
         },
     },
     instrumentoType: {
@@ -33,9 +38,14 @@ const selectOptions = {
 
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
-    constructor() {
+    ordenRepository: OrdenRepository;
+    constructor(
+        ordenRepository: OrdenRepository
+    ) {
         super(prisma.instrumento);
+        this.ordenRepository = ordenRepository;
     }
+
 
     itemsPerPage = 10;
 
@@ -47,13 +57,13 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
         const filterMapping: { [key: string]: (value: any) => any } = {
-            entryDate: (value) => ({ entryDate: { gte: new Date(value) } }),
-            exitDate: (value) => ({ exitDate: { lte: new Date(value) } }),
+            entryDate: (value) => ({ fecha_de_ingreso: { gte: new Date(value) } }),
+            exitDate: (value) => ({ fecha_de_salida: { lte: new Date(value) } }),
             caratula: (value) => ({ caratula: { startsWith: parseString(value), mode: "insensitive" } }),
             destinatario: (value) => ({ destinatario: { startsWith: parseString(value), mode: "insensitive" } }),
-            address: (value) => ({ address: { startsWith: parseString(value), mode: "insensitive" } }),
-            ordenNumber: (value) => ({ ordenNumber: { equals: Number(value) } }),
-            juzgado: (value) => ({ juzgado: { identifier: { startsWith: parseString(value), mode: "insensitive" } } }),
+            address: (value) => ({ domicilio_denunciado: { startsWith: parseString(value), mode: "insensitive" } }),
+            ordenNumber: (value) => ({ orden: { ordenNumber: { equals: Number(value) } } }),
+            juzgado: (value) => ({ orden: { juzgado: { identifier: { startsWith: parseString(value), mode: "insensitive" } } } }),
             instrumentType: (value) => ({ instrumentoType: { identifier: { startsWith: parseString(value), mode: "insensitive" } } }),
         };
 
@@ -81,10 +91,11 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async getInstrumentoById(juzgadoId: number, ordenNumber: number): Promise<InstrumentoExtendido | null> {
         return this.modelClient.findUnique({
             where: {
-                juzgadoId_ordenNumber: {
-                    juzgadoId,
-                    ordenNumber,
-                },
+                orden: {
+                    juzgadoId: juzgadoId,
+                    ordenNumber: ordenNumber,
+
+                }
             },
             select: selectOptions,
         });
@@ -95,8 +106,10 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             where: {
                 caratula: caratula,
                 destinatario: destinatario,
-                juzgado: {
-                    identifier: juzgadoIdentifier,
+                orden: {
+                    juzgado: {
+                        identifier: juzgadoIdentifier,
+                    },
                 },
             },
             select: selectOptions,
@@ -143,40 +156,33 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
     }
 
-    async calculateOrdenNumber(juzgadoIdentifier: string): Promise<number> {
-        const maxOrden = await this.modelClient.aggregate({
-            _max: {
-                ordenNumber: true, // Obtén el máximo valor de ordenNumber
-            },
-            where: {
-                juzgado: {
-                    identifier: juzgadoIdentifier,
-                },
-            },
-        });
 
-        // Si no hay valores (primer instrumento), empieza desde 1
-        return (maxOrden._max.ordenNumber || 0) + 1;
-    }
 
     async createInstrumento(data: InstrumentoDTO): Promise<InstrumentoExtendido> {
-        // Espera a que `ordenNumber` sea calculado antes de usarlo
-        const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
+        const orden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
 
-        const creado = await this.modelClient.create({
+        if (!orden) {
+            throw new Error("No se pudo crear la orden");
+        }
+
+        const instrumento = await this.modelClient.create({
             data: {
-                entryDate: data.entryDate,
-                exitDate: data.exitDate || undefined,
+                fecha_de_ingreso: data.entryDate,
+                fecha_de_salida: data.exitDate || undefined,
                 caratula: data.caratula,
                 destinatario: data.destinatario,
-                address: data.address,
-                ordenNumber: ordenNumber,
+                domicilio_denunciado: data.address,
+                orden: {
+                    connect: {
+                        id: orden.id
+                    }
+                },
                 juzgado: {
                     connect: {
                         identifier: data.juzgadoIdentifier,
-
                     },
                 },
+
                 instrumentoType: {
                     connect: {
                         identifier: data.instrumentoTypeIdentifier,
@@ -186,7 +192,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             select: selectOptions
         });
 
-        return creado;
+        return instrumento;
+
 
 
     }
@@ -198,27 +205,32 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         data: Partial<InstrumentoDTO>
     ): Promise<InstrumentoExtendido | null> {
 
-        let newOrdenNumber = ordenNumber;
+        let newOrden = null;
 
         const juzgado = await prisma.juzgado.findUnique({
             where: {
                 id: juzgadoId,
             },
         });
-
-
-        if (data.juzgadoIdentifier !== juzgado?.identifier && data.juzgadoIdentifier) {
-            const ordenNumber = await this.calculateOrdenNumber(data.juzgadoIdentifier);
-            newOrdenNumber = ordenNumber;
+        if (!juzgado) {
+            throw new Error("No se encontró el juzgado");
         }
 
 
+
+
+        if (data.juzgadoIdentifier && juzgado.identifier !== data.juzgadoIdentifier) {
+            newOrden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
+        } else {
+            newOrden = await this.ordenRepository.getOrden(ordenNumber, juzgado.identifier);
+        }
+
         const update = await this.modelClient.update({
             where: {
-                juzgadoId_ordenNumber: {
-                    juzgadoId,
-                    ordenNumber,
-                },
+                orden: {
+                    juzgadoId: juzgadoId,
+                    ordenNumber: ordenNumber,
+                }
             },
             data: {
                 entryDate: data.entryDate,
@@ -226,10 +238,10 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 caratula: data.caratula,
                 destinatario: data.destinatario,
                 address: data.address,
-                ordenNumber: newOrdenNumber,
-                juzgado: {
+                orden: {
                     connect: {
-                        identifier: data.juzgadoIdentifier,
+                        id: newOrden?.id,
+
                     },
                 },
 
@@ -248,9 +260,9 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async deleteInstrumento(juzgadoId: number, ordenNumber: number): Promise<Instrumento | null> {
         return this.modelClient.update({
             where: {
-                juzgadoId_ordenNumber: {
-                    juzgadoId,
-                    ordenNumber,
+                orden: {
+                    juzgadoId: juzgadoId,
+                    ordenNumber: ordenNumber
                 },
             },
             data: {
@@ -260,7 +272,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
     }
 
-    async createInstrumentos(instrumentos: InstrumentoDTO[]){
+    async createInstrumentos(instrumentos: InstrumentoDTO[]) {
 
 
 

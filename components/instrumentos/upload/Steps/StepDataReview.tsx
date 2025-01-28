@@ -10,6 +10,7 @@ import CustomDialog from "../../Dialogs/dialog";
 import { Accordion } from "@/components/ui/accordion";
 import { AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
 import { ArrowDown } from "@mynaui/icons-react";
+import { parseDate } from "@/lib/utils";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -142,8 +143,8 @@ function InstrumentoDataView({ instrumento, handleSetInstrumentoEditando }: Read
                         <div className="flex flex-col gap-3 p-2">
                             <span className="text-sm text-gray-700"><strong>Juzgado:</strong> {instrumento.juzgadoIdentifier}</span>
                             <span className="text-sm text-gray-700"><strong>Tipo de instrumento:</strong> {instrumento.instrumentoTypeIdentifier}</span>
-                            <span className="text-sm text-gray-700"><strong>Fecha de ingreso:</strong> {instrumento.fecha_de_ingreso.toLocaleDateString()}</span>
-                            <span className="text-sm text-gray-700"><strong>Fecha de salida:</strong> {instrumento.fecha_de_salida ? instrumento.fecha_de_salida.toLocaleDateString() : "Sin fecha"}</span>
+                            <span className="text-sm text-gray-700"><strong>Fecha de ingreso:</strong> {parseDate(instrumento.fecha_de_ingreso.toISOString())}</span>
+                            <span className="text-sm text-gray-700"><strong>Fecha de salida:</strong> {instrumento.fecha_de_salida ? parseDate(instrumento.fecha_de_salida.toISOString()): "Sin fecha"}</span>
                             <span className="text-sm text-gray-700"><strong>Domicilio Denunciado:</strong> {instrumento.domicilio_denunciado}</span>
                             <Button className="w-full bg-blue-600 hover:bg-blue-700 transition-all" onClick={() => handleSetInstrumentoEditando(instrumento)}>
                                 Modificar información

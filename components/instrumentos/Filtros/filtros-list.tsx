@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X } from "@mynaui/icons-react";
+import { parseDate } from "@/lib/utils";
 
 interface FiltroListProps {
     Juzgados: Juzgado[];
@@ -132,10 +133,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             <FilterTag
                                 key={filtrosConfig.find((f) => f.param === key)?.displayName}
                                 label={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
-                                value={key === "entryDate" || key === "exitDate" ? new Date(searchParams.get(key) as string).toLocaleDateString(
-                                    "es-GB",
-                                    { year: "numeric", month: "2-digit", day: "2-digit" }
-                                ) : searchParams.get(key) as string}
+                                value={key === "entryDate" || key === "exitDate" ? parseDate(key) : searchParams.get(key) as string}
                                 onRemove={() => clearFilter(key)}
                             />
                         ))}

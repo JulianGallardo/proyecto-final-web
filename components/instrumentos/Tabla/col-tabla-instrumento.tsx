@@ -2,6 +2,7 @@ import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import AccionesList from "./acciones-list";
 import { Button } from "../../ui/button";
+import { parseDate } from "@/lib/utils";
 interface ColumnsProps {
     onEdit: (instrumento: InstrumentoExtendido) => void;
     onDelete: (instrumento: InstrumentoExtendido) => void;
@@ -10,21 +11,13 @@ interface ColumnsProps {
 const FechaEntradaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fecha: Date = row.getValue("fecha_de_ingreso");
     if (!fecha) return;
-    return <span>{fecha.toLocaleDateString(
-        "es-ES",
-        { year: "numeric", month: "2-digit", day: "2-digit" }
-    )}</span>;
+    return <span>{parseDate(fecha.toISOString())}</span>;
 };
 
 const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fecha: Date = row.getValue("fecha_de_salida");
     return <span>{
-
-        fecha ?
-            fecha.toLocaleDateString(
-                "es-ES",
-                { year: "numeric", month: "2-digit", day: "2-digit" }) : "No registrada"
-    }
+        fecha ? parseDate(fecha.toISOString()) : "No registrada"}
     </span>;
 };
 
@@ -32,7 +25,6 @@ const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 
 export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef<InstrumentoExtendido>[] =>
     [
-
         {
             accessorKey: "fecha_de_ingreso",
             header: ({ column }) => {

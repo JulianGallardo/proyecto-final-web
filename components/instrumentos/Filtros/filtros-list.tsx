@@ -133,7 +133,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             <FilterTag
                                 key={filtrosConfig.find((f) => f.param === key)?.displayName}
                                 label={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
-                                value={key === "entryDate" || key === "exitDate" ? parseDate(key) : searchParams.get(key) as string}
+                                value={key === "entryDate" || key === "exitDate" ? parseDate(searchParams.get(key) as string) : searchParams.get(key) as string}
                                 onRemove={() => clearFilter(key)}
                             />
                         ))}

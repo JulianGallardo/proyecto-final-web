@@ -201,7 +201,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
 
     async updateInstrumento(
-        juzgadoId: number,
+        juzgadoIdentifier: string,
         ordenNumber: number,
         data: Partial<InstrumentoDTO>
     ): Promise<InstrumentoExtendido | null> {
@@ -210,35 +210,31 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const juzgado = await prisma.juzgado.findUnique({
             where: {
-                id: juzgadoId,
+                identifier: juzgadoIdentifier,
             },
         });
         if (!juzgado) {
             throw new Error("No se encontró el juzgado");
         }
 
-
-
+        const ordenActual = await this.ordenRepository.getOrden(ordenNumber, juzgado.identifier);
 
         if (data.juzgadoIdentifier && juzgado.identifier !== data.juzgadoIdentifier) {
             newOrden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
         } else {
-            newOrden = await this.ordenRepository.getOrden(ordenNumber, juzgado.identifier);
+            newOrden = ordenActual
         }
 
         const update = await this.modelClient.update({
             where: {
-                orden: {
-                    juzgadoId: juzgadoId,
-                    ordenNumber: ordenNumber,
-                }
+                ordenId: ordenActual?.id,
             },
             data: {
-                entryDate: data.fecha_de_ingreso,
-                exitDate: data.fecha_de_salida || undefined,
+                fecha_de_ingreso: data.fecha_de_ingreso,
+                fecha_de_salida: data.fecha_de_salida || undefined,
                 caratula: data.caratula,
                 destinatario: data.destinatario,
-                address: data.domicilio_denunciado,
+                domicilio_denunciado: data.domicilio_denunciado,
                 orden: {
                     connect: {
                         id: newOrden?.id,
@@ -258,13 +254,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         return update;
     }
 
-    async deleteInstrumento(juzgadoId: number, ordenNumber: number): Promise<Instrumento | null> {
+    async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number): Promise<Instrumento | null> {
+        const ordenActual = await this.ordenRepository.getOrden(ordenNumber, juzgadoIdentifier);
+
         return this.modelClient.update({
             where: {
-                orden: {
-                    juzgadoId: juzgadoId,
-                    ordenNumber: ordenNumber
-                },
+                ordenId: ordenActual?.id,
             },
             data: {
                 deletedAt: new Date(),

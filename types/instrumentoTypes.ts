@@ -27,8 +27,8 @@ export interface InstrumentoDTO {
 export interface InstrumentoExtendido extends Instrumento {
   orden:{
     ordenNumber: number;
+    juzgadoId: number;
     juzgado: {
-      id: number;
       identifier: string;
       name: string;
     }

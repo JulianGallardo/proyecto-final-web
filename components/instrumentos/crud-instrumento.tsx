@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes"
+import { InstrumentoDTO, InstrumentoExtendido,  } from "@/types/instrumentoTypes"
 import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 import { TablaInstrumentos } from "./Tabla/tabla-instrumento"
@@ -104,7 +104,8 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         if (!instrumentoEditando) return
 
         try {
-            const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.id, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
+            console.log(instrumentoEditando)
+            const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.identifier, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
             if (!instrumentoActualizado) return
         } catch (error) {
             toast({
@@ -140,7 +141,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
             setIsOpenAlert(false)
             return
         }
-        const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.orden.juzgado.id, instrumentoEliminando.orden.ordenNumber)
+        const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.orden.juzgado.identifier, instrumentoEliminando.orden.ordenNumber)
         if (!instrumentoEliminado) return
         setIsOpenAlert(false)
         setInstrumentoEditando(undefined)

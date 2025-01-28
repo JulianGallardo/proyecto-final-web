@@ -68,13 +68,13 @@ export default class InstrumentoService {
         return created;
     }
 
-    async deleteInstrumento(juzgadoId: number, ordenNumber: number) {
-        const deleted = await this.instrumentoRepository.deleteInstrumento(juzgadoId, ordenNumber);
+    async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number) {
+        const deleted = await this.instrumentoRepository.deleteInstrumento(juzgadoIdentifier, ordenNumber);
         return deleted;
     }
 
-    async updateInstrumento(juzgadoId: number, ordenNumber: number, data: InstrumentoDTO) {
-        const updated = await this.instrumentoRepository.updateInstrumento(juzgadoId, ordenNumber, data);
+    async updateInstrumento(juzgadoIdentifier: string, ordenNumber: number, data: InstrumentoDTO) {
+        const updated = await this.instrumentoRepository.updateInstrumento(juzgadoIdentifier, ordenNumber, data);
         return updated;
     }
 

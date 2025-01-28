@@ -75,14 +75,14 @@ export async function createInstrumento(data: InstrumentoDTO) {
     
 }
 
-export async function deleteInstrumento(juzgadoId: number, ordenNumber: number) {
-   const deleted = await instrumentoService.deleteInstrumento(juzgadoId, ordenNumber);
+export async function deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number) {
+   const deleted = await instrumentoService.deleteInstrumento(juzgadoIdentifier, ordenNumber);
     revalidatePath("/instrumentos");
     return deleted;
 }
 
-export async function updateInstrumento(juzgadoId: number, ordenNumber: number, data: InstrumentoDTO) {
-    const updated = await instrumentoService.updateInstrumento(juzgadoId, ordenNumber, data);
+export async function updateInstrumento(juzgadoIdentifier: string, ordenNumber: number, data: InstrumentoDTO) {
+    const updated = await instrumentoService.updateInstrumento(juzgadoIdentifier, ordenNumber, data);
     revalidatePath("/instrumentos");
     return updated;
 }

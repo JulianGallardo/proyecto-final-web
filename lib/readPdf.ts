@@ -7,30 +7,30 @@ function parseTextToJson(text: string): object[] {
     const entries = text.split(/Organismo:/).slice(1);
 
     const data = entries.map((entry) => {
-        const organismoMatch = entry.match(/^(.*?)(\n|Carátula:)/)?.[1]?.trim();
-        const caratulaMatch = entry.match(/Carátula:\s+(.*?)(\n|Número:)/)?.[1]?.trim();
-        const numeroMatch = entry.match(/Número:\s+(\d+)/)?.[1]?.trim();
-        const destinatarioMatch = entry.match(/Destinatario:\s+(.*?)(\n|Domicilio:)/)?.[1]?.trim();
-        const domicilioMatch = entry.match(/Domicilio:\s+(.*?)(\n|Destinatario Postal:)/)?.[1]?.trim();
-        const destinatarioPostalMatch = entry.match(/Destinatario Postal:\s+(.*?)(\n|Alta o Disponibilidad:)/)?.[1]?.trim();
-        const altaDisponibilidadMatch = entry.match(/Alta o Disponibilidad:\s+(.*?)(\n|Notificación:)/)?.[1]?.trim();
-        const notificacionMatch = entry.match(/Notificación:\s+(.*?)(\n|Trámite:)/)?.[1]?.trim();
-        const tramiteMatch = entry.match(/Trámite:\s+(.*?)(\n|Código:)/)?.[1]?.trim();
-        const codigoMatch = entry.match(/Código:\s+([A-Z0-9]+)/)?.[1]?.trim();
-        const estadoMatch = entry.match(/Procesada|Pendiente/)?.[0]?.trim();
+        const organismoMatch = RegExp(/^(.*?)(\n|Carátula:)/).exec(entry)?.[1]?.trim();
+        const caratulaMatch = RegExp(/Carátula:\s+(.*?)(\n|Número:)/).exec(entry)?.[1]?.trim();
+        const numeroMatch = RegExp(/Número:\s+(\d+)/).exec(entry)?.[1]?.trim();
+        const destinatarioMatch = RegExp(/Destinatario:\s+(.*?)(\n|Domicilio:)/).exec(entry)?.[1]?.trim();
+        const domicilioMatch = RegExp(/Domicilio:\s+(.*?)(\n|Destinatario Postal:)/).exec(entry)?.[1]?.trim();
+        const destinatarioPostalMatch = RegExp(/Destinatario Postal:\s+(.*?)(\n|Alta o Disponibilidad:)/).exec(entry)?.[1]?.trim();
+        const altaDisponibilidadMatch = RegExp(/Alta o Disponibilidad:\s+(.*?)(\n|Notificación:)/).exec(entry)?.[1]?.trim();
+        const notificacionMatch = RegExp(/Notificación:\s+(.*?)(\n|Trámite:)/).exec(entry)?.[1]?.trim();
+        const tramiteMatch = RegExp(/Trámite:\s+(.*?)(\n|Código:)/).exec(entry)?.[1]?.trim();
+        const codigoMatch = RegExp(/Código:\s+([A-Z0-9]+)/).exec(entry)?.[1]?.trim();
+        const estadoMatch = RegExp(/Procesada|Pendiente/).exec(entry)?.[0]?.trim();
 
         return {
-            organismo: organismoMatch || "",
-            caratula: caratulaMatch || "",
-            numero: numeroMatch || "",
-            destinatario: destinatarioMatch || "",
-            domicilio: domicilioMatch || "",
-            destinatarioPostal: destinatarioPostalMatch || "",
-            altaDisponibilidad: altaDisponibilidadMatch || "",
-            notificacion: notificacionMatch || "",
-            tramite: tramiteMatch || "",
-            codigo: codigoMatch || "",
-            estado: estadoMatch || "",
+            organismo: organismoMatch ?? "",
+            caratula: caratulaMatch ?? "",
+            numero: numeroMatch ?? "",
+            destinatario: destinatarioMatch ?? "",
+            domicilio: domicilioMatch ?? "",
+            destinatarioPostal: destinatarioPostalMatch ?? "",
+            altaDisponibilidad: altaDisponibilidadMatch ?? "",
+            notificacion: notificacionMatch ?? "",
+            tramite: tramiteMatch ?? "",
+            codigo: codigoMatch ?? "",
+            estado: estadoMatch ?? "",
         };
     });
 
@@ -74,5 +74,6 @@ async function extractTextFromPDF(File: File) {
 export async function extractTextFromPDFAndParse(File: File) {
     const pdfText = await extractTextFromPDF(File);
     const pdfData = parseTextToJson(pdfText);
+    console.log(pdfData);
     return pdfData;
 }

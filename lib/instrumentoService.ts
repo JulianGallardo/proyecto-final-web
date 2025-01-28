@@ -3,6 +3,7 @@ import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
+import { parseDate } from "./utils";
 
 export default class InstrumentoService {
 
@@ -19,18 +20,17 @@ export default class InstrumentoService {
 
     async getInstrumentoDto(instrumento: InstrumentPDFDTO): Promise<InstrumentoDTO> {
         const juzgadoPromise = this.juzgadosRepository.getByName(instrumento.organismo);
-
         const instrumentoTypeParsed = instrumento.tramite.split(" ")[0];
-        console.log(instrumentoTypeParsed);
-
         const instrumentoTypePromise = this.instrumentoTypeRepository.getByName(instrumentoTypeParsed);
-
         const [juzgado, instrumentoType] = await Promise.all([juzgadoPromise, instrumentoTypePromise]);
+        
 
-       
-
+        const parsedFecha_ingreso = instrumento.altaDisponibilidad.split(" ")[0];
+        const year = parsedFecha_ingreso.split("/")[2];
+        const month = parsedFecha_ingreso.split("/")[1];
+        const day = parsedFecha_ingreso.split("/")[0];
         return {
-            fecha_de_ingreso: new Date(instrumento.altaDisponibilidad),
+            fecha_de_ingreso: new Date(`${year}-${month}-${day}`),
             fecha_de_salida: null,
             caratula: instrumento.caratula,
             destinatario: instrumento.destinatario,

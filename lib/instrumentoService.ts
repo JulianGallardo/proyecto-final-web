@@ -31,11 +31,11 @@ export default class InstrumentoService {
        
 
         return {
-            entryDate: new Date(instrumento.altaDisponibilidad),
-            exitDate: null,
+            fecha_de_ingreso: new Date(instrumento.altaDisponibilidad),
+            fecha_de_salida: null,
             caratula: instrumento.caratula,
             destinatario: instrumento.destinatario,
-            address: instrumento.domicilio,
+            domicilio_denunciado: instrumento.domicilio,
             juzgadoIdentifier: juzgado?.identifier ?? "",
             instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
         };

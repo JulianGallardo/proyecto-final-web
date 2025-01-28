@@ -4,7 +4,7 @@ import { Orden } from "@prisma/client";
 
 export default class OrdenRepository extends BaseRepository<Orden> {
     constructor() {
-        super(prisma.juzgado);
+        super(prisma.orden);
     }
 
     getOrden(ordenNumber: number, juzgadoIdentifier: string): Promise<Orden | null> {
@@ -33,8 +33,8 @@ export default class OrdenRepository extends BaseRepository<Orden> {
         return (maxOrden._max.ordenNumber || 0) + 1;
     }
 
-    createOrden(juzgadoIdentifier: string): Promise<Orden | null> {
-        const maxOrden = this.calculateOrdenNumber(juzgadoIdentifier);
+    async createOrden(juzgadoIdentifier: string): Promise<Orden | null> {
+        const maxOrden =await this.calculateOrdenNumber(juzgadoIdentifier);
 
         return this.modelClient.create({
             data: {

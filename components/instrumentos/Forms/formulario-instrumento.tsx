@@ -34,10 +34,10 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
   const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(instrumentSchema),
     defaultValues: {
-      entryDate: instrumento?.entryDate.toISOString().split("T")[0] ?? "",
+      entryDate: instrumento?.fecha_de_ingreso.toISOString().split("T")[0] ?? "",
       caratula: instrumento?.caratula ?? "",
       destinatario: instrumento?.destinatario ?? "",
-      address: instrumento?.address ?? "",
+      address: instrumento?.domicilio_denunciado ?? "",
       juzgado: instrumento?.juzgadoIdentifier,
       instrumentType: instrumento?.instrumentoTypeIdentifier ,
     },
@@ -50,11 +50,11 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
     const instrumentoType = instrumentoTypes.find(instrumentType => instrumentType.identifier === values.instrumentType)
 
     onSubmit({
-      entryDate: new Date(values.entryDate),
-      exitDate: values.exitDate ? new Date(values.exitDate) : null,
+      fecha_de_ingreso: new Date(values.entryDate),
+      fecha_de_salida: values.exitDate ? new Date(values.exitDate) : null,
       caratula: values.caratula,
       destinatario: values.destinatario,
-      address: values.address,
+      domicilio_denunciado: values.address,
       juzgadoIdentifier: Juzgado?.identifier ?? "",
       instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
     })
@@ -83,7 +83,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
         <FormField
           control={form.control}
           name="exitDate"
-          defaultValue={instrumento?.exitDate?.toISOString().split("T")[0] ?? ""}
+          defaultValue={instrumento?.fecha_de_salida?.toISOString().split("T")[0] ?? ""}
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Fecha de Salida</FormLabel>

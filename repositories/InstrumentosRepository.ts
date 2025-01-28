@@ -165,35 +165,36 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             throw new Error("No se pudo crear la orden");
         }
 
-        const instrumento = await this.modelClient.create({
-            data: {
-                fecha_de_ingreso: data.entryDate,
-                fecha_de_salida: data.exitDate || undefined,
-                caratula: data.caratula,
-                destinatario: data.destinatario,
-                domicilio_denunciado: data.address,
-                orden: {
-                    connect: {
-                        id: orden.id
-                    }
-                },
-                juzgado: {
-                    connect: {
-                        identifier: data.juzgadoIdentifier,
+        try {
+            const instrumento = await this.modelClient.create({
+                data: {
+                    fecha_de_ingreso: data.fecha_de_ingreso,
+                    fecha_de_salida: data.fecha_de_salida || undefined,
+                    caratula: data.caratula,
+                    destinatario: data.destinatario,
+                    domicilio_denunciado: data.domicilio_denunciado,
+                    orden: {
+                        connect: {
+                            id: orden.id
+                        }
+                    },
+                    instrumentoType: {
+                        connect: {
+                            identifier: data.instrumentoTypeIdentifier,
+                        },
                     },
                 },
+                select: selectOptions
+            });
 
-                instrumentoType: {
-                    connect: {
-                        identifier: data.instrumentoTypeIdentifier,
-                    },
-                },
-            },
-            select: selectOptions
-        });
 
-        return instrumento;
 
+            return instrumento;
+        } catch (error) {
+            console.warn(error);
+            throw new Error("No se pudo crear el instrumento");
+            
+        }
 
 
     }
@@ -233,11 +234,11 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 }
             },
             data: {
-                entryDate: data.entryDate,
-                exitDate: data.exitDate || undefined,
+                entryDate: data.fecha_de_ingreso,
+                exitDate: data.fecha_de_salida || undefined,
                 caratula: data.caratula,
                 destinatario: data.destinatario,
-                address: data.address,
+                address: data.domicilio_denunciado,
                 orden: {
                     connect: {
                         id: newOrden?.id,

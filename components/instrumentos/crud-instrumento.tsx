@@ -104,7 +104,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         if (!instrumentoEditando) return
 
         try {
-            const instrumentoActualizado = await updateInstrumento(instrumentoEditando.juzgadoId, instrumentoEditando.ordenNumber, instrumentoEditado)
+            const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.id, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
             if (!instrumentoActualizado) return
         } catch (error) {
             toast({
@@ -140,7 +140,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
             setIsOpenAlert(false)
             return
         }
-        const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.juzgadoId, instrumentoEliminando.ordenNumber)
+        const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.orden.juzgado.id, instrumentoEliminando.orden.ordenNumber)
         if (!instrumentoEliminado) return
         setIsOpenAlert(false)
         setInstrumentoEditando(undefined)
@@ -164,12 +164,12 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
         
         const instrumentoDto: InstrumentoDTO = {
-            entryDate: instrumento.entryDate,
-            exitDate: instrumento.exitDate,
+            fecha_de_ingreso: instrumento.fecha_de_ingreso,
+            fecha_de_salida: instrumento.fecha_de_salida,
             caratula: instrumento.caratula,
             destinatario: instrumento.destinatario,
-            address: instrumento.address,
-            juzgadoIdentifier: instrumento.juzgado.identifier,
+            domicilio_denunciado: instrumento.domicilio_denunciado,
+            juzgadoIdentifier: instrumento.orden.juzgado.identifier,
             instrumentoTypeIdentifier: instrumento.instrumentoType.identifier
         }
 
@@ -183,7 +183,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         <div className="space-y-4 w-full h-full">
 
             <CustomDialog
-                dialogTitle={instrumentoEditando ? `Editar Instrumento ${instrumentoEditando.ordenNumber} ${instrumentoEditando.juzgado.identifier}` : "Crear Instrumento"}
+                dialogTitle={instrumentoEditando ? `Editar Instrumento ${instrumentoEditando.orden.ordenNumber} ${instrumentoEditando.orden.juzgado.identifier}` : "Crear Instrumento"}
                 dialogDescription={instrumentoEditando ? "Edita los campos del instrumento" : "Crea un nuevo instrumento"}
                 propDialogContent={
                     <FormularioInstrumento
@@ -197,7 +197,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                 onClose={handleClose}
             />
             <CustomAlert
-                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.ordenNumber ?? "") + " " + (instrumentoEliminando?.juzgado.identifier || "")}
+                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.orden.ordenNumber ?? "") + " " + (instrumentoEliminando?.orden.juzgado.identifier || "")}
                 AlertDescription="¿Estás seguro de que deseas eliminar este instrumento?"
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">

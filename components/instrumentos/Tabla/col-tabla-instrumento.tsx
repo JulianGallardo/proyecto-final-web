@@ -8,7 +8,7 @@ interface ColumnsProps {
 }
 
 const FechaEntradaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
-    const fecha: Date = row.getValue("entryDate");
+    const fecha: Date = row.getValue("fecha_de_ingreso");
     if (!fecha) return;
     return <span>{fecha.toLocaleDateString(
         "es-ES",
@@ -17,7 +17,7 @@ const FechaEntradaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 };
 
 const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
-    const fecha: Date = row.getValue("exitDate");
+    const fecha: Date = row.getValue("fecha_de_salida");
     return <span>{
 
         fecha ?
@@ -34,21 +34,21 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
     [
 
         {
-            accessorKey: "entryDate",
+            accessorKey: "fecha_de_ingreso",
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Fecha de Entrada
+                        Fecha de Ingreso
                     </Button>
                 );
             },
             cell: FechaEntradaCell,
         },
         {
-            accessorKey: "exitDate",
+            accessorKey: "fecha_de_salida",
             header: ({ column }) => {
                 return (
                     <Button
@@ -88,14 +88,14 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
             },
         },
         {
-            accessorKey: "address",
+            accessorKey: "domicilio_denunciado",
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Dirección
+                        Domicilio Denunciado
                     </Button>
                 );
             },
@@ -112,6 +112,10 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
                     </Button>
                 );
             },
+            cell: ({ row }) => {
+                const orden = row.original.orden;
+                return <span>{orden.ordenNumber}</span>;
+            },
         },
         {
             accessorKey: "juzgado",
@@ -126,7 +130,7 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
                 );
             },
             cell: ({ row }) => {
-                const juzgado = row.original.juzgado;
+                const juzgado = row.original.orden.juzgado;
                 return <span>{juzgado.identifier}</span>;
             },
         },

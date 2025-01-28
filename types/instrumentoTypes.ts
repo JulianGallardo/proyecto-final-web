@@ -15,20 +15,24 @@ export interface InstrumentPDFDTO {
 }
 
 export interface InstrumentoDTO {
-  entryDate: Date;
-  exitDate: Date | null;
+  fecha_de_ingreso: Date;
+  fecha_de_salida: Date | null;
   caratula: string;
   destinatario: string;
-  address: string;
+  domicilio_denunciado: string;
   juzgadoIdentifier: string;
   instrumentoTypeIdentifier: string;
 }
 
 export interface InstrumentoExtendido extends Instrumento {
-  juzgado: {
-    name: string;
-    identifier: string;
-  };
+  orden:{
+    ordenNumber: number;
+    juzgado: {
+      id: number;
+      identifier: string;
+      name: string;
+    }
+  }
   instrumentoType: {
     name: string;
     identifier: string;

@@ -7,9 +7,10 @@ import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import InstrumentoService from "@/lib/instrumentoService";
+import OrdenRepository from "@/repositories/OrdenRepository";
 
-
-const instrumentosRepo = new InstrumentosRepository();
+const ordenRepository = new OrdenRepository();
+const instrumentosRepo = new InstrumentosRepository(ordenRepository);
 const juzgadosRepo = new JuzgadoRepository();
 const instrumentTypesRepo = new InstrumentTypeRepository();
 const instrumentoService = new InstrumentoService(

@@ -122,7 +122,6 @@ model Orden {
   ordenNumber   Int
   juzgadoId     Int
   juzgado       Juzgado      @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
-  instrumentoId Int
   instrumento   Instrumento?
 }
 
@@ -139,7 +138,7 @@ model Instrumento {
   destinatario         String
   domicilio_denunciado String
 
-  positiva Boolean
+  positiva Boolean @default(false)
 
   instrumentoTypeId Int
   instrumentoType   InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)

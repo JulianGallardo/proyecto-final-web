@@ -36,7 +36,7 @@ export default function StepDataReview({
                         </div>
                         <span className="text-sm text-gray-600">Organismo: {item.juzgadoIdentifier}</span>
                         <span className="text-sm text-gray-600">Tramite: {item.instrumentoTypeIdentifier}</span>
-                        <span className="text-sm text-gray-600">Fecha: {item.entryDate.toLocaleDateString()}</span>
+                        <span className="text-sm text-gray-600">Fecha: {item.fecha_de_ingreso.toLocaleDateString()}</span>
                     </li>
                 ))}
             </ul>

@@ -32,7 +32,11 @@ export default function PDFUploadProcess() {
                 const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
                 if (!parsedData) throw new Error("No se pudo extraer información del PDF");
 
+                if(parsedData.length === 0) throw new Error("No se encontraron instrumentos en el PDF");
+
                 const { filteredInstrument, instrumentosWithErrors } = await deleteDuplicatePdfEntries(parsedData);
+
+                if (filteredInstrument.length === 0 && instrumentosWithErrors.length === 0) throw new Error("Los instrumentos en el pdf ya estan cargados.");
 
                 setData(filteredInstrument);
                 setInstrumentosConErrores(instrumentosWithErrors);

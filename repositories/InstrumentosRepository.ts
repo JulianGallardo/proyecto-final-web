@@ -104,8 +104,14 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async getInstrumento(juzgadoIdentifier: string, caratula: string, destinatario: string): Promise<InstrumentoExtendido | null> {
         return this.modelClient.findFirst({
             where: {
-                caratula: caratula,
-                destinatario: destinatario,
+                caratula: {
+                    startsWith: caratula,
+                    mode: "insensitive",
+                },
+                destinatario: {
+                    startsWith: destinatario,
+                    mode: "insensitive",
+                },
                 orden: {
                     juzgado: {
                         identifier: juzgadoIdentifier,
@@ -193,7 +199,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         } catch (error) {
             console.warn(error);
             throw new Error("No se pudo crear el instrumento");
-            
+
         }
 
 
@@ -269,15 +275,21 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {
-
-
-
         const result = instrumentos.map(async (instrumento) => {
             const instrumentoResult = await this.createInstrumento(instrumento);
             return instrumentoResult;
         });
 
-        const created = await Promise.all(result);
+        const instrumentosConErrores = [];
+
+        try {
+
+            const created = await Promise.all(result);
+        } catch (error) {
+            instrumentosConErrores.push(error);
+            console.warn(instrumentosConErrores);
+
+        }
 
         return result;
     }

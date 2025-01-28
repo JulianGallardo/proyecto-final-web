@@ -3,7 +3,7 @@ import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
-import { parseDataToYear, parseDate } from "./utils";
+import { parseDataToYear } from "./utils";
 
 export default class InstrumentoService {
 

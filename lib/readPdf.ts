@@ -8,7 +8,7 @@ function parseTextToJson(text: string): object[] {
 
     const data = entries.map((entry) => {
         const organismoMatch = RegExp(/^(.*?)(\n|Carátula:)/).exec(entry)?.[1]?.trim();
-        const caratulaMatch = RegExp(/Carátula:\s+(.*?)(\n|Número:)/).exec(entry)?.[1]?.trim();
+        let caratulaMatch = RegExp(/Carátula:\s+(.*?)(\n|Número:)/).exec(entry)?.[1]?.trim();
         const numeroMatch = RegExp(/Número:\s+(\d+)/).exec(entry)?.[1]?.trim();
         const destinatarioMatch = RegExp(/Destinatario:\s+(.*?)(\n|Domicilio:)/).exec(entry)?.[1]?.trim();
         const domicilioMatch = RegExp(/Domicilio:\s+(.*?)(\n|Destinatario Postal:)/).exec(entry)?.[1]?.trim();
@@ -18,6 +18,11 @@ function parseTextToJson(text: string): object[] {
         const tramiteMatch = RegExp(/Trámite:\s+(.*?)(\n|Código:)/).exec(entry)?.[1]?.trim();
         const codigoMatch = RegExp(/Código:\s+([A-Z0-9]+)/).exec(entry)?.[1]?.trim();
         const estadoMatch = RegExp(/Procesada|Pendiente/).exec(entry)?.[0]?.trim();
+
+        // Eliminar guion final en carátula si existe
+        if (caratulaMatch) {
+            caratulaMatch = caratulaMatch.replace(/[-\s]+$/, "");
+        }
 
         return {
             organismo: organismoMatch ?? "",

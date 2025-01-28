@@ -78,6 +78,7 @@ export default function PDFUploadProcess() {
                 newErrors.splice(index, 1);
                 setInstrumentosConErrores(newErrors);
                 setData((prev) => [...prev, instrument]);
+                console.log("New data", data);
             }
         }
     };

@@ -13,6 +13,7 @@ import { ArrowDown } from "@mynaui/icons-react";
 import { parseDate } from "@/lib/utils";
 import CustomAlert from "../../Dialogs/alert";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
+import { toast } from "@/hooks/use-toast";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -62,6 +63,18 @@ export default function StepDataReview({
         fetchInstrumentoTypes();
         fetchJuzgados();
     }, []);
+
+    useEffect(() => {
+        if(data.length === 0) {
+            toast({
+                title: "Error",
+                description: "No hay instrumentos disponibles para cargar, volviendo atras...",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+            onBack();
+        }
+    }, [data])
 
 
     const handleClose = () => {

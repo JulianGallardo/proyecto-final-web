@@ -231,7 +231,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                 </Button>
                 <Link href="/instrumentos/upload">
                     <Button
-                        className="bg-blue-500 hover:bg-blue-600"
+                        className="bg-blue-500 hover:bg-blue-600 w-full"
                     >
 
 

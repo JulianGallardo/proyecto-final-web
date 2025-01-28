@@ -60,11 +60,12 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className=" mx-4"
                     >
                         Carátula
                     </Button>
                 );
-            },
+            }
         },
         {
             accessorKey: "destinatario",

@@ -18,7 +18,6 @@ export default class InstrumentoService {
 
 
     async getInstrumentoDto(instrumento: InstrumentPDFDTO): Promise<InstrumentoDTO> {
-        console.log(instrumento);
         const juzgadoPromise = this.juzgadosRepository.getByName(instrumento.organismo);
 
         const instrumentoTypeParsed = instrumento.tramite.split(" ")[0];
@@ -35,7 +34,7 @@ export default class InstrumentoService {
             fecha_de_salida: null,
             caratula: instrumento.caratula,
             destinatario: instrumento.destinatario,
-            domicilio_denunciado: instrumento.domicilio,
+            domicilio_denunciado: instrumento.destinatarioPostal,
             juzgadoIdentifier: juzgado?.identifier ?? "",
             instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
         };

@@ -1,11 +1,18 @@
+import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
 import { Button } from "@/components/ui/button";
+import { useCustomDialog } from "@/hooks/useCustomDialog";
 import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
+import { InstrumentoType, Juzgado } from "@prisma/client";
 import { FileIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
+import CustomDialog from "../../Dialogs/dialog";
 
 
 const ITEMS_PER_PAGE = 10;
 
 export default function StepDataReview({
+    editInstrumentData,
     data,
     currentPage,
     totalPages,
@@ -14,6 +21,7 @@ export default function StepDataReview({
     onBack,
     onConfirm
 }: Readonly<{
+    editInstrumentData: (instrumento: InstrumentoDTO) => void;
     data: InstrumentoDTO[];
     currentPage: number;
     totalPages: number;
@@ -22,10 +30,68 @@ export default function StepDataReview({
     onBack: () => void;
     onConfirm: () => void;
 }>) {
+    
     const paginatedData = data.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    const { setIsOpen } = useCustomDialog();
+    const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoDTO | undefined>(undefined);
+
+    const [instrumentoTypes, setInstrumentoTypes] = useState<InstrumentoType[]>([]);
+    const [juzgados, setJuzgados] = useState<Juzgado[]>([]);
+
+    useEffect(() => {
+        const fetchInstrumentoTypes = async () => {
+            const instrumentoTypes = await getInstrumentTypes();
+            setInstrumentoTypes(instrumentoTypes);
+        }
+
+        const fetchJuzgados = async () => {
+            const juzgadosFetch = await getJuzgados();
+            setJuzgados(juzgadosFetch);
+        }
+
+        fetchInstrumentoTypes();
+        fetchJuzgados();
+    }, []);
+
+
+    const handleClose = () => {
+        setInstrumentoEditando(undefined);
+        setIsOpen(false);
+    }
+
+    const handleEditar = (newData: InstrumentoDTO) => {
+        editInstrumentData(newData);
+        setIsOpen(false);
+
+
+    }
+
+
+    const handleSetInstrumentoEditando = (instrumento: InstrumentoDTO) => {
+        setInstrumentoEditando(instrumento);
+        setIsOpen(true);
+    }
+
+
 
     return (
         <div className="flex flex-col gap-4">
+            <CustomDialog
+                dialogTitle={"Completar Información"}
+                dialogDescription={"Completa la información del instrumento faltante"}
+                propDialogContent={
+                    <FormularioInstrumento
+                        instrumentoTypes={instrumentoTypes}
+                        Juzgados={juzgados}
+                        onSubmit={handleEditar}
+                        instrumento={instrumentoEditando}
+                    />
+                }
+                customClose={true}
+                onClose={handleClose}
+            />
+
+
             <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
             <ul className="space-y-2">
                 {paginatedData.map((item, index) => (
@@ -37,6 +103,9 @@ export default function StepDataReview({
                         <span className="text-sm text-gray-600">Organismo: {item.juzgadoIdentifier}</span>
                         <span className="text-sm text-gray-600">Tramite: {item.instrumentoTypeIdentifier}</span>
                         <span className="text-sm text-gray-600">Fecha: {item.fecha_de_ingreso.toLocaleDateString()}</span>
+                        <Button className="bg-blue-500 hover:bg-blue-600" onClick={() => handleSetInstrumentoEditando(item)}>
+                            Modificar información
+                        </Button>
                     </li>
                 ))}
             </ul>

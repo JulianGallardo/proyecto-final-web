@@ -52,7 +52,6 @@ export default function PDFUploadProcess() {
 
     const confirmUpload = async () => {
         try {
-            console.log(data);
             await createInstrumentos(data);
             setStep(4);
         } catch (error) {
@@ -76,7 +75,15 @@ export default function PDFUploadProcess() {
                 setInstrumentosConErrores(newErrors);
                 setData((prev) => [...prev, instrument]);
             }
-            setData((prev) => [...prev, instrument]);
+        }
+    };
+
+    const editInstrumentData = (instrument: InstrumentoDTO) => {
+        const index = data.findIndex((i) => i.caratula === instrument.caratula);
+        if (index !== -1) {
+            const newData = [...data];
+            newData.splice(index, 1, instrument);
+            setData(newData);
         }
     };
 
@@ -115,6 +122,7 @@ export default function PDFUploadProcess() {
                         {step === 3 && (
                             <StepDataReview
                                 data={data}
+                                editInstrumentData={editInstrumentData}
                                 currentPage={currentPage}
                                 totalPages={totalPages}
                                 onNextPage={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}

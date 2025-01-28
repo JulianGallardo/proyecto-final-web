@@ -10,7 +10,7 @@ export default function LoggedInLayout({
     children: React.ReactNode
 }>) {
     return (
-        <div className="flex flex-col h-screen w-screen">
+        <div className="flex flex-col h-full w-full">
             <SessionProvider >
                 <TooltipProvider>
                     <Navbar />

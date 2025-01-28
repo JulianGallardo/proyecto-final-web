@@ -28,7 +28,7 @@ export default async function InsturmentosPage(props: Readonly<{
 
 
   return (
-    <div className="flex flex-col gap-4 p-4 overflow-x-hidden ">
+    <div className="flex flex-col gap-4 p-4 ">
       <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
       <FiltrosList Juzgados={juzgados} InstrumentTypes={instrumentTypes} />
       <Suspense fallback={<TableSkeleton />}>

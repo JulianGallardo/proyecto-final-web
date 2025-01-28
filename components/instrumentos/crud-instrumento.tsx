@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { InstrumentoDTO, InstrumentoExtendido,  } from "@/types/instrumentoTypes"
+import { InstrumentoDTO, InstrumentoExtendido, } from "@/types/instrumentoTypes"
 import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
 import { TablaInstrumentos } from "./Tabla/tabla-instrumento"
@@ -157,12 +157,12 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         setIsOpenAlert(false)
     }
 
-    const convertToDto = (instrumento: InstrumentoExtendido|undefined): InstrumentoDTO|undefined => {
-        if (!instrumento){
+    const convertToDto = (instrumento: InstrumentoExtendido | undefined): InstrumentoDTO | undefined => {
+        if (!instrumento) {
             return undefined
         }
 
-        
+
         const instrumentoDto: InstrumentoDTO = {
             fecha_de_ingreso: instrumento.fecha_de_ingreso,
             fecha_de_salida: instrumento.fecha_de_salida,
@@ -243,13 +243,14 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
 
 
+            <div className="flex flex-grow overflow:hidde justify-center gap-4">
+                <TablaInstrumentos
+                    data={instrumentos}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
 
-            <TablaInstrumentos
-                data={instrumentos}
-                onEdit={onEdit}
-                onDelete={onDelete}
-
-            />
+                />
+            </div>
 
 
 

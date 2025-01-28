@@ -65,8 +65,7 @@ export default class InstrumentoService {
     }
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {
-        const promises = instrumentos.map((instrumento) => this.createInstrumento(instrumento));
-        const created = await Promise.all(promises);
+        const created = await this.instrumentoRepository.createInstrumentos(instrumentos);
         return created;
     }
 
@@ -115,17 +114,5 @@ export default class InstrumentoService {
         return { filteredInstrument, instrumentosWithErrors };
     }
 
-    async getInstrumentoExtendido(instrumento:InstrumentoDTO){
-        const juzgado = await this.juzgadosRepository.getByIdentifier(instrumento.juzgadoIdentifier);
-        const instrumentoType = await this.instrumentoTypeRepository.getByIdentifier(instrumento.instrumentoTypeIdentifier);
-
-
-
-        return {
-            ...instrumento,
-            juzgado: juzgado ? { name: juzgado.name, identifier: juzgado.identifier } : { name: "", identifier: "" },
-            instrumentoType: instrumentoType ? { name: instrumentoType.name, identifier: instrumentoType.identifier } : { name: "", identifier: "" }
-        }
-    }
 
 }

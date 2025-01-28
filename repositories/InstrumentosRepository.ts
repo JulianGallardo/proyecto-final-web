@@ -259,4 +259,20 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             },
         });
     }
+
+    async createInstrumentos(instrumentos: InstrumentoDTO[]){
+
+
+
+        const result = instrumentos.map(async (instrumento) => {
+            const instrumentoResult = await this.createInstrumento(instrumento);
+            return instrumentoResult;
+        });
+
+        const created = await Promise.all(result);
+
+        return result;
+    }
+
+
 }

@@ -19,12 +19,11 @@ import StepFileUpload from "@/components/instrumentos/upload/Steps/StepFileUploa
 const ITEMS_PER_PAGE = 10;
 
 
-/** Main Component */
 export default function PDFUploadProcess() {
     const [step, setStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
     const [data, setData] = useState<InstrumentoDTO[]>([]);
-    const [instrumentosConErrores, setinstrumentosConErrores] = useState<InstrumentoDTO[]>([]);
+    const [instrumentosConErrores, setInstrumentosConErrores] = useState<InstrumentoDTO[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleFileUpload = async () => {
@@ -36,9 +35,9 @@ export default function PDFUploadProcess() {
                 const { filteredInstrument, instrumentosWithErrors } = await deleteDuplicatePdfEntries(parsedData);
 
                 setData(filteredInstrument);
-                setinstrumentosConErrores(instrumentosWithErrors);
+                setInstrumentosConErrores(instrumentosWithErrors);
 
-                setStep(instrumentosConErrores.length ? 2 : 3);
+                setStep(instrumentosWithErrors.length ? 2 : 3);
             } catch (error) {
                 toast({
                     title: "Error",
@@ -46,12 +45,14 @@ export default function PDFUploadProcess() {
                     className: "bg-red-500 text-white",
                     duration: 3000,
                 });
+                setStep(1);
             }
         }
     };
 
     const confirmUpload = async () => {
         try {
+            console.log(data);
             await createInstrumentos(data);
             setStep(4);
         } catch (error) {
@@ -72,7 +73,7 @@ export default function PDFUploadProcess() {
             if (index !== -1) {
                 const newErrors = [...instrumentosConErrores];
                 newErrors.splice(index, 1);
-                setinstrumentosConErrores(newErrors);
+                setInstrumentosConErrores(newErrors);
                 setData((prev) => [...prev, instrument]);
             }
             setData((prev) => [...prev, instrument]);

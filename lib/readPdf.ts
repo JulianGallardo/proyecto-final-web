@@ -2,9 +2,6 @@
 import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/build/pdf.worker";
 
-
-
-
 // Función para procesar cada bloque de texto y extraer campos clave
 function parseTextToJson(text: string): object[] {
     const entries = text.split(/Organismo:/).slice(1);
@@ -37,7 +34,21 @@ function parseTextToJson(text: string): object[] {
         };
     });
 
-    return data;
+    // Filtrar datos innecesarios
+    const filteredData = data.filter((entry) => {
+        const isBlank =
+            Object.values(entry).every(
+                (value) => !value || value === "about:blank" || /^\d{4}-\d{2}-\d{2}$/.test(value)
+            );
+        return !isBlank;
+    });
+
+    // Eliminar duplicados basándose en un identificador único, como 'codigo' o 'caratula'
+    const uniqueData = Array.from(
+        new Map(filteredData.map((item) => [ item.caratula, item])).values()
+    );
+
+    return uniqueData;
 }
 
 async function extractTextFromPDF(File: File) {

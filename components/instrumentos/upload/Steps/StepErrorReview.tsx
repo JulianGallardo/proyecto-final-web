@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
-import { InstrumentoDTO, InstrumentoExtendido, InstrumentPDFDTO } from "@/types/instrumentoTypes";
+import { InstrumentoDTO, } from "@/types/instrumentoTypes";
 import { ChevronLeftIcon, ChevronRightIcon, FileIcon } from "lucide-react";
 import CustomDialog from "../../Dialogs/dialog";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
 import { useEffect, useState } from "react";
-import { getInstrumentoExtendido, getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
+import {  getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
 import { InstrumentoType, Juzgado } from "@prisma/client";
 
 export default function StepErrorReview({

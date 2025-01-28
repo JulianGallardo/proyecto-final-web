@@ -7,6 +7,9 @@ import { FileIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
 import CustomDialog from "../../Dialogs/dialog";
+import { Accordion } from "@/components/ui/accordion";
+import { AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
+import { ArrowDown } from "@mynaui/icons-react";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -30,7 +33,7 @@ export default function StepDataReview({
     onBack: () => void;
     onConfirm: () => void;
 }>) {
-    
+
     const paginatedData = data.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
     const { setIsOpen } = useCustomDialog();
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoDTO | undefined>(undefined);
@@ -93,22 +96,12 @@ export default function StepDataReview({
 
 
             <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
-            <ul className="space-y-2">
+            <div className="flex flex-col gap-4 w-full">
+
                 {paginatedData.map((item, index) => (
-                    <li key={index} className="flex flex-col bg-gray-100 p-3 rounded-lg">
-                        <div className="flex flex-row items-center gap-2">
-                            <FileIcon className="h-5 w-5 text-blue-500" />
-                            <span className="text-sm text-gray-800 font-medium">{item.caratula}</span>
-                        </div>
-                        <span className="text-sm text-gray-600">Organismo: {item.juzgadoIdentifier}</span>
-                        <span className="text-sm text-gray-600">Tramite: {item.instrumentoTypeIdentifier}</span>
-                        <span className="text-sm text-gray-600">Fecha: {item.fecha_de_ingreso.toLocaleDateString()}</span>
-                        <Button className="bg-blue-500 hover:bg-blue-600" onClick={() => handleSetInstrumentoEditando(item)}>
-                            Modificar información
-                        </Button>
-                    </li>
+                    <InstrumentoDataView key={index} instrumento={item} handleSetInstrumentoEditando={handleSetInstrumentoEditando} />
                 ))}
-            </ul>
+            </div>
             <div className="flex items-center justify-between mt-4">
                 <Button variant="outline" onClick={onPrevPage} disabled={currentPage === 1}>
                     <ChevronLeftIcon className="h-4 w-4" />
@@ -131,3 +124,36 @@ export default function StepDataReview({
         </div>
     );
 }
+
+function InstrumentoDataView({ instrumento, handleSetInstrumentoEditando }: Readonly<{ instrumento: InstrumentoDTO, handleSetInstrumentoEditando: (instrumento: InstrumentoDTO) => void }>) {
+    return (
+        <div className="flex flex-col items-center gap-4 p-4 bg-white shadow-lg rounded-2xl w-full  border border-gray-200">
+            <div className="flex items-center gap-3 bg-gray-100 p-3 rounded-lg w-full">
+                <FileIcon className="h-6 w-6 text-blue-600" />
+                <span className="text-base text-gray-900 font-semibold">{instrumento.caratula}</span>
+            </div>
+            <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="item-1" className="border-none">
+                    <AccordionTrigger className="flex items-center justify-between w-full p-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all">
+                        <span className="text-sm font-medium">Detalles</span>
+                        <ArrowDown className="h-4 w-4 text-gray-500" />
+                    </AccordionTrigger>
+                    <AccordionContent className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-3 p-2">
+                            <span className="text-sm text-gray-700"><strong>Juzgado:</strong> {instrumento.juzgadoIdentifier}</span>
+                            <span className="text-sm text-gray-700"><strong>Tipo de instrumento:</strong> {instrumento.instrumentoTypeIdentifier}</span>
+                            <span className="text-sm text-gray-700"><strong>Fecha de ingreso:</strong> {instrumento.fecha_de_ingreso.toLocaleDateString()}</span>
+                            <span className="text-sm text-gray-700"><strong>Fecha de salida:</strong> {instrumento.fecha_de_salida ? instrumento.fecha_de_salida.toLocaleDateString() : "Sin fecha"}</span>
+                            <span className="text-sm text-gray-700"><strong>Domicilio Denunciado:</strong> {instrumento.domicilio_denunciado}</span>
+                            <Button className="w-full bg-blue-600 hover:bg-blue-700 transition-all" onClick={() => handleSetInstrumentoEditando(instrumento)}>
+                                Modificar información
+                            </Button>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </div>
+    );
+}
+
+

@@ -62,7 +62,7 @@ export default function PaginationInstruments({ totalPages }: Readonly<Paginatio
                     {currentPage > 1 && <PaginationPrevious href={createPageURL(currentPage - 1)} />}
                     {pageNumbers.map((page, index) =>
                         page === "..." ? (
-                            <PaginationEllipsis key={index} />
+                            <PaginationEllipsis key={"Pagination"+index} />
                         ) : (
                             <PaginationLink key={page} isActive={page === currentPage} href={createPageURL(page)}>
                                 {page}

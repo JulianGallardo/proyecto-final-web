@@ -1,3 +1,4 @@
+ /* eslint-disable */
 "use Server";
 import * as pdfjsLib from "pdfjs-dist";
 import "pdfjs-dist/build/pdf.worker";

@@ -3,6 +3,7 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import AccionesList from "./acciones-list";
 import { Button } from "../../ui/button";
 import { parseDate } from "@/lib/utils";
+import IndicadorFecha from "./indicador-fecha";
 interface ColumnsProps {
     onEdit: (instrumento: InstrumentoExtendido) => void;
     onDelete: (instrumento: InstrumentoExtendido) => void;
@@ -21,10 +22,35 @@ const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     </span>;
 };
 
+const DemoraCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
+const fechaEntrada: Date = row.getValue("fecha_de_ingreso");
+const fechaSalida: Date = row.getValue("fecha_de_salida");
+if (!fechaSalida) return <IndicadorFecha fecha={fechaEntrada} />
+else return <span>Ya entregada</span>
+
+
+
+};
+
 
 
 export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef<InstrumentoExtendido>[] =>
     [
+        {
+            accessorKey: "demora",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Demora
+                    </Button>
+                );
+            },
+            cell: DemoraCell,
+
+        },
         {
             accessorKey: "fecha_de_ingreso",
             header: ({ column }) => {

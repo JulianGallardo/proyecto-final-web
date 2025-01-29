@@ -61,9 +61,9 @@ export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInst
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="hover:bg-gray-100 transition-colors">
+                <TableRow key={row.id} className="hover:bg-gray-100 transition-colors ">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="p-2 text-center">
+                    <TableCell key={cell.id} className=" p-2 text-center">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -72,7 +72,7 @@ export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInst
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center text-gray-500">
-                  No results.
+                  Sin resultados.
                 </TableCell>
               </TableRow>
             )}

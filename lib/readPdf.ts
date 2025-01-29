@@ -79,6 +79,6 @@ async function extractTextFromPDF(File: File) {
 export async function extractTextFromPDFAndParse(File: File) {
     const pdfText = await extractTextFromPDF(File);
     const pdfData = parseTextToJson(pdfText);
-    console.log(pdfData);
+    console.log("Data",pdfData);
     return pdfData;
 }

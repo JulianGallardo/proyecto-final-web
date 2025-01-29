@@ -26,14 +26,7 @@ export const parseDate = (date: string) => {
 }
 
 export const parseDataToYear = (date: string) => {
-  console.log("Date", date);
-
-  // Parsear la fecha con Luxon asumiendo el formato "DD/MM/YYYY HH:mm:ss"
   const parsedDate = DateTime.fromFormat(date, "d/M/yyyy HH:mm:ss");
-
-  // Formatear la fecha a "YYYY-MM-DD"
   const formattedDate = parsedDate.toFormat("yyyy-MM-dd");
-
-  console.log(formattedDate);
   return formattedDate;
 };

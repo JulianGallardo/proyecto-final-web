@@ -147,6 +147,17 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             skip: (page - 1) * this.itemsPerPage,
             take: this.itemsPerPage,
             select: selectOptions,
+            orderBy: [
+                {
+                    fecha_de_salida: {
+                        sort: "asc",
+                        nulls: "first", // Primero los valores nulos
+                    }
+                },
+                {
+                    fecha_de_ingreso: "asc"
+                }
+            ],
         });
 
         return instrumentos;
@@ -158,6 +169,17 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async getInstrumentos(): Promise<InstrumentoExtendido[]> {
         return this.modelClient.findMany({
             select: selectOptions,
+            orderBy: [
+                {
+                    fecha_de_salida: {
+                        sort: "asc",
+                        nulls: "first", // Primero los valores nulos
+                    }
+                },
+                {
+                    fecha_de_ingreso: "asc"
+                }
+            ],
         });
     }
 

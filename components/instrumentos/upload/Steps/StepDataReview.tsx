@@ -1,7 +1,7 @@
 import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
 import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
-import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
+import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { InstrumentoType, Juzgado } from "@prisma/client";
 import { FileIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";

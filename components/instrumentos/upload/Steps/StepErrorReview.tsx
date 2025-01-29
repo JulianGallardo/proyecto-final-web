@@ -64,12 +64,6 @@ export default function StepErrorReview({
 
     }
 
-    const handleEliminar = (instrumento: InstrumentoDTO) => {
-        deleteInstrumento(instrumento);
-        setIsOpen(false);
-    }
-
-
     const handleSetInstrumentoEditando = (instrumento: InstrumentoDTO) => {
         setInstrumentoEditando(instrumento);
         setIsOpen(true);
@@ -189,7 +183,7 @@ function ErrorList({ title, instrumentErrors, handleSetInstrumentoEditando, onCa
             <ul className="space-y-4">
                 {instrumentErrors.map((error, index) => (
                     <li
-                        key={index}
+                        key={"Instrument_with_errors" + index}
                         className="flex flex-col gap-3 bg-red-100 p-4 rounded-lg shadow-sm border border-red-200 hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-3">
                             <FileIcon className="h-6 w-6 text-red-600" />

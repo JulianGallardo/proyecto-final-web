@@ -1,7 +1,7 @@
 "use client";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import {  useMemo } from "react";
 
 interface PaginationInstrumentsProps {
     totalPages: number;

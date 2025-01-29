@@ -27,8 +27,6 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
     const pathname = usePathname();
     const { replace } = useRouter();
 
-    const [open, setOpen] = useState(false);
-
     // Configuración de filtros
     const filtrosConfig = [
         { param: "entryDate", displayName: "Fecha de Entrada", type: "date" },

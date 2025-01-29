@@ -88,13 +88,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
 
-    async getInstrumentoById(juzgadoId: number, ordenNumber: number): Promise<InstrumentoExtendido | null> {
-        return this.modelClient.findUnique({
+    async getInstrumentoByCaratula(caratula:string): Promise<InstrumentoExtendido | null> {
+        return this.modelClient.findFirst({
             where: {
-                orden: {
-                    juzgadoId: juzgadoId,
-                    ordenNumber: ordenNumber,
-
+                caratula: {
+                    equals: caratula,
+                    mode: "insensitive",
                 }
             },
             select: selectOptions,
@@ -275,23 +274,13 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {
-        const result = instrumentos.map(async (instrumento) => {
-            const instrumentoResult = await this.createInstrumento(instrumento);
-            return instrumentoResult;
+        const instrumentosCreados: InstrumentoExtendido[] = [];
+        instrumentos.forEach(async instrumento => {
+            const result = await this.createInstrumento(instrumento);
+            instrumentosCreados.push(result);
         });
 
-        const instrumentosConErrores = [];
-
-        try {
-
-            const created = await Promise.all(result);
-        } catch (error) {
-            instrumentosConErrores.push(error);
-            console.warn(instrumentosConErrores);
-
-        }
-
-        return result;
+        return instrumentosCreados;
     }
 
 

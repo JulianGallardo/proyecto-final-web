@@ -43,6 +43,7 @@ export default function PDFUploadProcess() {
 
                 setStep(instrumentosWithErrors.length ? 2 : 3);
             } catch (error) {
+                console.error(error);
                 toast({
                     title: "Error",
                     description: error instanceof Error ? error.message : "Ha ocurrido un error al procesar el PDF",

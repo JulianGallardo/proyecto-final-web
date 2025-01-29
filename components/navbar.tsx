@@ -64,7 +64,7 @@ export default async function Navbar() {
 
         {/* Mobile Navigation */}
         <Sheet >
-          <SheetTitle>Menu</SheetTitle>
+          <SheetTitle className="hidden">Menu</SheetTitle>
           <SheetDescription className="hidden">
             Menu de navegación
           </SheetDescription>

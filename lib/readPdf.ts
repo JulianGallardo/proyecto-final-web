@@ -1,7 +1,7 @@
  /* eslint-disable */
 "use Server";
 import * as pdfjsLib from "pdfjs-dist";
-import "pdfjs-dist/build/pdf.worker";
+pdfjsLib.GlobalWorkerOptions.workerSrc=`https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/legacy/build/pdf.worker.min.mjs`
 
 // Función para procesar cada bloque de texto y extraer campos clave
 function parseTextToJson(text: string): object[] {
@@ -80,6 +80,5 @@ async function extractTextFromPDF(File: File) {
 export async function extractTextFromPDFAndParse(File: File) {
     const pdfText = await extractTextFromPDF(File);
     const pdfData = parseTextToJson(pdfText);
-    console.log("Data",pdfData);
     return pdfData;
 }

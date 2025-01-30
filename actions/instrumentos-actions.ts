@@ -27,6 +27,7 @@ export async function getJuzgados() {
     return juzgadoService.getJuzgados();
 }
 
+
 export async function getInstrumentTypes() {
     return instrumentTypesRepo.getAll();
 }

@@ -8,6 +8,7 @@ import { useCustomDialog } from "@/hooks/useCustomDialog"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
 import CustomDialog from "../instrumentos/Dialogs/dialog"
 import CustomAlert from "../instrumentos/Dialogs/alert"
+import { parseDate } from "@/lib/utils"
 
 
 
@@ -70,11 +71,11 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
 function JuzgadosCard({ juzgado, onEdit, onDelete }: { juzgado: JuzgadoDto; onEdit: () => void; onDelete: () => void }) {
     return (
         <Card >
-            <CardContent className="flex flex-col items-start p-4">
+            <CardContent className="flex flex-col items-start p-4 h-2/3">
                 <h2 className="text-xl font-bold">{juzgado.name}</h2>
                 <p className="text-sm text-gray-500">Identificador: {juzgado.identifier}</p>
-                <p className="text-sm text-gray-500">Creado: {juzgado.createdAt}</p>
-                <p className="text-sm text-gray-500">Actualizado: {juzgado.updatedAt}</p>
+                <p className="text-sm text-gray-500">Creado: {parseDate(juzgado.createdAt.toISOString())}</p>
+                <p className="text-sm text-gray-500">Actualizado: {parseDate(juzgado.updatedAt.toISOString())}</p>
             </CardContent>
             <CardFooter className="flex justify-between p-4">
                 <Button className="bg-blue-500 hover:bg-blue-600" onClick={onEdit}>

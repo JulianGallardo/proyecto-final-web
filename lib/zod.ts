@@ -29,3 +29,8 @@ export const instrumentSchema = object({
   juzgado: string({ required_error: "El identificador de juzgado es requerido." }).min(1, "El identificador de juzgado es requerido."),
   instrumentType: string({ required_error: "El tipo de instrumento es requerido." }).min(1, "El tipo de instrumento es requerido."),
 })
+
+export const juzgadoSchema = object({
+  name: string({ required_error: "El nombre es requerido." }).min(1, "El nombre es requerido."),
+  identifier: string({ required_error: "El identificador es requerido." }).min(1, "El identificador es requerido."),
+})

@@ -8,20 +8,23 @@ import { revalidatePath } from "next/cache";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import InstrumentoService from "@/lib/instrumentoService";
 import OrdenRepository from "@/repositories/OrdenRepository";
+import JuzgadoService from "@/lib/juzgadoService";
 
 const ordenRepository = new OrdenRepository();
 const instrumentosRepo = new InstrumentosRepository(ordenRepository);
 const juzgadosRepo = new JuzgadoRepository();
 const instrumentTypesRepo = new InstrumentTypeRepository();
+
 const instrumentoService = new InstrumentoService(
     juzgadosRepo,
     instrumentTypesRepo,
     instrumentosRepo
 );
+const juzgadoService = new JuzgadoService(juzgadosRepo);
 
 
 export async function getJuzgados() {
-    return juzgadosRepo.getAll();
+    return juzgadoService.getJuzgados();
 }
 
 export async function getInstrumentTypes() {
@@ -29,7 +32,7 @@ export async function getInstrumentTypes() {
 }
 
 export async function createJuzgado(data: Prisma.JuzgadoCreateInput) {
-    return juzgadosRepo.create(data);
+    return juzgadoService.createJuzgado(data);
 }
 
 export async function createInstrumentType(data: Prisma.InstrumentoTypeCreateInput) {
@@ -37,7 +40,7 @@ export async function createInstrumentType(data: Prisma.InstrumentoTypeCreateInp
 }
 
 export async function updateJuzgado(id: number, data: Prisma.JuzgadoUpdateInput) {
-    return juzgadosRepo.update(id, data);
+    return juzgadoService.updateJuzgado(id, data);
 }
 
 export async function updateInstrumentType(id: number, data: Prisma.InstrumentoTypeUpdateInput) {
@@ -45,7 +48,7 @@ export async function updateInstrumentType(id: number, data: Prisma.InstrumentoT
 }
 
 export async function deleteJuzgado(id: number) {
-    return juzgadosRepo.delete(id);
+    return juzgadoService.deleteJuzgado(id);
 }
 
 export async function deleteInstrumentType(id: number) {

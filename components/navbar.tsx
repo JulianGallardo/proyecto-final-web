@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import Link from "next/link"
-import { Truck, Map, Package, ChartGraph, Home, Logout, Menu } from "@mynaui/icons-react"
+import { Truck, Map, Package, ChartGraph, Home, Logout, Menu, Config, LetterJSquare, LetterISquare } from "@mynaui/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -14,6 +14,8 @@ import {
 import BtnLogout from "@/components/auth/btn-logout"
 import { auth } from "@/auth"
 
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
+
 const navItems = [
   { href: "/zonas", label: "Zonas", icon: Map },
   { href: "/agentes", label: "Agente", icon: Truck },
@@ -24,18 +26,16 @@ const navItems = [
 export default async function Navbar() {
   const session = await auth()
 
- const heads = headers()
+  const heads = headers()
 
- const pathname = heads.get('next-url')
-
- console.log(pathname)
+  const pathname = heads.get('next-url')
 
   if (!session) {
     return null
   }
 
   return (
-    <nav className="flex items-center p-4  bg-gray-900 w-full shadow-lg z-50  ">
+    <nav className="flex items-center p-4 px-6  bg-gray-900 w-full shadow-lg z-50  ">
 
       <div className="flex-grow flex items-center justify-between">
         <Link href="/inicio" className="">
@@ -94,6 +94,7 @@ export default async function Navbar() {
               ))}
             </nav>
             <div className="p-4 ">
+
               <BtnLogout
                 className=" flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-gray-200 hover:text-red-400 hover:bg-gray-700 transition-all duration-300"
               >
@@ -104,12 +105,47 @@ export default async function Navbar() {
           </SheetContent>
         </Sheet>
 
-        <BtnLogout
-          className=" hidden md:flex items-center justify-center bg-transparent gap-2 text-gray-200 hover:text-red-400 hover:bg-transparent transition-all duration-300"
-        >
-          <Logout className="w-6 h-6" />
-          <span className="text-sm">Cerrar sesión</span>
-        </BtnLogout>
+
+        <DropdownMenu  >
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost"
+              className="flex items-center text-gray-200 hover:text-blue-400 outline-none">
+              <span className="">Opciones</span>
+              <Config className="w-6 h-6" />
+
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-full">
+            <DropdownMenuItem>
+              <Link href="/juzgados" >
+                <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
+
+                  <LetterJSquare className="w-6 h-6" />
+                  <span className="text-sm">Juzgados</span>
+                </Button>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Link href="/instrumentos-tipo" >
+                <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
+
+                  <LetterISquare className="w-6 h-6" />
+                  <span className="text-sm">Tipo de instrumentos</span>
+                </Button>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem>
+              <BtnLogout className="flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-white hover:text-red-400 hover:bg-gray-700 transition-all duration-300">
+                <Logout className="w-6 h-6" />
+                <span className="text-sm">Cerrar sesión</span>
+              </BtnLogout>
+            </DropdownMenuItem>
+
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+
       </div>
     </nav>
   )

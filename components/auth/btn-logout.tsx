@@ -8,7 +8,7 @@ interface BtnLogoutProps {
     children?: ReactNode;
 }
 
-export default function BtnLogout({ children,className }: BtnLogoutProps) {
+export default function BtnLogout({ children,className }: Readonly<BtnLogoutProps>) {
     const handleClick = async () => {
         await signOut({
             redirectTo: "/login",
@@ -16,7 +16,7 @@ export default function BtnLogout({ children,className }: BtnLogoutProps) {
     };
     return (
         <Button className={className} onClick={() => handleClick()}>
-            {children ? children : "Logout"}
+            {children || "Logout"}
         </Button>
     );
 }

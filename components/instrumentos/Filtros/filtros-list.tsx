@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { X } from "@mynaui/icons-react";
 import { parseDate } from "@/lib/utils";
+import ExitDateFilter from "./exit-date-filter";
 
 interface FiltroListProps {
     Juzgados: Juzgado[];
@@ -30,10 +31,10 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
     // Configuración de filtros
     const filtrosConfig = [
         { param: "entryDate", displayName: "Fecha de Entrada", type: "date" },
-        { param: "exitDate", displayName: "Fecha de Salida", type: "date" },
+        { param: "exitDate", displayName: "Fecha de Salida", type: "custom" },
         { param: "caratula", displayName: "Carátula", type: "text" },
         { param: "destinatario", displayName: "Destinatario", type: "text" },
-        { param: "address", displayName: "Dirección", type: "text" },
+        { param: "address", displayName: "Domicilio denunciado", type: "text" },
         { param: "ordenNumber", displayName: "Número de Orden", type: "text" },
         {
             param: "juzgado",
@@ -68,6 +69,44 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
 
 
 
+    const customInputs = (param:string) => {
+        if (param === "exitDate") {
+            return (
+                <ExitDateFilter param={param}
+                />
+            )
+        }
+        else {
+            return (
+                <Input
+                    type={filtrosConfig.find((f) => f.param === param)?.type}
+                    placeholder={filtrosConfig.find((f) => f.param === param)?.displayName}
+                    className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring focus:ring-blue-500 focus:outline-none"
+                    onChange={(e) => handleSearch(param, e.target.value)}
+                    defaultValue={searchParams.get(param) ?? ""}
+                />
+            )
+        }
+
+
+
+    }
+
+
+    const calculateFilterTagValue = (key: string) => {
+        if(key === "entryDate"){
+            return parseDate(searchParams.get(key) as string)
+        }
+        if(key === "exitDate"){
+            if (searchParams.get(key)?.replace(/\+/g, " ") === "No registrada") {
+                return "No registrada" as string
+            }
+            return parseDate(searchParams.get(key) as string)
+        }
+        else{
+            return searchParams.get(key) as string
+        }
+    }
 
     return (
         <div>
@@ -80,6 +119,11 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                     </AccordionTrigger>
                     <AccordionContent className="p-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filtrosConfig.map((filtro) => (
+
+
+
+
+
                             <Filtro
                                 key={filtro.param}
                                 param={filtro.param}
@@ -87,6 +131,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                                 clearFilter={clearFilter}
 
                             >
+
                                 {filtro.type === "select" ? (
                                     <Select defaultValue={
                                         searchParams.get(filtro.param) ?? ""
@@ -105,14 +150,9 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                                         </SelectContent>
                                     </Select>
                                 ) : (
-                                    <Input
-                                        type={filtro.type}
-                                        placeholder={filtro.displayName}
-                                        className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring focus:ring-blue-500 focus:outline-none"
-                                        onChange={(e) => handleSearch(filtro.param, e.target.value)}
-                                        defaultValue={searchParams.get(filtro.param) ?? ""}
-                                    />
+                                    customInputs(filtro.param)
                                 )}
+
                             </Filtro>
                         ))}
                     </AccordionContent>
@@ -131,7 +171,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                             <FilterTag
                                 key={filtrosConfig.find((f) => f.param === key)?.displayName}
                                 label={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
-                                value={key === "entryDate" || key === "exitDate" ? parseDate(searchParams.get(key) as string) : searchParams.get(key) as string}
+                                value={calculateFilterTagValue(key)}
                                 onRemove={() => clearFilter(key)}
                             />
                         ))}
@@ -141,6 +181,8 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
         </div>
     );
 }
+
+
 
 
 
@@ -203,3 +245,5 @@ function Filtro({ param, displayName, children, clearFilter }: Readonly<FiltroPr
         </div>
     );
 }
+
+

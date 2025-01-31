@@ -58,7 +58,9 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
         const filterMapping: { [key: string]: (value: any) => any } = {
             entryDate: (value) => ({ fecha_de_ingreso: { gte: new Date(value) } }),
-            exitDate: (value) => ({ fecha_de_salida: { lte: new Date(value) } }),
+            exitDate: (value) => ( 
+                parseString(value) === "No registrada" ? { fecha_de_salida: { equals: null } } : { fecha_de_salida: { lte: new Date(value) } }
+            ),
             caratula: (value) => ({ caratula: { startsWith: parseString(value), mode: "insensitive" } }),
             destinatario: (value) => ({ destinatario: { startsWith: parseString(value), mode: "insensitive" } }),
             address: (value) => ({ domicilio_denunciado: { startsWith: parseString(value), mode: "insensitive" } }),

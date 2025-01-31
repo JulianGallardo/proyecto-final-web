@@ -27,6 +27,7 @@ export default class InstrumentosTypeService {
 
     async getDto(Type: InstrumentoType) {
         const TypeDto: InstrumentoTypeDTO = {
+            id: Type.id,
             name: Type.name,
             identifier: Type.identifier,
             createdAt: Type.createdAt,

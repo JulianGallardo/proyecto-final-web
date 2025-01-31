@@ -13,7 +13,7 @@ import { createInstrumentType, deleteInstrumentType, updateInstrumentType } from
 import { toast } from "@/hooks/use-toast"
 import { FormularioType } from "./forms/type-form"
 import SearchInput from "../juzgados/search/search"
-import { InstrumentoTypeDTO } from "@/types/instrumentoTypes"
+import { InstrumentoTypeDTO, InstrumentoTypeInput } from "@/types/instrumentoTypes"
 
 
 
@@ -27,7 +27,7 @@ export default function TypeList({ tipos }: Readonly<TypesListProps>) {
     const [editingType, setEditingType] = useState<InstrumentoTypeDTO | null>(null);
     const [TypeToDelete, setTypeToDelete] = useState<InstrumentoTypeDTO | null>(null);
 
-    async function handleSubmit(data: InstrumentoTypeDTO) {
+    async function handleSubmit(data: InstrumentoTypeInput) {
         try {
             const Type = await createInstrumentType(data);
             if (Type) {
@@ -53,7 +53,7 @@ export default function TypeList({ tipos }: Readonly<TypesListProps>) {
         setEditingType(null);
     }
 
-    async function handleUpdate(data: InstrumentoTypeDTO) {
+    async function handleUpdate(data: InstrumentoTypeInput) {
         if (!editingType) {
             toast({
                 title: "Error",
@@ -150,14 +150,16 @@ export default function TypeList({ tipos }: Readonly<TypesListProps>) {
             <CustomDialog
                 dialogTitle={editingType ? "Editar tipo de instrumento" : "Agregar tipo de instrumento"}
                 propDialogContent={
-                    <FormularioType Type={editingType} onSubmit={editingType ? handleUpdate : handleSubmit} Types={tipos} />
+                    <FormularioType Type={editingType} onSubmit={editingType ? handleUpdate : handleSubmit} Types={
+                        tipos.filter((type) => type.id !== editingType?.id)
+                    } />
                 }
                 customClose={true}
                 onClose={() => closeDialog()}
             />
             <CustomAlert
-                AlertTitle="Eliminar Type"
-                AlertDescription="¿Está seguro que desea eliminar este Type?"
+                AlertTitle="Eliminar tipo de instrumento"
+                AlertDescription="¿Está seguro que desea eliminar este tipo de instrumento?"
                 propAlertDialogContent={
                     <div className="flex justify-between">
                         <Button className="bg-red-500 hover:bg-red-600" onClick={() => setIsOpenAlert(false)}>

@@ -26,7 +26,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
     const [editingJuzgado, setEditingJuzgado] = useState<JuzgadoDto | null>(null);
     const [juzgadoToDelete, setJuzgadoToDelete] = useState<JuzgadoDto | null>(null);
 
-    async function handleSubmit(data: JuzgadoDto) {
+    async function handleSubmit(data: JuzgadoInput) {
         try {
             const juzgado = await createJuzgado(data);
             if (juzgado) {
@@ -51,7 +51,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
         setIsOpen(false);
     }
 
-    async function handleUpdate(data: JuzgadoDto) {
+    async function handleUpdate(data: JuzgadoInput) {
         if (!editingJuzgado) {
             toast({
                 title: "Error",
@@ -146,7 +146,9 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
             <CustomDialog
                 dialogTitle="Agregar Juzgado"
                 propDialogContent={
-                    <FormularioJuzgado Juzgado={editingJuzgado} onSubmit={editingJuzgado ? handleUpdate : handleSubmit} Juzgados={juzgados} />
+                    <FormularioJuzgado Juzgado={editingJuzgado} onSubmit={editingJuzgado ? handleUpdate : handleSubmit} Juzgados={
+                        juzgados.filter(juzgado => juzgado.id !== editingJuzgado?.id)
+                    } />
                 }
                 customClose={true}
                 onClose={() => closeDialog()}

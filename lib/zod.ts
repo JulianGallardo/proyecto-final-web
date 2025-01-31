@@ -1,3 +1,4 @@
+import { InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import { object, string, z } from "zod"
  
 export const logInSchema = object({
@@ -30,12 +31,36 @@ export const instrumentSchema = object({
   instrumentType: string({ required_error: "El tipo de instrumento es requerido." }).min(1, "El tipo de instrumento es requerido."),
 })
 
-export const juzgadoSchema = object({
-  name: string({ required_error: "El nombre es requerido." }).min(1, "El nombre es requerido."),
-  identifier: string({ required_error: "El identificador es requerido." }).min(1, "El identificador es requerido."),
-})
+export const juzgadoSchema = (Juzgados: JuzgadoDto[]) =>
+  z.object({
+    name: z
+      .string({ required_error: "El nombre es requerido." })
+      .min(1, "El nombre es requerido.")
+      .refine(value => !Juzgados.some(juzgado => juzgado.name === value), {
+        message: "El nombre ya existe.",
+      }),
 
-export const TypeSchema = object({
-  name: string({ required_error: "El nombre es requerido." }).min(1, "El nombre es requerido."),
-  identifier: string({ required_error: "El identificador es requerido." }).min(1, "El identificador es requerido."),
-})
+    identifier: z
+      .string({ required_error: "El identificador es requerido." })
+      .min(1, "El identificador es requerido.")
+      .refine(value => !Juzgados.some(juzgado => juzgado.identifier === value), {
+        message: "El identificador ya existe.",
+      }),
+  });
+
+export const TypeSchema = (types: InstrumentoTypeDTO[]) =>
+  z.object({
+    name: z
+      .string({ required_error: "El nombre es requerido." })
+      .min(1, "El nombre es requerido.")
+      .refine(value => !types.some(type => type.name === value), {
+        message: "El nombre ya existe.",
+      }),
+
+    identifier: z
+      .string({ required_error: "El identificador es requerido." })
+      .min(1, "El identificador es requerido.")
+      .refine(value => !types.some(type => type.identifier === value), {
+        message: "El identificador ya existe.",
+      }),
+  });

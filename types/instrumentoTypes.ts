@@ -39,8 +39,11 @@ export interface InstrumentoExtendido extends Instrumento {
   };
 }
 
-export interface InstrumentoTypeDTO {
+export interface InstrumentoTypeDTO extends InstrumentoTypeInput {
   id: number;
+}
+
+export interface InstrumentoTypeInput {
   name: string;
   identifier: string;
   createdAt: Date;

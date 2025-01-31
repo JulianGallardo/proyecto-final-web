@@ -15,20 +15,22 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { TypeSchema } from "@/lib/zod"
-import { InstrumentoTypeDTO } from "@/types/instrumentoTypes"
+import { InstrumentoTypeDTO, InstrumentoTypeInput } from "@/types/instrumentoTypes"
 
 
 
 
 interface FormularioTypeProps {
     Type: InstrumentoTypeDTO|null,
-    onSubmit: (data: InstrumentoTypeDTO) => void,
+    onSubmit: (data: InstrumentoTypeInput) => void,
     Types: InstrumentoTypeDTO[],
 }
 
+
 export function FormularioType({ Type, onSubmit, Types }: Readonly<FormularioTypeProps>) {
-    const form = useForm<z.infer<typeof TypeSchema>>({
-        resolver: zodResolver(TypeSchema),
+    const schema = TypeSchema(Types)
+    const form = useForm<z.infer<typeof schema>>({
+        resolver: zodResolver(schema),
         defaultValues: {
             identifier: Type?.identifier ?? "",
             name: Type?.name ?? "",
@@ -36,9 +38,8 @@ export function FormularioType({ Type, onSubmit, Types }: Readonly<FormularioTyp
     })
 
 
-    function handleSubmit(values: z.infer<typeof TypeSchema>) {
+    function handleSubmit(values: z.infer<typeof schema>) {
         onSubmit({
-            id: Type?.id ?? 0,
             identifier: values.identifier,
             name: values.name,
             createdAt: Type?.createdAt ?? new Date(),

@@ -21,13 +21,14 @@ import { juzgadoSchema } from "@/lib/zod"
 
 interface FormularioJuzgadoProps {
     Juzgado: JuzgadoDto|null,
-    onSubmit: (data: JuzgadoDto) => void,
+    onSubmit: (data: JuzgadoInput) => void,
     Juzgados: JuzgadoDto[],
 }
 
 export function FormularioJuzgado({ Juzgado, onSubmit, Juzgados }: Readonly<FormularioJuzgadoProps>) {
-    const form = useForm<z.infer<typeof juzgadoSchema>>({
-        resolver: zodResolver(juzgadoSchema),
+    const schema = juzgadoSchema(Juzgados)
+    const form = useForm<z.infer<typeof schema>>({
+        resolver: zodResolver(schema),
         defaultValues: {
             identifier: Juzgado?.identifier ?? "",
             name: Juzgado?.name ?? "",
@@ -35,19 +36,14 @@ export function FormularioJuzgado({ Juzgado, onSubmit, Juzgados }: Readonly<Form
     })
 
 
-    function handleSubmit(values: z.infer<typeof juzgadoSchema>) {
+    function handleSubmit(values: z.infer<typeof schema>) {
         onSubmit({
-            id: Juzgado?.id ?? 0,
             identifier: values.identifier,
             name: values.name,
             createdAt: Juzgado?.createdAt ?? new Date(),
             updatedAt: new Date(),
         })
     }
-
-
-
-
 
 
     return (

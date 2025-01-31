@@ -22,7 +22,7 @@ interface JuzgadosListProps {
 export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) {
     const { setIsOpen } = useCustomDialog();
     const { setIsOpenAlert } = useCustomAlert();
-    const [editingJuzgado, setIsEditingJuzgado] = useState<JuzgadoDto | null>(null);
+    const [editingJuzgado, setEditingJuzgado] = useState<JuzgadoDto | null>(null);
     const [juzgadoToDelete, setJuzgadoToDelete] = useState<JuzgadoDto | null>(null);
 
     async function handleSubmit(data: JuzgadoDto) {
@@ -46,7 +46,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
                 duration: 3000,
             });
         }
-        setIsEditingJuzgado(null);
+        setEditingJuzgado(null);
         setIsOpen(false);
     }
 
@@ -80,7 +80,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
                 duration: 3000,
             });
         }
-        setIsEditingJuzgado(null);
+        setEditingJuzgado(null);
         setIsOpen(false);
     }
 
@@ -127,19 +127,14 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
 
 
     function openUpdateDialog(Juzgado: JuzgadoDto) {
-        setIsEditingJuzgado(Juzgado);
+        setEditingJuzgado(Juzgado);
         setIsOpen(true);
     }
 
     function closeDialog() {
-        setIsEditingJuzgado(null);
+        setEditingJuzgado(null);
         setIsOpen(false);
     }
-
-
-
-
-
 
 
 

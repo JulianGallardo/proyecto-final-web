@@ -62,6 +62,15 @@ export async function deleteInstrumentType(id: number) {
     return instrumentTypesRepo.delete(id);
 }
 
+
+export async function getJuzgadosPaginated(page: number, query: string) {
+    return juzgadoService.getJuzgadosPaginated(page, query);
+}
+
+export async function getTotalPages(query: string) {
+    return juzgadoService.getTotalPages(query);
+}
+
 //----------------------------------------------- Instrumentos----------------------------------------------------------------
 
 export async function getInstrumentos() {

@@ -44,8 +44,16 @@ export default class JuzgadoService {
         return this.juzgadosRepository.delete(id);
     }
 
+    async getJuzgadosPaginated(page: number, query: string) {
+        return this.juzgadosRepository.getJuzgadosPaginated(page, this._parseQuery(query));
+    }
 
+    async getTotalPages(query: string) {
+        return this.juzgadosRepository.getTotalPages(this._parseQuery(query));
+    }
 
-
+    _parseQuery(query: string) {
+        return query.replace(/\+/g, " ");
+    }
 
 }

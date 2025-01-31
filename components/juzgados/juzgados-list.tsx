@@ -12,7 +12,8 @@ import { parseDate } from "@/lib/utils"
 import { createJuzgado, deleteJuzgado, updateJuzgado } from "@/actions/instrumentos-actions"
 import { toast } from "@/hooks/use-toast"
 import { FormularioJuzgado } from "./forms/juzgado-form"
-import SearchInput from "./search/search"
+import SearchInput from "../shared/search"
+import NoResults from "../shared/noResults"
 
 
 
@@ -186,7 +187,9 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
                     />
 
                 ))}
+                
             </div>
+            {juzgados.length === 0 && <NoResults />}
         </div>
     )
 }

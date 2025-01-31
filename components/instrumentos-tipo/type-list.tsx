@@ -12,8 +12,9 @@ import { parseDate } from "@/lib/utils"
 import { createInstrumentType, deleteInstrumentType, updateInstrumentType } from "@/actions/instrumentos-actions"
 import { toast } from "@/hooks/use-toast"
 import { FormularioType } from "./forms/type-form"
-import SearchInput from "../juzgados/search/search"
+import SearchInput from "../shared/search"
 import { InstrumentoTypeDTO, InstrumentoTypeInput } from "@/types/instrumentoTypes"
+import NoResults from "../shared/noResults"
 
 
 
@@ -191,6 +192,7 @@ export default function TypeList({ tipos }: Readonly<TypesListProps>) {
 
                 ))}
             </div>
+            {tipos.length === 0 && <NoResults />}
         </div>
     )
 }

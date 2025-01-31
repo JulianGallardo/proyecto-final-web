@@ -19,7 +19,6 @@ export default async function JuzgadosPage(props: Readonly<{
     return (
         <div className="container mx-auto p-4 ">
             <h1 className="text-3xl font-bold mb-6">Juzgados Disponibles</h1>
-            <SearchInput placeholder="Buscar juzgado por nombre" />
             <JuzgadosList juzgados={juzgados}/>
             <PaginationInstruments totalPages={totalPages} />
         </div>

@@ -12,6 +12,7 @@ import { parseDate } from "@/lib/utils"
 import { createJuzgado, deleteJuzgado, updateJuzgado } from "@/actions/instrumentos-actions"
 import { toast } from "@/hooks/use-toast"
 import { FormularioJuzgado } from "./forms/juzgado-form"
+import SearchInput from "./search/search"
 
 
 
@@ -28,7 +29,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
     async function handleSubmit(data: JuzgadoDto) {
         try {
             const juzgado = await createJuzgado(data);
-            if(juzgado){
+            if (juzgado) {
                 toast({
                     title: "Juzgado creado",
                     description: "El juzgado se ha creado correctamente",
@@ -36,7 +37,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
                     duration: 3000,
                 });
             }
-            
+
         } catch (error) {
             console.error(error);
             toast({
@@ -51,7 +52,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
     }
 
     async function handleUpdate(data: JuzgadoDto) {
-        if(!editingJuzgado) {
+        if (!editingJuzgado) {
             toast({
                 title: "Error",
                 description: "No se ha seleccionado un juzgado para editar",
@@ -61,8 +62,8 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
             return;
         }
         try {
-            const juzgadoActualizado = await updateJuzgado(editingJuzgado?.id,data);
-            if(juzgadoActualizado) {
+            const juzgadoActualizado = await updateJuzgado(editingJuzgado?.id, data);
+            if (juzgadoActualizado) {
                 toast({
                     title: "Juzgado actualizado",
                     description: `El juzgado ha sido actualizado correctamente`,
@@ -90,7 +91,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
     }
 
     async function handleDelete() {
-        if(!juzgadoToDelete) {
+        if (!juzgadoToDelete) {
             toast({
                 title: "Error",
                 description: "No se ha seleccionado un juzgado para eliminar",
@@ -101,7 +102,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
         }
         try {
             const juzgadoDeleted = await deleteJuzgado(juzgadoToDelete.id);
-            if(juzgadoDeleted) {
+            if (juzgadoDeleted) {
                 toast({
                     title: "Juzgado eliminado",
                     description: `El juzgado ha sido eliminado correctamente`,
@@ -118,7 +119,7 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
                 className: "bg-red-500 text-white",
                 duration: 3000,
             });
-            
+
         }
         setJuzgadoToDelete(null);
         setIsOpenAlert(false);
@@ -165,9 +166,12 @@ export default function JuzgadosList({ juzgados }: Readonly<JuzgadosListProps>) 
                 }
             />
 
-            <Button className="mb-4 bg-green-500 hover:bg-green-600" onClick={() => setIsOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" /> Agregar Juzgado
-            </Button>
+            <div className="flex flex-col md:flex-row gap-4  justify-between items-center mb-4">
+                <Button className="mb-4 bg-green-500 hover:bg-green-600 " onClick={() => setIsOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" /> Agregar Juzgado
+                </Button>
+                <SearchInput placeholder="Buscar juzgado por nombre" />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {juzgados.map((juzgado) => (
                     <JuzgadosCard

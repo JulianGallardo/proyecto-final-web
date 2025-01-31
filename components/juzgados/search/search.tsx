@@ -31,7 +31,7 @@ export default function SearchInput({ placeholder = "" }: Readonly<FilterCompone
 
 
     return (
-        <div className="p-4">
+        <div className="w-full">
             <Input
                 type="text"
                 placeholder={placeholder}

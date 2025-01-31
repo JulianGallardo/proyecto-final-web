@@ -7,6 +7,8 @@ export default class InstrumentTypeRepository extends BaseRepository<Instrumento
         super(prisma.instrumentoType);
     }
 
+    itemsPerPage = 9;
+
     getByName(name: string): Promise<InstrumentoType | null> {
         return this.modelClient.findFirst({
             where: {
@@ -23,5 +25,33 @@ export default class InstrumentTypeRepository extends BaseRepository<Instrumento
                     { startsWith: identifier, mode: "insensitive" }
             }
         });
+    }
+
+    getTypesPaginated(page: number, query: string): Promise<InstrumentoType[]> {
+        return this.modelClient.findMany({
+            where: {
+                OR: [
+                    { name: { startsWith: query, mode: "insensitive" } },
+                ],
+            },
+            skip: (page - 1) * this.itemsPerPage,
+            take: this.itemsPerPage,
+        });
+    }
+
+    async getTotalPages(query: string): Promise<number> {
+        const juzgadosCountPromise = await this.modelClient.count({
+            where: {
+                OR: [
+                    { name: { startsWith: query, mode: "insensitive" } },
+                ],
+            },
+        });
+
+        const [instrumentosCount] = await Promise.all([juzgadosCountPromise]);
+
+        const totalPages = Math.ceil(instrumentosCount / this.itemsPerPage);
+
+        return totalPages;
     }
 }

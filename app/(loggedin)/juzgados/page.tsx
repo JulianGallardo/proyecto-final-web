@@ -1,7 +1,6 @@
-import {  getJuzgadosPaginated, getTotalPages } from "@/actions/instrumentos-actions";
+import {  getJuzgadosPaginated, getJuzgadosTotalPages } from "@/actions/instrumentos-actions";
 import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
 import JuzgadosList from "@/components/juzgados/juzgados-list"
-import SearchInput from "@/components/juzgados/search/search";
 
 interface SearchParamsJuzgados {
     query: string
@@ -13,7 +12,7 @@ export default async function JuzgadosPage(props: Readonly<{
 }>) {
     const searchParams = await props.searchParams;
     const juzgados = await getJuzgadosPaginated(searchParams?.page ?? 1, searchParams?.query ?? "");
-    const totalPages = await getTotalPages(searchParams?.query ?? "");
+    const totalPages = await getJuzgadosTotalPages(searchParams?.query ?? "");
 
 
     return (

@@ -9,6 +9,7 @@ import SearchParamsInstrumentos from "@/types/searchParams";
 import InstrumentoService from "@/lib/instrumentoService";
 import OrdenRepository from "@/repositories/OrdenRepository";
 import JuzgadoService from "@/lib/juzgadoService";
+import InstrumentosTypeService from "@/lib/instrumentosTypeService";
 
 const ordenRepository = new OrdenRepository();
 const instrumentosRepo = new InstrumentosRepository(ordenRepository);
@@ -21,7 +22,7 @@ const instrumentoService = new InstrumentoService(
     instrumentosRepo
 );
 const juzgadoService = new JuzgadoService(juzgadosRepo);
-
+const typeService = new InstrumentosTypeService(instrumentTypesRepo);
 
 export async function getJuzgados() {
     return juzgadoService.getJuzgados();
@@ -29,7 +30,7 @@ export async function getJuzgados() {
 
 
 export async function getInstrumentTypes() {
-    return instrumentTypesRepo.getAll();
+    return typeService.getTypes();
 }
 
 export async function createJuzgado(data: Prisma.JuzgadoCreateInput) {
@@ -39,7 +40,9 @@ export async function createJuzgado(data: Prisma.JuzgadoCreateInput) {
 }
 
 export async function createInstrumentType(data: Prisma.InstrumentoTypeCreateInput) {
-    return instrumentTypesRepo.create(data);
+    const type = await typeService.createType(data);
+    revalidatePath("/instrumentos-tipo");
+    return type;
 }
 
 export async function updateJuzgado(id: number, data: Prisma.JuzgadoUpdateInput) {
@@ -49,7 +52,9 @@ export async function updateJuzgado(id: number, data: Prisma.JuzgadoUpdateInput)
 }
 
 export async function updateInstrumentType(id: number, data: Prisma.InstrumentoTypeUpdateInput) {
-    return instrumentTypesRepo.update(id, data);
+    const type = await typeService.updateType(id, data);
+    revalidatePath("/instrumentos-tipo");
+    return type;
 }
 
 export async function deleteJuzgado(id: number) {
@@ -59,7 +64,17 @@ export async function deleteJuzgado(id: number) {
 }
 
 export async function deleteInstrumentType(id: number) {
-    return instrumentTypesRepo.delete(id);
+    const type = await typeService.deleteType(id);
+    revalidatePath("/instrumentos-tipo");
+    return type;
+}
+
+export async function getTypesPaginated(page: number, query: string) {
+    return typeService.getTypesPaginated(page, query);
+}
+
+export async function getTypeTotalPages(query: string) {
+    return typeService.getTotalPages(query);
 }
 
 
@@ -67,7 +82,7 @@ export async function getJuzgadosPaginated(page: number, query: string) {
     return juzgadoService.getJuzgadosPaginated(page, query);
 }
 
-export async function getTotalPages(query: string) {
+export async function getJuzgadosTotalPages(query: string) {
     return juzgadoService.getTotalPages(query);
 }
 

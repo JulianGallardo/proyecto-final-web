@@ -14,34 +14,33 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { InstrumentoDTO } from "@/types/instrumentoTypes"
-import { instrumentSchema, juzgadoSchema } from "@/lib/zod"
+import { juzgadoSchema } from "@/lib/zod"
 
 
 
 
-interface FormularioInstrumentoProps {
-    Juzgado: JuzgadoDto,
+interface FormularioJuzgadoProps {
+    Juzgado: JuzgadoDto|null,
     onSubmit: (data: JuzgadoDto) => void,
     Juzgados: JuzgadoDto[],
 }
 
-export function FormularioInstrumento({ Juzgado, onSubmit, Juzgados }: Readonly<FormularioInstrumentoProps>) {
+export function FormularioJuzgado({ Juzgado, onSubmit, Juzgados }: Readonly<FormularioJuzgadoProps>) {
     const form = useForm<z.infer<typeof juzgadoSchema>>({
         resolver: zodResolver(juzgadoSchema),
         defaultValues: {
-            identifier: Juzgado.identifier ?? "",
-            name: Juzgado.name ?? "",
+            identifier: Juzgado?.identifier ?? "",
+            name: Juzgado?.name ?? "",
         },
     })
 
 
     function handleSubmit(values: z.infer<typeof juzgadoSchema>) {
         onSubmit({
-            id: Juzgado.id ?? 0,
+            id: Juzgado?.id ?? 0,
             identifier: values.identifier,
             name: values.name,
-            createdAt: Juzgado.createdAt ?? new Date(),
+            createdAt: Juzgado?.createdAt ?? new Date(),
             updatedAt: new Date(),
         })
     }
@@ -61,7 +60,7 @@ export function FormularioInstrumento({ Juzgado, onSubmit, Juzgados }: Readonly<
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-gray-700">Identificador</FormLabel>
                             <FormControl>
-                                <Input type="date" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                                <Input type="string" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
                             </FormControl>
                             <FormMessage className="text-sm text-red-500 mt-1" />
                         </FormItem>
@@ -71,12 +70,11 @@ export function FormularioInstrumento({ Juzgado, onSubmit, Juzgados }: Readonly<
                 <FormField
                     control={form.control}
                     name="name"
-                    defaultValue={Juzgado.name}
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-gray-700">Nombre del Juzgado</FormLabel>
                             <FormControl>
-                                <Input type="date" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                                <Input type="string" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
                             </FormControl>
                             <FormMessage className="text-sm text-red-500 mt-1" />
                         </FormItem>

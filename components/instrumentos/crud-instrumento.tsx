@@ -181,7 +181,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
     return (
         <div className="space-y-4 w-full h-full">
-
             <CustomDialog
                 dialogTitle={instrumentoEditando ? `Editar Instrumento ${instrumentoEditando.orden.ordenNumber} ${instrumentoEditando.orden.juzgado.identifier}` : "Crear Instrumento"}
                 dialogDescription={instrumentoEditando ? "Edita los campos del instrumento" : "Crea un nuevo instrumento"}
@@ -216,10 +215,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                     </div>
                 }
             />
-
-
-
-
 
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <Button

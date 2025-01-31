@@ -33,7 +33,9 @@ export async function getInstrumentTypes() {
 }
 
 export async function createJuzgado(data: Prisma.JuzgadoCreateInput) {
-    return juzgadoService.createJuzgado(data);
+    const juzgado = await juzgadoService.createJuzgado(data);
+    revalidatePath("/juzgados");
+    return juzgado;
 }
 
 export async function createInstrumentType(data: Prisma.InstrumentoTypeCreateInput) {
@@ -41,7 +43,9 @@ export async function createInstrumentType(data: Prisma.InstrumentoTypeCreateInp
 }
 
 export async function updateJuzgado(id: number, data: Prisma.JuzgadoUpdateInput) {
-    return juzgadoService.updateJuzgado(id, data);
+    const juzgado = await juzgadoService.updateJuzgado(id,data);
+    revalidatePath("/juzgados");
+    return juzgado;
 }
 
 export async function updateInstrumentType(id: number, data: Prisma.InstrumentoTypeUpdateInput) {
@@ -49,7 +53,9 @@ export async function updateInstrumentType(id: number, data: Prisma.InstrumentoT
 }
 
 export async function deleteJuzgado(id: number) {
-    return juzgadoService.deleteJuzgado(id);
+    const juzgado = await juzgadoService.deleteJuzgado(id);
+    revalidatePath("/juzgados");
+    return juzgado;
 }
 
 export async function deleteInstrumentType(id: number) {

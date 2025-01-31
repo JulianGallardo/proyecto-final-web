@@ -43,7 +43,7 @@ export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInst
       {data.length === 0 ? (
         <NoResults />
       ) : (
-        <Table className="w-fit text-sm text-gray-700 items-center">
+        <Table className="w-full text-sm text-gray-700 items-center">
           <TableHeader className="bg-gray-50 border-b">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="text-center">

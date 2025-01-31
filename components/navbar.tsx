@@ -92,8 +92,29 @@ export default async function Navbar() {
                   </Link>
                 </SheetTrigger>
               ))}
+              {
+                //TODO: AÑADIR QUE SOLO LO PUEDAN VER LOS DE JEFATURA
+              }
+              <SheetTrigger asChild>
+                <Link href="/juzgados" className="flex items-center p-4 text-gray-200 hover:bg-gray-700" >
+                  <LetterJSquare className="w-6 h-6 mr-4" />
+                  <span className="text-lg">Juzgados</span>
+                </Link>
+              </SheetTrigger>
+
+              <SheetTrigger asChild>
+                <Link href="/instrumentos-tipo" className="flex items-center p-4 text-gray-200 hover:bg-gray-700" >
+                  <LetterISquare className="w-6 h-6 mr-4" />
+                  <span className="text-lg">Tipo de instrumentos</span>
+                </Link>
+              </SheetTrigger>
             </nav>
             <div className="p-4 ">
+
+
+
+
+
 
               <BtnLogout
                 className=" flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-gray-200 hover:text-red-400 hover:bg-gray-700 transition-all duration-300"
@@ -105,45 +126,46 @@ export default async function Navbar() {
           </SheetContent>
         </Sheet>
 
+        <div className="hidden md:flex ">
+          <DropdownMenu  >
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost"
+                className="flex items-center text-gray-200 hover:text-blue-400 outline-none">
+                <span className="">Opciones</span>
+                <Config className="w-6 h-6" />
 
-        <DropdownMenu  >
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost"
-              className="flex items-center text-gray-200 hover:text-blue-400 outline-none">
-              <span className="">Opciones</span>
-              <Config className="w-6 h-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full">
+              <DropdownMenuItem>
+                <Link href="/juzgados" >
+                  <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
 
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full">
-            <DropdownMenuItem>
-              <Link href="/juzgados" >
-                <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
+                    <LetterJSquare className="w-6 h-6" />
+                    <span className="text-sm">Juzgados</span>
+                  </Button>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Link href="/instrumentos-tipo" >
+                  <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
 
-                  <LetterJSquare className="w-6 h-6" />
-                  <span className="text-sm">Juzgados</span>
-                </Button>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href="/instrumentos-tipo" >
-                <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
+                    <LetterISquare className="w-6 h-6" />
+                    <span className="text-sm">Tipo de instrumentos</span>
+                  </Button>
+                </Link>
+              </DropdownMenuItem>
 
-                  <LetterISquare className="w-6 h-6" />
-                  <span className="text-sm">Tipo de instrumentos</span>
-                </Button>
-              </Link>
-            </DropdownMenuItem>
+              <DropdownMenuItem>
+                <BtnLogout className="flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-white hover:text-red-400 hover:bg-gray-700 transition-all duration-300">
+                  <Logout className="w-6 h-6" />
+                  <span className="text-sm">Cerrar sesión</span>
+                </BtnLogout>
+              </DropdownMenuItem>
 
-            <DropdownMenuItem>
-              <BtnLogout className="flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-white hover:text-red-400 hover:bg-gray-700 transition-all duration-300">
-                <Logout className="w-6 h-6" />
-                <span className="text-sm">Cerrar sesión</span>
-              </BtnLogout>
-            </DropdownMenuItem>
-
-          </DropdownMenuContent>
-        </DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
 
       </div>

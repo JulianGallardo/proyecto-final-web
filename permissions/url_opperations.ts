@@ -28,6 +28,8 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.UPDATE }},
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.DELETE }},
 
+    {path: "/instrumentos/upload", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.CREATE }},
+
     {path: "/juzgados", handler: {resource: Resource.JUZGADOS, operation: Operation.LIST }},
     {path: "/juzgados", handler: {resource: Resource.JUZGADOS, operation: Operation.UPDATE }},
     {path: "/juzgados", handler: {resource: Resource.JUZGADOS, operation: Operation.DELETE }},

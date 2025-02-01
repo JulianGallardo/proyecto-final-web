@@ -3,7 +3,19 @@ import Credentials from "next-auth/providers/credentials";
 import { logInSchema } from "./lib/zod";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
+import { NextURL } from "next/dist/server/web/next-url";
+import { NextResponse } from "next/server";
 
+
+function redirectWithCallback(nextUrl: NextURL, path: string) {
+  const newUrl = new URL(path, nextUrl);
+  const callback = nextUrl.searchParams.get('callbackUrl');
+  if (callback)
+    newUrl.searchParams.set('callbackUrl', callback)
+  else
+    newUrl.searchParams.set('callbackUrl', nextUrl.toString())
+  return Response.redirect(newUrl)
+}
 
 export default {
   providers: [
@@ -24,6 +36,7 @@ export default {
           }
         });
 
+
         if (!user?.password) {
           throw new Error("El usuario o la contraseña son incorrectos");
         }
@@ -34,12 +47,49 @@ export default {
           throw new Error("El usuario o la contraseña son incorrectos");
         }
 
-        return user;
+        return {
+          email: user.email,
+          id: user.id,
+          name: user.name,
+          role: user.role
+        }
 
 
       },
     }),
-    
+
+
+
   ],
-  
+  callbacks: {
+
+    redirect({ url, baseUrl }) {
+      const urlObject = new URL(url)
+      const callbackUrl = urlObject.searchParams.get('callbackUrl')
+      if (callbackUrl) {
+        url = callbackUrl
+      }
+
+      // default behavior
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
+
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.role = token.role;
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+  }
+
 } satisfies NextAuthConfig;

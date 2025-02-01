@@ -3,6 +3,8 @@ import { useSession } from "next-auth/react";
 import { Truck, Map, Package, ChartGraph } from "@mynaui/icons-react";
 import CustomCard from "@/components/inicio/card";
 import { useRouter } from "next/navigation";
+import { canView } from "@/permissions/hasPermissions";
+import { Resource } from "@/permissions/typePermissions";
 
 export default function Menu() {
   const { data: session } = useSession();
@@ -24,36 +26,45 @@ export default function Menu() {
       {/* Contenedor de cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 items-center justify-center gap-6 md:gap-6 lg:gap-6 mx-4">
         {/* Card Áreas */}
-        <CustomCard
-          title="Zonas"
-          description="Gestiona y visualiza las zonas disponibles en el sistema."
-          icon={Map}
-          onClick={() => router.push("/zonas")}
-        />
+
+        { canView(session.user.role, Resource.ZONAS) &&
+          <CustomCard
+            title="Zonas"
+            description="Gestiona y visualiza las zonas disponibles en el sistema."
+            icon={Map}
+            onClick={() => router.push("/zonas")}
+          />
+        }
 
         {/* Card Repartidores */}
-        <CustomCard
+        {
+          canView(session.user.role, Resource.AGENTE) &&
+          <CustomCard
           title="Agentes"
           description="Consulta y administra la información de los agente."
           icon={Truck}
           onClick={() => router.push("/agentes")}
-        />
+        />}
 
         {/* Card Paquetes */}
-        <CustomCard
+        {
+          canView(session.user.role, Resource.INSTRUMENTOS) &&
+          <CustomCard
           title="Instrumentos"
           description="Gestiona y rastrea los instrumentos en tránsito."
           icon={Package}
           onClick={() => router.push("/instrumentos")}
-        />
+        />}
 
         {/* Card Reportes */}
-        <CustomCard
+        {
+          canView(session.user.role, Resource.CONTROL) &&
+          <CustomCard
           title="Control"
           description="Revisa los datos y genera reportes detallados."
           icon={ChartGraph}
           onClick={() => router.push("/control")}
-        />
+        />}
       </div>
     </div>
   );

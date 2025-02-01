@@ -15,12 +15,19 @@ import BtnLogout from "@/components/auth/btn-logout"
 import { auth } from "@/auth"
 
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
+import { canView } from "@/permissions/hasPermissions";
+import { Resource } from "@/permissions/typePermissions";
 
 const navItems = [
-  { href: "/zonas", label: "Zonas", icon: Map },
-  { href: "/agentes", label: "Agente", icon: Truck },
-  { href: "/instrumentos", label: "Instrumentos", icon: Package },
-  { href: "/control", label: "Control", icon: ChartGraph },
+  { href: "/zonas", label: "Zonas", icon: Map, resource: Resource.ZONAS },
+  { href: "/agentes", label: "Agente", icon: Truck, resource: Resource.AGENTE },
+  { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
+  { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
+]
+
+const optionItems = [
+  { href: "/juzgados", label: "Juzgados", icon: LetterJSquare, resource: Resource.JUZGADOS },
+  { href: "/instrumentos-tipo", label: "Tipo de instrumentos", icon: LetterISquare, resource: Resource.TIPOS_INSTRUMENTOS },
 ]
 
 export default async function Navbar() {
@@ -48,7 +55,8 @@ export default async function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-4 items-center justify-center w-full">
           {navItems.map((item) => (
-            pathname !== item.href && (
+            pathname !== item.href && canView(session.user.role, item.resource) && (
+
               <Link key={item.href} href={item.href}>
                 <Button
                   variant="ghost"
@@ -81,6 +89,8 @@ export default async function Navbar() {
             </div>
             <nav className="flex-grow">
               {navItems.map((item) => (
+                canView(session.user.role, item.resource) &&
+
                 <SheetTrigger asChild key={item.label}>
                   <Link
                     key={item.label}
@@ -93,21 +103,21 @@ export default async function Navbar() {
                 </SheetTrigger>
               ))}
               {
-                //TODO: AÑADIR QUE SOLO LO PUEDAN VER LOS DE JEFATURA
+                optionItems.map((item) => (
+                  canView(session.user.role, item.resource) && (
+                    <SheetTrigger asChild key={item.label}>
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className="flex items-center p-4 text-gray-200 hover:bg-gray-700"
+                      >
+                        <item.icon className="w-6 h-6 mr-4" />
+                        <span className="text-lg">{item.label}</span>
+                      </Link>
+                    </SheetTrigger>
+                  )
+                ))
               }
-              <SheetTrigger asChild>
-                <Link href="/juzgados" className="flex items-center p-4 text-gray-200 hover:bg-gray-700" >
-                  <LetterJSquare className="w-6 h-6 mr-4" />
-                  <span className="text-lg">Juzgados</span>
-                </Link>
-              </SheetTrigger>
-
-              <SheetTrigger asChild>
-                <Link href="/instrumentos-tipo" className="flex items-center p-4 text-gray-200 hover:bg-gray-700" >
-                  <LetterISquare className="w-6 h-6 mr-4" />
-                  <span className="text-lg">Tipo de instrumentos</span>
-                </Link>
-              </SheetTrigger>
             </nav>
             <div className="p-4 ">
 
@@ -127,6 +137,7 @@ export default async function Navbar() {
         </Sheet>
 
         <div className="hidden md:flex ">
+
           <DropdownMenu  >
             <DropdownMenuTrigger asChild>
               <Button variant="ghost"
@@ -137,25 +148,19 @@ export default async function Navbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-full">
-              <DropdownMenuItem>
-                <Link href="/juzgados" >
-                  <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
+              {optionItems.map((item) => (
+                pathname !== item.href && canView(session.user.role, item.resource) && (
 
-                    <LetterJSquare className="w-6 h-6" />
-                    <span className="text-sm">Juzgados</span>
-                  </Button>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href="/instrumentos-tipo" >
-                  <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
-
-                    <LetterISquare className="w-6 h-6" />
-                    <span className="text-sm">Tipo de instrumentos</span>
-                  </Button>
-                </Link>
-              </DropdownMenuItem>
-
+                  <DropdownMenuItem key={item.href}>
+                    <Link href={item.href} >
+                      <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
+                        <item.icon className="w-6 h-6" />
+                        <span className="text-sm">{item.label}</span>
+                      </Button>
+                    </Link>
+                  </DropdownMenuItem>
+                )
+              ))}
               <DropdownMenuItem>
                 <BtnLogout className="flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-white hover:text-red-400 hover:bg-gray-700 transition-all duration-300">
                   <Logout className="w-6 h-6" />

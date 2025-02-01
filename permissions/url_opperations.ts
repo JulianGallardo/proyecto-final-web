@@ -6,13 +6,22 @@ import { Operation, Permission, Resource } from "./typePermissions";
 export const anonymousPages: string[] = [
     "/login",
     "/403",
+    "/404",
+    "icon.ico"
 ]
 
-
+export const userPages: string[] = [
+    "/inicio",
+]
 
 
 const recognizer = new RouteRecognizer();
 const routeList:{path: string, handler: Permission}[] = [
+
+
+
+
+
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.LIST }},
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.READ }},
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.CREATE }},

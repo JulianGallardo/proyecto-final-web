@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
 import { NextURL } from "next/dist/server/web/next-url";
 import { NextResponse } from "next/server";
-import { anonymousPages, getPermission } from "./permissions/url_opperations";
+import { anonymousPages, getPermission, userPages } from "./permissions/url_opperations";
 import { hasPermission } from "./permissions/hasPermissions";
 
 
@@ -70,8 +70,15 @@ export default {
         return true;
       }
       else {
-        if (nextUrl.pathname === "/")
-          return true;
+
+        if (!isLoggedIn) {
+          return Response.redirect(new URL('/login', nextUrl));
+        }
+
+
+        if (userPages.includes(nextUrl.pathname)) return true
+
+
 
         const permission = getPermission(nextUrl.pathname);
 

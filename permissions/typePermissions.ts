@@ -6,6 +6,7 @@ export enum Resource {
     JUZGADOS = "Juzgados",
     TIPOS_INSTRUMENTOS = "Tipos de Instrumentos",
     ZONAS = "Zonas",
+    CONTROL = "CONTROL",
 }
 
 export enum Operation {

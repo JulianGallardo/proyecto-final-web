@@ -4,6 +4,7 @@ import { Operation, Permission, Resource } from "./typePermissions";
 
 
 export const anonymousPages: string[] = [
+    "/",
     "/login",
     "/403",
     "/404",
@@ -18,7 +19,11 @@ export const userPages: string[] = [
 const recognizer = new RouteRecognizer();
 const routeList:{path: string, handler: Permission}[] = [
 
-
+    {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.LIST }},
+    {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.READ }},
+    {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.CREATE }},
+    {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.UPDATE }},
+    {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.DELETE }},
 
 
 

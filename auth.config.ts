@@ -5,6 +5,8 @@ import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
 import { NextURL } from "next/dist/server/web/next-url";
 import { NextResponse } from "next/server";
+import { anonymousPages, getPermission } from "./permissions/url_opperations";
+import { hasPermission } from "./permissions/hasPermissions";
 
 
 function redirectWithCallback(nextUrl: NextURL, path: string) {
@@ -62,6 +64,29 @@ export default {
 
   ],
   callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = auth?.user;
+      if (anonymousPages.includes(nextUrl.pathname)) {
+        return true;
+      }
+      else {
+        if (nextUrl.pathname === "/")
+          return true;
+
+        const permission = getPermission(nextUrl.pathname);
+
+        if (!permission) {
+          console.error("Permission not found for", nextUrl.pathname)
+          return Response.redirect(new URL('/403', nextUrl));
+        }
+        if (!hasPermission(auth?.user.role, permission)) {
+          console.log(`User with role ${auth?.user.role} tried to access ${JSON.stringify(permission)}`);
+          return Response.redirect(new URL('/403', nextUrl));
+        }
+      }
+
+      return true;
+    },
 
     redirect({ url, baseUrl }) {
       const urlObject = new URL(url)

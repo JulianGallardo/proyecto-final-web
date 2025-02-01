@@ -22,7 +22,8 @@ export default function CustomDialog({propDialogTrigger,propDialogContent,dialog
             <DialogTrigger asChild>
                 {propDialogTrigger}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="max-h-screen overflow-y-auto sm:max-w-[425px] md:max-w-[600px] lg:max-w-[800px] sm:rounded-none md:rounded-md " >
+
                 <DialogHeader>
                     <DialogTitle>{dialogTitle}</DialogTitle>
                     <DialogDescription>

@@ -15,25 +15,31 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { addNewAgenteSchema } from "@/lib/zod"
+import { CreateAgenteDTO } from "@/types/agenteTypes"
 
     
 
 
 interface FormularioNuevoAgenteProps {
+    onSubmit: (data: CreateAgenteDTO) => void
 }
 
-export function FormularioNuevoAgente({ }: Readonly<FormularioNuevoAgenteProps>) {
+export function FormularioNuevoAgente({ onSubmit}: Readonly<FormularioNuevoAgenteProps>) {
   const form = useForm<z.infer<typeof addNewAgenteSchema>>({
     resolver: zodResolver(addNewAgenteSchema),
   })
 
 
   function handleSubmit(values: z.infer<typeof addNewAgenteSchema>) {
-    console.log(values)
-    
+    onSubmit(
+        {
+            name: values.name + ' ' + values.lastName,
+            email: values.email,
+            password: values.password,
+            role: 'agente'
+        }
+    )
   }
-
-  
 
   return (
     <Form {...form}>

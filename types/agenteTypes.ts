@@ -8,7 +8,10 @@ export interface AgenteTypeDTO {
     updatedAt: Date
 }
 
-export interface CreateAgenteDTO  extends Prisma.AgenteCreateInput, Prisma.UserCreateInput {
+export interface CreateAgenteDTO  {
+    name: string
+    email: string
+    password: string
     role: 'agente'
     
 }

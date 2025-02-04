@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import bcrypt from "bcryptjs";
 
 import { DateTime } from "luxon";
 
@@ -30,3 +31,10 @@ export const parseDataToYear = (date: string) => {
   const formattedDate = parsedDate.toFormat("yyyy-MM-dd");
   return formattedDate;
 };
+
+export const hashPassword = async (password: string) => {
+  const saltNumber = 10;
+  const hash = await bcrypt.hash(password, saltNumber);
+  console.log(hash);  
+  return hash;
+}

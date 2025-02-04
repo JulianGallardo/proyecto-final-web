@@ -1,6 +1,6 @@
 "use client";
 import { parseDataToYear, parseDate } from "@/lib/utils";""
-import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import { AgenteExtendidoDto, CreateAgenteDTO } from "@/types/agenteTypes";
 import SearchInput from "../shared/search";
 import { AgenteCard } from "./agenteCard";
 import { Button } from "../ui/button";
@@ -8,6 +8,8 @@ import { Plus } from "@mynaui/icons-react";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import CustomDialog from "../instrumentos/Dialogs/dialog";
 import { FormularioNuevoAgente } from "./Forms/addNewAgenteForm";
+import { createAgente } from "@/actions/agente-actions";
+import { toast } from "@/hooks/use-toast";
 
 interface AgenteListProps {
     agentes: AgenteExtendidoDto[]
@@ -22,6 +24,30 @@ export default function ListAgentes({ agentes }: Readonly<AgenteListProps>) {
         setIsOpen(true);
     }
 
+    const handleCreateNewAgente = async (data:CreateAgenteDTO) => {
+        try {
+            const agente = await createAgente(data);   
+            if(agente) {
+                toast({
+                    title: "Agente registrado",
+                    description: "El agente ha sido registrado con éxito.",
+                    className: "bg-green-500 text-white",
+                    duration: 3000,
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Error",
+                description: error instanceof Error ? error.message : "Ha ocurrido un error al registrar el nuevo agente.",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+        }
+        
+        setIsOpen(false);
+    }
+
 
 
 
@@ -31,7 +57,7 @@ export default function ListAgentes({ agentes }: Readonly<AgenteListProps>) {
                 dialogTitle="Crear agente"
                 dialogDescription="Registrar un nuevo agente al equipo."
                 propDialogContent={
-                    <FormularioNuevoAgente />
+                    <FormularioNuevoAgente onSubmit={handleCreateNewAgente} />
                 }
 
             />

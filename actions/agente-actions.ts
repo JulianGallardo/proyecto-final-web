@@ -3,12 +3,15 @@
 import AgenteRepository from "@/repositories/AgentesRepository";
 import UserRepository from "@/repositories/UserRepository";
 import { CreateAgenteDTO } from "@/types/agenteTypes";
+import { revalidatePath } from "next/cache";
 
 const userRepo = new UserRepository();
 const agenteRepo = new AgenteRepository(userRepo);
 
 export async function createAgente(data: CreateAgenteDTO) {
-    return agenteRepo.create(data);
+    const agente = agenteRepo.create(data);
+    revalidatePath('/agentes');
+    return agente;
 }
 
 export async function getAgentes() {

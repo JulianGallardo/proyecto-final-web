@@ -3,6 +3,7 @@ import BaseRepository from "./BaseRepository";
 import { Agente } from "@prisma/client";
 import UserRepository from "./UserRepository";
 import { AgenteExtendidoDto, CreateAgenteDTO } from "@/types/agenteTypes";
+import { hashPassword } from "@/lib/utils";
 
 export default class AgenteRepository extends BaseRepository<Agente> {
     constructor(userRepo: UserRepository) {
@@ -15,7 +16,7 @@ export default class AgenteRepository extends BaseRepository<Agente> {
         return prisma.$transaction(async (tx) => {
             const user = await this.userRepo.create({
                 email: data.email,
-                password: data.password,
+                password: await hashPassword(data.password),
                 role: "agente",
                 name: data.name,
             });

@@ -28,10 +28,35 @@ model User {
   image    String?
   accounts Account[]
   role     Role      @default(agente)
+  agente   Agente?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Agente {
+  id      Int     @id @default(autoincrement())
+  userId  String  @unique
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  zonas  Zone[]
+  EntregaInstrumentos EntregaInstrumentos[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EntregaInstrumentos {
+  id            Int    @id @default(autoincrement())
+  agenteId      Int
+  agente        Agente @relation(fields: [agenteId], references: [id], onDelete: Cascade)
+  instrumentoId Int
+  instrumento   Instrumento @relation(fields: [instrumentoId], references: [instrumentoId], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
 
 model Account {
   userId            String
@@ -91,6 +116,7 @@ model Zone {
 
   geometryId String   @unique
   geometry   Geometry @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+  Agentes    Agente[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -126,7 +152,7 @@ model Orden {
 }
 
 model Instrumento {
-  instrumentoId Int   @default(autoincrement())
+  instrumentoId Int   @default(autoincrement()) @unique
   ordenId       Int   @unique
   orden         Orden @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
@@ -143,7 +169,7 @@ model Instrumento {
   instrumentoTypeId Int
   instrumentoType   InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
 
-  
+  HistorialEntregas EntregaInstrumentos[]
 
   deleted Boolean @default(false)
   createdAt DateTime  @default(now())

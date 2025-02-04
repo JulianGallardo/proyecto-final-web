@@ -1,47 +1,58 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { Juzgado } from "@prisma/client";
+import { Agente } from "@prisma/client";
+import UserRepository from "./UserRepository";
+import { CreateAgenteDTO } from "@/types/agenteTypes";
 
-export default class AgenteRepository extends BaseRepository<Juzgado> {
-    constructor() {
-        super(prisma.user);
+export default class AgenteRepository extends BaseRepository<Agente> {
+    constructor(userRepo: UserRepository) {
+        super(prisma.agente);
+        this.userRepo = userRepo;
+    }
+    userRepo: UserRepository;
+
+    async create(data: CreateAgenteDTO) {
+        return prisma.$transaction(async (tx) => {
+            const user = await this.userRepo.create({
+                email: data.email,
+                password: data.password,
+                role: "agente",
+                name: data.name,
+            });
+            
+            const agente = await tx.agente.create({
+                data: {
+                    userId: user.id,
+                },
+            });
+            
+            return agente;
+        });
     }
 
-    itemsPerPage = 9;
-
-    getByName(name: string): Promise<Juzgado | null> {
-        return this.modelClient.findFirst({ where: { name } });
+    async findById(id: number) {
+        return this.modelClient.findUnique({
+            where: { id },
+            include: { user: true, zonas: true, EntregaInstrumentos: true },
+        });
     }
 
-    getByIdentifier(identifier: string): Promise<Juzgado | null> {
-        return this.modelClient.findFirst({ where: { identifier } });
-    }
-
-    getJuzgadosPaginated(page: number, query: string): Promise<Juzgado[]> {
+    async findAll() {
         return this.modelClient.findMany({
-            where: {
-                OR: [
-                    { name: { startsWith: query, mode: "insensitive" } },
-                ],
-            },
-            skip: (page - 1) * this.itemsPerPage,
-            take: this.itemsPerPage,
+            include: { user: true, zonas: true, EntregaInstrumentos: true },
         });
     }
 
-    async getTotalPages(query: string): Promise<number> { 
-        const juzgadosCountPromise = await this.modelClient.count({
-            where: {
-                OR: [
-                    { name: { startsWith: query, mode: "insensitive" } },
-                ],
-            },
+    async update(id: number, data: Partial<CreateAgenteDTO>) {
+        return this.modelClient.update({
+            where: { id },
+            data,
         });
+    }
 
-        const [instrumentosCount] = await Promise.all([juzgadosCountPromise]);
-
-        const totalPages = Math.ceil(instrumentosCount / this.itemsPerPage);
-
-        return totalPages;
+    async delete(id: number) {
+        return this.modelClient.delete({
+            where: { id },
+        });
     }
 }

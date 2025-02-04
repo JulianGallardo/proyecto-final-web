@@ -56,4 +56,35 @@ export default class AgenteRepository extends BaseRepository<Agente> {
             where: { id },
         });
     }
+
+
+    async findAllPaginated(page: number, query: string) {
+        const take = 10;
+        const skip = (page - 1) * take;
+        return this.modelClient.findMany({
+            take,
+            skip,
+            where: {
+                user: {
+                    name: {
+                        contains: query,
+                    },
+                },
+            },
+            include: { user: true, zonas: true, EntregaInstrumentos: true },
+        });
+    }
+
+    async getTotalPages(query: string) {
+        const total = await this.modelClient.count({
+            where: {
+                user: {
+                    name: {
+                        contains: query,
+                    },
+                },
+            },
+        });
+        return Math.ceil(total / 10);
+    }
 }

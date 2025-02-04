@@ -10,13 +10,15 @@ import CustomDialog from "../instrumentos/Dialogs/dialog";
 import { FormularioNuevoAgente } from "./Forms/addNewAgenteForm";
 import { createAgente } from "@/actions/agente-actions";
 import { toast } from "@/hooks/use-toast";
+import PaginationInstruments from "../instrumentos/Tabla/Pagination";
 
 interface AgenteListProps {
     agentes: AgenteExtendidoDto[]
+    totalPages: number
 }
 
 
-export default function ListAgentes({ agentes }: Readonly<AgenteListProps>) {
+export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteListProps>) {
 
     const {setIsOpen} = useCustomDialog();
 
@@ -76,6 +78,7 @@ export default function ListAgentes({ agentes }: Readonly<AgenteListProps>) {
                     <AgenteCard key={agente.id} agente={agente} onEdit={() => console.log("Editando agente")} onDelete={() => console.log("Eliminando agente")} />
                 ))}
             </div>
+            <PaginationInstruments totalPages={totalPages}/>
         </div>
     );
 }

@@ -19,9 +19,10 @@ export function AgenteCard({ agente, onEdit, onDelete }: Readonly<{ agente: Agen
                 <p className="text-sm text-gray-500">Creado: {parseDate(agente.createdAt?.toISOString())}</p>
                 <p className="text-sm text-gray-500">Actualizado: {parseDate(agente.updatedAt?.toISOString())}</p>
             </CardContent>
-            <CardFooter className="flex justify-between p-4 bg-gray-100 border-t">
+            <CardFooter className="flex justify-between p-4 bg-gray-100 border-t ">
+                
                 <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors" onClick={onEdit}>
-                    <Pencil className="h-4 w-4" /> Editar
+                    <Pencil className="h-4 w-4" /> Editar Información
                 </Button>
                 <Button className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors" onClick={onDelete}>
                     <Trash2 className="h-4 w-4" /> Eliminar

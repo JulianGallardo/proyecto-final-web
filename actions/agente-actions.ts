@@ -18,3 +18,12 @@ export async function getAgentes() {
     return agenteRepo.findAll();
 }
 
+export async function getAgentesPaginated(page: number, query: string) {
+    return agenteRepo.findAllPaginated(page, query);
+}
+
+export async function getTotalPages(query: string) {
+    return agenteRepo.getTotalPages(query);
+}
+
+

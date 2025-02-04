@@ -61,9 +61,7 @@ export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteList
                 propDialogContent={
                     <FormularioNuevoAgente onSubmit={handleCreateNewAgente} />
                 }
-
             />
-
             <div className="flex flex-col gap-2 md:flex-row md:justify-between">
                 <SearchInput placeholder="Buscar por nombre..."  />
                 <Button
@@ -75,7 +73,7 @@ export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteList
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {agentes.map((agente) => (
-                    <AgenteCard key={agente.id} agente={agente} onEdit={() => console.log("Editando agente")} onDelete={() => console.log("Eliminando agente")} />
+                    <AgenteCard key={agente.id} agente={agente} onDelete={() => console.log("Eliminando agente")} />
                 ))}
             </div>
             <PaginationInstruments totalPages={totalPages}/>

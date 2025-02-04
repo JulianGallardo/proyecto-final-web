@@ -8,7 +8,7 @@ export const anonymousPages: string[] = [
     "/login",
     "/403",
     "/404",
-    "icon.ico"
+    "/icon.ico"
 ]
 
 export const userPages: string[] = [
@@ -24,6 +24,8 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.CREATE }},
     {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.UPDATE }},
     {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.DELETE }},
+
+    {path: "/agentes/:id", handler: {resource: Resource.AGENTE, operation: Operation.READ }},
 
 
 

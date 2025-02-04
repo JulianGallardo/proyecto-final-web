@@ -1,6 +1,6 @@
 import { InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import { object, string, z } from "zod"
- 
+
 export const logInSchema = object({
   email: string({ required_error: "El correo electrónico es obligatorio" })
     .min(1, "El correo electrónico es obligatorio")
@@ -64,3 +64,19 @@ export const TypeSchema = (types: InstrumentoTypeDTO[]) =>
         message: "El identificador ya existe.",
       }),
   });
+
+export const addNewAgenteSchema = object({
+  name: string({ required_error: "El nombre es requerido." })
+    .min(1, "El nombre es requerido.")
+    .max(32, "El nombre debe tener menos de 32 caracteres"),
+  lastName: string({ required_error: "El apellido es requerido." })
+    .min(1, "El apellido es requerido.")
+    .max(32, "El apellido debe tener menos de 32 caracteres"),
+  email: string({ required_error: "El correo electrónico es obligatorio" })
+    .min(1, "El correo electrónico es obligatorio")
+    .email("Correo electrónico no válido"),
+  password: string({ required_error: "La contraseña es obligatoria" })
+    .min(1, "La contraseña es obligatoria")
+    .min(8, "La contraseña debe tener más de 8 caracteres")
+    .max(32, "La contraseña debe tener menos de 32 caracteres"),
+});

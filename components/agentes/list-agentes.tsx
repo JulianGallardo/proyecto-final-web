@@ -5,6 +5,9 @@ import SearchInput from "../shared/search";
 import { AgenteCard } from "./agenteCard";
 import { Button } from "../ui/button";
 import { Plus } from "@mynaui/icons-react";
+import { useCustomDialog } from "@/hooks/useCustomDialog";
+import CustomDialog from "../instrumentos/Dialogs/dialog";
+import { FormularioNuevoAgente } from "./Forms/addNewAgenteForm";
 
 interface AgenteListProps {
     agentes: AgenteExtendidoDto[]
@@ -12,13 +15,32 @@ interface AgenteListProps {
 
 
 export default function ListAgentes({ agentes }: Readonly<AgenteListProps>) {
+
+    const {setIsOpen} = useCustomDialog();
+
+    const handleNewAgente = () => {
+        setIsOpen(true);
+    }
+
+
+
+
     return (
         <div className="flex flex-col gap-6 p-6  min-h-screen">
+            <CustomDialog 
+                dialogTitle="Crear agente"
+                dialogDescription="Registrar un nuevo agente al equipo."
+                propDialogContent={
+                    <FormularioNuevoAgente />
+                }
+
+            />
+
             <div className="flex flex-col gap-2 md:flex-row md:justify-between">
                 <SearchInput placeholder="Buscar por nombre..."  />
                 <Button
                 className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white"
-                onClick={() => console.log("Creando agente")} >
+                onClick={() => handleNewAgente()} >
                     <span >Crear Agente</span>
                     <Plus  />
                 </Button>

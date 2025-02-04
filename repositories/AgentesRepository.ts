@@ -2,7 +2,7 @@ import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Agente } from "@prisma/client";
 import UserRepository from "./UserRepository";
-import { CreateAgenteDTO } from "@/types/agenteTypes";
+import { AgenteExtendidoDto, CreateAgenteDTO } from "@/types/agenteTypes";
 
 export default class AgenteRepository extends BaseRepository<Agente> {
     constructor(userRepo: UserRepository) {
@@ -37,7 +37,7 @@ export default class AgenteRepository extends BaseRepository<Agente> {
         });
     }
 
-    async findAll() {
+    async findAll(): Promise<AgenteExtendidoDto[]> {
         return this.modelClient.findMany({
             include: { user: true, zonas: true, EntregaInstrumentos: true },
         });

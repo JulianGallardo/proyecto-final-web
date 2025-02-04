@@ -1,8 +1,8 @@
-import { Prisma } from "@prisma/client"
+import { Prisma, Zone } from "@prisma/client"
 
 
 export interface AgenteTypeDTO {
-    identifier: string
+    id: number
     name: string
     createdAt: Date
     updatedAt: Date
@@ -11,4 +11,14 @@ export interface AgenteTypeDTO {
 export interface CreateAgenteDTO  extends Prisma.AgenteCreateInput, Prisma.UserCreateInput {
     role: 'agente'
     
+}
+
+
+export interface AgenteExtendidoDto extends AgenteTypeDTO {
+    zonas: Zone[]
+    EntregaInstrumentos: string[]
+    user: {
+        email: string
+        name: string
+    }
 }

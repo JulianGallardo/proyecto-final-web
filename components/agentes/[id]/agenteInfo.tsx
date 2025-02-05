@@ -61,7 +61,7 @@ export default function AgenteInfo() {
             <AgenteInfoSection agente={agente} />
 
             {agente.zonas.length === 0 && (
-                <div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg shadow-sm p-4">
+                <div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-full shadow-sm p-4">
                     <MapPinnedIcon className="w-12 h-12 text-gray-400 mx-auto" />
                     <p className="text-sm md:text-lg text-gray-400 font-semibold">El agente no tiene zonas asignadas.</p>
                 </div>

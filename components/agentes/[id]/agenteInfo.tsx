@@ -83,44 +83,46 @@ export default function AgenteInfo() {
                 <p className="text-lg"><span className="font-semibold">Email:</span> {agente.user.email}</p>
             </div>
 
-            <div className="flex flex-col w-full h-[500px]">
-                <h3 className="text-2xl font-bold text-gray-700 mt-6">Zonas Asignadas</h3>
-                <div className="flex flex-col md:flex-row w-full h-full gap-2">
+            {agente.zonas.length === 0 && (
+                <div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg shadow-sm p-4">
+                    <MapPinnedIcon className="w-12 h-12 text-gray-400 mx-auto" />
+                    <p className="text-sm md:text-lg text-gray-400 font-semibold">El agente no tiene zonas asignadas.</p>
+                </div>
+            )
+            }
 
-                    {agente.zonas.length === 0 && (
-                        <div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg shadow-sm p-4">
-                            <MapPinnedIcon className="w-12 h-12 text-gray-400 mx-auto" />
-                            <p className="text-lg text-gray-500">El agente no tiene zonas asignadas.</p>
+
+            {
+                agente.zonas.length > 0 &&
+                <div className="flex flex-col w-full h-[500px]">
+                    <h3 className="text-2xl font-bold text-gray-700 mt-6">Zonas Asignadas</h3>
+                    <div className="flex flex-col md:flex-row w-full h-full gap-2">
+
+
+
+
+                        <div className="w-full h-full  flex flex-col md:flex-row  gap-2">
+                            <ul className="w-full md:w-1/3 h-fit md:overflow-y-auto ">
+                                {agente.zonas.map(zona => (
+                                    <li key={zona.id} className="p-3 my-2 bg-gray-50 rounded-lg shadow-sm border-l-4" style={{ borderColor: zona.zoneColor }}>
+                                        <p className="text-lg"><span className="font-semibold">Zona:</span> {zona.zoneName}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                            <Map
+                                id="mymap"
+                                initialViewState={{ longitude: MapCenter.lng, latitude: MapCenter.lat, zoom: 11.5 }}
+                                maxBounds={MapBounds}
+                                style={{ width: "100%", height: "100%" }}
+                                mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+                            />
                         </div>
-                    )
-                    }
-                    {
-                        agente.zonas.length > 0 && (
-                            <div className="w-full h-full  flex flex-col md:flex-row  gap-2">
-                                <ul className="w-full md:w-1/3 h-fit md:overflow-y-auto ">
-                                    {agente.zonas.map(zona => (
-                                        <li key={zona.id} className="p-3 my-2 bg-gray-50 rounded-lg shadow-sm border-l-4" style={{ borderColor: zona.zoneColor }}>
-                                            <p className="text-lg"><span className="font-semibold">Zona:</span> {zona.zoneName}</p>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <Map
-                                    id="mymap"
-                                    initialViewState={{ longitude: MapCenter.lng, latitude: MapCenter.lat, zoom: 11.5 }}
-                                    maxBounds={MapBounds}
-                                    style={{ width: "100%", height: "100%" }}
-                                    mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
-                                />
-                            </div>
-                        )
-
-                    }
-
+                    </div>
 
 
                 </div>
+            }
 
-            </div>
 
             <div className="mt-6 w-full">
                 <h3 className="text-2xl font-bold text-gray-700">Historial de entregas</h3>
@@ -128,7 +130,7 @@ export default function AgenteInfo() {
 
             </div>
 
-            
+
         </div>
     );
 }

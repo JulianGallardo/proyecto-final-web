@@ -4,21 +4,12 @@ export const dynamic = 'force-dynamic'
 import * as React from "react";
 import { Map } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useMemo } from "react";
 import { ClipLoader } from "react-spinners";
 import TerraDrawHandler from "../terraDrawHandler/terraDrawHandler";
+import { MapCenter, MapBounds } from "@/types/MapTypes";
 
 export default function Areas() {
-    const center = useMemo(
-        () => ({ lat: -38.71825410658778, lng: -62.25946510517043 }),
-        []
-    );
-
-    const bounds = [ //reestringidas a 100 km a la redonda de la ciudad de Bahía Blanca
-        [-63.415665, -39.619154], // Southwest coordinates
-        [-61.103265, -37.817354] // Northeast coordinates
-      ];
-      
+    
 
     return (
         <div className="flex flex-row w-full h-full ">
@@ -26,18 +17,19 @@ export default function Areas() {
             <Map
                 id="mymap"
                 initialViewState={{
-                    longitude: center.lng,
-                    latitude: center.lat,
+                    longitude: MapCenter.lng,
+                    latitude: MapCenter.lat,
                     zoom: 11.5,
                 }}
 
-                maxBounds= {bounds}
+                maxBounds= {MapBounds}
 
 
                 style={{ width: "100%", height: "100%" }}
                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 
             />
+            
         </div>
     );
 }

@@ -38,7 +38,6 @@ export default function SearchInput({ placeholder = "" }: Readonly<FilterCompone
                 onChange={(e) => {
                     handleSearch(e.target.value)
                 }}
-                className="mb-4"
             />
         </div>
     )

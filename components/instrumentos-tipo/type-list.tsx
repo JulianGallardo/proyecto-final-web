@@ -174,7 +174,7 @@ export default function TypeList({ tipos }: Readonly<TypesListProps>) {
             />
 
             <div className="flex flex-col md:flex-row gap-4  justify-between items-center mb-4">
-                <Button className="mb-4 bg-green-500 hover:bg-green-600 w-full md:w-fit" onClick={() => setIsOpen(true)}>
+                <Button className="bg-green-500 hover:bg-green-600 w-full md:w-fit" onClick={() => setIsOpen(true)}>
                     <Plus className="mr-2 h-4 w-4" /> Agregar tipo de instrumento
                 </Button>
                 <SearchInput placeholder="Buscar tipo de instrumento por nombre" />

@@ -15,7 +15,7 @@ export default function ZoneList({ agentes, zones }: Readonly<ZoneListProps>) {
   return (
     <div className="mb-8">
       <div className="flex flex-col md:flex-row md:justify-between items-center gap-2  mb-6">
-        <div className="flex flex-row items-center gap-2">
+        <div className="flex flex-row items-center gap-2 ">
           <h2 className="text-xl font-semibold text-gray-700">Gestionar zonas de reparto</h2>
           <Map className="w-6 h-6 text-gray-600" />
         </div>

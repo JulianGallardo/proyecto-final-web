@@ -67,7 +67,7 @@ export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteList
             <div className="flex flex-col gap-2 md:flex-row md:justify-between">
                 <Link href="/agentes/zonas">
                     <Button
-                        className="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white"
+                        className="flex items-center justify-center gap-2 w-full bg-yellow-500 hover:bg-yellow-600 text-white"
                     >
                         <span >Administrar zonas</span>
                         <Map />

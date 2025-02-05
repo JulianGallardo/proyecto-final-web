@@ -1,4 +1,6 @@
-import { getAllZonesWithAgents, updateZonesAgents } from "@/actions/zone-actions";
+"use client";
+
+import { updateZonesAgents } from "@/actions/zone-actions";
 import { ZoneDto } from "@/types/ZoneTypes";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -10,25 +12,21 @@ import { toast } from "@/hooks/use-toast";
 
 interface ManageZonesProps {
     agente: AgenteExtendidoDto;
+    zones: ZoneDto[];
+
 }
 
 
-export default function ManageZones({ agente }: Readonly<ManageZonesProps>) {
-    const [zones, setZones] = useState<ZoneDto[]>([]);
+
+export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps>) {
     const [selectedZones, setSelectedZones] = useState<string[]>([]);
     const [deselectedZones, setDeselectedZones] = useState<string[]>([]);
 
     useEffect(() => {
-        const fetchZones = async () => {
-            const data = await getAllZonesWithAgents();
-            setZones(data);
-            if (data.length > 0) {
-                const agenteZones = data.filter((zone) => zone.Agentes.some((a) => a.user.name === agente.user.name));
-                setSelectedZones(agenteZones.map((zone) => zone.id));
-            }
-        };
-
-        fetchZones();
+        if (zones.length > 0) {
+            const agenteZones = zones.filter((zone) => zone.Agentes.some((a) => a.user.name === agente.user.name));
+            setSelectedZones(agenteZones.map((zone) => zone.id));
+        }
     }, []);
 
     const handleZoneToggle = (zoneId: string) => {
@@ -43,7 +41,7 @@ export default function ManageZones({ agente }: Readonly<ManageZonesProps>) {
 
     const handleSaveChanges = async () => {
 
-        
+
         const response = await updateZonesAgents(selectedZones, deselectedZones, agente.id);
         if (response.success) {
             toast({

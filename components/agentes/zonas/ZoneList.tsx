@@ -1,44 +1,46 @@
-import { useState } from "react"
-import { ChevronDownIcon } from "lucide-react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import { map } from "zod";
+import ManageZones from "../[id]/manageZones";
+import { ZoneDto } from "@/types/ZoneTypes";
 
-export default function ZoneList({ zones, agents, onAssignAgent }) {
-  const [openZones, setOpenZones] = useState({})
+interface ZoneListProps {
+  agentes: AgenteExtendidoDto[];
+  zones: ZoneDto[];
+}
 
-  const toggleZone = (zoneId) => {
-    setOpenZones((prev) => ({ ...prev, [zoneId]: !prev[zoneId] }))
-  }
+
+
+export default function ZoneList({ agentes,zones }: Readonly<ZoneListProps>) {
 
   return (
     <div className="mb-8">
-      <h3 className="text-xl font-semibold mb-2">Zonas Registradas</h3>
-      <ul className="space-y-2">
-        {zones.map((zone) => (
-          <li key={zone.id} className="border rounded-md p-2">
-            <div className="flex justify-between items-center cursor-pointer" onClick={() => toggleZone(zone.id)}>
-              <span>{zone.name}</span>
-              <ChevronDownIcon
-                className={`w-5 h-5 transition-transform ${openZones[zone.id] ? "transform rotate-180" : ""}`}
-              />
-            </div>
-            {openZones[zone.id] && (
-              <div className="mt-2">
-                <p className="text-sm mb-1">Asignar agentes:</p>
-                {agents.map((agent) => (
-                  <label key={agent.id} className="flex items-center mt-1">
-                    <input
-                      type="checkbox"
-                      checked={zone.assignedAgents.includes(agent.id)}
-                      onChange={() => onAssignAgent(zone.id, agent.id)}
-                      className="mr-2"
-                    />
-                    {agent.name}
-                  </label>
-                ))}
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+      <h3 className="text-xl font-semibold mb-2">Asignar Zonas</h3>
+      <div className="flex flex-col gap-2">
+        {
+          agentes.map((agente) => (
+
+            <Accordion key={agente.id} type="single" collapsible className="border border-gray-300 rounded-lg shadow-md">
+              <AccordionItem value="filtros" className="overflow-hidden">
+                <AccordionTrigger
+                  className="flex items-center justify-between px-4 py-3 "
+                >
+                  {agente.user.name}
+                </AccordionTrigger>
+                <AccordionContent className="px-4 py-3">
+                    <ManageZones agente={agente} zones={zones}/>
+                    
+
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+
+
+          ))
+
+        }
+      </div>
     </div>
   )
 }

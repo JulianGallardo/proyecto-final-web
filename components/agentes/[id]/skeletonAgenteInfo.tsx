@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SkeletonAgenteInfo(){
     return (
-        <div className="max-w-7xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+        <div className="w-full mx-auto p-6 ">
             <Skeleton className="h-10 w-48 mb-4" /> {/* Botón de volver */}
             <Skeleton className="h-8 w-64 mb-6" /> {/* Título de la página */}
             <Skeleton className="h-24 w-full mb-6 rounded-lg" /> {/* Información del agente */}

@@ -26,4 +26,9 @@ export async function getTotalPages(query: string) {
     return agenteRepo.getTotalPages(query);
 }
 
+export async function getAgenteById(id: number) {
+    return agenteRepo.findById(id);
+}
+
+
 

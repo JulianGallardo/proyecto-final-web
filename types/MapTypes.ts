@@ -26,12 +26,3 @@ export interface CustomFeature extends GeoJSONStoreFeatures {
     };
 }
 
-export interface ExtendedZone extends Zone {
-    geometry: {
-        type: string;
-        coordinates: {
-            latitude: number;
-            longitude: number;
-        }[];
-    };
-}

@@ -2,6 +2,7 @@
 import prisma from "@/lib/db";
 import ZoneRepository from "@/repositories/ZoneRepository";
 import { CustomFeature, Position } from "@/types/MapTypes";
+import { ZoneDto } from "@/types/ZoneTypes";
 import { Zone } from "@prisma/client";
 import { HexColor } from "terra-draw";
 
@@ -59,8 +60,6 @@ export async function createNewZones(params: CustomFeature[]): Promise<Record<st
 export async function getAllZones(): Promise<CustomFeature[]> {
     const zonesBdd: ZoneResponse[] = await zoneRepo.getAll();
 
-
-
     if (!zonesBdd) {
         return [];
     }
@@ -92,4 +91,8 @@ export async function getAllZones(): Promise<CustomFeature[]> {
 
 
 
+}
+
+export async function getAllZonesWithAgents(): Promise<ZoneDto[]> {
+    return zoneRepo.getAllWithAgents();
 }

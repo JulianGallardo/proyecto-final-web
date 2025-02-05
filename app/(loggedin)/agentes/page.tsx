@@ -24,6 +24,7 @@ export default async function AgentesPage(props: Readonly<{
     <div className="flex flex-col gap-4 p-4 ">
       <h2 className="text-2xl font-bold">Lista de Agentes</h2>
       <ListAgentes agentes={agentes} totalPages={totalPages} />
+      
 
 
 

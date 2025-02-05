@@ -25,7 +25,9 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.UPDATE }},
     {path: "/agentes", handler: {resource: Resource.AGENTE, operation: Operation.DELETE }},
 
-    {path: "/agentes/:id", handler: {resource: Resource.AGENTE, operation: Operation.READ }},
+    {path: "/agentes/ver/:id", handler: {resource: Resource.AGENTE, operation: Operation.READ }},
+    {path: "/agentes/zonas", handler: {resource: Resource.AGENTE, operation: Operation.READ }},
+    
 
 
 

@@ -1,29 +1,67 @@
-import { getAllZonesWithAgents } from "@/actions/zone-actions";
+import { getAllZonesWithAgents, updateZonesAgents } from "@/actions/zone-actions";
 import { ZoneDto } from "@/types/ZoneTypes";
 import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Save } from "@mynaui/icons-react";
+import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import { toast } from "@/hooks/use-toast";
 
-export default function ManageZones() {
+interface ManageZonesProps {
+    agente: AgenteExtendidoDto;
+}
+
+
+export default function ManageZones({ agente }: Readonly<ManageZonesProps>) {
     const [zones, setZones] = useState<ZoneDto[]>([]);
     const [selectedZones, setSelectedZones] = useState<string[]>([]);
+    const [deselectedZones, setDeselectedZones] = useState<string[]>([]);
 
     useEffect(() => {
         const fetchZones = async () => {
             const data = await getAllZonesWithAgents();
             setZones(data);
+            if (data.length > 0) {
+                const agenteZones = data.filter((zone) => zone.Agentes.some((a) => a.user.name === agente.user.name));
+                setSelectedZones(agenteZones.map((zone) => zone.id));
+            }
         };
 
         fetchZones();
     }, []);
 
     const handleZoneToggle = (zoneId: string) => {
-        setSelectedZones((prev) =>
-            prev.includes(zoneId) ? prev.filter((id) => id !== zoneId) : [...prev, zoneId]
-        );
+        if (selectedZones.includes(zoneId)) {
+            setSelectedZones(selectedZones.filter((id) => id !== zoneId));
+            setDeselectedZones([...deselectedZones, zoneId]);
+        } else {
+            setSelectedZones([...selectedZones, zoneId]);
+            setDeselectedZones(deselectedZones.filter((id) => id !== zoneId));
+        }
     };
+
+    const handleSaveChanges = async () => {
+
+        
+        const response = await updateZonesAgents(selectedZones, deselectedZones, agente.id);
+        if (response.success) {
+            toast({
+                title: "Agente registrado en zonas",
+                description: "El agente ha sido registrado con éxito en las zonas correspondientes.",
+                className: "bg-green-500 text-white",
+                duration: 3000,
+            });
+        } else {
+            console.error("Error al actualizar las zonas");
+            toast({
+                title: "Error",
+                description: "Ha ocurrido un error al registrar el nuevo agente en las zonas.",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+        }
+    }
 
     return (
         <div className="w-full flex flex-col  gap-2 ">
@@ -54,7 +92,9 @@ export default function ManageZones() {
                 ))}
             </div>
             <div className="flex justify-end w-full">
-                <Button className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                <Button
+                    className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    onClick={handleSaveChanges}>
                     <span className="mr-2">Guardar cambios</span>
                     <Save className="w-6 h-6" />
                 </Button>

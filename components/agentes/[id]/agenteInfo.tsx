@@ -18,7 +18,7 @@ export default function AgenteInfo() {
 
     const pathname = usePathname();
     const router = useRouter();
-    const id = parseInt(pathname.split("/")[2], 10);
+    const id = pathname ? parseInt(pathname.split("/").pop() ?? '0', 10) : 0;
 
     useEffect(() => {
         getAgenteById(id).then((data) => {

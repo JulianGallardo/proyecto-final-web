@@ -35,7 +35,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
         { param: "caratula", displayName: "Carátula", type: "text" },
         { param: "destinatario", displayName: "Destinatario", type: "text" },
         { param: "address", displayName: "Domicilio denunciado", type: "text" },
-        { param: "ordenNumber", displayName: "Número de Orden", type: "text" },
+        { param: "ordenNumber", displayName: "Número de Orden", type: "number" },
         {
             param: "juzgado",
             displayName: "Identificador de Juzgado",
@@ -69,7 +69,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
 
 
 
-    const customInputs = (param:string) => {
+    const customInputs = (param: string) => {
         if (param === "exitDate") {
             return (
                 <ExitDateFilter param={param}
@@ -82,7 +82,21 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
                     type={filtrosConfig.find((f) => f.param === param)?.type}
                     placeholder={filtrosConfig.find((f) => f.param === param)?.displayName}
                     className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring focus:ring-blue-500 focus:outline-none"
-                    onChange={(e) => handleSearch(param, e.target.value)}
+                    onChange={
+                        (e) => {
+                            if (param === "ordenNumber") {
+                                if (Number(e.target.value) < 0 || isNaN(Number(e.target.value))) {
+                                    e.target.value = "0"
+                                } else {
+                                    handleSearch(param, e.target.value)
+                                }
+
+                            }
+                            else {
+                                handleSearch(param, e.target.value)
+                            }
+                        }
+                    }
                     defaultValue={searchParams.get(param) ?? ""}
                 />
             )
@@ -94,16 +108,16 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
 
 
     const calculateFilterTagValue = (key: string) => {
-        if(key === "entryDate"){
+        if (key === "entryDate") {
             return parseDate(searchParams.get(key) as string)
         }
-        if(key === "exitDate"){
+        if (key === "exitDate") {
             if (searchParams.get(key)?.replace(/\+/g, " ") === "No registrada") {
                 return "No registrada" as string
             }
             return parseDate(searchParams.get(key) as string)
         }
-        else{
+        else {
             return searchParams.get(key) as string
         }
     }

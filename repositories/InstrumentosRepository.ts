@@ -52,7 +52,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
     filters(searchParams: SearchParamsInstrumentos) {
 
-        const parseString = (value: string) => value.replace(/\+/g, " ");
+        const parseString = (value: string) => value.replace(/\+/g," ");
 
 
         // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
@@ -66,7 +66,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             address: (value) => ({ domicilio_denunciado: { startsWith: parseString(value), mode: "insensitive" } }),
             ordenNumber: (value) => ({ orden: { ordenNumber: { equals: Number(value) } } }),
             juzgado: (value) => ({ orden: { juzgado: { identifier: { startsWith: parseString(value), mode: "insensitive" } } } }),
-            instrumentType: (value) => ({ instrumentoType: { identifier: { startsWith: parseString(value), mode: "insensitive" } } }),
+            instrumentType: (value) => ({ instrumentoType: { name: { equals: parseString(value), mode: "insensitive" } } }),
         };
 
         // Construir dinámicamente el objeto "where"
@@ -81,9 +81,9 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         where.AND.push({ deleted: false }); // Añadir condición para mostrar solo los registros no eliminados
 
-        // Si no hay condiciones en el "OR", eliminamos el campo
+        
         if (where.AND.length === 0) {
-            delete where.OR;
+            delete where.AND;
         }
 
         return where;
@@ -142,6 +142,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
     async getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number) {
         const where = this.filters(searchParams);
+
+        console.log(JSON.stringify(where));
 
         // Realizar la consulta con Prisma
         const instrumentos = await this.modelClient.findMany({

@@ -1,8 +1,6 @@
 "use client";
-import { getAllZones } from "@/actions/zone-actions";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
 import { generateTerraDrawOptions } from "@/lib/mapUtils/terraDrawOptions";
-import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import { CustomFeature, MapBounds, MapCenter } from "@/types/MapTypes";
 import { useMap, Map, Source, Layer } from "@vis.gl/react-maplibre";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
@@ -22,7 +20,7 @@ export default function MapView({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const colorCache = new ColorCache();
     const [loading, setLoading] = useState(true);
     const [styleLoading, setStyleLoading] = useState(true);
-    const [zones, setZones] = useState<any[]>([]);  // Para almacenar las zonas con su label
+    const [zones, setZones] = useState<GeoJSONStoreFeatures[]>([]);  // Para almacenar las zonas con su label
 
     useEffect(() => {
         const fetchData = async () => {

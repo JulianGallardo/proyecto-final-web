@@ -8,7 +8,6 @@ import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import { useState, useEffect } from "react";
 import { GeoJSONStoreFeatures } from "terra-draw";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Spinner } from "@mynaui/icons-react";
 import { ClipLoader } from "react-spinners";
 
 interface ZonesAgenteProps {

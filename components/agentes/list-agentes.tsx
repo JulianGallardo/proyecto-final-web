@@ -1,5 +1,4 @@
 "use client";
-import { parseDataToYear, parseDate } from "@/lib/utils"; ""
 import { AgenteExtendidoDto, CreateAgenteDTO } from "@/types/agenteTypes";
 import SearchInput from "../shared/search";
 import { AgenteCard } from "./agenteCard";

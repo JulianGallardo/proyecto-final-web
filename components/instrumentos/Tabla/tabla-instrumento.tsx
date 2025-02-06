@@ -10,7 +10,6 @@ import {
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { columns } from "./col-tabla-instrumento";
 import { useState } from "react";
-import { SearchX } from "@mynaui/icons-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NoResults from "@/components/shared/noResults";
 

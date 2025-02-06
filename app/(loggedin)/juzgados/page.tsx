@@ -1,5 +1,4 @@
 import { getJuzgadosPaginated, getJuzgadosTotalPages } from "@/actions/instrumentos-actions";
-import TypeList from "@/components/instrumentos-tipo/type-list";
 import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
 import JuzgadosList from "@/components/juzgados/juzgados-list"
 import ListCardSkeleton from "@/components/shared/listCardSkeleton";

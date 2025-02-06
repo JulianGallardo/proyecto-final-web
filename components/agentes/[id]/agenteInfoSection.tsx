@@ -1,13 +1,5 @@
-import BtnLogout from "@/components/auth/btn-logout";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { canView } from "@/permissions/hasPermissions";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
-import { Logout } from "@mynaui/icons-react";
-import { Link } from "lucide-react";
-import Config from "next/config";
-import ManageZones from "./manageZones";
-import { Accordion } from "@/components/ui/accordion";
 
 interface AgenteInfoSectionProps {
     agente: AgenteExtendidoDto;

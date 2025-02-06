@@ -1,7 +1,7 @@
 "use client";
 import { loginAction } from "@/actions/auth-actions";
-import { z } from 'zod';
-import { logInSchema } from '@/lib/zod';
+import { z } from "zod";
+import { logInSchema } from "@/lib/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,16 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { startTransition, useState, useTransition } from "react";
+import { Card } from "@/components/ui/card";
+import {  useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { ClipLoader } from "react-spinners";
 
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
-    const [isPending] = useTransition();
+    const [isPending, startTransition] = useTransition();
     const router = useRouter();
     const [showPassword, setShowPassword] = useState("password");
 
@@ -49,80 +51,119 @@ export default function LoginForm() {
         });
     }
 
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-50 via-blue-100 to-blue-400 p-4">
-            <Card className="w-full max-w-md shadow-lg rounded-lg bg-white">
-                <CardHeader>
-                    <CardTitle className="text-center text-2xl font-semibold text-blue-700">Bienvenido</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            {/* Email Field */}
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-sm font-medium text-gray-700">Email</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="ejemplo@ejemplo.com"
-                                                {...field}
-                                                className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-tr from-blue-50 via-blue-100 to-blue-400 p-2 overflow-hidden">
+            <Card className="w-full max-w-3xl shadow-lg rounded-2xl overflow-hidden bg-white">
+                <div className="flex flex-col md:flex-row">
+                    {/* Imagen */}
+                    <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-gray-100">
+                        <Image
+                            src="/login.svg"
+                            alt="Login visual"
+                            layout="fill"
+                            objectFit="fit"
+                            className="absolute inset-0"
+                        />
+                    </div>
 
-                            {/* Password Field */}
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="text-sm font-medium text-gray-700">Contraseña</FormLabel>
-                                        <FormControl>
-                                            <div className="flex items-center gap-2">
+                    {/* Formulario de inicio de sesión */}
+                    <div className="w-full md:w-1/2 p-8 flex flex-col justify-center">
+                        <h2 className="text-3xl font-semibold text-gray-800 text-center mb-6">
+                            Iniciar sesión
+                        </h2>
+
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                {/* Email Field */}
+                                <FormField
+                                    control={form.control}
+                                    name="email"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-sm font-medium text-gray-700">
+                                                Email
+                                            </FormLabel>
+                                            <FormControl>
                                                 <Input
-                                                    placeholder="Tu contraseña"
-                                                    type={showPassword}
+                                                    placeholder="ejemplo@ejemplo.com"
                                                     {...field}
-                                                    className="border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                                    className="border-gray-300 focus-visible:ring-0 focus:ring-blue-500 focus:border-blue-500 rounded-lg"
                                                 />
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    onClick={toggleShowPassword}
-                                                    className="p-2 text-gray-500 hover:bg-gray-100 hover:border hover:border-blue-500 focus:ring-blue-500"
-                                                >
-                                                    {showPassword === "password" ? <Eye /> : <EyeSlash />}
-                                                </Button>
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                            {/* Error Message */}
-                            {error && (
-                                <p className="text-sm text-red-500 font-medium">{error}</p>
-                            )}
+                                {/* Password Field */}
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-sm font-medium text-gray-700">
+                                                Contraseña
+                                            </FormLabel>
+                                            <FormControl>
+                                                <div className="flex items-center border shadow-none border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500">
+                                                    <Input
+                                                        placeholder="Tu contraseña"
+                                                        type={showPassword}
+                                                        {...field}
+                                                        className="flex-1 border-none focus-visible:ring-0 px-3 py-2 rounded-lg"
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        onClick={toggleShowPassword}
+                                                        className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+                                                    >
+                                                        {showPassword === "password" ? <Eye /> : <EyeSlash />}
+                                                    </Button>
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
 
-                            {/* Submit Button */}
-                            <Button
-                                type="submit"
-                                className="w-full bg-blue-600 text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-400 disabled:bg-blue-300"
-                                disabled={isPending}
+                                {/* Error Message */}
+                                {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
+
+                                {/* Submit Button */}
+                                <Button
+                                    type="submit"
+                                    className="w-full bg-blue-600 text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-400 rounded-lg py-2"
+                                    disabled={isPending}
+                                >
+                                    {isPending ?
+                                        <ClipLoader
+                                            color="#fff"
+                                            loading={isPending}
+                                            size={20}
+
+
+
+                                        />
+                                        : "Iniciar sesión"}
+                                </Button>
+                            </form>
+                        </Form>
+
+                        {/* Link de recuperación */}
+                        <p className="mt-4 text-sm text-center text-gray-600">
+                            ¿Olvidaste tu contraseña?{" "}
+                            <button
+                                type="button"
+                                className="text-blue-600 hover:underline"
+                                onClick={() => alert('Recuperación de contraseña no implementada')}
                             >
-                                {isPending ? "Signing In..." : "Sign In"}
-                            </Button>
-                        </form>
-                    </Form>
-                </CardContent>
+                                Recupérala
+                            </button>
+                        </p>
+                    </div>
+                </div>
             </Card>
         </div>
     );

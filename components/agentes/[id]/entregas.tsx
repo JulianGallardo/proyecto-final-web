@@ -40,6 +40,7 @@ export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: nu
                 setTotalPages(totalPages);
                 setEntregas(entregas);
             } catch (error) {
+                console.error(error);
                 toast({
                     title: "Error",
                     description: "No se pudieron cargar las entregas.",

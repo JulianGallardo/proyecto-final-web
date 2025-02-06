@@ -8,7 +8,8 @@ export const anonymousPages: string[] = [
     "/login",
     "/403",
     "/404",
-    "/icon.ico"
+    "/icon.ico",
+    "/login.svg"
 ]
 
 export const userPages: string[] = [

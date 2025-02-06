@@ -11,8 +11,6 @@ export default function ExitDateFilter({ param }: Readonly<ExitDateFilterProps>)
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
-
-
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
     const options = [
@@ -56,12 +54,12 @@ export default function ExitDateFilter({ param }: Readonly<ExitDateFilterProps>)
 
 
     return (
-        <div className="flex flex-row py-2 gap-2">
+        <div className="flex flex-row gap-2">
             <Select
                 defaultValue={defaultValue}
                 onValueChange={(value) => handleSelectOption(value)}
             >
-                <SelectTrigger className="w-full h-full border border-gray-300 rounded-md shadow-sm bg-white px-3 py-2 hover:ring hover:ring-blue-500 focus:ring focus:ring-blue-500 focus:outline-none">
+                <SelectTrigger className="w-full h-full border border-gray-300 rounded-md ">
                     <SelectValue placeholder={"Seleccione una fecha de salida"} className="text-sm text-gray-700" />
                 </SelectTrigger>
                 <SelectContent className="bg-white border border-gray-200 rounded-md shadow-lg">

@@ -6,7 +6,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { InstrumentoType, Juzgado } from "@prisma/client";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -231,17 +231,15 @@ interface FiltroProps {
 function Filtro({ param, displayName, children, clearFilter }: Readonly<FiltroProps>) {
 
     const searchParams = useSearchParams();
-
-    useEffect(() => {
-        if (searchParams.has(param)) setIsActive(true);
-    }
-        , []);
-
-
     const [isActive, setIsActive] = useState(false);
+    
 
     useEffect(() => {
-        if (!isActive) clearFilter(param) // Limpia el filtro si se desactiva
+        searchParams.has(param) ? setIsActive(true) : setIsActive(false)
+    }, [searchParams]);
+
+    useEffect(() => {
+        if (!isActive) clearFilter(param) 
     }, [isActive]);
 
     return (

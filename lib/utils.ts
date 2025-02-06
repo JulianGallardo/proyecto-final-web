@@ -21,6 +21,7 @@ export const safeRandomColor = () => {
 };
 
 export const parseDate = (date: string) => {
+  console.log(date);
   const dateParsed = DateTime.fromISO(date).setZone("America/Argentina/Buenos_Aires");
   const dateInArgentina = dateParsed.toLocaleString(DateTime.DATE_FULL);
   return dateInArgentina;

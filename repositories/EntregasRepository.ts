@@ -2,6 +2,7 @@ import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { EntregaInstrumentos } from "@prisma/client";
 import { EntregaInstrumentosDto } from "@/types/entregasType";
+import { parseDate } from "@/lib/utils";
 
 export default class EntregasRepository extends BaseRepository<EntregaInstrumentos> {
     constructor() {
@@ -12,16 +13,22 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
 
 
 
-    getEntregasPaginated(page: number, agenteId: number, dateQuery: Date): Promise<EntregaInstrumentosDto[]> {
-        console.log(dateQuery);
+    getEntregasPaginated(page: number, agenteId: number, dateQuery: string): Promise<EntregaInstrumentosDto[]> {
+        // Convertir el string a una fecha en UTC
+        const [year, month, day] = dateQuery.split("-").map(Number);
+
+        // Crear el inicio y fin del día en UTC
+        const gte = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0)); // Inicio del día
+        const lt = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999)); // Fin del día
+
         return this.modelClient.findMany({
             where: {
                 AND: [
                     {
                         agenteId: agenteId,
                         createdAt: {
-                            gte: new Date(dateQuery.setHours(0, 0, 0, 0)), // Inicio del día
-                            lt: new Date(dateQuery.setHours(23, 59, 59, 999)), // Fin del día
+                            gte: gte,
+                            lt: lt
                         },
                     }
                 ],
@@ -59,15 +66,24 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
         });
     }
 
-    async getTotalPages(agenteId: number, dateQuery: Date): Promise<number> {
+    async getTotalPages(agenteId: number, dateQuery: string): Promise<number> {
+
+        // Convertir el string a una fecha en UTC
+        const [year, month, day] = dateQuery.split("-").map(Number);
+
+        // Crear el inicio y fin del día en UTC
+        const gte = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0)); // Inicio del día
+        const lt = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999)); // Fin del día
+
+
         const entregaInstrumentosCountPromise = await this.modelClient.count({
             where: {
                 AND: [
                     {
                         agenteId: agenteId,
                         createdAt: {
-                            gte: new Date(dateQuery.setHours(0, 0, 0, 0)), // Inicio del día
-                            lt: new Date(dateQuery.setHours(23, 59, 59, 999)), // Fin del día
+                            gte: gte, // Inicio del día
+                            lt: lt
                         },
 
                     }

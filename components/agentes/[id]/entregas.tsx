@@ -9,26 +9,29 @@ import { getEntregasPaginated, getTotalPages } from "@/actions/entrega-instrumen
 import { EntregaInstrumentosDto } from "@/types/entregasType";
 import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
 import { useSearchParams } from "next/navigation";
+import {  parseDate } from "@/lib/utils";
 
 
 export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: number }>) {
     const [totalPages, setTotalPages] = useState<number>(0);
     const [entregas, setEntregas] = useState<EntregaInstrumentosDto[]>([]);
     const { toast } = useToast();
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined);
     const searchParams = useSearchParams();
     const currentPage = Number(searchParams.get('page')) || 1;
 
 
-    const handleDateSelect = async (selectedDate: Date | undefined) => {
-        if (!selectedDate || selectedDate.toString() === "Invalid Date")
+    const handleDateSelect = async (selectedDate: string ) => {
+        const newDate = new Date(selectedDate);
+        if (!newDate || newDate.toString() === "Invalid Date")
             return toast({
                 title: "Error",
                 description: "Seleccione una fecha.",
                 variant: "destructive",
             });
 
-        if (selectedDate) {
+
+        if (newDate) {
             setSelectedDate(selectedDate);
             try {
                 const entregas = await getEntregasPaginated(currentPage, agenteId, selectedDate);
@@ -56,7 +59,7 @@ export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: nu
                     <Input
                         type="date"
                         className="w-full p-2 rounded-md"
-                        onChange={(e) => handleDateSelect(new Date(e.target.value))}
+                        onChange={(e) => handleDateSelect(e.target.value)}
                     />
 
                     {
@@ -71,22 +74,10 @@ export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: nu
                     {
                         selectedDate && (
                             <div className="flex flex-col items-center space-y-2">
-                                <p className="text-sm text-gray-400 font-semibold">Entregas para el {selectedDate.toLocaleDateString()}</p>
+                                <p className="text-sm text-gray-400 font-semibold">Entregas para el {parseDate(selectedDate)}</p>
                                 {entregas.length > 0 ? (
-                                    <div className="flex items-center justify-between">
-                                        <ul className="space-y-3">
-                                            {entregas.map((entrega) => (
-                                                <li key={entrega.id} className="p-4 bg-white shadow-sm rounded-lg border-l-4 border-blue-500">
-                                                    <p className="text-sm font-medium text-gray-700">
-                                                        <strong>Carátula:</strong> {entrega.instrumento.caratula}
-                                                    </p>
-
-                                                    <p className="text-sm font-medium text-gray-700">
-                                                        <strong>Fecha de salida:</strong> {new Date(entrega.createdAt).toLocaleString()}
-                                                    </p>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                    <div className="flex flex-col space-y-4 w-full">
+                                        <EntregasList entregas={entregas} />
                                         <PaginationInstruments totalPages={totalPages} />
                                     </div>
                                 ) : (
@@ -102,6 +93,39 @@ export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: nu
 
                 </CardContent>
             </Card>
+        </div>
+    );
+}
+
+function EntregasList({ entregas }: Readonly<{ entregas: EntregaInstrumentosDto[] }>) {
+    return (
+        <div className="space-y-4">
+            {entregas.map((entrega) => (
+                <Card key={entrega.id} className="border-l-4 border-blue-500">
+                    <CardHeader>
+                        <CardTitle className="text-lg font-semibold">
+                            {entrega.instrumento.caratula}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-gray-700">
+                        <p>
+                            <strong>Domicilio:</strong> {entrega.instrumento.domicilio_denunciado}
+                        </p>
+                        <p>
+                            <strong>Instrumento:</strong> {entrega.instrumento.instrumentoType.name}
+                        </p>
+                        <p>
+                            <strong>Orden:</strong> {entrega.instrumento.orden.ordenNumber}
+                        </p>
+                        <p>
+                            <strong>Juzgado:</strong> {entrega.instrumento.orden.juzgado.name}
+                        </p>
+                        <p>
+                            <strong>Fecha de entrega:</strong> {new Date(entrega.createdAt).toLocaleString()}
+                        </p>
+                    </CardContent>
+                </Card>
+            ))}
         </div>
     );
 }

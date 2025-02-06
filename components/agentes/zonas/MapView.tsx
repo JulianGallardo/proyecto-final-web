@@ -30,47 +30,56 @@ export default function MapView({ zonasBDD, agente }: Readonly<ZonesAgenteProps>
         }
         return zonasBDD;
     }
-    
+
+    function initializeMapControl() {
+        if (!mymap) return null;
+        const terraDrawOptions = generateTerraDrawOptions(colorCache);
+        const newDraw = new MaplibreTerradrawControl(terraDrawOptions);
+        mymap.addControl(newDraw);
+        setDraw(newDraw);
+
+        document.querySelectorAll(".maplibregl-ctrl-group").forEach(ctrl => {
+            (ctrl as HTMLElement).style.visibility = "hidden";
+        });
+        return newDraw;
+    }
+
+    function drawZonesOnMap(zonesToDraw: CustomFeature[], newDraw: MaplibreTerradrawControl | null) {
+        const geoJSONZones: GeoJSONStoreFeatures[] = [];
+
+        zonesToDraw.forEach(zone => {
+            // Crear zona con nombre y propiedades
+            const newZone = {
+                id: zone.id,
+                type: "Feature",
+                geometry: { type: "Polygon", coordinates: zone.geometry.coordinates },
+                properties: {
+                    mode: "polygon",
+                    color: zone.properties.color,
+                    name: zone.properties.name, // Usamos el nombre aquí
+                    zoneName: zone.properties.name // Nombre para la etiqueta
+                },
+            } as GeoJSONStoreFeatures;
+
+            colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
+            geoJSONZones.push(newZone);
+            newDraw?.getTerraDrawInstance().addFeatures([newZone]);
+        });
+
+        // Establecer las zonas para usarlas en la capa de etiquetas
+        setZones(geoJSONZones);
+    }
+
+    const fetchZones = async () => {
+        const newDraw = initializeMapControl();
+        const zonesToDraw = filterZones();
+        drawZonesOnMap(zonesToDraw, newDraw);
+        setLoading(false);
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            if (mymap && !styleLoading) {
-                const terraDrawOptions = generateTerraDrawOptions(colorCache);
-                const newDraw = new MaplibreTerradrawControl(terraDrawOptions);
-                mymap.addControl(newDraw);
-                setDraw(newDraw);
-
-                document.querySelectorAll(".maplibregl-ctrl-group").forEach(ctrl => {
-                    (ctrl as HTMLElement).style.visibility = "hidden";
-                });
-
-                const zonesToDraw = filterZones();
-                const geoJSONZones: GeoJSONStoreFeatures[] = [];
-
-                zonesToDraw.forEach(zone => {
-                    // Crear zona con nombre y propiedades
-                    const newZone = {
-                        id: zone.id,
-                        type: "Feature",
-                        geometry: { type: "Polygon", coordinates: zone.geometry.coordinates },
-                        properties: {
-                            mode: "polygon",
-                            color: zone.properties.color,
-                            name: zone.properties.name,  // Usamos el nombre aquí
-                            zoneName: zone.properties.name  // Nombre para la etiqueta
-                        },
-                    } as GeoJSONStoreFeatures;
-
-                    colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
-                    geoJSONZones.push(newZone);
-                    newDraw?.getTerraDrawInstance().addFeatures([newZone]);
-                });
-
-                // Establecer las zonas para usarlas en la capa de etiquetas
-                setZones(geoJSONZones);
-                setLoading(false);
-            }
-        };
-        fetchData();
+        if (styleLoading) return;
+        fetchZones();
     }, [mymap, styleLoading]);
 
     return (
@@ -141,4 +150,8 @@ export default function MapView({ zonasBDD, agente }: Readonly<ZonesAgenteProps>
             </div>
         </div>
     );
+
+
+
+
 }

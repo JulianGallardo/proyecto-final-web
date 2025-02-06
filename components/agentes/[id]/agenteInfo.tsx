@@ -8,10 +8,17 @@ import EntregasRepartidor from "./entregas";
 import { MapPinnedIcon } from "lucide-react";
 import { FatCornerUpLeft, SadCircle, SkipBack } from "@mynaui/icons-react";
 import SkeletonAgenteInfo from "./skeletonAgenteInfo";
-import ZonesAgente from "./zones-agente";
 import AgenteInfoSection from "./agenteInfoSection";
+import MapView from "../zonas/MapView";
+import { CustomFeature } from "@/types/MapTypes";
+import ZonesAgente from "./zones-agente";
 
-export default function AgenteInfo() {
+
+interface AgenteInfoProps {
+    zonasBDD: CustomFeature[];
+}
+
+export default function AgenteInfo({ zonasBDD }: Readonly<AgenteInfoProps>) {
 
     const [agente, setAgente] = useState({} as AgenteExtendidoDto);
     const [loading, setLoading] = useState(true);
@@ -71,7 +78,7 @@ export default function AgenteInfo() {
 
             {
                 agente.zonas.length > 0 &&
-                <ZonesAgente agente={agente} />
+                <ZonesAgente agente={agente} zonasBDD={zonasBDD} />
 
             }
 

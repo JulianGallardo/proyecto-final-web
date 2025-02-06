@@ -9,12 +9,14 @@ import { ClipLoader } from "react-spinners";
 import { GeoJSONStoreFeatures } from "terra-draw";
 
 import "maplibre-gl/dist/maplibre-gl.css";
+import { AgenteExtendidoDto } from "@/types/agenteTypes";
 
 interface ZonesAgenteProps {
     zonasBDD: CustomFeature[];
+    agente?: AgenteExtendidoDto;
 }
 
-export default function MapView({ zonasBDD }: Readonly<ZonesAgenteProps>) {
+export default function MapView({ zonasBDD, agente }: Readonly<ZonesAgenteProps>) {
     const { mymap } = useMap();
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null);
     const colorCache = new ColorCache();
@@ -22,6 +24,13 @@ export default function MapView({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const [styleLoading, setStyleLoading] = useState(true);
     const [zones, setZones] = useState<GeoJSONStoreFeatures[]>([]);  // Para almacenar las zonas con su label
 
+    function filterZones() {
+        if (agente) {
+            return zonasBDD.filter(zone => agente.zonas.some(z => z.id === zone.id));
+        }
+        return zonasBDD;
+    }
+    
     useEffect(() => {
         const fetchData = async () => {
             if (mymap && !styleLoading) {
@@ -34,7 +43,7 @@ export default function MapView({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                     (ctrl as HTMLElement).style.visibility = "hidden";
                 });
 
-                const zonesToDraw = zonasBDD;
+                const zonesToDraw = filterZones();
                 const geoJSONZones: GeoJSONStoreFeatures[] = [];
 
                 zonesToDraw.forEach(zone => {
@@ -43,9 +52,9 @@ export default function MapView({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                         id: zone.id,
                         type: "Feature",
                         geometry: { type: "Polygon", coordinates: zone.geometry.coordinates },
-                        properties: { 
-                            mode: "polygon", 
-                            color: zone.properties.color, 
+                        properties: {
+                            mode: "polygon",
+                            color: zone.properties.color,
                             name: zone.properties.name,  // Usamos el nombre aquí
                             zoneName: zone.properties.name  // Nombre para la etiqueta
                         },
@@ -62,7 +71,7 @@ export default function MapView({ zonasBDD }: Readonly<ZonesAgenteProps>) {
             }
         };
         fetchData();
-    }, [mymap,styleLoading]);
+    }, [mymap, styleLoading]);
 
     return (
         <div className="flex flex-col w-full h-full">

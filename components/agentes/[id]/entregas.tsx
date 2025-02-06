@@ -5,23 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { SearchX } from "@mynaui/icons-react";
+import { getEntregasPaginated, getTotalPages } from "@/actions/entrega-instrumentos-actions";
+import { EntregaInstrumentosDto } from "@/types/entregasType";
+import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
+import { useSearchParams } from "next/navigation";
 
-interface Entrega {
-    id: number;
-    instrumentoId: number;
-    caratula: string;
-    destinatario: string;
-    domicilio_denunciado: string;
-    fecha_de_salida: string;
-}
 
 export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: number }>) {
-    const [date, setDate] = useState<Date | undefined>(new Date());
-    const [entregas, setEntregas] = useState<Entrega[]>([]);
+    const [totalPages, setTotalPages] = useState<number>(0);
+    const [entregas, setEntregas] = useState<EntregaInstrumentosDto[]>([]);
     const { toast } = useToast();
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+    const searchParams = useSearchParams();
+    const currentPage = Number(searchParams.get('page')) || 1;
+
 
     const handleDateSelect = async (selectedDate: Date | undefined) => {
-        console.log(selectedDate);
         if (!selectedDate || selectedDate.toString() === "Invalid Date")
             return toast({
                 title: "Error",
@@ -30,26 +29,12 @@ export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: nu
             });
 
         if (selectedDate) {
-            setDate(selectedDate);
+            setSelectedDate(selectedDate);
             try {
-                const entregas = [
-                    {
-                        id: 1,
-                        instrumentoId: 1,
-                        caratula: "Carátula 1",
-                        destinatario: "Destinatario 1",
-                        domicilio_denunciado: "Domicilio 1",
-                        fecha_de_salida: new Date().toISOString(),
-                    },
-                    {
-                        id: 2,
-                        instrumentoId: 2,
-                        caratula: "Carátula 2",
-                        destinatario: "Destinatario 2",
-                        domicilio_denunciado: "Domicilio 2",
-                        fecha_de_salida: new Date().toISOString(),
-                    },
-                ];
+                const entregas = await getEntregasPaginated(currentPage, agenteId, selectedDate);
+                const totalPages = await getTotalPages(agenteId, selectedDate);
+                console.log(entregas);
+                setTotalPages(totalPages);
                 setEntregas(entregas);
             } catch (error) {
                 toast({
@@ -74,31 +59,47 @@ export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: nu
                         onChange={(e) => handleDateSelect(new Date(e.target.value))}
                     />
 
-                    {entregas.length > 0 ? (
-                        <ul className="space-y-3">
-                            {entregas.map((entrega) => (
-                                <li key={entrega.id} className="p-4 bg-white shadow-sm rounded-lg border-l-4 border-blue-500">
-                                    <p className="text-sm font-medium text-gray-700">
-                                        <strong>Carátula:</strong> {entrega.caratula}
-                                    </p>
-                                    <p className="text-sm font-medium text-gray-700">
-                                        <strong>Destinatario:</strong> {entrega.destinatario}
-                                    </p>
-                                    <p className="text-sm font-medium text-gray-700">
-                                        <strong>Domicilio:</strong> {entrega.domicilio_denunciado}
-                                    </p>
-                                    <p className="text-sm font-medium text-gray-700">
-                                        <strong>Fecha de salida:</strong> {new Date(entrega.fecha_de_salida).toLocaleString()}
-                                    </p>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <div className="flex flex-col items-center space-y-2">
-                            <SearchX className="w-12 h-12 text-gray-400 mx-auto" />
-                            <p className="text-sm text-gray-400 font-semibold">No hay entregas para la fecha seleccionada.</p>
-                        </div>
-                    )}
+                    {
+                        !selectedDate ? (
+                            <div className="flex flex-col items-center space-y-2">
+                                <SearchX className="w-12 h-12 text-gray-400 mx-auto" />
+                                <p className="text-sm text-gray-400 font-semibold">Seleccione una fecha para ver las entregas.</p>
+                            </div>
+                        ) : null
+                    }
+
+                    {
+                        selectedDate && (
+                            <div className="flex flex-col items-center space-y-2">
+                                <p className="text-sm text-gray-400 font-semibold">Entregas para el {selectedDate.toLocaleDateString()}</p>
+                                {entregas.length > 0 ? (
+                                    <div className="flex items-center justify-between">
+                                        <ul className="space-y-3">
+                                            {entregas.map((entrega) => (
+                                                <li key={entrega.id} className="p-4 bg-white shadow-sm rounded-lg border-l-4 border-blue-500">
+                                                    <p className="text-sm font-medium text-gray-700">
+                                                        <strong>Carátula:</strong> {entrega.instrumento.caratula}
+                                                    </p>
+
+                                                    <p className="text-sm font-medium text-gray-700">
+                                                        <strong>Fecha de salida:</strong> {new Date(entrega.createdAt).toLocaleString()}
+                                                    </p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <PaginationInstruments totalPages={totalPages} />
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center space-y-2">
+                                        <SearchX className="w-12 h-12 text-gray-400 mx-auto" />
+                                        <p className="text-sm text-gray-400 font-semibold">No hay entregas para la fecha seleccionada.</p>
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    }
+
+
                 </CardContent>
             </Card>
         </div>

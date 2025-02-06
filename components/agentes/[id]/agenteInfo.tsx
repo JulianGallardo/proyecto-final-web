@@ -9,7 +9,6 @@ import { MapPinnedIcon } from "lucide-react";
 import { FatCornerUpLeft, SadCircle, SkipBack } from "@mynaui/icons-react";
 import SkeletonAgenteInfo from "./skeletonAgenteInfo";
 import AgenteInfoSection from "./agenteInfoSection";
-import MapView from "../zonas/MapView";
 import { CustomFeature } from "@/types/MapTypes";
 import ZonesAgente from "./zones-agente";
 

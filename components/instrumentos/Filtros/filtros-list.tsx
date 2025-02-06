@@ -235,7 +235,11 @@ function Filtro({ param, displayName, children, clearFilter }: Readonly<FiltroPr
     
 
     useEffect(() => {
-        searchParams.has(param) ? setIsActive(true) : setIsActive(false)
+        if (searchParams.has(param)) {
+            setIsActive(true);
+        } else {
+            setIsActive(false);
+        }
     }, [searchParams]);
 
     useEffect(() => {

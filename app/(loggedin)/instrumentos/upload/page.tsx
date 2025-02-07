@@ -3,10 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-    CheckIcon,
-    ChevronLeftIcon,
-} from "lucide-react";
+import {ChevronLeftIcon} from "lucide-react";
 import Link from "next/link";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
 import { createInstrumentos, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";

@@ -79,39 +79,43 @@ export default class InstrumentoService {
         const filteredInstrument: InstrumentoDTO[] = [];
         const instrumentosWithErrors: InstrumentoDTO[] = [];
 
-        // Procesa todos los instrumentos en paralelo
-        await Promise.all(
-            instrumentos.map(async (instrumento) => {
-                try {
-                    const instrumentoDto = await this.getInstrumentoDto(instrumento);
+        try {
+            // Procesa todos los instrumentos en paralelo
+            await Promise.all(
+                instrumentos.map(async (instrumento) => {
+                    try {
+                        const instrumentoDto = await this.getInstrumentoDto(instrumento);
 
-                    // Revisa si el juzgado y el tipo de instrumento son válidos
-                    if (instrumentoDto.juzgadoIdentifier === "" || instrumentoDto.instrumentoTypeIdentifier === "") {
-                        const isInDb = await this.instrumentoRepository.getInstrumentoByCaratula(instrumentoDto.caratula);
-                        if (isInDb) return;
-                        instrumentosWithErrors.push(instrumentoDto);
-                        return;
-                    } else {
-                        // Verifica si el instrumento ya existe en la base de datos
-                        const isInDb = await this.instrumentoRepository.getInstrumento(
-                            instrumentoDto.juzgadoIdentifier,
-                            instrumentoDto.caratula,
-                            instrumentoDto.destinatario
-                        );
+                        // Revisa si el juzgado y el tipo de instrumento son válidos
+                        if (!instrumentoDto.juzgadoIdentifier || !instrumentoDto.instrumentoTypeIdentifier) {
+                            const isInDb = await this.instrumentoRepository.getInstrumentoByCaratula(instrumentoDto.caratula);
+                            if (isInDb) return;
+                            instrumentosWithErrors.push(instrumentoDto);
+                            return;
+                        } else {
+                            // Verifica si el instrumento ya existe en la base de datos
+                            const isInDb = await this.instrumentoRepository.getInstrumento(
+                                instrumentoDto.juzgadoIdentifier,
+                                instrumentoDto.caratula,
+                                instrumentoDto.destinatario
+                            );
 
-                        if (!isInDb) {
-                            filteredInstrument.push(instrumentoDto);
+                            if (!isInDb) {
+                                filteredInstrument.push(instrumentoDto);
+                            }
                         }
+                    } catch (e) {
+                        console.error(`Error procesando instrumento: ${instrumento.caratula}. Error: ${(e as Error).message}`);
                     }
-
-                } catch (e) {
-                    console.error(`Error procesando instrumento: ${instrumento.caratula}. Error: ${(e as Error).message}`);
-                }
-            })
-        );
+                })
+            );
+        } catch (error) {
+            console.error("Error general en deleteDuplicatePdfEntries:", (error as Error).message);
+        }
 
         return { filteredInstrument, instrumentosWithErrors };
     }
+
 
 
 }

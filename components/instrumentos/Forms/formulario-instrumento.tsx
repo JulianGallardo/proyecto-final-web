@@ -38,8 +38,8 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       caratula: instrumento?.caratula ?? "",
       destinatario: instrumento?.destinatario ?? "",
       address: instrumento?.domicilio_denunciado ?? "",
-      juzgado: instrumento?.juzgadoIdentifier,
-      instrumentType: instrumento?.instrumentoTypeIdentifier ,
+      juzgado: Juzgados.find(juzgado => juzgado.identifier === instrumento?.juzgadoIdentifier)?.identifier ?? "",
+      instrumentType: instrumentoTypes.find(instrumentType => instrumentType.identifier === instrumento?.instrumentoTypeIdentifier)?.identifier ?? "",
     },
   })
 

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
-import { InstrumentoDTO, } from "@/types/instrumentoTypes";
+import { InstrumentoDTO, InstrumentoDtoWithError, } from "@/types/instrumentoTypes";
 import { ChevronLeftIcon, ChevronRightIcon, FileIcon } from "lucide-react";
 import CustomDialog from "../../Dialogs/dialog";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
@@ -9,6 +9,7 @@ import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../../Dialogs/alert";
+import { Edit } from "@mynaui/icons-react";
 
 export default function StepErrorReview({
     deleteInstrumento,
@@ -19,7 +20,7 @@ export default function StepErrorReview({
 }: Readonly<{
     deleteInstrumento: (instrumento: InstrumentoDTO) => void;
     editInstrumentDataError: (instrumento: InstrumentoDTO) => void;
-    errors: InstrumentoDTO[];
+    errors: InstrumentoDtoWithError[];
     onBack: () => void;
     onNext: () => void;
 }>) {
@@ -170,7 +171,7 @@ export default function StepErrorReview({
 
 interface ErrorListProps {
     title: string;
-    instrumentErrors: InstrumentoDTO[];
+    instrumentErrors: InstrumentoDtoWithError[];
     handleSetInstrumentoEditando: (instrumento: InstrumentoDTO) => void;
     onCancelarCarga: (instrumento: InstrumentoDTO) => void;
 }
@@ -188,6 +189,16 @@ function ErrorList({ title, instrumentErrors, handleSetInstrumentoEditando, onCa
                         <div className="flex items-center gap-3">
                             <FileIcon className="h-6 w-6 text-red-600" />
                             <span className="text-base font-medium text-gray-900">{error.caratula}</span>
+                        </div>
+                        <div className="flex flex-row gap-3 items-center">
+                            <div className="flex flex-row items-center gap-2">
+                                <Edit className="h-6 w-6 text-red-600" />
+                                <span className="text-sm font-medium text-red-600">Ocurrieron los siguientes errores:</span>
+
+                            </div>
+                            <div className="flex flex-row gap-2">
+                                <span className="text-sm font-medium text-red-600">{error.error}</span>
+                            </div>
                         </div>
                         <div className="flex flex-col md:flex-row md:justify-between gap-2">
                             <Button

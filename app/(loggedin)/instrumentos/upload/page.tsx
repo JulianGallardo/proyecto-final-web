@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
 import { createInstrumentos, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
-import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
+import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { toast } from "@/hooks/use-toast";
 import StepDataReview from "@/components/instrumentos/upload/Steps/StepDataReview";
 import StepErrorReview from "@/components/instrumentos/upload/Steps/StepErrorReview";
@@ -23,7 +23,7 @@ export default function PDFUploadProcess() {
     const [step, setStep] = useState(1);
     const [file, setFile] = useState<File | null>(null);
     const [data, setData] = useState<InstrumentoDTO[]>([]);
-    const [instrumentosConErrores, setInstrumentosConErrores] = useState<InstrumentoDTO[]>([]);
+    const [instrumentosConErrores, setInstrumentosConErrores] = useState<InstrumentoDtoWithError[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleFileUpload = async () => {

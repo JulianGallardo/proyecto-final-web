@@ -24,6 +24,10 @@ export interface InstrumentoDTO {
   instrumentoTypeIdentifier: string;
 }
 
+export interface InstrumentoDtoWithError extends InstrumentoDTO {
+  error: string;
+}
+
 export interface InstrumentoExtendido extends Instrumento {
   orden:{
     ordenNumber: number;

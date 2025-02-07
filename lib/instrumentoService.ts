@@ -1,7 +1,7 @@
 import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
-import { InstrumentoDTO, InstrumentPDFDTO } from "@/types/instrumentoTypes";
+import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { parseDataToYear } from "./utils";
 
@@ -77,7 +77,7 @@ export default class InstrumentoService {
 
     async deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {
         const filteredInstrument: InstrumentoDTO[] = [];
-        const instrumentosWithErrors: InstrumentoDTO[] = [];
+        const instrumentosWithErrors: InstrumentoDtoWithError[] = [];
 
         try {
             // Procesa todos los instrumentos en paralelo
@@ -90,7 +90,12 @@ export default class InstrumentoService {
                         if (!instrumentoDto.juzgadoIdentifier || !instrumentoDto.instrumentoTypeIdentifier) {
                             const isInDb = await this.instrumentoRepository.getInstrumentoByCaratula(instrumentoDto.caratula);
                             if (isInDb) return;
-                            instrumentosWithErrors.push(instrumentoDto);
+                            const error: InstrumentoDtoWithError = {
+                                ...instrumentoDto,
+                                error: !instrumentoDto.juzgadoIdentifier ? "Juzgado inválido" : "Tipo de instrumento inválido",
+                            };
+
+                            instrumentosWithErrors.push(error);
                             return;
                         } else {
                             // Verifica si el instrumento ya existe en la base de datos

@@ -301,11 +301,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {
         const instrumentosCreados: InstrumentoExtendido[] = [];
-        instrumentos.forEach(async instrumento => {
+    
+        for (const instrumento of instrumentos) {
             const result = await this.createInstrumento(instrumento);
             instrumentosCreados.push(result);
-        });
-
+        }
+    
         return instrumentosCreados;
     }
 

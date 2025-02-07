@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -15,6 +15,8 @@ import { toast } from "@/hooks/use-toast";
 import StepDataReview from "@/components/instrumentos/upload/Steps/StepDataReview";
 import StepErrorReview from "@/components/instrumentos/upload/Steps/StepErrorReview";
 import StepFileUpload from "@/components/instrumentos/upload/Steps/StepFileUpload";
+import ConfirmStep from "@/components/instrumentos/upload/Steps/ConfirmStep";
+import SaveInstrument from "@/components/instrumentos/upload/Steps/SaveInstruments";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -25,25 +27,26 @@ export default function PDFUploadProcess() {
     const [data, setData] = useState<InstrumentoDTO[]>([]);
     const [instrumentosConErrores, setInstrumentosConErrores] = useState<InstrumentoDtoWithError[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isPending, startTransition] = useTransition();
 
     const handleFileUpload = async () => {
         if (!file) return;
-    
+
         try {
             const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
             if (!parsedData || parsedData.length === 0) throw new Error("No se encontraron instrumentos en el PDF");
-    
+
             console.log("Parsed data", parsedData);
 
             const result = await deleteDuplicatePdfEntries(parsedData);
             if (!result || typeof result !== "object") throw new Error("Error al procesar el PDF");
-    
+
             const { filteredInstrument, instrumentosWithErrors } = result; // 🔥 Ahora seguro que result es un objeto válido
-    
+
             if (filteredInstrument.length === 0 && instrumentosWithErrors.length === 0) {
                 throw new Error("Los instrumentos en el PDF ya están cargados.");
             }
-    
+
             setData(filteredInstrument);
             setInstrumentosConErrores(instrumentosWithErrors);
             setStep(instrumentosWithErrors.length ? 2 : 3);
@@ -58,12 +61,15 @@ export default function PDFUploadProcess() {
             setStep(1);
         }
     };
-    
+
 
     const confirmUpload = async () => {
         try {
-            await createInstrumentos(data);
             setStep(4);
+            startTransition(async () => {
+                await createInstrumentos(data);
+            });
+
         } catch (error) {
             toast({
                 title: "Error",
@@ -136,6 +142,7 @@ export default function PDFUploadProcess() {
                                 onFileChange={setFile}
                                 onNext={handleFileUpload}
                             />
+                            
                         )}
 
                         {step === 2 && (
@@ -164,24 +171,16 @@ export default function PDFUploadProcess() {
                         )}
 
                         {step === 4 && (
-                            <div className="flex flex-col gap-2 text-center items-center justify-center w-full h-full">
-                                <CheckIcon className="h-12 w-12 text-green-500" />
-                                <h2 className="text-2xl font-semibold text-gray-800">¡Carga confirmada!</h2>
-                                <p className="text-gray-600">Tus datos han sido procesados correctamente.</p>
-                                <div className="flex flex-row items-center justify-center gap-4">
-                                    <Button onClick={() => {
-                                        setFile(null);
-                                        setData([]);
-                                        setStep(1);
-                                        setCurrentPage(1);
-                                    }}>
-                                        Cargar otro archivo
-                                    </Button>
-                                    <Link href="/instrumentos">
-                                        <Button variant="outline">Volver al listado</Button>
-                                    </Link>
-                                </div>
-                            </div>
+                            isPending ? (
+                                <SaveInstrument />
+                            ) : (
+                                <ConfirmStep onClick={() => {
+                                    setFile(null);
+                                    setData([]);
+                                    setStep(1);
+                                    setCurrentPage(1);
+                                }} />
+                            )
                         )}
                     </CardContent>
                 </Card>

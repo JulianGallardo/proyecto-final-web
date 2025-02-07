@@ -190,14 +190,42 @@ function ErrorList({ title, instrumentErrors, handleSetInstrumentoEditando, onCa
                             <FileIcon className="h-6 w-6 text-red-600" />
                             <span className="text-base font-medium text-gray-900">{error.caratula}</span>
                         </div>
-                        <div className="flex flex-row gap-3 items-center">
+                        <div className="flex flex-col gap-3 ">
                             <div className="flex flex-row items-center gap-2">
                                 <Edit className="h-6 w-6 text-red-600" />
                                 <span className="text-sm font-medium text-red-600">Ocurrieron los siguientes errores:</span>
+                                <span className="text-sm font-medium text-red-600">{error.error}</span>
+                                
 
                             </div>
-                            <div className="flex flex-row gap-2">
-                                <span className="text-sm font-medium text-red-600">{error.error}</span>
+                            <div className="flex flex-col gap-2">
+                                
+                                {
+                                    error.error === "Juzgado y tipo de instrumento inválidos" && (
+                                        <>
+                                            <span className="text-sm font-medium text-red-600">
+                                                Juzgado en pdf: {error.juzgadoIdentifier}
+                                            </span><span className="text-sm font-medium text-red-600">
+                                                Tipo de instrumento en pdf: {error.instrumentoTypeIdentifier}
+                                            </span>
+                                        </>
+                                    )
+                                }
+                                {
+                                    error.error === "Tipo de instrumento inválido" && (
+                                        <span className="text-sm font-medium text-red-600">
+                                            Tipo de instrumento en pdf: {error.instrumentoTypeIdentifier}
+                                        </span>
+                                    )
+                                }
+                                {
+                                    error.error === "Juzgado inválido" && (
+                                        <span className="text-sm font-medium text-red-600">
+                                            Juzgado en pdf: {error.juzgadoIdentifier}
+                                        </span>
+                                    )
+                                }
+                                
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row md:justify-between gap-2">

@@ -4,6 +4,7 @@ import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { parseDataToYear } from "./utils";
+import { InstrumentoType, Juzgado } from "@prisma/client";
 
 export default class InstrumentoService {
 
@@ -18,13 +19,31 @@ export default class InstrumentoService {
     instrumentoRepository: InstrumentosRepository;
 
 
-    async getInstrumentoDto(instrumento: InstrumentPDFDTO): Promise<InstrumentoDTO> {
+    _mensajeError(juzgado: Juzgado | null, instrumentoType: InstrumentoType | null) {
+        if (!juzgado && !instrumentoType) return "Juzgado y tipo de instrumento inválidos";
+        else if (!juzgado) return "Juzgado inválido";
+        else if (!instrumentoType) return "Tipo de instrumento inválido";
+
+    }
+
+    async getInstrumentoDto(instrumento: InstrumentPDFDTO): Promise<InstrumentoDTO | InstrumentoDtoWithError> {
         const juzgadoPromise = this.juzgadosRepository.getByName(instrumento.organismo);
         const instrumentoTypeParsed = instrumento.tramite.split(" ")[0];
         const instrumentoTypePromise = this.instrumentoTypeRepository.getByName(instrumentoTypeParsed);
         const [juzgado, instrumentoType] = await Promise.all([juzgadoPromise, instrumentoTypePromise]);
 
-
+        if (!juzgado || !instrumentoType) {
+            return {
+                fecha_de_ingreso: new Date(parseDataToYear(instrumento.altaDisponibilidad)),
+                fecha_de_salida: null,
+                caratula: instrumento.caratula,
+                destinatario: instrumento.destinatario,
+                domicilio_denunciado: instrumento.destinatarioPostal,
+                juzgadoIdentifier: instrumento.organismo,
+                instrumentoTypeIdentifier: instrumentoTypeParsed,
+                error: this._mensajeError(juzgado, instrumentoType),
+            };
+        }
 
         return {
             fecha_de_ingreso: new Date(parseDataToYear(instrumento.altaDisponibilidad)),
@@ -87,15 +106,11 @@ export default class InstrumentoService {
                         const instrumentoDto = await this.getInstrumentoDto(instrumento);
 
                         // Revisa si el juzgado y el tipo de instrumento son válidos
-                        if (!instrumentoDto.juzgadoIdentifier || !instrumentoDto.instrumentoTypeIdentifier) {
+                        if ("error" in instrumentoDto) {
                             const isInDb = await this.instrumentoRepository.getInstrumentoByCaratula(instrumentoDto.caratula);
                             if (isInDb) return;
-                            const error: InstrumentoDtoWithError = {
-                                ...instrumentoDto,
-                                error: !instrumentoDto.juzgadoIdentifier ? "Juzgado inválido" : "Tipo de instrumento inválido",
-                            };
 
-                            instrumentosWithErrors.push(error);
+                            instrumentosWithErrors.push(instrumentoDto);
                             return;
                         } else {
                             // Verifica si el instrumento ya existe en la base de datos

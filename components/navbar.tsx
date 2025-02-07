@@ -20,7 +20,7 @@ import { Resource } from "@/permissions/typePermissions";
 
 const navItems = [
   { href: "/zonas", label: "Zonas", icon: Map, resource: Resource.ZONAS },
-  { href: "/agentes", label: "Agente", icon: Truck, resource: Resource.AGENTE },
+  { href: "/agentes", label: "Agentes", icon: Truck, resource: Resource.AGENTE },
   { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
   { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
 ]

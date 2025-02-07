@@ -27,36 +27,36 @@ export default function PDFUploadProcess() {
     const [currentPage, setCurrentPage] = useState(1);
 
     const handleFileUpload = async () => {
-        if (file) {
-            try {
-                const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
-                if (!parsedData) throw new Error("No se pudo extraer información del PDF");
-
-                if(parsedData.length === 0) throw new Error("No se encontraron instrumentos en el PDF");
-
-                const { filteredInstrument, instrumentosWithErrors } = await deleteDuplicatePdfEntries(parsedData);
-                console.log("filteredInstrument", filteredInstrument);
-
-                if(!filteredInstrument || !instrumentosWithErrors) throw new Error("No se pudo procesar el PDF");
-
-                if (filteredInstrument.length === 0 && instrumentosWithErrors.length === 0) throw new Error("Los instrumentos en el pdf ya estan cargados.");
-
-                setData(filteredInstrument);
-                setInstrumentosConErrores(instrumentosWithErrors);
-
-                setStep(instrumentosWithErrors.length ? 2 : 3);
-            } catch (error) {
-                console.error(error);
-                toast({
-                    title: "Error",
-                    description: error instanceof Error ? error.message : "Ha ocurrido un error al procesar el PDF",
-                    className: "bg-red-500 text-white",
-                    duration: 3000,
-                });
-                setStep(1);
+        if (!file) return;
+    
+        try {
+            const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
+            if (!parsedData || parsedData.length === 0) throw new Error("No se encontraron instrumentos en el PDF");
+    
+            const result = await deleteDuplicatePdfEntries(parsedData);
+            if (!result || typeof result !== "object") throw new Error("Error al procesar el PDF");
+    
+            const { filteredInstrument, instrumentosWithErrors } = result; // 🔥 Ahora seguro que result es un objeto válido
+    
+            if (filteredInstrument.length === 0 && instrumentosWithErrors.length === 0) {
+                throw new Error("Los instrumentos en el PDF ya están cargados.");
             }
+    
+            setData(filteredInstrument);
+            setInstrumentosConErrores(instrumentosWithErrors);
+            setStep(instrumentosWithErrors.length ? 2 : 3);
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Error",
+                description: error instanceof Error ? error.message : "Ha ocurrido un error al procesar el PDF",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+            setStep(1);
         }
     };
+    
 
     const confirmUpload = async () => {
         try {

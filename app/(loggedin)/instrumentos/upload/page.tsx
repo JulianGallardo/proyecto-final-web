@@ -35,6 +35,9 @@ export default function PDFUploadProcess() {
                 if(parsedData.length === 0) throw new Error("No se encontraron instrumentos en el PDF");
 
                 const { filteredInstrument, instrumentosWithErrors } = await deleteDuplicatePdfEntries(parsedData);
+                console.log("filteredInstrument", filteredInstrument);
+
+                if(!filteredInstrument || !instrumentosWithErrors) throw new Error("No se pudo procesar el PDF");
 
                 if (filteredInstrument.length === 0 && instrumentosWithErrors.length === 0) throw new Error("Los instrumentos en el pdf ya estan cargados.");
 

@@ -128,6 +128,5 @@ export async function createInstrumentos(instrumentos: InstrumentoDTO[]) {
 }
 
 export async function deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {
-    const { filteredInstrument, instrumentosWithErrors } = await instrumentoService.deleteDuplicatePdfEntries(instrumentos);
-    return { filteredInstrument, instrumentosWithErrors };
+    return await instrumentoService.deleteDuplicatePdfEntries(instrumentos);
 }

@@ -33,6 +33,8 @@ export default function PDFUploadProcess() {
             const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
             if (!parsedData || parsedData.length === 0) throw new Error("No se encontraron instrumentos en el PDF");
     
+            console.log("Parsed data", parsedData);
+
             const result = await deleteDuplicatePdfEntries(parsedData);
             if (!result || typeof result !== "object") throw new Error("Error al procesar el PDF");
     

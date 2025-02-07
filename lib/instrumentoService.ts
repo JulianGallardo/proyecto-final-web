@@ -104,6 +104,7 @@ export default class InstrumentoService {
                                 filteredInstrument.push(instrumentoDto);
                             }
                         }
+                        return;
                     } catch (e) {
                         console.error(`Error procesando instrumento: ${instrumento.caratula}. Error: ${(e as Error).message}`);
                     }

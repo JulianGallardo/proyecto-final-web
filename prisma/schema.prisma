@@ -35,10 +35,10 @@ model User {
 }
 
 model Agente {
-  id      Int     @id @default(autoincrement())
-  userId  String  @unique
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  zonas  Zone[]
+  id                  Int                   @id @default(autoincrement())
+  userId              String                @unique
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  zonas               Zone[]
   EntregaInstrumentos EntregaInstrumentos[]
 
   createdAt DateTime @default(now())
@@ -46,17 +46,15 @@ model Agente {
 }
 
 model EntregaInstrumentos {
-  id            Int    @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
   agenteId      Int
-  agente        Agente @relation(fields: [agenteId], references: [id], onDelete: Cascade)
-  instrumentoId Int
-  instrumento   Instrumento @relation(fields: [instrumentoId], references: [instrumentoId], onDelete: Cascade)
+  agente        Agente      @relation(fields: [agenteId], references: [id], onDelete: Cascade)
+  instrumentoId String
+  instrumento   Instrumento @relation(fields: [instrumentoId], references: [codigoInstrumento], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-
 
 model Account {
   userId            String
@@ -144,21 +142,28 @@ model InstrumentoType {
 }
 
 model Orden {
-  id            Int          @id @default(autoincrement())
-  ordenNumber   Int
-  juzgadoId     Int
-  juzgado       Juzgado      @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
-  instrumento   Instrumento?
+  id          Int          @id @default(autoincrement())
+  ordenNumber Int
+  juzgadoId   Int
+  juzgado     Juzgado      @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
+  instrumento Instrumento?
+}
+
+enum TipoCarga {
+  PDF
+  MAN
 }
 
 model Instrumento {
-  instrumentoId Int   @default(autoincrement()) @unique
-  ordenId       Int   @unique
-  orden         Orden @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  codigoInstrumento String @unique
+  cargaInstrumento TipoCarga
+  ordenId           Int    @unique
+  orden             Orden  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
-  fecha_de_ingreso            DateTime  @default(now())
-  fecha_de_salida             DateTime?
+  fecha_de_ingreso DateTime  @default(now())
+  fecha_de_salida  DateTime?
 
+  observaciones String?
 
   caratula             String
   destinatario         String
@@ -171,11 +176,10 @@ model Instrumento {
 
   HistorialEntregas EntregaInstrumentos[]
 
-  deleted Boolean @default(false)
+  deleted   Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@id([instrumentoId, ordenId])
-  @@unique([fecha_de_ingreso, caratula])
+  @@id([cargaInstrumento,codigoInstrumento, ordenId])
 }

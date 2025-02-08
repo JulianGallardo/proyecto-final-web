@@ -7,6 +7,7 @@ import OrdenRepository from "./OrdenRepository";
 
 
 const selectOptions = {
+    codigoInstrumento:true,
     fecha_de_ingreso: true,
     fecha_de_salida: true,
     caratula: true,
@@ -195,6 +196,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         if (!orden) {
             throw new Error("No se pudo crear la orden");
         }
+
+        
 
         try {
             const instrumento = await this.modelClient.create({

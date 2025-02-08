@@ -22,6 +22,8 @@ export interface InstrumentoDTO {
   domicilio_denunciado: string;
   juzgadoIdentifier: string;
   instrumentoTypeIdentifier: string;
+  tipoDeCarga: string;
+  codigo: string;
 }
 
 export interface InstrumentoDtoWithError extends InstrumentoDTO {

@@ -38,7 +38,7 @@ export default function PDFUploadProcess() {
             const result = await deleteDuplicatePdfEntries(parsedData);
             if (!result || typeof result !== "object") throw new Error("Error al procesar el PDF");
 
-            const { filteredInstrument, instrumentosWithErrors } = result; // 🔥 Ahora seguro que result es un objeto válido
+            const { filteredInstrument, instrumentosWithErrors } = result; 
 
             if (filteredInstrument.length === 0 && instrumentosWithErrors.length === 0) {
                 throw new Error("Los instrumentos en el PDF ya están cargados.");

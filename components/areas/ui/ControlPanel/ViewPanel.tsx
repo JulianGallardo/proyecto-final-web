@@ -1,17 +1,28 @@
 import { Button } from "@/components/ui/button";
+import { canEdit } from "@/permissions/hasPermissions";
 import { Edit } from "@mynaui/icons-react";
+import { useSession } from "next-auth/react";
 
 interface ViewPanelProps {
-    setEditing: (editing:boolean) => void;
+    setEditing: (editing: boolean) => void;
 }
 
 export default function ViewPanel({ setEditing }: ViewPanelProps) {
+    const user = useSession();
+    const userData = user.data?.user;
+
     return (
         <div className="flex flex-col w-full   gap-5 items-center justify-center">
-            <Button onClick={()=>setEditing(true)} className="bg-green-500 hover:bg-green-800 w-full">
-                Editar Zonas
-                <Edit />
-            </Button>
+            {
+                canEdit(userData?.role, "ZONES") && (
+                    <Button onClick={() => setEditing(true)} className="bg-green-500 hover:bg-green-800 w-full">
+                        Editar Zonas
+                        <Edit />
+                    </Button>
+                )
+
+            }
+
         </div>
     );
 }

@@ -114,7 +114,7 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Domicilio Denunciado
+                        Domicilio
                     </Button>
                 );
             },

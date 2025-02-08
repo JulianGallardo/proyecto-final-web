@@ -34,7 +34,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
         { param: "exitDate", displayName: "Fecha de Salida", type: "custom" },
         { param: "caratula", displayName: "Carátula", type: "text" },
         { param: "destinatario", displayName: "Destinatario", type: "text" },
-        { param: "address", displayName: "Domicilio denunciado", type: "text" },
+        { param: "address", displayName: "Domicilio", type: "text" },
         { param: "ordenNumber", displayName: "Número de Orden", type: "number" },
         {
             param: "juzgado",

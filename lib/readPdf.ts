@@ -49,12 +49,7 @@ function parseTextToJson(text: string): object[] {
         return !isBlank;
     });
 
-    // Eliminar duplicados basándose en un identificador único, como 'codigo' o 'caratula'
-    const uniqueData = Array.from(
-        new Map(filteredData.map((item) => [ item.caratula, item])).values()
-    );
-
-    return uniqueData;
+    return filteredData;
 }
 
 async function extractTextFromPDF(File: File) {

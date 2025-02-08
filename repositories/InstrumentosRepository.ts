@@ -8,7 +8,7 @@ import OrdenRepository from "./OrdenRepository";
 
 const selectOptions = {
     codigoInstrumento: true,
-    cargaInstrumento:true,
+    cargaInstrumento: true,
     fecha_de_ingreso: true,
     fecha_de_salida: true,
     caratula: true,
@@ -33,7 +33,7 @@ const selectOptions = {
             identifier: true,
         },
     },
-    observaciones:true,
+    observaciones: true,
     createdAt: true,
     updatedAt: true,
 };
@@ -93,12 +93,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
 
-    async getInstrumentoByCode(code:string,tipoDeCarga:TipoCarga){
+    async getInstrumentoByCode(code: string, tipoDeCarga: TipoCarga) {
         return this.modelClient.findFirst(
             {
-                where:{
+                where: {
                     codigoInstrumento: code,
-                    tipoDeCarga: tipoDeCarga
+                    cargaInstrumento: tipoDeCarga
                 }
             }
         );
@@ -319,7 +319,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                         identifier: data.instrumentoTypeIdentifier,
                     },
                 },
-                observaciones:data.observaciones
+                observaciones: data.observaciones
             },
             select: selectOptions
         });

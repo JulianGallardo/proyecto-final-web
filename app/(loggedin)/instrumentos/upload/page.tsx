@@ -36,6 +36,8 @@ export default function PDFUploadProcess() {
             console.log("Parsed data", parsedData);
 
             const result = await deleteDuplicatePdfEntries(parsedData);
+
+            
             if (!result || typeof result !== "object") throw new Error("Error al procesar el PDF");
 
             const { filteredInstrument, instrumentosWithErrors } = result; 

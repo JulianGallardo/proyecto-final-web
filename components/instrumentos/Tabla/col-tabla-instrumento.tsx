@@ -4,6 +4,7 @@ import AccionesList from "./acciones-list";
 import { Button } from "../../ui/button";
 import { parseDate } from "@/lib/utils";
 import IndicadorFecha from "./indicador-fecha";
+import { TipoCarga } from "@prisma/client";
 interface ColumnsProps {
     onEdit: (instrumento: InstrumentoExtendido) => void;
     onDelete: (instrumento: InstrumentoExtendido) => void;
@@ -23,13 +24,19 @@ const FechaSalidaCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 };
 
 const DemoraCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
-const fechaEntrada: Date = row.getValue("fecha_de_ingreso");
-const fechaSalida: Date = row.getValue("fecha_de_salida");
-if (!fechaSalida) return <IndicadorFecha fecha={fechaEntrada} />
-else return <span>Ya entregada</span>
+    const fechaEntrada: Date = row.getValue("fecha_de_ingreso");
+    const fechaSalida: Date = row.getValue("fecha_de_salida");
+    if (!fechaSalida) return <IndicadorFecha fecha={fechaEntrada} />
+    else return <span>Ya entregada</span>
+};
 
-
-
+const CodigoCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
+    console.log(row.getAllCells())
+    const codigo: string = row.getValue("codigoInstrumento");
+    const tipoCarga: TipoCarga = row.getValue("cargaInstrumento");
+    return <span>
+        {tipoCarga} - {codigo}
+    </span>
 };
 
 
@@ -49,6 +56,30 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
                 );
             },
             cell: DemoraCell,
+
+        },
+        {
+            accessorKey: "codigo",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Codigo
+                    </Button>
+                );
+            },
+            cell: CodigoCell,
+        },
+        {
+            accessorKey: "codigoInstrumento",
+           
+
+        },
+        {
+            accessorKey: "cargaInstrumento",
+            
 
         },
         {

@@ -113,8 +113,12 @@ export default class InstrumentoService {
                     try {
                         const instrumentoDto = await this.getInstrumentoDto(instrumento);
 
+                        console.log(instrumentoDto)
+
                         // Verifica si el instrumento ya existe en la base de datos
                         const isInDb = await this.instrumentoRepository.getInstrumentoByCode(instrumentoDto.codigo, instrumentoDto.tipoDeCarga)
+                        console.log(isInDb)
+
                         if (isInDb) return;
 
                         // Revisa si el juzgado y el tipo de instrumento son válidos

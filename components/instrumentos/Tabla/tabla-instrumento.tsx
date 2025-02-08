@@ -32,6 +32,12 @@ export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInst
     getCoreRowModel: coreRowModel,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    initialState:{
+      columnVisibility:{
+        codigoInstrumento:false,
+        cargaInstrumento:false
+      }
+    },
     state: {
       sorting,
     },

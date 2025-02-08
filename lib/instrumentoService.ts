@@ -43,7 +43,8 @@ export default class InstrumentoService {
                 instrumentoTypeIdentifier: instrumentoTypeParsed,
                 error: this._mensajeError(juzgado, instrumentoType),
                 tipoDeCarga: TipoCarga.PDF,
-                codigo: instrumento.codigo
+                codigo: instrumento.codigo,
+                observaciones: ""
 
             };
         }
@@ -57,7 +58,8 @@ export default class InstrumentoService {
             juzgadoIdentifier: juzgado.identifier,
             instrumentoTypeIdentifier: instrumentoType.identifier,
             tipoDeCarga: TipoCarga.PDF,
-            codigo: instrumento.codigo
+            codigo: instrumento.codigo,
+            observaciones: ""
         };
 
 
@@ -113,11 +115,8 @@ export default class InstrumentoService {
                     try {
                         const instrumentoDto = await this.getInstrumentoDto(instrumento);
 
-                        console.log(instrumentoDto)
-
                         // Verifica si el instrumento ya existe en la base de datos
                         const isInDb = await this.instrumentoRepository.getInstrumentoByCode(instrumentoDto.codigo, instrumentoDto.tipoDeCarga)
-                        console.log(isInDb)
 
                         if (isInDb) return;
 

@@ -210,6 +210,8 @@ function InstrumentoDataView({ instrumento, handleSetInstrumentoEditando, onCanc
                             <span className="text-sm text-gray-700"><strong>Fecha de ingreso:</strong> {parseDate(instrumento.fecha_de_ingreso.toISOString())}</span>
                             <span className="text-sm text-gray-700"><strong>Fecha de salida:</strong> {instrumento.fecha_de_salida ? parseDate(instrumento.fecha_de_salida.toISOString()) : "Sin fecha"}</span>
                             <span className="text-sm text-gray-700"><strong>Domicilio Denunciado:</strong> {instrumento.domicilio_denunciado}</span>
+                            <span className="text-sm text-gray-700"><strong>Codigo:</strong> {instrumento.codigo}</span>
+                            
                             <div className="flex flex-col md:flex-row md:justify-between gap-2">
                                 <Button className="w-full bg-blue-600 hover:bg-blue-700 transition-all" onClick={() => handleSetInstrumentoEditando(instrumento)}>
                                     Modificar información

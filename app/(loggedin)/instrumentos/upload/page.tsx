@@ -121,6 +121,10 @@ export default function PDFUploadProcess() {
         }
     }
 
+    const deleteAllInstrumentDataError = () => {
+        setInstrumentosConErrores([]);
+    }   
+
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
 
     return (
@@ -149,7 +153,7 @@ export default function PDFUploadProcess() {
                                 deleteInstrumento={deleteInstrumentErrorData}
                                 errors={instrumentosConErrores}
                                 editInstrumentDataError={editInstrumentDataError}
-
+                                deleteAllErrors = {deleteAllInstrumentDataError}
                                 onBack={() => setStep(1)}
                                 onNext={() => setStep(3)}
                             />

@@ -55,11 +55,12 @@ const Juzgados: Prisma.JuzgadoCreateInput[] = [
     { name: "JUZGADO EN LO CIVIL Y COMERCIAL Nº 6 - BAHIA BLANCA", identifier: "JCC6" },
     { name: "JUZGADO EN LO CIVIL Y COMERCIAL Nº 7 - BAHIA BLANCA", identifier: "JCC7" },
     { name: "JUZGADO EN LO CIVIL Y COMERCIAL Nº 8 - BAHIA BLANCA", identifier: "JCC8" },
-    { name: "TRIBUNAL DE TRABAJO Nº 1 - BAHIA BLANCA", identifier: "TT1" },
-    { name: "TRIBUNAL DE TRABAJO Nº 2 - BAHIA BLANCA", identifier: "TT2" },
-    { name: "TRIBUNAL DE TRABAJO Nº 3 - BAHIA BLANCA", identifier: "JF1" },
-    { name: "JUZGADO DE FAMILIA Nº 1 - BAHIA BLANCA", identifier: "JF2" },
-    { name: "JUZGADO DE FAMILIA Nº 3 - BAHIA BLANCA", identifier: "JF3" },
+    { name: "TRIBUNAL DEL TRABAJO Nº 1 - BAHIA BLANCA", identifier: "TT1" },
+    { name: "TRIBUNAL DEL TRABAJO Nº 2 - BAHIA BLANCA", identifier: "TT2" },
+    { name: "TRIBUNAL DEL TRABAJO Nº 3 - BAHIA BLANCA", identifier: "TT3" },
+    { name: "JUZGADO DE FAMILIA N° 1 - BAHIA BLANCA", identifier: "JF1" },
+    { name: "JUZGADO DE FAMILIA N° 2 - BAHIA BLANCA", identifier: "JF2" },
+    { name: "JUZGADO DE FAMILIA N° 3 - BAHIA BLANCA", identifier: "JF3" },
     { name: "CEDULAS DE MEDIACION", identifier: "MED" },
     { name: "CEDULAS DEL COLEGIO DE ABOGADOS DE BAHIA BLANCA", identifier: "CABB" },
     { name: "TRIBUNAL EN LO CRIMINAL Nº 1 JUICIO POR JURADO - BAHIA BLANCA", identifier: "Tcri N1 JXJ" },
@@ -88,8 +89,8 @@ const Juzgados: Prisma.JuzgadoCreateInput[] = [
     { name: "JUZGADO CRIMINAL Nº 1 - BAHIA BLANCA", identifier: "CRIM 1" },
     { name: "JUZGADO CRIMINAL Nº 2 - BAHIA BLANCA", identifier: "CRIM 2" },
     { name: "JUZGADO CRIMINAL Nº 3 - BAHIA BLANCA", identifier: "CRIM 3" },
-    { name: "BUS FEDERAL - BAHIA BLANCA", identifier: "BUS" },
-    { name: "SECRETARIA DE SERVICIOS JURISDICCIONALES - BAHIA BLANCA", identifier: "Sec de SS" },
+    { name: "BUS FEDERAL", identifier: "BUS" },
+    { name: "SECRETARIA DE SERVICIOS JURISDICCIONALES", identifier: "Sec de SS" },
 ];
 
 

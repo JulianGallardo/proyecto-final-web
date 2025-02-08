@@ -9,17 +9,19 @@ import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../../Dialogs/alert";
-import { Edit } from "@mynaui/icons-react";
+import { Delete, Edit } from "@mynaui/icons-react";
 
 export default function StepErrorReview({
     deleteInstrumento,
     editInstrumentDataError,
+    deleteAllErrors,
     errors,
     onBack,
     onNext
 }: Readonly<{
     deleteInstrumento: (instrumento: InstrumentoDTO) => void;
     editInstrumentDataError: (instrumento: InstrumentoDTO) => void;
+    deleteAllErrors: () => void;
     errors: InstrumentoDtoWithError[];
     onBack: () => void;
     onNext: () => void;
@@ -78,14 +80,23 @@ export default function StepErrorReview({
 
 
     const handleCancelarCarga = () => {
-        if (!instrumentoCancelando) return;
-        deleteInstrumento(instrumentoCancelando);
+        if (!instrumentoCancelando) {
+            deleteAllErrors();
+        }
+        else {
+
+            deleteInstrumento(instrumentoCancelando);
+        }
         setIsOpenAlert(false);
     }
 
     const cancelCancelarCarga = () => {
         setInstrumentoCancelando(undefined);
         setIsOpenAlert(false);
+    }
+
+    const onCancelarCargaTodos = () => {
+        setIsOpenAlert(true)
     }
 
 
@@ -110,7 +121,7 @@ export default function StepErrorReview({
 
             <CustomAlert
                 AlertTitle={"Cancelar Carga"}
-                AlertDescription="¿Estás seguro de que deseas cancelar la carga del instrumento?"
+                AlertDescription={instrumentoCancelando ? `¿Estás seguro de que deseas cancelar la carga del instrumento ${instrumentoCancelando.caratula}?` : "¿Estás seguro de que deseas cancelar la carga de todos los instrumentos?"}
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">
                         <Button
@@ -156,6 +167,16 @@ export default function StepErrorReview({
                     <ChevronLeftIcon className="h-4 w-4" />
                     Volver
                 </Button>
+                {errors.length > 1 &&
+                    < Button
+                        className="bg-red-500 hover:bg-red-600"
+                        onClick={onCancelarCargaTodos}
+                    >
+
+                        Cancelar todos
+                        <Delete className="h-4 w-4" />
+                    </Button>
+                }
                 <Button
                     className="bg-green-500 hover:bg-green-600 disabled:bg-gray-300"
                     disabled={errors.length > 0}
@@ -165,7 +186,7 @@ export default function StepErrorReview({
                     <ChevronRightIcon className="h-4 w-4" />
                 </Button>
             </div>
-        </div>
+        </div >
     );
 }
 
@@ -195,11 +216,11 @@ function ErrorList({ title, instrumentErrors, handleSetInstrumentoEditando, onCa
                                 <Edit className="h-6 w-6 text-red-600" />
                                 <span className="text-sm font-medium text-red-600">Ocurrieron los siguientes errores:</span>
                                 <span className="text-sm font-medium text-red-600">{error.error}</span>
-                                
+
 
                             </div>
                             <div className="flex flex-col gap-2">
-                                
+
                                 {
                                     error.error === "Juzgado y tipo de instrumento inválidos" && (
                                         <>
@@ -225,7 +246,7 @@ function ErrorList({ title, instrumentErrors, handleSetInstrumentoEditando, onCa
                                         </span>
                                     )
                                 }
-                                
+
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row md:justify-between gap-2">

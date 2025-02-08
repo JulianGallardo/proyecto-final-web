@@ -37,6 +37,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         setInstrumentoTypes(instrumentoTypes)
     }, [Juzgados, instrumentoTypes])
 
+    React.useEffect(() => {
+        console.log(instrumentoEditando);
+    }, [instrumentoEditando]);
+
 
     const handleClose = (open: boolean) => {
         if (!open) {
@@ -170,7 +174,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
             destinatario: instrumento.destinatario,
             domicilio_denunciado: instrumento.domicilio_denunciado,
             juzgadoIdentifier: instrumento.orden.juzgado.identifier,
-            instrumentoTypeIdentifier: instrumento.instrumentoType.identifier
+            instrumentoTypeIdentifier: instrumento.instrumentoType.identifier,
+            codigo: instrumento.codigoInstrumento,
+            tipoDeCarga: instrumento.cargaInstrumento,
+            observaciones: instrumento.observaciones ?? ""
         }
 
         return instrumentoDto

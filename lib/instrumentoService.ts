@@ -4,7 +4,7 @@ import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { parseDataToYear } from "./utils";
-import { InstrumentoType, Juzgado } from "@prisma/client";
+import { InstrumentoType, Juzgado, TipoCarga } from "@prisma/client";
 
 export default class InstrumentoService {
 
@@ -19,11 +19,11 @@ export default class InstrumentoService {
     instrumentoRepository: InstrumentosRepository;
 
 
-    _mensajeError(juzgado: Juzgado | null, instrumentoType: InstrumentoType | null) {
+    _mensajeError(juzgado: Juzgado | null, instrumentoType: InstrumentoType | null): string {
         if (!juzgado && !instrumentoType) return "Juzgado y tipo de instrumento inválidos";
         else if (!juzgado) return "Juzgado inválido";
         else if (!instrumentoType) return "Tipo de instrumento inválido";
-
+        else return "Error desconocido"
     }
 
     async getInstrumentoDto(instrumento: InstrumentPDFDTO): Promise<InstrumentoDTO | InstrumentoDtoWithError> {
@@ -42,6 +42,9 @@ export default class InstrumentoService {
                 juzgadoIdentifier: instrumento.organismo,
                 instrumentoTypeIdentifier: instrumentoTypeParsed,
                 error: this._mensajeError(juzgado, instrumentoType),
+                tipoDeCarga: TipoCarga.PDF,
+                codigo: instrumento.codigo
+
             };
         }
 
@@ -51,8 +54,10 @@ export default class InstrumentoService {
             caratula: instrumento.caratula,
             destinatario: instrumento.destinatario,
             domicilio_denunciado: instrumento.destinatarioPostal,
-            juzgadoIdentifier: juzgado?.identifier ?? "",
-            instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
+            juzgadoIdentifier: juzgado.identifier,
+            instrumentoTypeIdentifier: instrumentoType.identifier,
+            tipoDeCarga: TipoCarga.PDF,
+            codigo: instrumento.codigo
         };
 
 
@@ -60,6 +65,10 @@ export default class InstrumentoService {
 
     async getInstrumentos() {
         return this.instrumentoRepository.getAll();
+    }
+
+    async getInstrumentoByCode(code: string, tipoDeCarga: TipoCarga) {
+        return this.instrumentoRepository.getInstrumentoByCode(code, tipoDeCarga);
     }
 
     async getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number) {
@@ -74,7 +83,6 @@ export default class InstrumentoService {
 
     async createInstrumento(data: InstrumentoDTO) {
         const instrumento = await this.instrumentoRepository.createInstrumento(data);
-
         return instrumento;
 
     }
@@ -105,24 +113,15 @@ export default class InstrumentoService {
                     try {
                         const instrumentoDto = await this.getInstrumentoDto(instrumento);
 
+                        // Verifica si el instrumento ya existe en la base de datos
+                        const isInDb = await this.instrumentoRepository.getInstrumentoByCode(instrumentoDto.codigo, instrumentoDto.tipoDeCarga)
+                        if (isInDb) return;
+
                         // Revisa si el juzgado y el tipo de instrumento son válidos
                         if ("error" in instrumentoDto) {
-                            const isInDb = await this.instrumentoRepository.getInstrumentoByCaratula(instrumentoDto.caratula);
-                            if (isInDb) return;
-
                             instrumentosWithErrors.push(instrumentoDto);
-                            return;
                         } else {
-                            // Verifica si el instrumento ya existe en la base de datos
-                            const isInDb = await this.instrumentoRepository.getInstrumento(
-                                instrumentoDto.juzgadoIdentifier,
-                                instrumentoDto.caratula,
-                                instrumentoDto.destinatario
-                            );
-
-                            if (!isInDb) {
-                                filteredInstrument.push(instrumentoDto);
-                            }
+                            filteredInstrument.push(instrumentoDto);
                         }
                         return;
                     } catch (e) {

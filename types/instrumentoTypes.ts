@@ -1,4 +1,4 @@
-import { Instrumento } from "@prisma/client";
+import { Instrumento, TipoCarga } from "@prisma/client";
 
 export interface InstrumentPDFDTO {
     organismo: string;
@@ -22,8 +22,9 @@ export interface InstrumentoDTO {
   domicilio_denunciado: string;
   juzgadoIdentifier: string;
   instrumentoTypeIdentifier: string;
-  tipoDeCarga: string;
+  tipoDeCarga: TipoCarga;
   codigo: string;
+  observaciones:string;
 }
 
 export interface InstrumentoDtoWithError extends InstrumentoDTO {

@@ -29,6 +29,7 @@ export const instrumentSchema = object({
   address: string({ required_error: "La dirección es requerida." }).min(1, "La dirección es requerida."),
   juzgado: string({ required_error: "El identificador de juzgado es requerido." }).min(1, "El identificador de juzgado es requerido."),
   instrumentType: string({ required_error: "El tipo de instrumento es requerido." }).min(1, "El tipo de instrumento es requerido."),
+  observaciones: string()
 })
 
 export const juzgadoSchema = (Juzgados: JuzgadoDto[]) =>

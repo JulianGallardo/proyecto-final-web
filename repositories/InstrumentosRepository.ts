@@ -1,13 +1,13 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { Instrumento } from "@prisma/client";
+import { Instrumento, TipoCarga } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import OrdenRepository from "./OrdenRepository";
 
 
 const selectOptions = {
-    codigoInstrumento:true,
+    codigoInstrumento: true,
     fecha_de_ingreso: true,
     fecha_de_salida: true,
     caratula: true,
@@ -32,6 +32,7 @@ const selectOptions = {
             identifier: true,
         },
     },
+    observaciones:true,
     createdAt: true,
     updatedAt: true,
 };
@@ -53,13 +54,13 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
     filters(searchParams: SearchParamsInstrumentos) {
 
-        const parseString = (value: string) => value.replace(/\+/g," ");
+        const parseString = (value: string) => value.replace(/\+/g, " ");
 
 
         // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
         const filterMapping: { [key: string]: (value: any) => any } = {
             entryDate: (value) => ({ fecha_de_ingreso: { gte: new Date(value) } }),
-            exitDate: (value) => ( 
+            exitDate: (value) => (
                 parseString(value) === "No registrada" ? { fecha_de_salida: { equals: null } } : { fecha_de_salida: { lte: new Date(value) } }
             ),
             caratula: (value) => ({ caratula: { startsWith: parseString(value), mode: "insensitive" } }),
@@ -82,7 +83,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         where.AND.push({ deleted: false }); // Añadir condición para mostrar solo los registros no eliminados
 
-        
+
         if (where.AND.length === 0) {
             delete where.AND;
         }
@@ -91,7 +92,18 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
 
-    async getInstrumentoByCaratula(caratula:string): Promise<InstrumentoExtendido | null> {
+    async getInstrumentoByCode(code:string,tipoDeCarga:TipoCarga){
+        return this.modelClient.findFirst(
+            {
+                where:{
+                    codigoInstrumento: code,
+                    tipoDeCarga: tipoDeCarga
+                }
+            }
+        );
+    }
+
+    async getInstrumentoByCaratula(caratula: string): Promise<InstrumentoExtendido | null> {
         return this.modelClient.findFirst({
             where: {
                 caratula: {
@@ -188,6 +200,24 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         });
     }
 
+    async calculateManualCode(): Promise<number> {
+        const maxCodigo = await this.modelClient.aggregate({
+            _max: {
+                codigoInstrumento: true, // Busca el mayor código de instrumento
+            },
+            where: {
+                cargaInstrumento: TipoCarga.MAN
+            },
+        });
+
+        // Extraer el número del código, asumir formato numérico y sumar 1
+        const lastCode = maxCodigo._max.codigoInstrumento
+            ? parseInt(maxCodigo._max.codigoInstrumento, 10)
+            : 0;
+
+        return lastCode + 1;
+    }
+
 
 
     async createInstrumento(data: InstrumentoDTO): Promise<InstrumentoExtendido> {
@@ -197,11 +227,16 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             throw new Error("No se pudo crear la orden");
         }
 
-        
+        if (data.tipoDeCarga === TipoCarga.MAN) {
+            data.codigo = (await this.calculateManualCode()).toString();
+        }
+
 
         try {
             const instrumento = await this.modelClient.create({
                 data: {
+                    codigoInstrumento: data.codigo,
+                    cargaInstrumento: data.tipoDeCarga,
                     fecha_de_ingreso: data.fecha_de_ingreso,
                     fecha_de_salida: data.fecha_de_salida || undefined,
                     caratula: data.caratula,
@@ -217,6 +252,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                             identifier: data.instrumentoTypeIdentifier,
                         },
                     },
+                    observaciones: data.observaciones
                 },
                 select: selectOptions
             });
@@ -264,6 +300,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 ordenId: ordenActual?.id,
             },
             data: {
+
                 fecha_de_ingreso: data.fecha_de_ingreso,
                 fecha_de_salida: data.fecha_de_salida || undefined,
                 caratula: data.caratula,
@@ -281,6 +318,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                         identifier: data.instrumentoTypeIdentifier,
                     },
                 },
+                observaciones:data.observaciones
             },
             select: selectOptions
         });
@@ -304,12 +342,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {
         const instrumentosCreados: InstrumentoExtendido[] = [];
-    
+
         for (const instrumento of instrumentos) {
             const result = await this.createInstrumento(instrumento);
             instrumentosCreados.push(result);
         }
-    
+
         return instrumentosCreados;
     }
 

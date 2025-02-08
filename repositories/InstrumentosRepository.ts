@@ -8,6 +8,7 @@ import OrdenRepository from "./OrdenRepository";
 
 const selectOptions = {
     codigoInstrumento: true,
+    cargaInstrumento:true,
     fecha_de_ingreso: true,
     fecha_de_salida: true,
     caratula: true,

@@ -39,8 +39,8 @@ export default class InstrumentoService {
                 caratula: instrumento.caratula,
                 destinatario: instrumento.destinatario,
                 domicilio_denunciado: instrumento.destinatarioPostal,
-                juzgadoIdentifier: instrumento.organismo,
-                instrumentoTypeIdentifier: instrumentoTypeParsed,
+                juzgadoIdentifier: juzgado?.identifier ?? instrumento.organismo,
+                instrumentoTypeIdentifier: instrumentoType?.identifier ?? instrumentoTypeParsed,
                 error: this._mensajeError(juzgado, instrumentoType),
                 tipoDeCarga: TipoCarga.PDF,
                 codigo: instrumento.codigo,
@@ -115,10 +115,13 @@ export default class InstrumentoService {
                     try {
                         const instrumentoDto = await this.getInstrumentoDto(instrumento);
 
+
                         // Verifica si el instrumento ya existe en la base de datos
                         const isInDb = await this.instrumentoRepository.getInstrumentoByCode(instrumentoDto.codigo, instrumentoDto.tipoDeCarga)
 
                         if (isInDb) return;
+
+                        
 
                         // Revisa si el juzgado y el tipo de instrumento son válidos
                         if ("error" in instrumentoDto) {

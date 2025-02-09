@@ -167,7 +167,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 {
                     fecha_de_salida: {
                         sort: "asc",
-                        nulls: "first", // Primero los valores nulos
+                        nulls: "first", 
                     }
                 },
                 {

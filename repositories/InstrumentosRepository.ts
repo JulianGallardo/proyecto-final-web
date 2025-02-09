@@ -60,8 +60,40 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         const endOfDate = (dateQuery: string) => {
             const [year, month, day] = dateQuery.split("-").map(Number);
 
-            return  new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999)); // Fin del día
+            return new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999)); // Fin del día
         }
+
+        const parseCode = (value: string) => {
+
+
+
+            const parsedValue = value.replace(/\+/g, "");
+            const code = parsedValue.split("-");
+            if (code.length !== 2) {
+                if (code[0] === "PDF" || code[0] === "MAN") {
+                    return {
+                        type: code[0],
+                        number: undefined
+                    }
+                }
+                else {
+                    return {
+                        type: undefined,
+                        number: code[0]
+                    }
+                }
+
+
+            }
+
+            return {
+                type: code[0],
+                number: code[1]
+            }
+        }
+
+
+
 
         // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
         const filterMapping: { [key: string]: (value: any) => any } = {
@@ -71,7 +103,13 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 parseString(value) === "No registrada" ? { fecha_de_salida: { equals: null } } : { fecha_de_salida: { lte: new Date(value) } }
             ),
             caratula: (value) => ({ caratula: { startsWith: parseString(value), mode: "insensitive" } }),
-            codigo: (value) => ({ codigoInstrumento: { startsWith: value, mode: "insensitive" } }),
+            codigo: (value) => {
+                const parsedCode = parseCode(value);
+                return {
+                    codigoInstrumento: { startsWith: parsedCode.number, mode: "insensitive" },
+                    cargaInstrumento: { equals: parsedCode.type }
+                };
+            },
             address: (value) => ({ domicilio_denunciado: { startsWith: parseString(value), mode: "insensitive" } }),
             ordenNumber: (value) => ({ orden: { ordenNumber: { equals: Number(value) } } }),
             juzgado: (value) => ({ orden: { juzgado: { identifier: { startsWith: parseString(value), mode: "insensitive" } } } }),

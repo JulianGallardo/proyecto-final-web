@@ -1,9 +1,10 @@
 export default interface SearchParamsInstrumentos {
     page?: string;
-    entryDate?: string;
+    desde?: string;
+    hasta?: string;
     exitDate?: string;
     caratula?: string;
-    destinatario?: string;
+    codigo?: string;
     address?: string;
     ordenNumber?: string;
     juzgado?: string;

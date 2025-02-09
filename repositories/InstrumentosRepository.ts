@@ -57,15 +57,21 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const parseString = (value: string) => value.replace(/\+/g, " ");
 
+        const endOfDate = (dateQuery: string) => {
+            const [year, month, day] = dateQuery.split("-").map(Number);
+
+            return  new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999)); // Fin del día
+        }
 
         // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
         const filterMapping: { [key: string]: (value: any) => any } = {
-            entryDate: (value) => ({ fecha_de_ingreso: { gte: new Date(value) } }),
+            desde: (value) => ({ fecha_de_ingreso: { gte: new Date(value) } }),
+            hasta: (value) => ({ fecha_de_ingreso: { lte: endOfDate(value) } }),
             exitDate: (value) => (
                 parseString(value) === "No registrada" ? { fecha_de_salida: { equals: null } } : { fecha_de_salida: { lte: new Date(value) } }
             ),
             caratula: (value) => ({ caratula: { startsWith: parseString(value), mode: "insensitive" } }),
-            destinatario: (value) => ({ destinatario: { startsWith: parseString(value), mode: "insensitive" } }),
+            codigo: (value) => ({ codigoInstrumento: { startsWith: value, mode: "insensitive" } }),
             address: (value) => ({ domicilio_denunciado: { startsWith: parseString(value), mode: "insensitive" } }),
             ordenNumber: (value) => ({ orden: { ordenNumber: { equals: Number(value) } } }),
             juzgado: (value) => ({ orden: { juzgado: { identifier: { startsWith: parseString(value), mode: "insensitive" } } } }),
@@ -88,6 +94,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         if (where.AND.length === 0) {
             delete where.AND;
         }
+
+        console.log(JSON.stringify(where, null, 2));
 
         return where;
     }
@@ -167,7 +175,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 {
                     fecha_de_salida: {
                         sort: "asc",
-                        nulls: "first", 
+                        nulls: "first",
                     }
                 },
                 {
@@ -175,6 +183,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 }
             ],
         });
+
+        console.log(instrumentos);
 
         return instrumentos;
     }

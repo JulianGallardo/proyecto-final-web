@@ -39,6 +39,9 @@ export default function ExitDateFilter({ param }: Readonly<ExitDateFilterProps>)
         } else {
             params.delete(param);
         }
+
+        params.set("page", "1");
+        
         replace(`${pathname}?${params.toString()}`);
     }
 
@@ -47,6 +50,7 @@ export default function ExitDateFilter({ param }: Readonly<ExitDateFilterProps>)
         if (value === "No registrada") {
             handleSearch(param, value);
         }
+
 
     }
 

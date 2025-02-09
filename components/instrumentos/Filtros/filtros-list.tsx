@@ -6,7 +6,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { InstrumentoType, Juzgado } from "@prisma/client";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,10 +30,12 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
 
     // Configuración de filtros
     const filtrosConfig = [
-        { param: "entryDate", displayName: "Fecha de Entrada", type: "date" },
+        { param: "desde", displayName: "Desde", type: "date" },
+        { param: "hasta", displayName: "Hasta", type: "date" },
+
         { param: "exitDate", displayName: "Fecha de Salida", type: "custom" },
         { param: "caratula", displayName: "Carátula", type: "text" },
-        { param: "destinatario", displayName: "Destinatario", type: "text" },
+
         { param: "address", displayName: "Domicilio", type: "text" },
         { param: "ordenNumber", displayName: "Número de Orden", type: "number" },
         {
@@ -48,6 +50,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
             type: "select",
             options: InstrumentTypes.map((i) => ({ value: i.name, label: i.name })),
         },
+        { param: "codigo", displayName: "Codigo", type: "text" },
     ];
 
     // Maneja la búsqueda en los parámetros
@@ -58,6 +61,9 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
         } else {
             params.delete(param);
         }
+
+        params.set("page", "1");
+
         replace(`${pathname}?${params.toString()}`);
     }
 
@@ -108,7 +114,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes }: Readonly<Filt
 
 
     const calculateFilterTagValue = (key: string) => {
-        if (key === "entryDate") {
+        if (key === "desde" || key === "hasta") {
             return parseDate(searchParams.get(key) as string)
         }
         if (key === "exitDate") {
@@ -232,7 +238,7 @@ function Filtro({ param, displayName, children, clearFilter }: Readonly<FiltroPr
 
     const searchParams = useSearchParams();
     const [isActive, setIsActive] = useState(false);
-    
+
 
     useEffect(() => {
         if (searchParams.has(param)) {
@@ -243,7 +249,7 @@ function Filtro({ param, displayName, children, clearFilter }: Readonly<FiltroPr
     }, [searchParams]);
 
     useEffect(() => {
-        if (!isActive) clearFilter(param) 
+        if (!isActive) clearFilter(param)
     }, [isActive]);
 
     return (

@@ -240,7 +240,6 @@ function reDrawPolygonWithNoIntersection(
 
     const dissolvedPolygons = turf.dissolve(turf.featureCollection(otherPolygons));
 
-    console.log("features pre-dissolved ",dissolvedPolygons);
 
     dissolvedPolygons.features.forEach(feature => {
         const picos = detectarPicos(feature.geometry.coordinates[0] as Position[]);
@@ -248,12 +247,6 @@ function reDrawPolygonWithNoIntersection(
         feature.geometry.coordinates = [newPolygonCoords];
 
     });
-
-
-    console.log("features dissolved",dissolvedPolygons);
-
-    console.log("polygon to draw",polygon);
-
 
     dissolvedPolygons.features.forEach(polygonToDelete => {
         const difference = turf.difference(turf.featureCollection([polygon, polygonToDelete]));
@@ -324,7 +317,6 @@ function detectarPicos(puntos: Position[], umbral: number = 10): Position[] {
 
 
         const angulo = calcularAngulo(p1, p2, p3);
-        console.log(angulo, p1, p2, p3);
 
         // Si el ángulo es menor que el umbral o es NaN, consideramos este punto como pico
         if (angulo < umbral || angulo >= 179) {

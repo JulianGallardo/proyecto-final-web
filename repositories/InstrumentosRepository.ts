@@ -157,8 +157,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number) {
         const where = this.filters(searchParams);
 
-        console.log(JSON.stringify(where));
-
         // Realizar la consulta con Prisma
         const instrumentos = await this.modelClient.findMany({
             where,

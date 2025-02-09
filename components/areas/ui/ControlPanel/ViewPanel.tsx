@@ -12,7 +12,6 @@ export default function ViewPanel({ setEditing }: ViewPanelProps) {
     const user = useSession();
     const userData = user.data?.user;
 
-    console.log(userData);
 
     return (
         <div className="flex flex-col w-full   gap-5 items-center justify-center">

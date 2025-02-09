@@ -21,7 +21,6 @@ export const safeRandomColor = () => {
 };
 
 export const parseDate = (date: string) => {
-  console.log(date);
   const dateParsed = DateTime.fromISO(date).setZone("America/Argentina/Buenos_Aires");
   const dateInArgentina = dateParsed.toLocaleString(DateTime.DATE_FULL);
   return dateInArgentina;
@@ -36,6 +35,5 @@ export const parseDataToYear = (date: string) => {
 export const hashPassword = async (password: string) => {
   const saltNumber = 10;
   const hash = await bcrypt.hash(password, saltNumber);
-  console.log(hash);  
   return hash;
 }

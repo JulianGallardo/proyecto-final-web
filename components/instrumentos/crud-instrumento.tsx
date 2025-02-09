@@ -37,9 +37,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         setInstrumentoTypes(instrumentoTypes)
     }, [Juzgados, instrumentoTypes])
 
-    React.useEffect(() => {
-        console.log(instrumentoEditando);
-    }, [instrumentoEditando]);
 
 
     const handleClose = (open: boolean) => {

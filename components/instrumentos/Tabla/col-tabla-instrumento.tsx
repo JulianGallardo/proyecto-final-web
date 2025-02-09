@@ -31,7 +31,6 @@ const DemoraCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 };
 
 const CodigoCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
-    console.log(row.getAllCells())
     const codigo: string = row.getValue("codigoInstrumento");
     const tipoCarga: TipoCarga = row.getValue("cargaInstrumento");
     return <span>

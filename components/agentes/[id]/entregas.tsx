@@ -36,7 +36,6 @@ export default function EntregasRepartidor({ agenteId }: Readonly<{ agenteId: nu
             try {
                 const entregas = await getEntregasPaginated(currentPage, agenteId, selectedDate);
                 const totalPages = await getTotalPages(agenteId, selectedDate);
-                console.log(entregas);
                 setTotalPages(totalPages);
                 setEntregas(entregas);
             } catch (error) {

@@ -55,7 +55,6 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
     const fecha_de_ingreso_parsed = parseDate(values.entryDate)
     const fecha_de_salida_parsed = values.exitDate ? parseDate(values.exitDate) : null
 
-    console.log(instrumento?.observaciones);
 
     onSubmit({
       fecha_de_ingreso: fecha_de_ingreso_parsed,

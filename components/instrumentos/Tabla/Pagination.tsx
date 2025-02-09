@@ -34,7 +34,6 @@ export default function PaginationInstruments({ totalPages }: Readonly<Paginatio
         }
 
         for (let i = currentPage - 2; i <= currentPage + 2; i++) {
-            console.log(i);
             if (i > 1 && i < totalPages) {
                 pageNumbers.push(i);
             }

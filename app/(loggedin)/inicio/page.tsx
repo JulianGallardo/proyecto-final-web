@@ -6,7 +6,6 @@ import Menu from "@/components/inicio/menu"
 export default async function HomePage() {
   const session = await auth()
 
-  console.log(session)
  
   if (!session) {
     return <div>

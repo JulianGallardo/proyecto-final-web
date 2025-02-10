@@ -7,6 +7,7 @@ import { ColorCache } from "@/lib/mapUtils/colorCache";
 import MapControlPanel from "../ui/ControlPanel/ControlPanel";
 
 export default function TerraDrawHandler() {
+    
     const { mymap } = useMap(); // Hook para obtener el mapa
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
     const colorCache = useMemo(() => new ColorCache(), []);
@@ -26,6 +27,10 @@ export default function TerraDrawHandler() {
     }, [mymap, colorCache]);
 
     if (!draw) return null;
+
+
+
+
 
     return (
         <SidebarProvider>

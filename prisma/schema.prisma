@@ -15,18 +15,43 @@ generator client {
 }
 
 enum Role {
-  user
-  admin
+  agente
+  mesa_de_entrada
+  jefatura
 }
 
 model User {
   id       String    @id @default(cuid())
   name     String?
+  lastname String?
   email    String    @unique
   password String?
-  image    String?
+  telefono    BigInt?
   accounts Account[]
-  role     Role      @default(user)
+  role     Role      @default(agente)
+  agente   Agente?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Agente {
+  id                  Int                   @id @default(autoincrement())
+  userId              String                @unique
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  zonas               Zone[]
+  EntregaInstrumentos EntregaInstrumentos[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EntregaInstrumentos {
+  id            Int         @id @default(autoincrement())
+  agenteId      Int
+  agente        Agente      @relation(fields: [agenteId], references: [id], onDelete: Cascade)
+  instrumentoId String
+  instrumento   Instrumento @relation(fields: [instrumentoId], references: [codigoInstrumento], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -62,10 +87,10 @@ model VerificationToken {
 }
 
 model Coordinates {
-  id         String @id @default(cuid())
-  geometryAssociatedId String 
-  latitude   Float
-  longitude  Float
+  id                   String @id @default(cuid())
+  geometryAssociatedId String
+  latitude             Float
+  longitude            Float
 
   Geometry Geometry @relation(fields: [geometryAssociatedId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
 
@@ -90,7 +115,72 @@ model Zone {
 
   geometryId String   @unique
   geometry   Geometry @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+  Agentes    Agente[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Juzgado {
+  id         Int    @id @default(autoincrement())
+  name       String
+  identifier String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  OrdenId Orden[]
+}
+
+model InstrumentoType {
+  id           Int           @id @default(autoincrement())
+  name         String
+  identifier   String        @unique
+  Instrumentos Instrumento[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Orden {
+  id          Int          @id @default(autoincrement())
+  ordenNumber Int
+  juzgadoId   Int
+  juzgado     Juzgado      @relation(fields: [juzgadoId], references: [id], onDelete: Cascade)
+  instrumento Instrumento?
+}
+
+enum TipoCarga {
+  PDF
+  MAN
+}
+
+model Instrumento {
+  codigoInstrumento String @unique
+  cargaInstrumento TipoCarga
+  ordenId           Int    @unique
+  orden             Orden  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  fecha_de_ingreso DateTime  @default(now())
+  fecha_de_salida  DateTime?
+
+  observaciones String?
+
+  caratula             String
+  destinatario         String
+  domicilio_denunciado String
+
+  positiva Boolean @default(false)
+
+  instrumentoTypeId Int
+  instrumentoType   InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
+
+  HistorialEntregas EntregaInstrumentos[]
+
+  deleted   Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@id([cargaInstrumento,codigoInstrumento, ordenId])
 }

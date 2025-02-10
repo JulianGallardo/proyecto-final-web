@@ -22,10 +22,10 @@ const ErrorIcon = () => (
 export default function ErrorNotFound({
   error,
   reset,
-}: {
+}: Readonly<{
   error: Error & { digest?: string }
   reset: () => void
-}) {
+}>) {
 
   useEffect(() => {
     console.error(error)

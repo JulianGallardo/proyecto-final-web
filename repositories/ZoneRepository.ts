@@ -2,6 +2,7 @@ import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Zone } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
+import { ZoneDto } from "@/types/ZoneTypes";
 
 export default class ZoneRepository extends BaseRepository<Zone> {
     constructor() {
@@ -26,6 +27,76 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                 }
             }
         });
+    }
+
+    async getAllWithAgents():Promise<ZoneDto[]> {
+        return this.modelClient.findMany({
+            select: {
+                id: true,
+                zoneName: true,
+                zoneColor: true,
+                Agentes: {
+                    select: {
+                        user: {
+                            select: {
+                                name: true
+                            }
+                        }
+                    }
+                },
+
+            }
+        });
+    }
+
+    async addNewAgenteToZone(zoneId: string, agenteId: number): Promise<{ success: boolean; message: string }> {
+        try {
+            const zone = await this.modelClient.findUnique({
+                where: { id: zoneId },
+                select: { id: true }
+            });
+
+            if (!zone) throw new Error("Zone not found");
+
+            await prisma.zone.update({
+                where: { id: zoneId },
+                data: {
+                    Agentes: {
+                        connect: { id: agenteId }
+                    }
+                }
+            });
+
+            return { success: true, message: "Agente added to zone successfully" };
+        } catch (error) {
+            console.error("Error adding agente to zone:", error);
+            return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
+        }
+    }
+
+    async removeAgenteFromZone(zoneId: string, agenteId: number): Promise<{ success: boolean; message: string }> {
+        try {
+            const zone = await this.modelClient.findUnique({
+                where: { id: zoneId },
+                select: { id: true }
+            });
+
+            if (!zone) throw new Error("Zone not found");
+
+            await prisma.zone.update({
+                where: { id: zoneId },
+                data: {
+                    Agentes: {
+                        disconnect: { id: agenteId }
+                    }
+                }
+            });
+
+            return { success: true, message: "Agente removed from zone successfully" };
+        } catch (error) {
+            console.error("Error removing agente from zone:", error);
+            return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
+        }
     }
 
     async create(zone: CustomFeature) {

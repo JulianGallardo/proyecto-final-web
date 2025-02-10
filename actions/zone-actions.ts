@@ -2,9 +2,9 @@
 import prisma from "@/lib/db";
 import ZoneRepository from "@/repositories/ZoneRepository";
 import { CustomFeature, Position } from "@/types/MapTypes";
+import { ZoneDto } from "@/types/ZoneTypes";
 import { Zone } from "@prisma/client";
-import { error } from "console";
-import { typeOf } from "maplibre-gl";
+import { revalidatePath } from "next/cache";
 import { HexColor } from "terra-draw";
 
 interface ZoneResponse extends Zone {
@@ -61,8 +61,6 @@ export async function createNewZones(params: CustomFeature[]): Promise<Record<st
 export async function getAllZones(): Promise<CustomFeature[]> {
     const zonesBdd: ZoneResponse[] = await zoneRepo.getAll();
 
-
-
     if (!zonesBdd) {
         return [];
     }
@@ -94,4 +92,27 @@ export async function getAllZones(): Promise<CustomFeature[]> {
 
 
 
+}
+
+export async function getAllZonesWithAgents(): Promise<ZoneDto[]> {
+    return zoneRepo.getAllWithAgents();
+}
+
+export async function updateZonesAgents(zonesIdToAddAgent:string[],zonesIdToDeleteAgent:string[],agenteId:number): Promise<{ success: boolean; message: string }> {
+    try {
+        await prisma.$transaction(async (tsx) => {
+            await Promise.all(zonesIdToAddAgent.map(async (zoneId) => {
+                await zoneRepo.addNewAgenteToZone(zoneId, agenteId);
+            }));
+            await Promise.all(zonesIdToDeleteAgent.map(async (zoneId) => {
+                await zoneRepo.removeAgenteFromZone(zoneId, agenteId);
+            }));
+        });
+        revalidatePath("/agentes/:id");
+        revalidatePath("/agentes/zonas");
+        return { success: true, message: "Agentes actualizados correctamente" };
+    } catch (error) {
+        console.error("Error updating zones agents:", error);
+        return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
+    }
 }

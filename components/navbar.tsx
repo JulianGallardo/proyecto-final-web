@@ -1,9 +1,8 @@
-"use client"
 
+
+import { headers } from "next/headers";
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { Truck, Map, Package, ChartGraph, Home, Logout, Menu } from "@mynaui/icons-react"
+import { Truck, Map, Package, ChartGraph, Home, Logout, Menu, Config, LetterJSquare, LetterISquare } from "@mynaui/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -13,24 +12,37 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import BtnLogout from "@/components/auth/btn-logout"
+import { auth } from "@/auth"
+
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu";
+import { canView } from "@/permissions/hasPermissions";
+import { Resource } from "@/permissions/typePermissions";
 
 const navItems = [
-  { href: "/areas", label: "Áreas", icon: Map },
-  { href: "/repartidores", label: "Repartidores", icon: Truck },
-  { href: "/paquetes", label: "Paquetes", icon: Package },
-  { href: "/reportes", label: "Reportes", icon: ChartGraph },
+  { href: "/zonas", label: "Zonas", icon: Map, resource: Resource.ZONAS },
+  { href: "/agentes", label: "Agentes", icon: Truck, resource: Resource.AGENTE },
+  { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
+  { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
 ]
 
-export default function Navbar() {
-  const pathname = usePathname()
-  const { data: session } = useSession()
+const optionItems = [
+  { href: "/juzgados", label: "Juzgados", icon: LetterJSquare, resource: Resource.JUZGADOS },
+  { href: "/instrumentos-tipo", label: "Tipo de instrumentos", icon: LetterISquare, resource: Resource.TIPOS_INSTRUMENTOS },
+]
+
+export default async function Navbar() {
+  const session = await auth()
+
+  const heads = headers()
+
+  const pathname = heads.get('next-url')
 
   if (!session) {
     return null
   }
 
   return (
-    <nav className="flex items-center p-4  bg-gray-900 w-full shadow-lg z-50 overflow-hidden">
+    <nav className="flex items-center p-4 px-6  bg-gray-900 w-full shadow-lg z-50  ">
 
       <div className="flex-grow flex items-center justify-between">
         <Link href="/inicio" className="">
@@ -43,7 +55,8 @@ export default function Navbar() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-4 items-center justify-center w-full">
           {navItems.map((item) => (
-            pathname !== item.href && (
+            pathname !== item.href && canView(session.user.role, item.resource) && (
+
               <Link key={item.href} href={item.href}>
                 <Button
                   variant="ghost"
@@ -76,6 +89,8 @@ export default function Navbar() {
             </div>
             <nav className="flex-grow">
               {navItems.map((item) => (
+                canView(session.user.role, item.resource) &&
+
                 <SheetTrigger asChild key={item.label}>
                   <Link
                     key={item.label}
@@ -87,8 +102,30 @@ export default function Navbar() {
                   </Link>
                 </SheetTrigger>
               ))}
+              {
+                optionItems.map((item) => (
+                  canView(session.user.role, item.resource) && (
+                    <SheetTrigger asChild key={item.label}>
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className="flex items-center p-4 text-gray-200 hover:bg-gray-700"
+                      >
+                        <item.icon className="w-6 h-6 mr-4" />
+                        <span className="text-lg">{item.label}</span>
+                      </Link>
+                    </SheetTrigger>
+                  )
+                ))
+              }
             </nav>
             <div className="p-4 ">
+
+
+
+
+
+
               <BtnLogout
                 className=" flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-gray-200 hover:text-red-400 hover:bg-gray-700 transition-all duration-300"
               >
@@ -99,12 +136,43 @@ export default function Navbar() {
           </SheetContent>
         </Sheet>
 
-        <BtnLogout
-          className=" hidden md:flex items-center justify-center bg-transparent gap-2 text-gray-200 hover:text-red-400 hover:bg-transparent transition-all duration-300"
-        >
-          <Logout className="w-6 h-6" />
-          <span className="text-sm">Cerrar sesión</span>
-        </BtnLogout>
+        <div className="hidden md:flex ">
+
+          <DropdownMenu  >
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost"
+                className="flex items-center text-gray-200 hover:text-blue-400 outline-none">
+                <span className="">Opciones</span>
+                <Config className="w-6 h-6" />
+
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full">
+              {optionItems.map((item) => (
+                pathname !== item.href && canView(session.user.role, item.resource) && (
+
+                  <DropdownMenuItem key={item.href}>
+                    <Link href={item.href} >
+                      <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
+                        <item.icon className="w-6 h-6" />
+                        <span className="text-sm">{item.label}</span>
+                      </Button>
+                    </Link>
+                  </DropdownMenuItem>
+                )
+              ))}
+              <DropdownMenuItem>
+                <BtnLogout className="flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-white hover:text-red-400 hover:bg-gray-700 transition-all duration-300">
+                  <Logout className="w-6 h-6" />
+                  <span className="text-sm">Cerrar sesión</span>
+                </BtnLogout>
+              </DropdownMenuItem>
+
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+
       </div>
     </nav>
   )

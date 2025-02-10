@@ -5,6 +5,7 @@ import { Operation, Permission, Resource } from "./typePermissions";
 
 export const anonymousPages: string[] = [
     "/",
+    "/planificador-de-ruta",
     "/login",
     "/403",
     "/404",

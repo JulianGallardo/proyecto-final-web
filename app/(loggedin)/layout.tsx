@@ -1,7 +1,7 @@
 
 import Navbar from "@/components/navbar";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionProvider } from "next-auth/react";
 
 export default function LoggedInLayout({
@@ -12,7 +12,7 @@ export default function LoggedInLayout({
     return (
         <div className="flex flex-col h-full w-full">
             <SessionProvider >
-                <TooltipProvider>
+                <TooltipProvider delayDuration={0}>
                     <Navbar />
                     {children}
                 </TooltipProvider>

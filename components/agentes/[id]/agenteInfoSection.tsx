@@ -59,7 +59,6 @@ export default function AgenteInfoSection({ agente }: Readonly<AgenteInfoSection
             <p className="text-lg"><span className="font-semibold">Email:</span> {agente.user.email}</p>
             <p className="text-lg"><span className="font-semibold">Teléfono:</span> {agente.user.telefono ? agente.user.telefono.toString() : "No registrado"}</p>
 
-
             <Button className="w-fit mt-2 bg-gray-800 text-white font-medium px-6 py-2 rounded-lg hover:bg-gray-700 transition-all"
                 onClick={() => setIsOpen(true)}
             >

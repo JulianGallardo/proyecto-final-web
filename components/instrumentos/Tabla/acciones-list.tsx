@@ -1,4 +1,4 @@
-import { Tooltip, TooltipTrigger, TooltipContent } from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Pencil, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
@@ -6,16 +6,14 @@ import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 
 interface ColumnsProps {
   Instrumento: InstrumentoExtendido;
-  onEdit: (Instrumento:InstrumentoExtendido) => void;
-  onDelete: (Instrumento:InstrumentoExtendido) => void;
+  onEdit: (Instrumento: InstrumentoExtendido) => void;
+  onDelete: (Instrumento: InstrumentoExtendido) => void;
 }
 
-export default function AccionesList({ Instrumento, onEdit,onDelete }: Readonly<ColumnsProps>) {
+export default function AccionesList({ Instrumento, onEdit, onDelete }: Readonly<ColumnsProps>) {
 
   return (
     <div className="flex flex-row gap-4 items-center p-2 w-full h-full">
-      
-
       {/* Botón Editar */}
       <Tooltip>
         <TooltipTrigger asChild>

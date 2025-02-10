@@ -13,10 +13,7 @@ import { toast } from "@/hooks/use-toast";
 interface ManageZonesProps {
     agente: AgenteExtendidoDto;
     zones: ZoneDto[];
-
 }
-
-
 
 export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps>) {
     const [selectedZones, setSelectedZones] = useState<string[]>([]);
@@ -25,11 +22,13 @@ export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps
 
     useEffect(() => {
         if (zones.length > 0) {
-            const agenteZones = zones.filter((zone) => zone.Agentes.some((a) => a.user.name === agente.user.name));
-            setSelectedZones(agenteZones.map((zone) => zone.id));
-            setAgenteZones(agenteZones.map((zone) => zone.id));
+            const agenteZones = zones
+                .filter((zone) => zone.Agentes.some((a) => a.user.name === agente.user.name))
+                .map((zone) => zone.id);
+            setSelectedZones(agenteZones);
+            setAgenteZones(agenteZones);
         }
-    }, []);
+    }, [zones, agente]);
 
     const handleZoneToggle = (zoneId: string) => {
         if (selectedZones.includes(zoneId)) {
@@ -46,8 +45,6 @@ export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps
     };
 
     const handleSaveChanges = async () => {
-
-
         const response = await updateZonesAgents(selectedZones, deselectedZones, agente.id);
         if (response.success) {
             toast({
@@ -56,8 +53,9 @@ export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps
                 className: "bg-green-500 text-white",
                 duration: 3000,
             });
+            setAgenteZones([...selectedZones]);
+            setDeselectedZones([]);
         } else {
-            console.error("Error al actualizar las zonas");
             toast({
                 title: "Error",
                 description: "Ha ocurrido un error al registrar el nuevo agente en las zonas.",
@@ -65,54 +63,55 @@ export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps
                 duration: 3000,
             });
         }
-    }
+    };
+
+    // Comprobar si hay cambios
+    const hasChanges = JSON.stringify(selectedZones.sort()) !== JSON.stringify(agenteZones.sort());
 
     return (
-        <div className="w-full flex flex-col  gap-2 ">
-
+        <div className="w-full flex flex-col gap-2">
             <div className="space-y-3 w-full">
-                {
-                    zones.length === 0 && (
-                        <div className="p-4 bg-gray-50 rounded-lg flex flex-col items-center gap-2 h-full w-full ">
-                            <p className="text-lg font-semibold text-gray-400">No hay zonas registradas</p>
-                        </div>
-                    )
-                }
-                {zones.map((zone) => (
-                    <div key={zone.id} className="flex items-center gap-3 border p-3 rounded-lg w-full">
-                        <Checkbox
-                            id={zone.id}
-                            checked={selectedZones.includes(zone.id)}
-                            onCheckedChange={() => handleZoneToggle(zone.id)}
-                        />
-                        <Label htmlFor={zone.id} className="flex flex-row gap-2 text-gray-700 items-center ">
-                            <div
-                                className="w-4 h-4 rounded-full"
-                                style={{ backgroundColor: zone.zoneColor }}
-                            >
-                            </div>
-                            <span className="font-medium">{zone.zoneName}</span>
-                            <span className="text-sm text-gray-500 ml-2">
-                                {zone.Agentes.length > 0
-                                    ? `Agentes: ${zone.Agentes.map(a => a.user.name).join(", ")}`
-                                    : "Sin agentes asignados"}
-                            </span>
-                        </Label>
+                {zones.length === 0 ? (
+                    <div className="p-4 bg-gray-50 rounded-lg flex flex-col items-center gap-2 h-full w-full">
+                        <p className="text-lg font-semibold text-gray-400">No hay zonas registradas</p>
                     </div>
-
-                ))}
+                ) : (
+                    zones.map((zone) => (
+                        <div key={zone.id} className="flex items-center gap-3 border p-3 rounded-lg w-full">
+                            <Checkbox
+                                id={zone.id}
+                                checked={selectedZones.includes(zone.id)}
+                                onCheckedChange={() => handleZoneToggle(zone.id)}
+                            />
+                            <Label htmlFor={zone.id} className="flex flex-row gap-2 text-gray-700 items-center">
+                                <div
+                                    className="w-4 h-4 rounded-full"
+                                    style={{ backgroundColor: zone.zoneColor }}
+                                />
+                                <span className="font-medium">{zone.zoneName}</span>
+                                <span className="text-sm text-gray-500 ml-2">
+                                    {zone.Agentes.length > 0
+                                        ? `Agentes: ${zone.Agentes.map(a => a.user.name).join(", ")}`
+                                        : "Sin agentes asignados"}
+                                </span>
+                            </Label>
+                        </div>
+                    ))
+                )}
             </div>
             <div className="flex justify-end w-full">
-                {
-                    (selectedZones.length !== 0 || deselectedZones.length !== 0) &&
-                    <Button
-                        className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                        onClick={handleSaveChanges}>
-                        <span className="mr-2">Guardar cambios</span>
-                        <Save className="w-6 h-6" />
-                    </Button>
-                }
-
+                <Button
+                    className={`font-semibold px-4 py-2 rounded-lg transition ${
+                        hasChanges
+                            ? "bg-blue-600 text-white hover:bg-blue-700"
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                    onClick={handleSaveChanges}
+                    disabled={!hasChanges}
+                >
+                    <span className="mr-2">Guardar cambios</span>
+                    <Save className="w-6 h-6" />
+                </Button>
             </div>
         </div>
     );

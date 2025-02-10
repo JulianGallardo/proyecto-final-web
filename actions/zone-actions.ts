@@ -109,6 +109,7 @@ export async function updateZonesAgents(zonesIdToAddAgent:string[],zonesIdToDele
             }));
         });
         revalidatePath("/agentes/:id");
+        revalidatePath("/agentes/zonas");
         return { success: true, message: "Agentes actualizados correctamente" };
     } catch (error) {
         console.error("Error updating zones agents:", error);

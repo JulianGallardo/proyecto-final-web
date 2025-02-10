@@ -1,5 +1,5 @@
 import { InstrumentoTypeDTO } from "@/types/instrumentoTypes";
-import { number, object, string, z } from "zod"
+import {  object, string, z } from "zod"
 
 export const logInSchema = object({
   email: string({ required_error: "El correo electrónico es obligatorio" })

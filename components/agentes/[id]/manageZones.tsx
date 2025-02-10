@@ -21,21 +21,27 @@ interface ManageZonesProps {
 export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps>) {
     const [selectedZones, setSelectedZones] = useState<string[]>([]);
     const [deselectedZones, setDeselectedZones] = useState<string[]>([]);
+    const [agenteZones, setAgenteZones] = useState<string[]>([]);
 
     useEffect(() => {
         if (zones.length > 0) {
             const agenteZones = zones.filter((zone) => zone.Agentes.some((a) => a.user.name === agente.user.name));
             setSelectedZones(agenteZones.map((zone) => zone.id));
+            setAgenteZones(agenteZones.map((zone) => zone.id));
         }
     }, []);
 
     const handleZoneToggle = (zoneId: string) => {
         if (selectedZones.includes(zoneId)) {
             setSelectedZones(selectedZones.filter((id) => id !== zoneId));
-            setDeselectedZones([...deselectedZones, zoneId]);
+            if (agenteZones.includes(zoneId)) {
+                setDeselectedZones([...deselectedZones, zoneId]);
+            }
         } else {
             setSelectedZones([...selectedZones, zoneId]);
-            setDeselectedZones(deselectedZones.filter((id) => id !== zoneId));
+            if (!agenteZones.includes(zoneId)) {
+                setDeselectedZones(deselectedZones.filter((id) => id !== zoneId));
+            }
         }
     };
 
@@ -65,6 +71,13 @@ export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps
         <div className="w-full flex flex-col  gap-2 ">
 
             <div className="space-y-3 w-full">
+                {
+                    zones.length === 0 && (
+                        <div className="p-4 bg-gray-50 rounded-lg flex flex-col items-center gap-2 h-full w-full ">
+                            <p className="text-lg font-semibold text-gray-400">No hay zonas registradas</p>
+                        </div>
+                    )
+                }
                 {zones.map((zone) => (
                     <div key={zone.id} className="flex items-center gap-3 border p-3 rounded-lg w-full">
                         <Checkbox
@@ -90,12 +103,16 @@ export default function ManageZones({ agente, zones }: Readonly<ManageZonesProps
                 ))}
             </div>
             <div className="flex justify-end w-full">
-                <Button
-                    className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                    onClick={handleSaveChanges}>
-                    <span className="mr-2">Guardar cambios</span>
-                    <Save className="w-6 h-6" />
-                </Button>
+                {
+                    (selectedZones.length !== 0 || deselectedZones.length !== 0) &&
+                    <Button
+                        className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                        onClick={handleSaveChanges}>
+                        <span className="mr-2">Guardar cambios</span>
+                        <Save className="w-6 h-6" />
+                    </Button>
+                }
+
             </div>
         </div>
     );

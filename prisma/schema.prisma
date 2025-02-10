@@ -23,9 +23,10 @@ enum Role {
 model User {
   id       String    @id @default(cuid())
   name     String?
+  lastname String?
   email    String    @unique
   password String?
-  image    String?
+  telefono    BigInt?
   accounts Account[]
   role     Role      @default(agente)
   agente   Agente?

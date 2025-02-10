@@ -1,5 +1,5 @@
 import { InstrumentoTypeDTO } from "@/types/instrumentoTypes";
-import { object, string, z } from "zod"
+import { number, object, string, z } from "zod"
 
 export const logInSchema = object({
   email: string({ required_error: "El correo electrónico es obligatorio" })
@@ -77,7 +77,40 @@ export const addNewAgenteSchema = object({
     .min(1, "El correo electrónico es obligatorio")
     .email("Correo electrónico no válido"),
   password: string({ required_error: "La contraseña es obligatoria" })
-    .min(1, "La contraseña es obligatoria")
     .min(8, "La contraseña debe tener más de 8 caracteres")
-    .max(32, "La contraseña debe tener menos de 32 caracteres")
+    .max(32, "La contraseña debe tener menos de 32 caracteres"),
+  confirmPassword: string({ required_error: "La confirmación de la contraseña es obligatoria" })
+    .min(8, "La contraseña debe tener más de 8 caracteres")
+    .max(32, "La contraseña debe tener menos de 32 caracteres"),
+  telefono: z.coerce
+    .number({
+      required_error: "El teléfono es requerido",
+      invalid_type_error: "El teléfono debe ser un número",
+    })
+    .int()
+    .positive()
+    .min(10, { message: "El teléfono debe tener al menos 10 dígitos" })
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
+});
+
+export const editAgenteSchema = object({
+  name: string({ required_error: "El nombre es requerido." })
+    .min(1, "El nombre es requerido.")
+    .max(32, "El nombre debe tener menos de 32 caracteres"),
+  lastName: string({ required_error: "El apellido es requerido." })
+    .min(1, "El apellido es requerido.")
+    .max(32, "El apellido debe tener menos de 32 caracteres"),
+  email: string({ required_error: "El correo electrónico es obligatorio" })
+    .min(1, "El correo electrónico es obligatorio")
+    .email("Correo electrónico no válido"),
+  telefono: z.coerce
+    .number({
+      required_error: "El teléfono es requerido",
+      invalid_type_error: "El teléfono debe ser un número",
+    })
+    .int()
+    .positive()
+    .min(10, { message: "El teléfono debe tener al menos 10 dígitos" })
 });

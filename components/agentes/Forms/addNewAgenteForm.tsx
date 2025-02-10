@@ -17,27 +17,33 @@ import { Input } from "@/components/ui/input"
 import { addNewAgenteSchema } from "@/lib/zod"
 import { CreateAgenteDTO } from "@/types/agenteTypes"
 
-    
+
 
 
 interface FormularioNuevoAgenteProps {
-    onSubmit: (data: CreateAgenteDTO) => void
+  onSubmit: (data: CreateAgenteDTO) => void
 }
 
-export function FormularioNuevoAgente({ onSubmit}: Readonly<FormularioNuevoAgenteProps>) {
+export function FormularioNuevoAgente({ onSubmit }: Readonly<FormularioNuevoAgenteProps>) {
   const form = useForm<z.infer<typeof addNewAgenteSchema>>({
     resolver: zodResolver(addNewAgenteSchema),
   })
 
 
+
+  
+
   function handleSubmit(values: z.infer<typeof addNewAgenteSchema>) {
+    values.telefono = parseInt(values.telefono.toString())
     onSubmit(
-        {
-            name: values.name + ' ' + values.lastName,
-            email: values.email,
-            password: values.password,
-            role: 'agente'
-        }
+      {
+        name: values.name ,
+        lastName: values.lastName,
+        email: values.email,
+        password: values.password,
+        role: 'agente',
+        telefono: values.telefono
+      }
     )
   }
 
@@ -61,7 +67,7 @@ export function FormularioNuevoAgente({ onSubmit}: Readonly<FormularioNuevoAgent
         <FormField
           control={form.control}
           name="lastName"
-         
+
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Apellido</FormLabel>
@@ -76,7 +82,7 @@ export function FormularioNuevoAgente({ onSubmit}: Readonly<FormularioNuevoAgent
         <FormField
           control={form.control}
           name="email"
-         
+
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Email</FormLabel>
@@ -101,7 +107,38 @@ export function FormularioNuevoAgente({ onSubmit}: Readonly<FormularioNuevoAgent
             </FormItem>
           )}
         />
-        
+
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm font-medium text-gray-700">Confirmar Contraseña</FormLabel>
+              <FormControl>
+                <Input type="password" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+              </FormControl>
+              <FormMessage className="text-sm text-red-500 mt-1" />
+            </FormItem>
+          )}
+        />
+
+
+
+        <FormField
+          control={form.control}
+          name="telefono"
+          
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm font-medium text-gray-700">Telefono</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+              </FormControl>
+              <FormMessage className="text-sm text-red-500 mt-1" />
+            </FormItem>
+          )}
+        />
+
         <div className="col-span-full">
           <Button type="submit" className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-md">
             Crear agente

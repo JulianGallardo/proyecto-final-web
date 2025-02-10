@@ -1,4 +1,4 @@
-import {  Zone } from "@prisma/client"
+import { Zone } from "@prisma/client"
 
 
 export interface AgenteTypeDTO {
@@ -8,12 +8,17 @@ export interface AgenteTypeDTO {
     updatedAt: Date
 }
 
-export interface CreateAgenteDTO  {
+export interface UpdateAgenteDto {
     name: string
+    lastName: string
     email: string
+
+    telefono: number
+}
+
+export interface CreateAgenteDTO extends UpdateAgenteDto {
     password: string
     role: 'agente'
-    
 }
 
 
@@ -21,7 +26,9 @@ export interface AgenteExtendidoDto extends AgenteTypeDTO {
     zonas: Zone[]
     EntregaInstrumentos: string[]
     user: {
+        telefono: string
         email: string
         name: string
+        lastname: string
     }
 }

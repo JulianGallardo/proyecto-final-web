@@ -2,7 +2,7 @@ import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Agente } from "@prisma/client";
 import UserRepository from "./UserRepository";
-import { AgenteExtendidoDto, CreateAgenteDTO } from "@/types/agenteTypes";
+import { AgenteExtendidoDto, CreateAgenteDTO, UpdateAgenteDto } from "@/types/agenteTypes";
 import { hashPassword } from "@/lib/utils";
 
 export default class AgenteRepository extends BaseRepository<Agente> {
@@ -19,6 +19,8 @@ export default class AgenteRepository extends BaseRepository<Agente> {
                 password: await hashPassword(data.password),
                 role: "agente",
                 name: data.name,
+                lastname: data.lastName,
+                telefono: data.telefono,
             });
             
             const agente = await tx.agente.create({
@@ -44,10 +46,19 @@ export default class AgenteRepository extends BaseRepository<Agente> {
         });
     }
 
-    async update(id: number, data: Partial<CreateAgenteDTO>) {
+    async update(id: number, data: Partial<UpdateAgenteDto>) {
         return this.modelClient.update({
             where: { id },
-            data,
+            data: {
+                user: {
+                    update: {
+                        email: data.email,
+                        name: data.name,
+                        lastname: data.lastName,
+                        telefono: data.telefono,
+                    },
+                },
+            },
         });
     }
 

@@ -201,6 +201,21 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
             },
         },
         {
+            id: "observaciones",
+            accessorKey: "observaciones",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Observaciones
+                    </Button>
+                );
+            },
+            
+        },
+        {
             id: "acciones",
             header: ({ column }) => {
                 return (

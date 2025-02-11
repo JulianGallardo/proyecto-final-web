@@ -50,10 +50,40 @@ export class RouteService {
             },
             body: JSON.stringify({ coordinates })
         });
-
+    
         const data = await response.json();
-        return this.createRouteSegments(data.features[0].geometry.coordinates, coordinates.length);
+        return this.createRouteSegments(
+            data.features[0].geometry.coordinates,
+            data.features[0].properties.segments,
+            coordinates.length
+        );
     }
+    
+    private createRouteSegments(
+        coordinates: [number, number][],
+        segmentData: { distance: number; duration: number }[],
+        numStops: number
+    ): RouteSegment[] {
+        const segments: RouteSegment[] = [];
+        const totalPoints = coordinates.length;
+    
+        for (let i = 0; i < numStops - 1; i++) {
+            const start = Math.floor((i * (totalPoints - 1)) / (numStops - 1));
+            const end = Math.floor(((i + 1) * (totalPoints - 1)) / (numStops - 1));
+    
+            segments.push({
+                start: i,
+                end: i + 1,
+                coordinates: coordinates.slice(start, end + 1), // Include end point
+                description: `Tramo ${i + 1} → ${i + 2}`,
+                distance: segmentData[i]?.distance || 0, // Ensure valid values
+                duration: segmentData[i]?.duration || 0
+            });
+        }
+    
+        return segments;
+    }
+    
 
     private optimizeRoute(durations: number[][]): number[] {
         const n = durations.length;
@@ -80,28 +110,5 @@ export class RouteService {
         }
 
         return route;
-    }
-
-    private createRouteSegments(
-        coordinates: [number, number][],
-        numStops: number
-    ): RouteSegment[] {
-        const segments: RouteSegment[] = [];
-        const totalPoints = coordinates.length;
-        
-        // Instead of using Math.floor for segmentSize, we'll calculate exact segments
-        for (let i = 0; i < numStops - 1; i++) {
-            const start = Math.floor((i * (totalPoints - 1)) / (numStops - 1));
-            const end = Math.floor(((i + 1) * (totalPoints - 1)) / (numStops - 1));
-            
-            segments.push({
-                start: i,
-                end: i + 1,
-                coordinates: coordinates.slice(start, end + 1), // Include end point to avoid gaps
-                description: `Tramo ${i + 1} → ${i + 2}`
-            });
-        }
-
-        return segments;
     }
 }

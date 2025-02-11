@@ -1,15 +1,14 @@
-// components/RoutePlanner.tsx
 "use client";
-
 import { useState, useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import { MapService } from "@/lib/locationUtils/mapService";
 import { RouteService } from "@/lib/locationUtils/routeService";
-import { VehicleType, Address} from "@/types/PlannerTypes";
+import { VehicleType, Address } from "@/types/PlannerTypes";
 
 export default function RoutePlanner() {
     const mapContainer = useRef(null);
@@ -18,6 +17,9 @@ export default function RoutePlanner() {
     const [orderedAddresses, setOrderedAddresses] = useState<Address[]>([]);
     const [vehicle, setVehicle] = useState<VehicleType>("driving-car");
     const [loading, setLoading] = useState(false);
+    const [startPoint, setStartPoint] = useState<string>("");
+    const [endPoint, setEndPoint] = useState<string>("");
+    const [routeMetrics, setRouteMetrics] = useState<{ distance: number; duration: number } | null>(null);
     const markersRef = useRef<maplibregl.Marker[]>([]);
     const routeLayers = useRef<string[]>([]);
 
@@ -52,17 +54,24 @@ export default function RoutePlanner() {
     };
 
     async function calculateRoute() {
-        if (addresses.length < 2) {
-            alert("Debes ingresar al menos dos direcciones.");
+        if (!startPoint || !endPoint) {
+            alert("Debes especificar un punto de inicio y fin.");
             return;
         }
 
         setLoading(true);
 
         try {
+            // Combine start, waypoints, and end into a single array
+            const allAddresses = [
+                { text: startPoint },
+                ...addresses,
+                { text: endPoint }
+            ];
+
             // Get coordinates for all addresses
             const locationsWithCoords = await Promise.all(
-                addresses.map(async (addr) => {
+                allAddresses.map(async (addr) => {
                     const coords = await routeService.getCoordinates(addr.text);
                     return coords ? { ...addr, coordinates: coords } : null;
                 })
@@ -77,20 +86,35 @@ export default function RoutePlanner() {
                 return;
             }
 
-            // Get optimized route order
-            const orderedIndices = await routeService.getOptimizedRoute(
-                validLocations.map(loc => loc.coordinates),
+            // Get optimized route order, keeping start and end points fixed
+            const waypointsIndices = Array.from({ length: validLocations.length - 2 }, (_, i) => i + 1);
+            const optimizedWaypoints = await routeService.getOptimizedRoute(
+                waypointsIndices.map(i => validLocations[i].coordinates),
                 vehicle
             );
 
-            // Order addresses and get route geometry
-            const ordered = orderedIndices.map(i => validLocations[i]);
+            // Reconstruct the full route with fixed start and end
+            const ordered = [
+                validLocations[0],
+                ...optimizedWaypoints.map(i => validLocations[i + 1]),
+                validLocations[validLocations.length - 1]
+            ];
             setOrderedAddresses(ordered);
 
             const routeSegments = await routeService.getRouteGeometry(
                 ordered.map(loc => loc.coordinates),
                 vehicle
             );
+
+            // Calculate total distance and duration
+            const totalMetrics = routeSegments.reduce(
+                (acc, segment) => ({
+                    distance: acc.distance + segment.distance,
+                    duration: acc.duration + segment.duration
+                }),
+                { distance: 0, duration: 0 }
+            );
+            setRouteMetrics(totalMetrics);
 
             if (map.current) {
                 // Clean up previous route
@@ -141,7 +165,7 @@ export default function RoutePlanner() {
                 <h1 className="text-2xl font-bold mb-4">Planificador de Ruta</h1>
 
                 <Select onValueChange={(v) => setVehicle(v as VehicleType)} defaultValue={vehicle}>
-                    <SelectTrigger className="w-full mb-2">
+                    <SelectTrigger className="w-full mb-4">
                         <SelectValue placeholder="Selecciona un vehículo" />
                     </SelectTrigger>
                     <SelectContent>
@@ -151,6 +175,24 @@ export default function RoutePlanner() {
                     </SelectContent>
                 </Select>
 
+                <div className="mb-4">
+                    <Input
+                        type="text"
+                        value={startPoint}
+                        onChange={(e) => setStartPoint(e.target.value)}
+                        placeholder="Punto de inicio"
+                        className="mb-2"
+                    />
+                    <Input
+                        type="text"
+                        value={endPoint}
+                        onChange={(e) => setEndPoint(e.target.value)}
+                        placeholder="Punto final"
+                        className="mb-4"
+                    />
+                </div>
+
+                <h2 className="text-lg font-semibold mb-2">Puntos intermedios:</h2>
                 {addresses.map((address, index) => (
                     <div key={index} className="flex gap-2 mb-2">
                         <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
@@ -180,21 +222,27 @@ export default function RoutePlanner() {
                         onClick={addAddress}
                         className="w-full bg-blue-500 hover:bg-blue-600"
                     >
-                        ➕ Agregar Dirección
+                        ➕ Agregar Punto Intermedio
                     </Button>
 
                     <Button
                         onClick={calculateRoute}
                         className="w-full bg-green-500 hover:bg-green-600"
-                        disabled={loading || addresses.length < 2}
+                        disabled={loading || !startPoint || !endPoint}
                     >
-                        {loading ? (
-                            "Calculando..."
-                        ) : (
-                            "🛣️ Calcular Ruta"
-                        )}
+                        {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
                     </Button>
                 </div>
+
+                {routeMetrics && (
+                    <Card className="mt-4">
+                        <CardContent className="pt-4">
+                            <h3 className="font-semibold mb-2">Información de la ruta:</h3>
+                            <p>🛣️ Distancia total: {(routeMetrics.distance / 1000).toFixed(2)} km</p>
+                            <p>⏱️ Tiempo estimado: {Math.round(routeMetrics.duration / 60)} minutos</p>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
 
             <div className="w-2/3 relative">

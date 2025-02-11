@@ -14,6 +14,8 @@ export interface RouteSegment {
     end: number;
     coordinates: [number, number][];
     description: string;
+    distance: number;
+    duration: number;
 }
 
 export interface MapMarker {

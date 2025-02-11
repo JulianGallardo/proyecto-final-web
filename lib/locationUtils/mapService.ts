@@ -3,7 +3,7 @@ import maplibregl from 'maplibre-gl';
 import { RouteSegment, MapMarker } from '@/types/PlannerTypes';
 
 export class MapService {
-    private colors = [
+    private readonly colors = [
         "#FF1744", "#2979FF", "#00E676", "#FFD600",
         "#AA00FF", "#FF3D00", "#1DE9B6", "#F50057"
     ];
@@ -76,27 +76,11 @@ export class MapService {
             }
         });
 
-        this.addHoverEffects(map, layerId);
 
         return { layerId, sourceId };
     }
 
-    private addHoverEffects(map: maplibregl.Map, layerId: string): void {
-        map.on('mouseenter', layerId, (e) => {
-            map.getCanvas().style.cursor = 'pointer';
-            const feature = e.features?.[0];
-            if (feature && feature.properties?.description) {
-                new maplibregl.Popup()
-                    .setLngLat(e.lngLat)
-                    .setHTML(`<div class="font-bold">${feature.properties.description}</div>`)
-                    .addTo(map);
-            }
-        });
-
-        map.on('mouseleave', layerId, () => {
-            map.getCanvas().style.cursor = '';
-        });
-    }
+    
 
     public cleanup(
         map: maplibregl.Map,

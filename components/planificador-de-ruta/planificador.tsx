@@ -9,6 +9,7 @@ import { MapService } from "@/lib/locationUtils/mapService";
 import { RouteService } from "@/lib/locationUtils/routeService";
 import { VehicleType, Address } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+import { getCoordinates } from "@/lib/locationUtils/zoneUtils";
 
 interface RoutePlannerProps {
     instruments: InstrumentoExtendido[];
@@ -43,17 +44,11 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
         }
     }, []);
 
-    // Initialize selectedInstruments with all passed instruments
     useEffect(() => {
         setSelectedInstruments(instruments);
     }, [instruments]);
 
     async function calculateRoute() {
-        if (!startPoint || !endPoint) {
-            alert("Debes especificar un punto de inicio y fin.");
-            return;
-        }
-
         if (selectedInstruments.length === 0) {
             alert("No hay instrumentos para calcular la ruta.");
             return;
@@ -62,23 +57,24 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
         setLoading(true);
 
         try {
-            // Create addresses array from instruments
-            const instrumentAddresses = selectedInstruments.map(instrument => ({
+            const instrumentAddresses: Address[] = selectedInstruments.map(instrument => ({
                 text: instrument.domicilio_denunciado,
-                coordinates: instrument.latitude && instrument.longitude 
+                coordinates: instrument.latitude && instrument.longitude
                     ? [instrument.longitude, instrument.latitude] as [number, number]
                     : undefined,
                 instrument: instrument
             }));
 
-            // Combine start, instrument addresses, and end into a single array
-            const allAddresses = [
-                { text: startPoint },
-                ...instrumentAddresses,
-                { text: endPoint }
-            ];
+            let allAddresses = instrumentAddresses;
+            if (startPoint) {
+                const startCoordinates = await getCoordinates(startPoint);
+                if (startCoordinates) allAddresses = [{ text: startPoint, coordinates: startCoordinates }, ...allAddresses];
+            }
+            if (endPoint) {
+                const endCoordinates = await getCoordinates(endPoint);
+                if (endCoordinates) allAddresses = [...allAddresses, { text: endPoint, coordinates: endCoordinates }];
+            }
 
-            // Get coordinates for addresses without coordinates
             const locationsWithCoords = await Promise.all(
                 allAddresses.map(async (addr) => {
                     if ('coordinates' in addr && addr.coordinates) return addr;
@@ -87,28 +83,22 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
                 })
             );
 
-            const validLocations = locationsWithCoords.filter((loc): loc is Address & { coordinates: [number, number]; instrument?: InstrumentoExtendido } => 
+            const validLocations = locationsWithCoords.filter((loc): loc is Address & { coordinates: [number, number]; instrument?: InstrumentoExtendido } =>
                 loc !== null && loc.coordinates !== undefined
             );
 
             if (validLocations.length < 2) {
-                alert("No se encontraron coordenadas para algunas direcciones.");
+                alert("No se encontraron coordenadas suficientes para calcular la ruta.");
                 return;
             }
 
-            // Get optimized route order, keeping start and end points fixed
-            const waypointsIndices = Array.from({ length: validLocations.length - 2 }, (_, i) => i + 1);
+            const waypointsIndices = Array.from({ length: validLocations.length }, (_, i) => i);
             const optimizedWaypoints = await routeService.getOptimizedRoute(
                 waypointsIndices.map(i => validLocations[i].coordinates),
                 vehicle
             );
 
-            // Reconstruct the full route with fixed start and end
-            const ordered = [
-                validLocations[0],
-                ...optimizedWaypoints.map(i => validLocations[i + 1]),
-                validLocations[validLocations.length - 1]
-            ];
+            const ordered = optimizedWaypoints.map(i => validLocations[i]);
             setOrderedAddresses(ordered);
 
             const routeSegments = await routeService.getRouteGeometry(
@@ -116,7 +106,6 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
                 vehicle
             );
 
-            // Calculate total distance and duration
             const totalMetrics = routeSegments.reduce(
                 (acc, segment) => ({
                     distance: acc.distance + segment.distance,
@@ -127,23 +116,20 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
             setRouteMetrics(totalMetrics);
 
             if (map.current) {
-                // Clean up previous route
                 mapService.cleanup(map.current, routeLayers.current, markersRef.current);
                 markersRef.current = [];
                 routeLayers.current = [];
 
-                // Center map on first location
-                map.current.flyTo({ 
+                map.current.flyTo({
                     center: ordered[0].coordinates,
-                    zoom: 13 
+                    zoom: 13
                 });
 
-                // Add markers
                 ordered.forEach((addr, i) => {
-                    const description = addr.instrument 
+                    const description = addr.instrument
                         ? `${addr.instrument.instrumentoType.name} - ${addr.instrument.codigoInstrumento}\n${addr.text}`
                         : addr.text;
-                    
+
                     const marker = mapService.addMarker(map.current!, {
                         coordinates: addr.coordinates!,
                         number: i + 1,
@@ -152,12 +138,11 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
                     markersRef.current.push(marker);
                 });
 
-                // Add route segments
                 routeSegments.forEach((segment, i) => {
-                    const fromDesc = ordered[i].instrument 
+                    const fromDesc = ordered[i].instrument
                         ? `${ordered[i].instrument.instrumentoType.name} - ${ordered[i].instrument.codigoInstrumento}`
                         : ordered[i].text;
-                    
+
                     const toDesc = ordered[i + 1].instrument
                         ? `${ordered[i + 1].instrument?.instrumentoType.name} - ${ordered[i + 1].instrument?.codigoInstrumento}`
                         : ordered[i + 1].text;
@@ -238,7 +223,7 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
                 <Button
                     onClick={calculateRoute}
                     className="w-full bg-green-500 hover:bg-green-600 mt-4"
-                    disabled={loading || !startPoint || !endPoint || selectedInstruments.length === 0}
+                    disabled={loading  || selectedInstruments.length === 0}
                 >
                     {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
                 </Button>

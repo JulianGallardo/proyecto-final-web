@@ -7,6 +7,7 @@ export enum Resource {
     TIPOS_INSTRUMENTOS = "Tipos de Instrumentos",
     ZONAS = "Zonas",
     CONTROL = "CONTROL",
+    PLANIFICADOR = "Planificador de Ruta",
 }
 
 export enum Operation {

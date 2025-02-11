@@ -65,6 +65,15 @@ export default function Menu() {
           icon={ChartGraph}
           onClick={() => router.push("/control")}
         />}
+
+        {
+          canView(session.user.role, Resource.PLANIFICADOR) &&
+          <CustomCard
+          title="Planificador"
+          description="Planifica la ruta de reparto."
+          icon={Map}
+          onClick={() => router.push("/planificador-de-ruta")} />
+        }
       </div>
     </div>
   );

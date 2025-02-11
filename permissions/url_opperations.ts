@@ -5,7 +5,6 @@ import { Operation, Permission, Resource } from "./typePermissions";
 
 export const anonymousPages: string[] = [
     "/",
-    "/planificador-de-ruta",
     "/login",
     "/403",
     "/404",
@@ -59,6 +58,8 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.DELETE }},
     {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.READ }},
     {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.CREATE }},
+
+    {path: "/planificador-de-ruta", handler: {resource: Resource.PLANIFICADOR, operation: Operation.READ }},
     
    
 ]

@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import Link from "next/link"
-import { Truck, Map, Package, ChartGraph, Home, Logout, Menu, Config, LetterJSquare, LetterISquare } from "@mynaui/icons-react"
+import { Truck, Map, Package, ChartGraph, Home, Logout, Menu, Config, LetterJSquare, LetterISquare, Location } from "@mynaui/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -23,6 +23,8 @@ const navItems = [
   { href: "/agentes", label: "Agentes", icon: Truck, resource: Resource.AGENTE },
   { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
   { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
+  { href: "/planificador-de-ruta", label: "Planificador", icon: Location , resource: Resource.PLANIFICADOR },
+  
 ]
 
 const optionItems = [

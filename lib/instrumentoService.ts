@@ -121,7 +121,7 @@ export default class InstrumentoService {
 
                         if (isInDb) return;
 
-                        
+
 
                         // Revisa si el juzgado y el tipo de instrumento son válidos
                         if ("error" in instrumentoDto) {
@@ -142,6 +142,20 @@ export default class InstrumentoService {
         return { filteredInstrument, instrumentosWithErrors };
     }
 
+
+    async getInstrumentosByZone(zone: string) {
+        return this.instrumentoRepository.getInstrumentosByZone(zone);
+    }
+
+    async getInstrumentosByZones(zones: string[]) {
+
+        const promises = zones.map(zone => this.getInstrumentosByZone(zone));
+        const instrumentos = await Promise.all(promises);
+
+        return instrumentos.flat();
+
+
+    }
 
 
 }

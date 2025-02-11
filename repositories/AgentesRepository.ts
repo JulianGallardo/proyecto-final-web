@@ -98,4 +98,17 @@ export default class AgenteRepository extends BaseRepository<Agente> {
         });
         return Math.ceil(total / 10);
     }
+
+
+    async findByMail(mail: string) {
+        const result =  this.modelClient.findFirst({
+            where: {
+                user: {
+                    email: mail,
+                },
+            },
+            include: { user: true, zonas: true, EntregaInstrumentos: true },
+        });
+        return result;
+    }
 }

@@ -136,9 +136,20 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             delete where.AND;
         }
 
-        console.log(JSON.stringify(where, null, 2));
 
         return where;
+    }
+
+
+    async getInstrumentosByZone(zoneName: string): Promise<InstrumentoExtendido[]> {
+        return this.modelClient.findMany({
+            where: {
+                Zona: {
+                    zoneName: zoneName
+                }
+            },
+            select: selectOptions,
+        });
     }
 
 
@@ -335,8 +346,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const { punto, nuevaZona } = await this.getNewZoneAndCoordinates(data);
 
-        console.log("Punto:", punto);
-        console.log("Zona:", nuevaZona);
         
 
         const update = await this.modelClient.update({

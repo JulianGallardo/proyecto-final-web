@@ -92,6 +92,14 @@ export async function getInstrumentos() {
     return instrumentoService.getInstrumentos();
 }
 
+export async function getInstrumentosByZone(zone: string) {
+    return instrumentoService.getInstrumentosByZone(zone);
+}
+
+export async function getInstrumentosByZones(zones: string[]) {
+    return instrumentoService.getInstrumentosByZones(zones);
+}
+
 export async function getInstrumentosPaginated(searchParams:SearchParamsInstrumentos, page: number) {
     const instrumentos = await instrumentoService.getInstrumentosPaginated(searchParams, page);
     return instrumentos;

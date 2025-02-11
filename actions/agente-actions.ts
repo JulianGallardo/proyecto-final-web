@@ -37,5 +37,9 @@ export async function getAgenteById(id: number) {
     return agenteRepo.findById(id);
 }
 
+export async function getAgenteByMail(mail: string) {
+    return agenteRepo.findByMail(mail);
+}
+
 
 

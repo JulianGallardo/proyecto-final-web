@@ -201,7 +201,7 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
 
                 <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
                 <div className="space-y-2">
-                    {selectedInstruments.map((instrument, index) => (
+                    {selectedInstruments.map((instrument) => (
                         <div key={instrument.codigoInstrumento} className="flex items-start gap-2 p-2 bg-white rounded-lg shadow">
                             <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
                                 {orderedAddresses.length > 0

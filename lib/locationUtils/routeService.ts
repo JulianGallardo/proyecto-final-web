@@ -95,7 +95,7 @@ export class RouteService {
         visited[0] = true;
 
         for (let i = 1; i < n; i++) {
-            let last = route[route.length - 1];
+            const last = route[route.length - 1];
             let next = -1;
             let minDistance = Infinity;
 

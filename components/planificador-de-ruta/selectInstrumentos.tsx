@@ -8,7 +8,15 @@ import { Input } from "@/components/ui/input"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import type { InstrumentoExtendido } from "@/types/instrumentoTypes"
 
-export default function InstrumentSelector({ instruments }: Readonly<{ instruments: InstrumentoExtendido[] }>) {
+
+
+interface InstrumentSelectorProps {
+    instruments: InstrumentoExtendido[],
+    handleSetInstrumentosARepartir: (instrumentos: InstrumentoExtendido[]) => void
+}
+
+
+export default function InstrumentSelector({ instruments,handleSetInstrumentosARepartir }: Readonly<InstrumentSelectorProps>) {
     const [selectedInstruments, setSelectedInstruments] = useState<InstrumentoExtendido[]>([])
     const [message, setMessage] = useState<string>("")
     const [searchTerm, setSearchTerm] = useState("")
@@ -41,7 +49,7 @@ export default function InstrumentSelector({ instruments }: Readonly<{ instrumen
             return
         }
 
-        console.log("Distribuyendo instrumentos", selectedInstruments)
+        handleSetInstrumentosARepartir(selectedInstruments)
     }
 
     const handleSelectAll = () => {
@@ -129,7 +137,7 @@ export default function InstrumentSelector({ instruments }: Readonly<{ instrumen
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 w-full h-full">
             <Card>
                 <CardHeader>
                     <CardTitle>Revisar Instrumentos Seleccionados</CardTitle>
@@ -138,7 +146,7 @@ export default function InstrumentSelector({ instruments }: Readonly<{ instrumen
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <ScrollArea className="h-[400px] pr-4">
+                    <ScrollArea className="h-full pr-4">
                         <div className="grid gap-4">
                             {selectedInstruments.map((instrument) => (
                                 <Card key={instrument.codigoInstrumento}>

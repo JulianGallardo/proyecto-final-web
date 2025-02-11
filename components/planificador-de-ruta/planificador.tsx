@@ -1,4 +1,3 @@
-"use client";
 import { useState, useEffect, useRef } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -9,17 +8,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MapService } from "@/lib/locationUtils/mapService";
 import { RouteService } from "@/lib/locationUtils/routeService";
 import { VehicleType, Address } from "@/types/PlannerTypes";
+import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 
-export default function RoutePlanner() {
+interface RoutePlannerProps {
+    instruments: InstrumentoExtendido[];
+}
+
+export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps>) {
     const mapContainer = useRef(null);
     const map = useRef<maplibregl.Map | null>(null);
-    const [addresses, setAddresses] = useState<Address[]>([]);
     const [orderedAddresses, setOrderedAddresses] = useState<Address[]>([]);
     const [vehicle, setVehicle] = useState<VehicleType>("driving-car");
     const [loading, setLoading] = useState(false);
     const [startPoint, setStartPoint] = useState<string>("");
     const [endPoint, setEndPoint] = useState<string>("");
     const [routeMetrics, setRouteMetrics] = useState<{ distance: number; duration: number } | null>(null);
+    const [selectedInstruments, setSelectedInstruments] = useState<InstrumentoExtendido[]>([]);
     const markersRef = useRef<maplibregl.Marker[]>([]);
     const routeLayers = useRef<string[]>([]);
 
@@ -39,19 +43,10 @@ export default function RoutePlanner() {
         }
     }, []);
 
-    const addAddress = () => setAddresses([...addresses, { text: "" }]);
-
-    const updateAddress = (index: number, text: string) => {
-        const newAddresses = [...addresses];
-        newAddresses[index] = { text };
-        setAddresses(newAddresses);
-    };
-
-    const removeAddress = (index: number) => {
-        const newAddresses = addresses.filter((_, i) => i !== index);
-        setAddresses(newAddresses);
-        setOrderedAddresses([]);
-    };
+    // Initialize selectedInstruments with all passed instruments
+    useEffect(() => {
+        setSelectedInstruments(instruments);
+    }, [instruments]);
 
     async function calculateRoute() {
         if (!startPoint || !endPoint) {
@@ -59,25 +54,40 @@ export default function RoutePlanner() {
             return;
         }
 
+        if (selectedInstruments.length === 0) {
+            alert("No hay instrumentos para calcular la ruta.");
+            return;
+        }
+
         setLoading(true);
 
         try {
-            // Combine start, waypoints, and end into a single array
+            // Create addresses array from instruments
+            const instrumentAddresses = selectedInstruments.map(instrument => ({
+                text: instrument.domicilio_denunciado,
+                coordinates: instrument.latitude && instrument.longitude 
+                    ? [instrument.longitude, instrument.latitude] as [number, number]
+                    : undefined,
+                instrument: instrument
+            }));
+
+            // Combine start, instrument addresses, and end into a single array
             const allAddresses = [
                 { text: startPoint },
-                ...addresses,
+                ...instrumentAddresses,
                 { text: endPoint }
             ];
 
-            // Get coordinates for all addresses
+            // Get coordinates for addresses without coordinates
             const locationsWithCoords = await Promise.all(
                 allAddresses.map(async (addr) => {
+                    if ('coordinates' in addr && addr.coordinates) return addr;
                     const coords = await routeService.getCoordinates(addr.text);
                     return coords ? { ...addr, coordinates: coords } : null;
                 })
             );
 
-            const validLocations = locationsWithCoords.filter((loc): loc is Address & { coordinates: [number, number] } => 
+            const validLocations = locationsWithCoords.filter((loc): loc is Address & { coordinates: [number, number]; instrument?: InstrumentoExtendido } => 
                 loc !== null && loc.coordinates !== undefined
             );
 
@@ -130,21 +140,33 @@ export default function RoutePlanner() {
 
                 // Add markers
                 ordered.forEach((addr, i) => {
+                    const description = addr.instrument 
+                        ? `${addr.instrument.instrumentoType.name} - ${addr.instrument.codigoInstrumento}\n${addr.text}`
+                        : addr.text;
+                    
                     const marker = mapService.addMarker(map.current!, {
                         coordinates: addr.coordinates!,
                         number: i + 1,
-                        description: addr.text
+                        description
                     });
                     markersRef.current.push(marker);
                 });
 
                 // Add route segments
                 routeSegments.forEach((segment, i) => {
+                    const fromDesc = ordered[i].instrument 
+                        ? `${ordered[i].instrument.instrumentoType.name} - ${ordered[i].instrument.codigoInstrumento}`
+                        : ordered[i].text;
+                    
+                    const toDesc = ordered[i + 1].instrument
+                        ? `${ordered[i + 1].instrument?.instrumentoType.name} - ${ordered[i + 1].instrument?.codigoInstrumento}`
+                        : ordered[i + 1].text;
+
                     const { layerId, sourceId } = mapService.addRouteSegment(
                         map.current!,
                         {
                             ...segment,
-                            description: `Tramo ${i + 1} → ${i + 2}: ${ordered[i].text} → ${ordered[i + 1].text}`
+                            description: `Tramo ${i + 1} → ${i + 2}: ${fromDesc} → ${toDesc}`
                         },
                         i
                     );
@@ -192,47 +214,34 @@ export default function RoutePlanner() {
                     />
                 </div>
 
-                <h2 className="text-lg font-semibold mb-2">Puntos intermedios:</h2>
-                {addresses.map((address, index) => (
-                    <div key={index} className="flex gap-2 mb-2">
-                        <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
-                            {orderedAddresses.length > 0
-                                ? orderedAddresses.findIndex(a => a.text === address.text) + 1
-                                : "-"}
+                <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
+                <div className="space-y-2">
+                    {selectedInstruments.map((instrument, index) => (
+                        <div key={instrument.codigoInstrumento} className="flex items-start gap-2 p-2 bg-white rounded-lg shadow">
+                            <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
+                                {orderedAddresses.length > 0
+                                    ? orderedAddresses.findIndex(a => a.instrument?.codigoInstrumento === instrument.codigoInstrumento) + 1
+                                    : "-"}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">
+                                    {instrument.instrumentoType.name} - {instrument.codigoInstrumento}
+                                </p>
+                                <p className="text-sm text-gray-500 truncate">
+                                    {instrument.domicilio_denunciado}
+                                </p>
+                            </div>
                         </div>
-                        <Input
-                            type="text"
-                            value={address.text}
-                            onChange={(e) => updateAddress(index, e.target.value)}
-                            placeholder="Ingrese dirección"
-                            className="flex-1"
-                        />
-                        <Button
-                            onClick={() => removeAddress(index)}
-                            className="bg-red-500 hover:bg-red-600"
-                            aria-label="Eliminar dirección"
-                        >
-                            🗑️
-                        </Button>
-                    </div>
-                ))}
-
-                <div className="space-y-2 mt-4">
-                    <Button
-                        onClick={addAddress}
-                        className="w-full bg-blue-500 hover:bg-blue-600"
-                    >
-                        ➕ Agregar Punto Intermedio
-                    </Button>
-
-                    <Button
-                        onClick={calculateRoute}
-                        className="w-full bg-green-500 hover:bg-green-600"
-                        disabled={loading || !startPoint || !endPoint}
-                    >
-                        {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
-                    </Button>
+                    ))}
                 </div>
+
+                <Button
+                    onClick={calculateRoute}
+                    className="w-full bg-green-500 hover:bg-green-600 mt-4"
+                    disabled={loading || !startPoint || !endPoint || selectedInstruments.length === 0}
+                >
+                    {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
+                </Button>
 
                 {routeMetrics && (
                     <Card className="mt-4">

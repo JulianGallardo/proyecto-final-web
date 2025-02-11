@@ -1,3 +1,5 @@
+import { InstrumentoExtendido } from "./instrumentoTypes";
+
 // types/route.ts
 export interface Coordinates {
     lat: number;
@@ -7,6 +9,7 @@ export interface Coordinates {
 export interface Address {
     text: string;
     coordinates?: [number, number];
+    instrument?: InstrumentoExtendido;
 }
 
 export interface RouteSegment {

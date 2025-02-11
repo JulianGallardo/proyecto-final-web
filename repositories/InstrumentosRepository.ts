@@ -4,6 +4,7 @@ import { Instrumento, TipoCarga } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import OrdenRepository from "./OrdenRepository";
+import { getCoordinates, getZoneInCoords } from "@/lib/locationUtils/zoneUtils";
 
 
 const selectOptions = {
@@ -36,6 +37,8 @@ const selectOptions = {
     observaciones: true,
     createdAt: true,
     updatedAt: true,
+    zoneName: true,
+
 };
 
 
@@ -267,16 +270,19 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
 
 
+
+
     async createInstrumento(data: InstrumentoDTO): Promise<InstrumentoExtendido> {
         const orden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
-
-        if (!orden) {
-            throw new Error("No se pudo crear la orden");
-        }
+        if (!orden) throw new Error("No se pudo crear la orden");
 
         if (data.tipoDeCarga === TipoCarga.MAN) {
             data.codigo = (await this.calculateManualCode()).toString();
         }
+
+        const { punto, nuevaZona } = await this.getNewZoneAndCoordinates(data);
+
+
 
 
         try {
@@ -289,31 +295,22 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     caratula: data.caratula,
                     destinatario: data.destinatario,
                     domicilio_denunciado: data.domicilio_denunciado,
-                    orden: {
-                        connect: {
-                            id: orden.id
-                        }
-                    },
-                    instrumentoType: {
-                        connect: {
-                            identifier: data.instrumentoTypeIdentifier,
-                        },
-                    },
-                    observaciones: data.observaciones
+                    orden: { connect: { id: orden.id } },
+                    instrumentoType: { connect: { identifier: data.instrumentoTypeIdentifier } },
+                    latitude: punto ? punto[1] : undefined,
+                    longitude: punto ? punto[0] : undefined,
+                    observaciones: data.observaciones,
+            
+                    Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,
                 },
                 select: selectOptions
             });
-
-
-
+            
             return instrumento;
         } catch (error) {
             console.warn(error);
             throw new Error("No se pudo crear el instrumento");
-
         }
-
-
     }
 
 
@@ -322,55 +319,59 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         ordenNumber: number,
         data: Partial<InstrumentoDTO>
     ): Promise<InstrumentoExtendido | null> {
-
         let newOrden = null;
 
         const juzgado = await prisma.juzgado.findUnique({
-            where: {
-                identifier: juzgadoIdentifier,
-            },
+            where: { identifier: juzgadoIdentifier }
         });
-        if (!juzgado) {
-            throw new Error("No se encontró el juzgado");
-        }
+        if (!juzgado) throw new Error("No se encontró el juzgado");
 
         const ordenActual = await this.ordenRepository.getOrden(ordenNumber, juzgado.identifier);
-
         if (data.juzgadoIdentifier && juzgado.identifier !== data.juzgadoIdentifier) {
             newOrden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
         } else {
-            newOrden = ordenActual
+            newOrden = ordenActual;
         }
 
-        const update = await this.modelClient.update({
-            where: {
-                ordenId: ordenActual?.id,
-            },
-            data: {
+        const { punto, nuevaZona } = await this.getNewZoneAndCoordinates(data);
 
+        console.log("Punto:", punto);
+        console.log("Zona:", nuevaZona);
+        
+
+        const update = await this.modelClient.update({
+            where: { ordenId: ordenActual?.id },
+            data: {
                 fecha_de_ingreso: data.fecha_de_ingreso,
                 fecha_de_salida: data.fecha_de_salida || undefined,
                 caratula: data.caratula,
                 destinatario: data.destinatario,
                 domicilio_denunciado: data.domicilio_denunciado,
-                orden: {
-                    connect: {
-                        id: newOrden?.id,
-
-                    },
-                },
-
-                instrumentoType: {
-                    connect: {
-                        identifier: data.instrumentoTypeIdentifier,
-                    },
-                },
+                orden: { connect: { id: newOrden?.id } },
+                Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined, 
+                instrumentoType: { connect: { identifier: data.instrumentoTypeIdentifier } },
+                latitude: punto ? punto[1] : undefined,
+                longitude: punto ? punto[0] : undefined,
                 observaciones: data.observaciones
             },
             select: selectOptions
         });
 
         return update;
+    }
+
+    private async getNewZoneAndCoordinates(data: Partial<InstrumentoDTO>) {
+        let punto = null;
+
+        if (data.domicilio_denunciado && data.domicilio_denunciado !== "") {
+            punto = await getCoordinates(data.domicilio_denunciado);
+        }
+
+        let nuevaZona = undefined;
+        if (punto) {
+            nuevaZona = await getZoneInCoords(punto[0], punto[1]);
+        }
+        return { punto, nuevaZona };
     }
 
     async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number): Promise<Instrumento | null> {
@@ -397,6 +398,9 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         return instrumentosCreados;
     }
+
+
+
 
 
 }

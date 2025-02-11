@@ -13,6 +13,9 @@ export class RouteService {
         const res = await fetch(url);
         const data = await res.json();
 
+        console.log("GeoCords: ",JSON.stringify(data));
+
+
         if (data.length > 0) {
             return [parseFloat(data[0].lon), parseFloat(data[0].lat)];
         }

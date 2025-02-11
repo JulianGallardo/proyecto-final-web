@@ -26,7 +26,7 @@ model User {
   lastname String?
   email    String    @unique
   password String?
-  telefono    BigInt?
+  telefono BigInt?
   accounts Account[]
   role     Role      @default(agente)
   agente   Agente?
@@ -113,9 +113,10 @@ model Zone {
   zoneColor String
   type      String @default("Feature")
 
-  geometryId String   @unique
-  geometry   Geometry @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
-  Agentes    Agente[]
+  geometryId   String        @unique
+  geometry     Geometry      @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+  Agentes      Agente[]
+  Instrumentos Instrumento[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -156,10 +157,10 @@ enum TipoCarga {
 }
 
 model Instrumento {
-  codigoInstrumento String @unique
-  cargaInstrumento TipoCarga
-  ordenId           Int    @unique
-  orden             Orden  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  codigoInstrumento String    @unique
+  cargaInstrumento  TipoCarga
+  ordenId           Int       @unique
+  orden             Orden     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
   fecha_de_ingreso DateTime  @default(now())
   fecha_de_salida  DateTime?
@@ -176,11 +177,16 @@ model Instrumento {
   instrumentoType   InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
 
   HistorialEntregas EntregaInstrumentos[]
+  zoneName          String?                
+  Zona              Zone?                  @relation(fields: [zoneName], references: [zoneName])
+
+  latitude  Float?
+  longitude Float?
 
   deleted   Boolean   @default(false)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@id([cargaInstrumento,codigoInstrumento, ordenId])
+  @@id([cargaInstrumento, codigoInstrumento, ordenId])
 }

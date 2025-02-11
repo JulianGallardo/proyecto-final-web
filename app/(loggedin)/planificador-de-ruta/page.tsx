@@ -13,6 +13,5 @@ export default async function PlanificadorPage() {
     <div className="flex h-full w-full  ">
       <RoutePlanner />
     </div>
-
   )
 }

@@ -82,6 +82,19 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
 
         },
         {
+            accessorKey: "zoneName",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Zona
+                    </Button>
+                );
+            },
+        },
+        {
             accessorKey: "fecha_de_ingreso",
             header: ({ column }) => {
                 return (

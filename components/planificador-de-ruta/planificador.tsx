@@ -10,12 +10,14 @@ import { RouteService } from "@/lib/locationUtils/routeService";
 import { VehicleType, Address } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { getCoordinates } from "@/lib/locationUtils/zoneUtils";
+import { FatCornerUpLeft } from "@mynaui/icons-react";
 
 interface RoutePlannerProps {
     instruments: InstrumentoExtendido[];
+    volver: () => void;
 }
 
-export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps>) {
+export default function RoutePlanner({ instruments,volver }: Readonly<RoutePlannerProps>) {
     const mapContainer = useRef(null);
     const map = useRef<maplibregl.Map | null>(null);
     const [orderedAddresses, setOrderedAddresses] = useState<Address[]>([]);
@@ -167,8 +169,12 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
     }
 
     return (
-        <div className="flex h-screen w-full">
-            <div className="w-1/3 p-6 bg-gray-100 shadow-lg overflow-y-auto">
+        <div className="flex flex-col gap-2 md:gap-0 md:flex-row h-screen w-full">
+            <div className="w-full h-full md:w-1/3 p-6 bg-gray-100 shadow-lg overflow-y-auto">
+                <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <span className="mr-2">Volver atras</span>
+                    <FatCornerUpLeft className="w-6 h-6" />
+                </Button>
                 <h1 className="text-2xl font-bold mb-4">Planificador de Ruta</h1>
 
                 <Select onValueChange={(v) => setVehicle(v as VehicleType)} defaultValue={vehicle}>
@@ -223,7 +229,7 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
                 <Button
                     onClick={calculateRoute}
                     className="w-full bg-green-500 hover:bg-green-600 mt-4"
-                    disabled={loading  || selectedInstruments.length === 0}
+                    disabled={loading || selectedInstruments.length === 0}
                 >
                     {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
                 </Button>
@@ -239,7 +245,7 @@ export default function RoutePlanner({ instruments }: Readonly<RoutePlannerProps
                 )}
             </div>
 
-            <div className="w-2/3 relative">
+            <div className="container w-full h-full md:w-2/3 ">
                 <div ref={mapContainer} className="w-full h-full" />
             </div>
         </div>

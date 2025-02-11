@@ -22,17 +22,21 @@ export default function StepPlanner({instrumentos}: Readonly<StepPlannerProps>) 
         setInstrumentosARepartir(instrumentos);
         setStep(1);
     }
+
+    function handleBack(){
+        setStep(0);
+    }
     
     
     
     return (
-        <div className="flex flex-col w-full h-full p-4">
+        <div className="flex flex-col w-full h-full ">
             
             {
                 step === 0 && <InstrumentSelector instruments={instrumentos} handleSetInstrumentosARepartir={handleSetInstrumentosARepartir} />
             }
             {
-                step === 1 && <RoutePlanner instruments={instrumentosARepartir} />
+                step === 1 && <RoutePlanner instruments={instrumentosARepartir} volver={handleBack}/>
             }
             
         </div>

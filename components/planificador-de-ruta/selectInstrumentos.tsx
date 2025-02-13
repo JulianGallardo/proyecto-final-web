@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import ReviewStep from "./reviewStep";
 import SelectStep from "./selectStep";
+import MapWithPopUps from "./MapWithMarkers";
 
 
 interface InstrumentSelectorProps {
@@ -48,8 +49,8 @@ export default function InstrumentSelector({ instruments, handleSetInstrumentosA
     };
 
     return (
-        <div className="flex flex-col space-y-4 w-full h-full p-4">
-            <div className="space-y-4 w-full h-full p-4">
+        <div className="flex flex-row  w-full h-full">
+            <div className=" w-full h-content p-4">
                 {step === "select" ? (
                     <SelectStep
                         instruments={filteredInstruments}
@@ -78,6 +79,10 @@ export default function InstrumentSelector({ instruments, handleSetInstrumentosA
                     </Alert>
                 )}
             </div>
+            <div className="w-full h-full p-4">
+                <MapWithPopUps selectedInstruments={selectedInstruments} />
+            </div>
+
         </div>
     );
 }

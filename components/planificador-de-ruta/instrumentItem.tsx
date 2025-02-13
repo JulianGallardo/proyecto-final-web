@@ -1,5 +1,5 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@radix-ui/react-accordion";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent} from "../ui/accordion";
 import { Checkbox } from "../ui/checkbox";
 
 interface InstrumentItemProps {
@@ -24,7 +24,7 @@ export default function InstrumentItem({ instrument, selectedInstruments, handle
                 id={instrument.codigoInstrumento}
                 checked={isSelected}
                 onCheckedChange={() => handleToggleInstrument(instrument)}
-                className="mt-1"
+                className="mt-1 "
             />
             <div className="flex-1 space-y-1">
                 <label
@@ -35,7 +35,7 @@ export default function InstrumentItem({ instrument, selectedInstruments, handle
                 </label>
                 <Accordion type="single" collapsible className="w-full ">
                     <AccordionItem value="details" className="w-full">
-                        <AccordionTrigger className="p-2 text-sm hover:no-underline">
+                        <AccordionTrigger className="p-2 text-sm hover:no-underline ">
                             Ver detalles del instrumento
                         </AccordionTrigger>
                         <AccordionContent className="space-y-2 p-2">

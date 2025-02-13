@@ -35,6 +35,8 @@ const selectOptions = {
         },
     },
     observaciones: true,
+    latitude: true,
+    longitude: true,
     createdAt: true,
     updatedAt: true,
     zoneName: true,

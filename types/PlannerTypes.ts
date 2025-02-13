@@ -7,6 +7,7 @@ export interface Coordinates {
 }
 
 export interface Address {
+    type: 'start' | 'end' | 'waypoint';
     text: string;
     coordinates?: [number, number];
     instrument?: InstrumentoExtendido;
@@ -21,11 +22,5 @@ export interface RouteSegment {
     duration: number;
 }
 
-export interface MapMarker {
-    type: 'start' | 'end' | 'stop';
-    coordinates: [number, number];
-    number: number;
-    description: string;
-}
 
 export type VehicleType = 'driving-car' | 'cycling-regular' | 'foot-walking';

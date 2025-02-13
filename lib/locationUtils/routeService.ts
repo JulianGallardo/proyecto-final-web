@@ -1,5 +1,6 @@
 // services/RouteService.ts
-import { VehicleType, RouteSegment } from '@/types/PlannerTypes';
+import { InstrumentoExtendido } from '@/types/instrumentoTypes';
+import { VehicleType, RouteSegment, Address } from '@/types/PlannerTypes';
 
 export class RouteService {
     private readonly API_KEY = "5b3ce3597851110001cf624882964b6d51a94e329e8f7d689d9f7767";
@@ -13,7 +14,6 @@ export class RouteService {
         const res = await fetch(url);
         const data = await res.json();
 
-        console.log("GeoCords: ",JSON.stringify(data));
 
 
         if (data.length > 0) {
@@ -41,6 +41,7 @@ export class RouteService {
     }
 
     public async getRouteGeometry(
+        orderedInstruments: Address[],
         coordinates: [number, number][],
         vehicle: VehicleType
     ): Promise<RouteSegment[]> {
@@ -53,40 +54,98 @@ export class RouteService {
             },
             body: JSON.stringify({ coordinates })
         });
-    
+
         const data = await response.json();
         return this.createRouteSegments(
+            orderedInstruments,
             data.features[0].geometry.coordinates,
-            data.features[0].properties.segments,
-            coordinates.length
+            data.features[0].properties.segments
         );
     }
-    
+
     private createRouteSegments(
+        orderedInstruments: Address[],
         coordinates: [number, number][],
-        segmentData: { distance: number; duration: number }[],
-        numStops: number
+        segmentData: { distance: number; duration: number }[]
     ): RouteSegment[] {
         const segments: RouteSegment[] = [];
         const totalPoints = coordinates.length;
-    
-        for (let i = 0; i < numStops - 1; i++) {
-            const start = Math.floor((i * (totalPoints - 1)) / (numStops - 1));
-            const end = Math.floor(((i + 1) * (totalPoints - 1)) / (numStops - 1));
-    
+
+        if (orderedInstruments.length < 2 || totalPoints < 2) {
+            console.warn("Advertencia: No hay suficientes instrumentos o coordenadas para segmentar la ruta.");
+            return [];
+        }
+
+        let start = 0;
+        let end = 0;
+
+        for (let i = 0; i < orderedInstruments.length; i++) {
+            const instrument = orderedInstruments[i];
+
+            console.log("vuelta", orderedInstruments[i]);
+            // Encontrar el índice más cercano a la coordenada del instrumento actual
+            start = end ;
+            if (instrument.coordinates) {
+                end = this.findNearestIndex(instrument.coordinates, coordinates, start);
+            } else {
+                console.warn(`Instrument at index ${i} has undefined coordinates.`);
+                end = start;
+            }
+
+
+            console.log("start", start);
+            console.log("end", end);
+
+            
+
+
             segments.push({
                 start: i,
-                end: i + 1,
-                coordinates: coordinates.slice(start, end + 1), // Include end point
+                end: i ,
+                coordinates: coordinates.slice(start, end + 1 ), // Incluir el último punto
                 description: `Tramo ${i + 1} → ${i + 2}`,
-                distance: segmentData[i]?.distance || 0, // Ensure valid values
+                distance: segmentData[i]?.distance || 0,
                 duration: segmentData[i]?.duration || 0
             });
         }
-    
+
         return segments;
     }
-    
+
+    /**
+     * Encuentra el índice en `coordinates` que es más cercano a `targetCoord`
+     */
+    private findNearestIndex(targetCoord: [number, number] , coordinates: [number, number][], startIndex: number): number {
+        
+
+        console.log("targetCoord", targetCoord);
+
+        let minDist = Infinity;
+        let nearestIndex = startIndex;
+
+        for (let i = startIndex; i < coordinates.length; i++) {
+            const dist = this.calculateDistance(targetCoord, coordinates[i]);
+            console.log("distancia", dist);
+            if (dist < minDist) {
+                minDist = dist;
+                nearestIndex = i;
+            }
+        }
+
+        return nearestIndex;
+    }
+
+    /**
+     * Calcula la distancia euclidiana entre dos coordenadas
+     */
+    private calculateDistance(coord1: [number, number], coord2: [number, number]): number {
+        const [lon1, lat1] = coord1;
+        const [lon2, lat2] = coord2;
+        return Math.sqrt((lon2 - lon1) ** 2 + (lat2 - lat1) ** 2);
+    }
+
+
+
 
     private optimizeRoute(durations: number[][]): number[] {
         const n = durations.length;

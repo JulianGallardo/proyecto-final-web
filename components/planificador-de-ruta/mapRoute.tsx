@@ -1,15 +1,28 @@
 import { MapCenter, MapBounds } from "@/types/MapTypes";
 import { Address } from "@/types/PlannerTypes";
 
-import { MapPin } from "lucide-react";
+import {  HomeIcon, MapPin } from "lucide-react";
 import Map, { Marker, Popup, Source, Layer } from "@vis.gl/react-maplibre";
 import { useState } from "react";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+import { Flag } from "@mynaui/icons-react";
 
 interface MapComponentProps {
     selectedInstruments: any[];
     orderedAddresses: Address[];
     routeSegments?: any[];
+}
+
+
+function calculateIcon(Address: Address) {
+    if (Address.type === 'start') {
+        return <HomeIcon className="h-10 w-10 text-blue-500" />;
+    }
+    if (Address.type === 'end' ) {
+        return <Flag className="h-10 w-10 text-green-500" />;
+    }
+
+    return <MapPin className="h-10 w-10 text-red-500" />;
 }
 
 export function MapComponent({ selectedInstruments, orderedAddresses, routeSegments }: Readonly<MapComponentProps>) {
@@ -72,16 +85,35 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
             {orderedAddresses.map((address, index) => (
                 <Marker
                     key={address.instrument?.codigoInstrumento ?? index}
-                    latitude={address.coordinates?.[1]}  
-                    longitude={address.coordinates?.[0]} 
+                    latitude={address.coordinates?.[1]}
+                    longitude={address.coordinates?.[0]}
                     anchor="bottom"
                 >
                     <div className="relative group">
-                        <MapPin className="h-10 w-10 text-primary cursor-pointer hover:text-primary/80 transition-colors text-blue-500" />
+                        {
+                            calculateIcon(address)
+                        }
 
-                        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-xs">
-                            {address.instrument?.instrumentoType?.name} - {address.instrument?.codigoInstrumento}
-                        </div>
+                        {address.instrument &&
+                            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-xs">
+                                {address.instrument?.instrumentoType?.name} - {address.instrument?.codigoInstrumento}
+                            </div>
+                        }
+                        {
+                            !address.instrument &&
+                            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-xs">
+                                {
+                                    address.type === 'start' && "Inicio "
+                                }
+                                {
+                                    address.type === 'end' && "Fin "
+                                }
+                                 - 
+
+                                {address.text}
+                            </div>
+                        }
+
                     </div>
                 </Marker>
             ))}

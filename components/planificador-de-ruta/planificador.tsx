@@ -42,6 +42,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
 
         try {
             const instrumentAddresses: Address[] = selectedInstruments.map(instrument => ({
+                type: "waypoint",
                 text: instrument.domicilio_denunciado,
                 coordinates: instrument.latitude && instrument.longitude
                     ? [instrument.longitude, instrument.latitude] as [number, number]
@@ -52,12 +53,13 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
             let allAddresses = instrumentAddresses;
             if (startPoint) {
                 const startCoordinates = await getCoordinates(startPoint);
-                if (startCoordinates) allAddresses = [{ text: startPoint, coordinates: startCoordinates }, ...allAddresses];
+                if (startCoordinates) allAddresses = [{ text: startPoint, coordinates: startCoordinates, type:"start" }, ...allAddresses];
             }
             if (endPoint) {
                 const endCoordinates = await getCoordinates(endPoint);
-                if (endCoordinates) allAddresses = [...allAddresses, { text: endPoint, coordinates: endCoordinates }];
+                if (endCoordinates) allAddresses = [...allAddresses, { text: endPoint, coordinates: endCoordinates,type:"end" }];
             }
+            
 
             const locationsWithCoords = await Promise.all(
                 allAddresses.map(async (addr) => {
@@ -83,9 +85,14 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
             );
 
             const ordered = optimizedWaypoints.map(i => validLocations[i]);
+
+            ordered[ordered.length - 1].type = "end";
+
+
             setOrderedAddresses(ordered);
 
             const routeSegments = await routeService.getRouteGeometry(
+                ordered,
                 ordered.map(loc => loc.coordinates),
                 vehicle
             );

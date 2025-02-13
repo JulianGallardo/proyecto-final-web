@@ -1,9 +1,10 @@
 import { MapCenter, MapBounds } from "@/types/MapTypes";
 import { Address } from "@/types/PlannerTypes";
 
-import {  HomeIcon, MapPin } from "lucide-react";
-import Map, { Marker, Popup, Source, Layer } from "@vis.gl/react-maplibre";
-import { useState } from "react";
+import { HomeIcon, MapPin } from "lucide-react";
+import Map, { Marker, Popup, Source, Layer, useMap } from "@vis.gl/react-maplibre";
+import { NavigationControl, FullscreenControl, GeolocateControl } from "maplibre-gl";
+import { useEffect, useState } from "react";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Flag } from "@mynaui/icons-react";
 
@@ -29,7 +30,7 @@ function calculateIcon(Address: Address, index: number) {
             {/* Número de parada */}
             {Address.type === "waypoint" && (
                 <span className="absolute -top-2 -right-2 bg-red-800 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {index }
+                    {index}
                 </span>
             )}
         </div>
@@ -38,8 +39,30 @@ function calculateIcon(Address: Address, index: number) {
 export function MapComponent({ selectedInstruments, orderedAddresses, routeSegments }: Readonly<MapComponentProps>) {
     const [popupInfo, setPopupInfo] = useState<InstrumentoExtendido | null>(null);
 
+    const { map } = useMap();
+
+    useEffect(() => {
+        if (map) {
+            const nav = new NavigationControl();
+            const fullscreen = new FullscreenControl();
+            const geolocate = new GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true
+            });
+            map.addControl(nav);
+            map.addControl(fullscreen);
+            map.addControl(geolocate);
+
+
+        }
+    }, [map]);
+
+
     return (
         <Map
+            id="map"
             mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
             initialViewState={{
                 latitude: MapCenter.lat,
@@ -52,8 +75,9 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
             style={{ width: '100%', height: '100%' }}
             attributionControl={true}
             reuseMaps
+
         >
-            
+
             {orderedAddresses.length === 0 && selectedInstruments.map((instrument) => (
                 <Marker
                     key={instrument.codigoInstrumento}
@@ -119,7 +143,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                                 {
                                     address.type === 'end' && "Fin "
                                 }
-                                 - 
+                                -
 
                                 {address.text}
                             </div>

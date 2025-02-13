@@ -32,7 +32,6 @@ export default function MapWithPopUps({ selectedInstruments }: Readonly<MapWithP
         const valido = selectedInstruments.filter(instrument =>
             isValidCoordinate(instrument.latitude, instrument.longitude)
         );
-        console.log("Instrumentos válidos:", valido);
         return valido;
     }, [selectedInstruments]);
 

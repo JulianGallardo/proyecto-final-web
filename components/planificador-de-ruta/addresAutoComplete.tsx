@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
-import { on } from "events";
+import { MapPin, LocateFixed } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface AddressAutocompleteProps {
     placeHolder?: string;
     Icon?: React.ElementType;
     onChange: (value: string) => void;
+    miUbicacion?: boolean;
 }
 
-export default function AddressAutocomplete({ placeHolder = "", Icon, onChange }: Readonly<AddressAutocompleteProps>) {
-    const [query, setQuery] = useState<string>(""); // Inicializamos con ""
+export default function AddressAutocomplete({ placeHolder = "", Icon, onChange, miUbicacion= true }: Readonly<AddressAutocompleteProps>) {
+    const [query, setQuery] = useState<string>("");
     const [results, setResults] = useState<{ name: string; lat: string; lon: string }[]>([]);
-    const [selected, setSelected] = useState<boolean>(false); // Estado para controlar si se seleccionó un resultado
+    const [selected, setSelected] = useState<boolean>(false);
     const bbox = "-62.5,-39.0,-61.5,-38.5";
 
     async function fetchPlaces(searchText: string) {
@@ -36,7 +38,7 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange }
     }
 
     const handleSearch = useDebouncedCallback((searchText: string) => {
-        setSelected(false); // Resetear el estado de selección al escribir
+        setSelected(false);
         fetchPlaces(searchText);
         if (onChange) {
             onChange(searchText);
@@ -45,27 +47,65 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange }
 
     function handleSelectPlace(place: any) {
         setQuery(place.name);
-        setResults([]); // Oculta la lista al seleccionar
-        setSelected(true); // Indicar que un valor fue seleccionado
+        setResults([]);
+        setSelected(true);
         onChange && onChange(place.name);
+    }
+
+    async function getCurrentLocation() {
+        if (!navigator.geolocation) {
+            alert("La geolocalización no es compatible con tu navegador.");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+
+                // Inversión de coordenadas a dirección con OpenStreetMap
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.display_name) {
+                    setQuery(data.display_name);
+                    setSelected(true);
+                    onChange(data.display_name);
+                }
+            },
+            (error) => {
+                alert("No se pudo obtener la ubicación: " + error.message);
+            }
+        );
     }
 
     return (
         <div className="relative w-full text-gray-400 mx-auto">
-            <div className="relative">
+            <div className="relative flex items-center">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    {Icon && <Icon className="  h-4 w-4 text-gray-500" />}
+                    {Icon && <Icon className="h-4 w-4 text-gray-500" />}
                 </div>
                 <Input
                     id="search"
                     placeholder={placeHolder}
                     value={query}
                     onChange={(e) => {
-                        setQuery(e.target.value); // Permitir escritura
+                        setQuery(e.target.value);
                         handleSearch(e.target.value);
                     }}
-                    className="pl-10 h-10 text-black" 
+                    className="pl-10 h-10 text-black w-full"
                 />
+                {
+                    miUbicacion && (
+                        <Button
+                            onClick={getCurrentLocation}
+                            className="mx-2 flex items-center p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+                            title="Usar mi ubicación"
+                        >
+                            <LocateFixed className="h-5 w-5 text-gray-600" />
+                        </Button>
+                    )
+                }
             </div>
 
             {!selected && results.length > 0 && (

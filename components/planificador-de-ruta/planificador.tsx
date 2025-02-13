@@ -151,12 +151,14 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 <h1 className="text-2xl font-bold mb-4">Planificador de Ruta</h1>
 
                 <RouteControls vehicle={vehicle} setVehicle={setVehicle} />
+
                 <AddressInputs
                     startPoint={startPoint}
                     endPoint={endPoint}
                     onStartPointChange={setStartPoint}
                     onEndPointChange={setEndPoint}
                 />
+
 
                 <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
                 <InstrumentList
@@ -249,7 +251,7 @@ interface InstrumentListProps {
     orderedAddresses: Address[];
 }
 
-export function InstrumentList({ instruments, orderedAddresses }: InstrumentListProps) {
+export function InstrumentList({ instruments, orderedAddresses }: Readonly<InstrumentListProps>) {
     return (
         <div className="space-y-2">
             {orderedAddresses.length === 0 && instruments.map((instrument) => (

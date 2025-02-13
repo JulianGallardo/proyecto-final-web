@@ -1,5 +1,4 @@
-// services/RouteService.ts
-import { InstrumentoExtendido } from '@/types/instrumentoTypes';
+
 import { VehicleType, RouteSegment, Address } from '@/types/PlannerTypes';
 
 export class RouteService {

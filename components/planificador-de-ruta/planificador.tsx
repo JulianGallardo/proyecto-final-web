@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { RouteService } from "@/lib/locationUtils/routeService";
 import { VehicleType, Address } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
-import { getCoordinates } from "@/lib/locationUtils/zoneUtils";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
 import { Bike, Car, Flag, Footprints, Home } from "lucide-react";
 import { MapComponent } from "./mapRoute";
@@ -47,18 +46,11 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 coordinates: instrument.latitude && instrument.longitude
                     ? [instrument.longitude, instrument.latitude] as [number, number]
                     : undefined,
-                instrument: instrument
+                instrument: instrument,
+                stopNumber: 0,
             }));
 
             let allAddresses = instrumentAddresses;
-            if (startPoint) {
-                const startCoordinates = await getCoordinates(startPoint);
-                if (startCoordinates) allAddresses = [{ text: startPoint, coordinates: startCoordinates, type:"start" }, ...allAddresses];
-            }
-            if (endPoint) {
-                const endCoordinates = await getCoordinates(endPoint);
-                if (endCoordinates) allAddresses = [...allAddresses, { text: endPoint, coordinates: endCoordinates,type:"end" }];
-            }
             
 
             const locationsWithCoords = await Promise.all(
@@ -85,6 +77,34 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
             );
 
             const ordered = optimizedWaypoints.map(i => validLocations[i]);
+
+            ordered.forEach((loc, i) => {
+                loc.stopNumber = i + 1;
+            });
+
+            if(startPoint) {
+                const coords = await routeService.getCoordinates(startPoint);
+                if (coords) {
+                    ordered.unshift({
+                        type: "start",
+                        text: startPoint,
+                        coordinates: coords,
+                        stopNumber: 0
+                    });
+                }
+            }
+
+            if(endPoint) {
+                const coords = await routeService.getCoordinates(endPoint);
+                if (coords) {
+                    ordered.push({
+                        type: "end",
+                        text: endPoint,
+                        coordinates: coords,
+                        stopNumber: ordered.length
+                    });
+                }
+            }
 
 
 
@@ -201,7 +221,7 @@ export function AddressInputs({
     endPoint,
     onStartPointChange,
     onEndPointChange
-}: AddressInputsProps) {
+}: Readonly<AddressInputsProps>) {
     return (
         <div className="mb-4 flex flex-col gap-2">
             <div className="relative">
@@ -235,12 +255,10 @@ interface InstrumentListProps {
 export function InstrumentList({ instruments, orderedAddresses }: InstrumentListProps) {
     return (
         <div className="space-y-2">
-            {instruments.map((instrument) => (
+            {orderedAddresses.length === 0 && instruments.map((instrument) => (
                 <div key={instrument.codigoInstrumento} className="flex items-start gap-2 p-2 bg-white rounded-lg shadow">
                     <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
-                        {orderedAddresses.length > 0
-                            ? orderedAddresses.findIndex(a => a.instrument?.codigoInstrumento === instrument.codigoInstrumento) + 1
-                            : "-"}
+                        -
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">
@@ -252,6 +270,24 @@ export function InstrumentList({ instruments, orderedAddresses }: InstrumentList
                     </div>
                 </div>
             ))}
+            {orderedAddresses.map((address, index) => (
+            <div key={address.instrument?.codigoInstrumento ?? index} className="flex items-start gap-2 p-2 bg-white rounded-lg shadow">
+                <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
+                {address.stopNumber }
+                </div>
+                <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">
+                    {address.type === "start" ? "Inicio " : address.type === "end" ? "Fin " : ""} 
+                    {
+                        address.instrument ? `${address.instrument.instrumentoType.name} - ${address.instrument.codigoInstrumento}` : ""
+                    }
+                </p>
+                <p className="text-sm text-gray-500 truncate">
+                    {address.text}
+                </p>
+                </div>
+            </div>
+            ))}
         </div>
     );
 }
@@ -261,7 +297,7 @@ interface RouteMetricsProps {
     metrics: { distance: number; duration: number };
 }
 
-export function RouteMetrics({ metrics }: RouteMetricsProps) {
+export function RouteMetrics({ metrics }: Readonly<RouteMetricsProps>) {
     return (
         <Card className="mt-4">
             <CardContent className="pt-4">

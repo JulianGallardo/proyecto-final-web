@@ -8,6 +8,7 @@ export interface Coordinates {
 
 export interface Address {
     type: 'start' | 'end' | 'waypoint';
+    stopNumber: number; 
     text: string;
     coordinates?: [number, number];
     instrument?: InstrumentoExtendido;

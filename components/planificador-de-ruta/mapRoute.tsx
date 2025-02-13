@@ -29,7 +29,7 @@ function calculateIcon(Address: Address, index: number) {
             {/* Número de parada */}
             {Address.type === "waypoint" && (
                 <span className="absolute -top-2 -right-2 bg-red-800 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                    {index + 1}
+                    {index }
                 </span>
             )}
         </div>
@@ -101,7 +101,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                 >
                     <div className="relative group">
                         {
-                            calculateIcon(address, index)
+                            calculateIcon(address, address.stopNumber)
                         }
 
                         {address.instrument &&

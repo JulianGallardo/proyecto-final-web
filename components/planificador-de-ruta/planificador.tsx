@@ -11,7 +11,7 @@ import { VehicleType, Address } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { getCoordinates } from "@/lib/locationUtils/zoneUtils";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
-import { Flag, Home } from "lucide-react";
+import { Bike, Car, Flag, Footprints, Home } from "lucide-react";
 
 interface RoutePlannerProps {
     instruments: InstrumentoExtendido[];
@@ -169,6 +169,12 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
         }
     }
 
+    const vehicles = [
+        { id: "driving-car", label: "Auto", icon: Car },
+        { id: "cycling-regular", label: "Bicicleta", icon: Bike },
+        { id: "foot-walking", label: "Caminata", icon: Footprints },
+      ];
+
     return (
         <div className="flex flex-col gap-2 md:gap-0 md:flex-row h-screen w-full">
             <div className="w-full h-full md:w-1/3 p-6 bg-gray-100 shadow-lg overflow-y-auto">
@@ -178,16 +184,21 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 </Button>
                 <h1 className="text-2xl font-bold mb-4">Planificador de Ruta</h1>
 
-                <Select onValueChange={(v) => setVehicle(v as VehicleType)} defaultValue={vehicle}>
-                    <SelectTrigger className="w-full mb-4">
-                        <SelectValue placeholder="Selecciona un vehículo" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="driving-car">🚗 Auto</SelectItem>
-                        <SelectItem value="cycling-regular">🚲 Bicicleta</SelectItem>
-                        <SelectItem value="foot-walking">🚶 Caminata</SelectItem>
-                    </SelectContent>
-                </Select>
+
+                <div className="flex gap-2 mb-4">
+                    {vehicles.map(({ id, label, icon: Icon }) => (
+                        <Button
+                            key={id}
+                            variant={vehicle === id ? "default" : "outline"}
+                            onClick={() => setVehicle(id as VehicleType)}
+                            className={"flex items-center gap-2 px-4 py-2 hover:bg-blue-200 " + (vehicle === id ? "bg-blue-600 text-white" : "text-black-500")}
+                        >
+                            <Icon className="w-5 h-5" />
+                            {label}
+                        </Button>
+                    ))}
+                </div>
+
 
                 <div className="mb-4 flex flex-col gap-2 ">
                     <div className="relative">

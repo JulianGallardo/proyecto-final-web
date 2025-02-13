@@ -22,6 +22,7 @@ export interface RouteSegment {
 }
 
 export interface MapMarker {
+    type: 'start' | 'end' | 'stop';
     coordinates: [number, number];
     number: number;
     description: string;

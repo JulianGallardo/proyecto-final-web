@@ -1,16 +1,15 @@
-import { useState, useEffect, useRef } from "react";
-import maplibregl from "maplibre-gl";
+import { useState, useEffect } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapService } from "@/lib/locationUtils/mapService";
 import { RouteService } from "@/lib/locationUtils/routeService";
 import { VehicleType, Address } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { getCoordinates } from "@/lib/locationUtils/zoneUtils";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
 import { Bike, Car, Flag, Footprints, Home } from "lucide-react";
+import { MapComponent } from "./mapRoute";
 
 interface RoutePlannerProps {
     instruments: InstrumentoExtendido[];
@@ -109,7 +108,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
         }
     }
 
-      return (
+    return (
         <div className="flex flex-col gap-2 md:gap-0 md:flex-row h-screen w-full">
             <div className="w-full h-full md:w-1/3 p-6 bg-gray-100 shadow-lg overflow-y-auto">
                 <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
@@ -127,7 +126,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 />
 
                 <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
-                <InstrumentList 
+                <InstrumentList
                     instruments={selectedInstruments}
                     orderedAddresses={orderedAddresses}
                 />
@@ -144,9 +143,10 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
             </div>
 
             <div className="container w-full h-full md:w-2/3">
-                <MapComponent 
+                <MapComponent
                     orderedAddresses={orderedAddresses}
                     routeSegments={routeSegments}
+                    selectedInstruments={selectedInstruments}
                 />
             </div>
         </div>
@@ -171,7 +171,7 @@ export function RouteControls({ vehicle, setVehicle }: RouteControlsProps) {
                     key={id}
                     variant={vehicle === id ? "default" : "outline"}
                     onClick={() => setVehicle(id as VehicleType)}
-                    className={"flex items-center gap-2 px-4 py-2 hover:bg-blue-200 " + 
+                    className={"flex items-center gap-2 px-4 py-2 hover:bg-blue-200 " +
                         (vehicle === id ? "bg-blue-600 text-white" : "text-black-500")}
                 >
                     <Icon className="w-5 h-5" />
@@ -190,11 +190,11 @@ interface AddressInputsProps {
     onEndPointChange: (value: string) => void;
 }
 
-export function AddressInputs({ 
-    startPoint, 
-    endPoint, 
-    onStartPointChange, 
-    onEndPointChange 
+export function AddressInputs({
+    startPoint,
+    endPoint,
+    onStartPointChange,
+    onEndPointChange
 }: AddressInputsProps) {
     return (
         <div className="mb-4 flex flex-col gap-2">
@@ -265,92 +265,4 @@ export function RouteMetrics({ metrics }: RouteMetricsProps) {
             </CardContent>
         </Card>
     );
-}
-
-interface MapComponentProps {
-    orderedAddresses: Address[];
-    routeSegments?: any[];
-}
-
-export function MapComponent({ orderedAddresses, routeSegments }: MapComponentProps) {
-    const mapContainer = useRef(null);
-    const map = useRef<maplibregl.Map | null>(null);
-    const markersRef = useRef<maplibregl.Marker[]>([]);
-    const routeLayers = useRef<string[]>([]);
-    const mapService = new MapService();
-
-    useEffect(() => {
-        if (!map.current && mapContainer.current) {
-            map.current = new maplibregl.Map({
-                container: mapContainer.current,
-                style: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
-                center: [-62.267, -38.7196],
-                zoom: 12,
-            });
-
-            map.current.addControl(new maplibregl.NavigationControl(), "top-right");
-        }
-    }, []);
-
-    useEffect(() => {
-        if (!map.current || !orderedAddresses.length) return;
-
-        mapService.cleanup(map.current, routeLayers.current, markersRef.current);
-        markersRef.current = [];
-        routeLayers.current = [];
-
-        map.current.flyTo({
-            center: orderedAddresses[0].coordinates,
-            zoom: 13
-        });
-
-        // Add markers for each address
-        orderedAddresses.forEach((addr, i) => {
-            let element = document.createElement('div');
-            
-            // Use Home icon for start point and Flag icon for end point
-            if (i === 0 && !addr.instrument) {
-                element.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-600"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
-            } else if (i === orderedAddresses.length - 1 && !addr.instrument) {
-                element.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>';
-            }
-
-            const description = addr.instrument
-                ? `${addr.instrument.instrumentoType.name} - ${addr.instrument.codigoInstrumento}\n${addr.text}`
-                : addr.text; 
-
-            const marker = mapService.addMarker(map.current!, {
-                coordinates: addr.coordinates!,
-                number: i + 1,
-                description,
-                // element: element.innerHTML ? element : undefined
-            });
-            markersRef.current.push(marker);
-        });
-
-        // Add route segments
-        if (routeSegments) {
-            routeSegments.forEach((segment, i) => {
-                const fromDesc = orderedAddresses[i].instrument
-                    ? `${orderedAddresses[i].instrument.instrumentoType.name} - ${orderedAddresses[i].instrument.codigoInstrumento}`
-                    : orderedAddresses[i].text;
-
-                const toDesc = orderedAddresses[i + 1].instrument
-                    ? `${orderedAddresses[i + 1].instrument?.instrumentoType.name} - ${orderedAddresses[i + 1].instrument?.codigoInstrumento}`
-                    : orderedAddresses[i + 1].text;
-
-                const { layerId, sourceId } = mapService.addRouteSegment(
-                    map.current!,
-                    {
-                        ...segment,
-                        description: `Tramo ${i + 1} → ${i + 2}: ${fromDesc} → ${toDesc}`
-                    },
-                    i
-                );
-                routeLayers.current.push(layerId, sourceId);
-            });
-        }
-    }, [orderedAddresses, routeSegments]);
-
-    return <div ref={mapContainer} className="w-full h-full" />;
 }

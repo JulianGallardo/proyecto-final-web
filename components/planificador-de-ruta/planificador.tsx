@@ -86,7 +86,6 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
 
             const ordered = optimizedWaypoints.map(i => validLocations[i]);
 
-            ordered[ordered.length - 1].type = "end";
 
 
             setOrderedAddresses(ordered);
@@ -170,7 +169,7 @@ const vehicles = [
     { id: "foot-walking", label: "Caminata", icon: Footprints },
 ];
 
-export function RouteControls({ vehicle, setVehicle }: RouteControlsProps) {
+export function RouteControls({ vehicle, setVehicle }: Readonly<RouteControlsProps>) {
     return (
         <div className="flex gap-2 mb-4">
             {vehicles.map(({ id, label, icon: Icon }) => (

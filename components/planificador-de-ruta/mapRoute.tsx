@@ -14,17 +14,27 @@ interface MapComponentProps {
 }
 
 
-function calculateIcon(Address: Address) {
-    if (Address.type === 'start') {
-        return <HomeIcon className="h-10 w-10 text-blue-500" />;
-    }
-    if (Address.type === 'end' ) {
-        return <Flag className="h-10 w-10 text-green-500" />;
-    }
+function calculateIcon(Address: Address, index: number) {
+    return (
+        <div className="relative inline-block">
+            {/* Icono principal */}
+            {Address.type === "start" ? (
+                <HomeIcon className="h-10 w-10 text-blue-500" />
+            ) : Address.type === "end" ? (
+                <Flag className="h-10 w-10 text-green-500" />
+            ) : (
+                <MapPin className="h-10 w-10 text-red-500" />
+            )}
 
-    return <MapPin className="h-10 w-10 text-red-500" />;
+            {/* Número de parada */}
+            {Address.type === "waypoint" && (
+                <span className="absolute -top-2 -right-2 bg-red-800 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    {index + 1}
+                </span>
+            )}
+        </div>
+    );
 }
-
 export function MapComponent({ selectedInstruments, orderedAddresses, routeSegments }: Readonly<MapComponentProps>) {
     const [popupInfo, setPopupInfo] = useState<InstrumentoExtendido | null>(null);
 
@@ -91,7 +101,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                 >
                     <div className="relative group">
                         {
-                            calculateIcon(address)
+                            calculateIcon(address, index)
                         }
 
                         {address.instrument &&

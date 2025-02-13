@@ -92,10 +92,6 @@ export class RouteService {
                 end = start;
             }
 
-
-            console.log("start", start);
-            console.log("end", end);
-
             
 
 

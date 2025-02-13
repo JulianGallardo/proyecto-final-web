@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
+import { on } from "events";
 
 interface AddressAutocompleteProps {
     placeHolder?: string;
     Icon?: React.ElementType;
+    onChange: (value: string) => void;
 }
 
-export default function AddressAutocomplete({ placeHolder = "", Icon }: Readonly<AddressAutocompleteProps>) {
+export default function AddressAutocomplete({ placeHolder = "", Icon, onChange }: Readonly<AddressAutocompleteProps>) {
     const [query, setQuery] = useState<string>(""); // Inicializamos con ""
     const [results, setResults] = useState<{ name: string; lat: string; lon: string }[]>([]);
     const [selected, setSelected] = useState<boolean>(false); // Estado para controlar si se seleccionó un resultado
@@ -35,12 +37,16 @@ export default function AddressAutocomplete({ placeHolder = "", Icon }: Readonly
     const handleSearch = useDebouncedCallback((searchText: string) => {
         setSelected(false); // Resetear el estado de selección al escribir
         fetchPlaces(searchText);
+        if (onChange) {
+            onChange(searchText);
+        }
     }, 300);
 
     function handleSelectPlace(place: any) {
         setQuery(place.name);
         setResults([]); // Oculta la lista al seleccionar
         setSelected(true); // Indicar que un valor fue seleccionado
+        onChange && onChange(place.name);
     }
 
     return (

@@ -32,6 +32,12 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
         setSelectedInstruments(instruments);
     }, [instruments]);
 
+    useEffect(() => {
+        console.log("start point", startPoint);
+        console.log("end point", endPoint);
+    }
+        , [startPoint, endPoint]);
+
     async function calculateRoute() {
         if (selectedInstruments.length === 0) {
             alert("No hay instrumentos para calcular la ruta.");
@@ -52,7 +58,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
             }));
 
             let allAddresses = instrumentAddresses;
-            
+
 
             const locationsWithCoords = await Promise.all(
                 allAddresses.map(async (addr) => {
@@ -83,7 +89,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 loc.stopNumber = i + 1;
             });
 
-            if(startPoint) {
+            if (startPoint) {
                 const coords = await routeService.getCoordinates(startPoint);
                 if (coords) {
                     ordered.unshift({
@@ -95,7 +101,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 }
             }
 
-            if(endPoint) {
+            if (endPoint) {
                 const coords = await routeService.getCoordinates(endPoint);
                 if (coords) {
                     ordered.push({
@@ -218,35 +224,21 @@ interface AddressInputsProps {
 }
 
 export function AddressInputs({
-    startPoint,
-    endPoint,
     onStartPointChange,
     onEndPointChange
 }: Readonly<AddressInputsProps>) {
     return (
         <div className="mb-4 flex flex-col gap-2">
-            <AddressAutocomplete placeHolder="Ingrese el punto de inicio (opcional)" 
-            
-            Icon={Home}
+            <AddressAutocomplete placeHolder="Ingrese el punto de inicio (opcional)"
+
+                Icon={Home}
+                onChange={onStartPointChange}
             />
-            <div className="relative">
-                <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                <Input
-                    placeholder="Ingrese el punto de inicio (opcional)"
-                    value={startPoint}
-                    onChange={(e) => onStartPointChange(e.target.value)}
-                    className="pl-10 h-10"
-                />
-            </div>
-            <div className="relative">
-                <Flag className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-                <Input
-                    placeholder="Ingrese el punto final (opcional)"
-                    value={endPoint}
-                    onChange={(e) => onEndPointChange(e.target.value)}
-                    className="pl-10 h-10"
-                />
-            </div>
+            <AddressAutocomplete placeHolder="Ingrese el punto final (opcional)"
+
+                Icon={Flag}
+                onChange={onEndPointChange}
+            />
         </div>
     );
 }
@@ -276,22 +268,22 @@ export function InstrumentList({ instruments, orderedAddresses }: InstrumentList
                 </div>
             ))}
             {orderedAddresses.map((address, index) => (
-            <div key={address.instrument?.codigoInstrumento ?? index} className="flex items-start gap-2 p-2 bg-white rounded-lg shadow">
-                <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
-                {address.stopNumber }
+                <div key={address.instrument?.codigoInstrumento ?? index} className="flex items-start gap-2 p-2 bg-white rounded-lg shadow">
+                    <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
+                        {address.stopNumber}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">
+                            {address.type === "start" ? "Inicio " : address.type === "end" ? "Fin " : ""}
+                            {
+                                address.instrument ? `${address.instrument.instrumentoType.name} - ${address.instrument.codigoInstrumento}` : ""
+                            }
+                        </p>
+                        <p className="text-sm text-gray-500 truncate">
+                            {address.text}
+                        </p>
+                    </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">
-                    {address.type === "start" ? "Inicio " : address.type === "end" ? "Fin " : ""} 
-                    {
-                        address.instrument ? `${address.instrument.instrumentoType.name} - ${address.instrument.codigoInstrumento}` : ""
-                    }
-                </p>
-                <p className="text-sm text-gray-500 truncate">
-                    {address.text}
-                </p>
-                </div>
-            </div>
             ))}
         </div>
     );

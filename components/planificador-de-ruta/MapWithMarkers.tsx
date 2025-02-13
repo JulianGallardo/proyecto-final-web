@@ -1,8 +1,8 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
-import Map, { Marker, Popup } from "@vis.gl/react-maplibre";
-import { useState, useMemo } from 'react';
+import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from "@vis.gl/react-maplibre";
+import { useState, useMemo} from 'react';
 import { MapPin } from 'lucide-react';
 import { MapCenter, MapBounds } from "@/types/MapTypes";
 
@@ -27,6 +27,8 @@ interface MapWithPopUpsProps {
 export default function MapWithPopUps({ selectedInstruments }: Readonly<MapWithPopUpsProps>) {
     const [popupInfo, setPopupInfo] = useState<InstrumentoExtendido | null>(null);
 
+
+
     // Filtrar instrumentos seleccionados con coordenadas válidas
     const validSelectedInstruments = useMemo(() => {
         const valido = selectedInstruments.filter(instrument =>
@@ -50,6 +52,7 @@ export default function MapWithPopUps({ selectedInstruments }: Readonly<MapWithP
             <CardContent className="flex-1 min-h-[500px]">
                 <div className="h-full w-full rounded-lg overflow-hidden relative">
                     <Map
+                        id="map"
                         mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
                         initialViewState={{
                             latitude: MapCenter.lat,
@@ -60,9 +63,13 @@ export default function MapWithPopUps({ selectedInstruments }: Readonly<MapWithP
                         }}
                         maxBounds={MapBounds}
                         style={{ width: '100%', height: '100%' }}
-                        attributionControl={true}
-                        reuseMaps
+
+                        reuseMaps={true}
+                        
                     >
+                        <NavigationControl showCompass={false} />
+                        <FullscreenControl />
+                        <GeolocateControl />
                         {validSelectedInstruments.map((instrument) => (
                             <Marker
                                 key={instrument.codigoInstrumento}

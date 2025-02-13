@@ -2,11 +2,10 @@ import { MapCenter, MapBounds } from "@/types/MapTypes";
 import { Address } from "@/types/PlannerTypes";
 
 import { HomeIcon, MapPin } from "lucide-react";
-import Map, { Marker, Popup, Source, Layer, useMap } from "@vis.gl/react-maplibre";
-import { NavigationControl, FullscreenControl, GeolocateControl } from "maplibre-gl";
-import { useEffect, useState } from "react";
+import Map, { Marker, Popup, Source, Layer, GeolocateControl, FullscreenControl, NavigationControl } from "@vis.gl/react-maplibre";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Flag } from "@mynaui/icons-react";
+import { useState } from "react";
 
 interface MapComponentProps {
     selectedInstruments: any[];
@@ -39,25 +38,6 @@ function calculateIcon(Address: Address, index: number) {
 export function MapComponent({ selectedInstruments, orderedAddresses, routeSegments }: Readonly<MapComponentProps>) {
     const [popupInfo, setPopupInfo] = useState<InstrumentoExtendido | null>(null);
 
-    const { map } = useMap();
-
-    useEffect(() => {
-        if (map) {
-            const nav = new NavigationControl();
-            const fullscreen = new FullscreenControl();
-            const geolocate = new GeolocateControl({
-                positionOptions: {
-                    enableHighAccuracy: true
-                },
-                trackUserLocation: true
-            });
-            map.addControl(nav);
-            map.addControl(fullscreen);
-            map.addControl(geolocate);
-
-
-        }
-    }, [map]);
 
 
     return (
@@ -77,6 +57,9 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
             reuseMaps
 
         >
+            <NavigationControl showCompass={false} />
+            <FullscreenControl />
+            <GeolocateControl />
 
             {orderedAddresses.length === 0 && selectedInstruments.map((instrument) => (
                 <Marker

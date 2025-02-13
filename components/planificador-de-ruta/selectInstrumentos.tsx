@@ -49,7 +49,7 @@ export default function InstrumentSelector({ instruments, handleSetInstrumentosA
     };
 
     return (
-        <div className="flex flex-row  w-full h-full">
+        <div className="flex flex-col md:flex-row w-full h-full">
             <div className=" w-full h-content p-4">
                 {step === "select" ? (
                     <SelectStep

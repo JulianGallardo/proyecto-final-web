@@ -11,13 +11,14 @@ import { VehicleType, Address } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { getCoordinates } from "@/lib/locationUtils/zoneUtils";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
+import { Flag, Home } from "lucide-react";
 
 interface RoutePlannerProps {
     instruments: InstrumentoExtendido[];
     volver: () => void;
 }
 
-export default function RoutePlanner({ instruments,volver }: Readonly<RoutePlannerProps>) {
+export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlannerProps>) {
     const mapContainer = useRef(null);
     const map = useRef<maplibregl.Map | null>(null);
     const [orderedAddresses, setOrderedAddresses] = useState<Address[]>([]);
@@ -188,21 +189,25 @@ export default function RoutePlanner({ instruments,volver }: Readonly<RoutePlann
                     </SelectContent>
                 </Select>
 
-                <div className="mb-4">
-                    <Input
-                        type="text"
-                        value={startPoint}
-                        onChange={(e) => setStartPoint(e.target.value)}
-                        placeholder="Punto de inicio"
-                        className="mb-2"
-                    />
-                    <Input
-                        type="text"
-                        value={endPoint}
-                        onChange={(e) => setEndPoint(e.target.value)}
-                        placeholder="Punto final"
-                        className="mb-4"
-                    />
+                <div className="mb-4 flex flex-col gap-2 ">
+                    <div className="relative">
+                        <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <Input
+                            placeholder="Ingrese el punto de inicio (opcional)"
+                            value={startPoint}
+                            onChange={(e) => setStartPoint(e.target.value)}
+                            className="pl-10 h-10"
+                        />
+                    </div>
+                    <div className="relative">
+                        <Flag className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                        <Input
+                            placeholder="Ingrese el punto final (opcional)"
+                            value={startPoint}
+                            onChange={(e) => setEndPoint(e.target.value)}
+                            className="pl-10 h-10"
+                        />
+                    </div>
                 </div>
 
                 <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>

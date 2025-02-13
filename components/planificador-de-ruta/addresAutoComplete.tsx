@@ -13,6 +13,7 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange }
     const [query, setQuery] = useState<string>(""); // Inicializamos con ""
     const [results, setResults] = useState<{ name: string; lat: string; lon: string }[]>([]);
     const [selected, setSelected] = useState<boolean>(false); // Estado para controlar si se seleccionó un resultado
+    const bbox = "-62.5,-39.0,-61.5,-38.5";
 
     async function fetchPlaces(searchText: string) {
         if (!searchText) {
@@ -20,7 +21,7 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange }
             return;
         }
 
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&countrycodes=AR&limit=5`;
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&countrycodes=AR&limit=5&bounded=1&viewbox=${bbox}`;
 
         const response = await fetch(url);
         const data = await response.json();

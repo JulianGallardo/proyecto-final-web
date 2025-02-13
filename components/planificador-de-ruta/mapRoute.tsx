@@ -53,6 +53,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
             attributionControl={true}
             reuseMaps
         >
+            
             {orderedAddresses.length === 0 && selectedInstruments.map((instrument) => (
                 <Marker
                     key={instrument.codigoInstrumento}

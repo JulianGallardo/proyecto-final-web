@@ -9,6 +9,7 @@ import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
 import { Bike, Car, Flag, Footprints, Home } from "lucide-react";
 import { MapComponent } from "./mapRoute";
+import AddressAutocomplete from "./addresAutoComplete";
 
 interface RoutePlannerProps {
     instruments: InstrumentoExtendido[];
@@ -224,6 +225,10 @@ export function AddressInputs({
 }: Readonly<AddressInputsProps>) {
     return (
         <div className="mb-4 flex flex-col gap-2">
+            <AddressAutocomplete placeHolder="Ingrese el punto de inicio (opcional)" 
+            
+            Icon={Home}
+            />
             <div className="relative">
                 <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input

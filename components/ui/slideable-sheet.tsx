@@ -16,14 +16,14 @@ const SlideableSheet: React.FC<SlideableSheetProps> = ({
     preview
 }) => {
     const sheetRef = useRef<HTMLDivElement>(null);
-    const previewHeight = 60;
+    const previewHeight = 70;
     const [maxHeight, setMaxHeight] = useState(0);
     const [initialized, setInitialized] = useState(false);
     const dragThreshold = 10; // 🔥 Mínimo de px para considerar un "arrastre válido"
 
     const [{ y }, api] = useSpring(() => ({
         y: 0,
-        config: { tension: 100, friction: 50 } // 🔥 Más fricción para que se sienta más firme
+        config: { tension: 100, friction: 30 } // 🔥 Más fricción para que se sienta más firme
     }));
 
     useLayoutEffect(() => {

@@ -8,11 +8,13 @@ import { RouteService } from "@/lib/locationUtils/routeService";
 import { VehicleType, Address, RouteSegment } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
-import { Bike, Car, Flag, Footprints, Home } from "lucide-react";
+import { Bike, Car, Flag, Footprints, Home,MapPin, Clock } from "lucide-react";
 import { MapComponent } from "./mapRoute";
 import AddressAutocomplete from "./addresAutoComplete";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import SlideableSheet from "../ui/slideable-sheet";
+
+
 
 interface RoutePlannerProps {
     instruments: InstrumentoExtendido[];
@@ -214,11 +216,11 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
     const Controls = () => (
         <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-                <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full">
                     <span className="mr-2">Volver atras</span>
                     <FatCornerUpLeft className="w-6 h-6" />
                 </Button>
-                <h1 className="text-2xl font-bold">Planificador de Ruta</h1>
+                <h1 className="text-2xl hidden md:block font-bold">Planificador de Ruta</h1>
             </div>
 
             <RouteControls vehicle={vehicle} setVehicle={setVehicle} />
@@ -264,18 +266,33 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
     );
 
     const PreviewContent = () => (
-        <div className="px-4 py-2 border-t">
-            <div className="flex items-center justify-between">
-                <span className="font-medium">
-                    {routeMetrics
-                        ? `${(routeMetrics.distance / 1000).toFixed(2)} km · ${Math.round(routeMetrics.duration / 60)} min`
-                        : 'Planifica tu ruta'
-                    }
-                </span>
+        <div className="p-2  bg-white ">
+            <div className="flex items-center justify-between text-gray-900">
+                {routeMetrics ? (
+                    <>
+                        <div className="flex items-center gap-2">
+                            <MapPin className="w-5 h-5 text-blue-500" />
+                            <span className="text-lg font-medium">
+                                {(routeMetrics.distance / 1000).toFixed(2)} km
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Clock className="w-5 h-5 text-green-500" />
+                            <span className="text-lg font-medium">
+                                {Math.round(routeMetrics.duration / 60)} min
+                            </span>
+                        </div>
+                    </>
+                ) : (
+                    <span className="text-lg font-semibold text-gray-500">
+                        📍 Planifica tu ruta
+                    </span>
+                )}
             </div>
         </div>
     );
-
+    
+    
     return (
         <div className="h-full w-full relative">
             {/* Map is always full screen */}
@@ -299,10 +316,9 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                     preview={<PreviewContent />}
                 >
                     <div className="flex flex-col gap-4">
-                        <h2 className="text-2xl font-bold">Planificador de Ruta</h2>
                         <Controls />
                     </div>
-                </SlideableSheet>   
+                </SlideableSheet>
             )}
         </div>
     );
@@ -320,13 +336,13 @@ const vehicles = [
 
 export function RouteControls({ vehicle, setVehicle }: Readonly<RouteControlsProps>) {
     return (
-        <div className="flex gap-2 mb-4">
+        <div className="flex items-center justify-center gap-2 mb-4">
             {vehicles.map(({ id, label, icon: Icon }) => (
                 <Button
                     key={id}
                     variant={vehicle === id ? "default" : "outline"}
                     onClick={() => setVehicle(id as VehicleType)}
-                    className={"flex items-center gap-2 px-4 py-2 hover:bg-blue-200 " +
+                    className={"flex items-center gap-2 px-4 py-2 hover:bg-blue-200 w-full " +
                         (vehicle === id ? "bg-blue-600 text-white" : "text-black-500")}
                 >
                     <Icon className="w-5 h-5" />

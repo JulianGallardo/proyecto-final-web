@@ -70,8 +70,13 @@ const SlideableSheet: React.FC<SlideableSheetProps> = ({
             if (Math.abs(my) < dragThreshold) return; // 🔥 Ignorar movimientos muy pequeños
 
             if (last) {
-                if (Math.abs(vy) > 0.8) { // 🔥 Requiere un deslizamiento más fuerte para activarse
-                    dy > 0 ? closeSheet() : openSheet();
+                if (Math.abs(vy) > 1.2) { // 🔥 Requiere un deslizamiento más fuerte para activarse
+                    if(dy > 0) {
+                        closeSheet();
+                    } else {
+                        openSheet();
+                    }
+                    
                 } else {
                     adjustPosition(oy);
                 }
@@ -85,7 +90,12 @@ const SlideableSheet: React.FC<SlideableSheetProps> = ({
 
     useLayoutEffect(() => {
         if (initialized) {
-            isOpen ? openSheet() : closeSheet();
+            if(isOpen) {
+                openSheet();
+            }
+            else {
+                closeSheet();
+            }
         }
     }, [isOpen, initialized]);
 

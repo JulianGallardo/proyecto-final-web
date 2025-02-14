@@ -28,6 +28,8 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
 
     const routeService = new RouteService();
 
+
+
     useEffect(() => {
         setSelectedInstruments(instruments);
     }, [instruments]);
@@ -55,6 +57,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                     : undefined,
                 instrument: instrument,
                 stopNumber: 0,
+                visited: false
             }));
 
             let allAddresses = instrumentAddresses;
@@ -96,7 +99,8 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                         type: "start",
                         text: startPoint,
                         coordinates: coords,
-                        stopNumber: 0
+                        stopNumber: 0,
+                        visited: false
                     });
                 }
             }
@@ -108,7 +112,8 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                         type: "end",
                         text: endPoint,
                         coordinates: coords,
-                        stopNumber: ordered.length
+                        stopNumber: ordered.length,
+                        visited: false
                     });
                 }
             }
@@ -141,6 +146,62 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
         }
     }
 
+    async function markAsVisited(stopNumber: number) {
+        
+
+        const hasStart = orderedAddresses.some((addr) => addr.type === "start");
+
+        if(hasStart ){
+            setOrderedAddresses((prev) =>
+                prev.map((addr) => (addr.type === "start" ? { ...addr, visited: true } : addr))
+            );
+        }
+        setOrderedAddresses((prev) =>
+            prev.map((addr) => (addr.stopNumber === stopNumber ? { ...addr, visited: true } : addr))
+        );
+
+        await recalculateRoute(stopNumber);
+
+        
+
+    }
+
+    async function recalculateRoute(stopNumber?: number) {
+
+
+        const hasStart = orderedAddresses.some((addr) => addr.type === "start");
+
+        let ordered = orderedAddresses.map((addr) =>
+            addr.stopNumber === stopNumber ? { ...addr, visited: true } : addr
+        );
+
+
+
+        if(hasStart ){
+            ordered = ordered.filter((addr) => addr.type !== "start");
+        }
+
+
+        const routeSegments = await routeService.getRouteGeometry(
+            ordered,
+            ordered.map(loc => loc.coordinates).filter((coords): coords is [number, number] => coords !== undefined),
+            vehicle,
+            stopNumber
+        );
+
+        const totalMetrics = routeSegments.reduce(
+            (acc, segment) => ({
+                distance: acc.distance + segment.distance,
+                duration: acc.duration + segment.duration
+            }),
+            { distance: 0, duration: 0 }
+        );
+        setRouteMetrics(totalMetrics);
+        setRouteSegments(routeSegments);
+
+    }
+
+
     return (
         <div className="flex flex-col gap-2 md:gap-0 md:flex-row h-screen w-full">
             <div className="w-full h-full md:w-1/3 p-6 bg-gray-100 shadow-lg overflow-y-auto">
@@ -164,6 +225,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 <InstrumentList
                     instruments={selectedInstruments}
                     orderedAddresses={orderedAddresses}
+                    markAsVisited={markAsVisited}
                 />
 
                 <Button
@@ -249,9 +311,14 @@ export function AddressInputs({
 interface InstrumentListProps {
     instruments: InstrumentoExtendido[];
     orderedAddresses: Address[];
+    markAsVisited: (stopNumber: number) => void;
 }
 
-export function InstrumentList({ instruments, orderedAddresses }: Readonly<InstrumentListProps>) {
+export function InstrumentList({ instruments, orderedAddresses, markAsVisited }: Readonly<InstrumentListProps>) {
+
+
+
+
     return (
         <div className="space-y-2">
             {orderedAddresses.length === 0 && instruments.map((instrument) => (
@@ -269,27 +336,37 @@ export function InstrumentList({ instruments, orderedAddresses }: Readonly<Instr
                     </div>
                 </div>
             ))}
-            {orderedAddresses.map((address, index) => (
-                <div key={address.instrument?.codigoInstrumento ?? index} className="flex items-start gap-2 p-2 bg-white rounded-lg shadow">
+            {orderedAddresses.map((address) => (
+                <div key={address.stopNumber} className="flex items-start gap-2 p-2 bg-white rounded-lg shadow">
                     <div className="flex-none w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold">
                         {address.stopNumber}
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">
                             {address.type === "start" ? "Inicio " : address.type === "end" ? "Fin " : ""}
+                            {address.instrument ? `${address.instrument.instrumentoType.name} - ${address.instrument.codigoInstrumento}` : ""}
+                        </p>
+                        <div className="flex flex-row gap-2 items-center justify-between">
+                            <p className="text-sm text-gray-500 truncate">
+                                {address.text}
+                            </p>
                             {
-                                address.instrument ? `${address.instrument.instrumentoType.name} - ${address.instrument.codigoInstrumento}` : ""
+                                address.type === "waypoint" &&
+                                <Button
+                                    disabled={address.visited}
+                                    className="bg-blue-500 hover:bg-blue-700" onClick={() => markAsVisited(address.stopNumber)}>
+                                    Marcar visitada
+                                </Button>   
                             }
-                        </p>
-                        <p className="text-sm text-gray-500 truncate">
-                            {address.text}
-                        </p>
+                        </div>
                     </div>
                 </div>
             ))}
         </div>
     );
 }
+
+
 
 
 interface RouteMetricsProps {

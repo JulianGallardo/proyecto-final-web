@@ -12,6 +12,7 @@ export interface Address {
     text: string;
     coordinates?: [number, number];
     instrument?: InstrumentoExtendido;
+    visited: boolean;
 }
 
 export interface RouteSegment {

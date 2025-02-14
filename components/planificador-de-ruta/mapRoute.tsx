@@ -1,7 +1,7 @@
 import { MapCenter, MapBounds } from "@/types/MapTypes";
 import { Address } from "@/types/PlannerTypes";
 
-import { HomeIcon, MapPin } from "lucide-react";
+import { HomeIcon, MapPin, MapPinCheck } from "lucide-react";
 import Map, { Marker, Popup, Source, Layer, GeolocateControl, FullscreenControl, NavigationControl } from "@vis.gl/react-maplibre";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Flag } from "@mynaui/icons-react";
@@ -14,19 +14,36 @@ interface MapComponentProps {
 }
 
 
-function calculateIcon(Address: Address, index: number) {
+
+
+function calculateIcon(address: Address, index: number) {
+
+    if(address.visited){
+        return <MapPinCheck className="h-10 w-10 text-green-500" />
+    }
+
+    if(address.type === "start") {
+        return <HomeIcon className="h-10 w-10 text-blue-500" />
+    }
+    if(address.type === "end") {
+        return <Flag className="h-10 w-10 text-black" />
+    }
+    else{
+        return <MapPin className="h-10 w-10 text-red-500" />
+    }
+
+
+
+
+}
+
+
+
+function calculateMarker(Address: Address, index: number) {
     return (
         <div className="relative inline-block">
-            {/* Icono principal */}
-            {Address.type === "start" ? (
-                <HomeIcon className="h-10 w-10 text-blue-500" />
-            ) : Address.type === "end" ? (
-                <Flag className="h-10 w-10 text-green-500" />
-            ) : (
-                <MapPin className="h-10 w-10 text-red-500" />
-            )}
+            {calculateIcon(Address, index)}
 
-            {/* Número de parada */}
             {Address.type === "waypoint" && (
                 <span className="absolute -top-2 -right-2 bg-red-800 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                     {index}
@@ -101,6 +118,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
             )}
 
             {orderedAddresses.map((address, index) => (
+                
                 <Marker
                     key={address.instrument?.codigoInstrumento ?? index}
                     latitude={address.coordinates?.[1]}
@@ -109,7 +127,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                 >
                     <div className="relative group">
                         {
-                            calculateIcon(address, address.stopNumber)
+                            calculateMarker(address, address.stopNumber)
                         }
 
                         {address.instrument &&
@@ -134,6 +152,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
 
                     </div>
                 </Marker>
+                
             ))}
 
             {routeSegments?.map((segment, index) => {

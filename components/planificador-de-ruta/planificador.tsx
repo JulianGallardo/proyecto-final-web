@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
@@ -9,6 +11,8 @@ import { FatCornerUpLeft } from "@mynaui/icons-react";
 import { Bike, Car, Flag, Footprints, Home } from "lucide-react";
 import { MapComponent } from "./mapRoute";
 import AddressAutocomplete from "./addresAutoComplete";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet";
 
 interface RoutePlannerProps {
     instruments: InstrumentoExtendido[];
@@ -24,8 +28,11 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
     const [routeMetrics, setRouteMetrics] = useState<{ distance: number; duration: number } | null>(null);
     const [selectedInstruments, setSelectedInstruments] = useState<InstrumentoExtendido[]>([]);
     const [routeSegments, setRouteSegments] = useState<RouteSegment[]>([]);
+    const [sheetOpen, setSheetOpen] = useState(false);
 
+    const isDesktop = useMediaQuery("(min-width: 768px)");
     const routeService = new RouteService();
+
 
 
 
@@ -203,68 +210,105 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
 
     const canFinish = orderedAddresses.length > 0 && orderedAddresses.every((addr) => addr.visited || addr.type === "end");
 
-    return (
-        <div className="flex flex-col gap-2 md:gap-0 md:flex-row h-screen w-full">
-            <div className="w-full h-full md:w-1/3 p-6 bg-gray-100 shadow-lg overflow-y-auto">
+    const Controls = () => (
+        <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
                 <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     <span className="mr-2">Volver atras</span>
                     <FatCornerUpLeft className="w-6 h-6" />
                 </Button>
-                <h1 className="text-2xl font-bold mb-4">Planificador de Ruta</h1>
-
-                <RouteControls vehicle={vehicle} setVehicle={setVehicle} />
-
-                <AddressInputs
-                    startPoint={startPoint}
-                    endPoint={endPoint}
-                    onStartPointChange={setStartPoint}
-                    onEndPointChange={setEndPoint}
-                />
-
-
-                <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
-                <InstrumentList
-                    instruments={selectedInstruments}
-                    orderedAddresses={orderedAddresses}
-                    markAsVisited={markAsVisited}
-                />
-
-                <Button
-                    onClick={calculateRoute}
-                    className="w-full bg-green-500 hover:bg-green-600 mt-4"
-                    disabled={loading || selectedInstruments.length === 0}
-                >
-                    {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
-                </Button>
-
-                {
-                    canFinish && (
-                        <Button
-                            onClick={() => {
-                                setOrderedAddresses((prev) =>
-                                    prev.map((addr) => (addr.type === "end" ? { ...addr, visited: true } : addr))
-                                )
-                                setRouteSegments([]);
-                            }
-
-                            }
-                            className="w-full bg-blue-500 hover:bg-blue-700 mt-4"
-                        >
-                            <span>🏁 Finalizar Ruta</span>
-                        </Button>
-                    )
-                }
-
-                {routeMetrics && <RouteMetrics metrics={routeMetrics} />}
+                <h1 className="text-2xl font-bold">Planificador de Ruta</h1>
             </div>
 
-            <div className="container w-full h-full md:w-2/3">
+            <RouteControls vehicle={vehicle} setVehicle={setVehicle} />
+
+            <AddressInputs
+                startPoint={startPoint}
+                endPoint={endPoint}
+                onStartPointChange={setStartPoint}
+                onEndPointChange={setEndPoint}
+            />
+
+            <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
+            <InstrumentList
+                instruments={selectedInstruments}
+                orderedAddresses={orderedAddresses}
+                markAsVisited={markAsVisited}
+            />
+
+            <Button
+                onClick={calculateRoute}
+                className="w-full bg-green-500 hover:bg-green-600 mt-4"
+                disabled={loading || selectedInstruments.length === 0}
+            >
+                {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
+            </Button>
+
+            {canFinish && (
+                <Button
+                    onClick={() => {
+                        setOrderedAddresses((prev) =>
+                            prev.map((addr) => (addr.type === "end" ? { ...addr, visited: true } : addr))
+                        );
+                        setRouteSegments([]);
+                    }}
+                    className="w-full bg-blue-500 hover:bg-blue-700 mt-4"
+                >
+                    <span>🏁 Finalizar Ruta</span>
+                </Button>
+            )}
+
+            {routeMetrics && <RouteMetrics metrics={routeMetrics} />}
+        </div>
+    );
+
+    return (
+        <div className="h-screen w-full relative">
+            {/* Map is always full screen */}
+            <div className="w-full h-full">
                 <MapComponent
                     orderedAddresses={orderedAddresses}
                     routeSegments={routeSegments}
                     selectedInstruments={selectedInstruments}
                 />
             </div>
+
+            {/* Desktop sidebar */}
+            {isDesktop ? (
+                <div className="absolute top-0 left-0 w-1/3 h-full p-6 bg-gray-100 shadow-lg overflow-y-auto">
+                    <Controls />
+                </div>
+            ) : (
+                <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+                    <SheetTrigger asChild>
+                        <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl shadow-lg cursor-grab active:cursor-grabbing z-10">
+                            <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto my-3" />
+                            <div className="px-4 py-2 border-t">
+                                <div className="flex items-center justify-between">
+                                    <span className="font-medium">
+                                        {routeMetrics
+                                            ? `${(routeMetrics.distance / 1000).toFixed(2)} km · ${Math.round(routeMetrics.duration / 60)} min`
+                                            : 'Planifica tu ruta'
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </SheetTrigger>
+                    <SheetContent
+                        side="bottom"
+                        className="h-[85vh] rounded-t-xl px-0"
+                    >
+                        <SheetHeader className="px-4">
+                            <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4" />
+                            <SheetTitle>Planificador de Ruta</SheetTitle>
+                        </SheetHeader>
+                        <div className="overflow-y-auto px-4">
+                            <Controls />
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            )}
         </div>
     );
 }
@@ -369,7 +413,7 @@ export function InstrumentList({ instruments, orderedAddresses, markAsVisited }:
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">
-                            {calculateText(address)} 
+                            {calculateText(address)}
                             {address.instrument ? `${address.instrument.instrumentoType.name} - ${address.instrument.codigoInstrumento}` : ""}
                         </p>
                         <div className="flex flex-row gap-2 items-center justify-between">

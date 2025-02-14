@@ -70,15 +70,15 @@ export default function AddressAutocomplete({
     }
 
     async function getCurrentLocation() {
-        // @ts-ignore
+        // eslint-disable-next-line sonarjs/no-intrusive-permissions
         if (!navigator.geolocation) {
             alert("La geolocalización no es compatible con tu navegador.");
             return;
         }
 
         try {
-            //@ts-ignore
             const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                // eslint-disable-next-line sonarjs/no-intrusive-permissions
                 navigator.geolocation.getCurrentPosition(resolve, reject);
             });
 

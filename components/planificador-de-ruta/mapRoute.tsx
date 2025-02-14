@@ -76,7 +76,13 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
         >
             <NavigationControl showCompass={false} />
             <FullscreenControl />
-            <GeolocateControl />
+            <GeolocateControl 
+                positionOptions={{ enableHighAccuracy: true }}
+                trackUserLocation={true}
+                showUserLocation={true}
+                
+                
+            />
 
             {orderedAddresses.length === 0 && selectedInstruments.map((instrument) => (
                 <Marker

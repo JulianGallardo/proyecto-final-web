@@ -55,9 +55,10 @@ export default function AddressAutocomplete({
         );
     }
 
-    const handleSearch = useDebouncedCallback((searchText: string) => {
+    const handleSearch = useDebouncedCallback(async (searchText: string) => {
         setSelected(false);
-        void fetchPlaces(searchText);
+        // eslint-disable-next-line sonarjs/void-use
+        await fetchPlaces(searchText);
         onChange(searchText);
     }, 300);
 
@@ -69,6 +70,7 @@ export default function AddressAutocomplete({
     }
 
     async function getCurrentLocation() {
+        // eslint-disable-next-line sonarjs/no-intrusive-permissions
         if (!navigator.geolocation) {
             alert("La geolocalización no es compatible con tu navegador.");
             return;
@@ -114,7 +116,10 @@ export default function AddressAutocomplete({
                 />
                 {miUbicacion && (
                     <Button
-                        onClick={() => void getCurrentLocation()}
+                        onClick={async () => {
+                            // eslint-disable-next-line sonarjs/void-use
+                            await getCurrentLocation();
+                        }}
                         className="mx-2 flex items-center p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
                         title="Usar mi ubicación"
                         disabled={isPending}

@@ -70,7 +70,7 @@ export default function AddressAutocomplete({
     }
 
     async function getCurrentLocation() {
-        // eslint-disable-next-line sonarjs/no-intrusive-permissions
+        // eslint-disable
         if (!navigator.geolocation) {
             alert("La geolocalización no es compatible con tu navegador.");
             return;

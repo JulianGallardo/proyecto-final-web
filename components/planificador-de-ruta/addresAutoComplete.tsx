@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
-import {  LocateFixed } from "lucide-react";
+import { LocateFixed, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface AddressAutocompleteProps {
@@ -11,16 +11,28 @@ interface AddressAutocompleteProps {
     miUbicacion?: boolean;
 }
 
-type Place = {
+interface Place {
     display_name: string;
     lat: number;
     lon: number;
-};
+}
 
-export default function AddressAutocomplete({ placeHolder = "", Icon, onChange, miUbicacion= true }: Readonly<AddressAutocompleteProps>) {
+interface PlaceResult {
+    name: string;
+    lat: string;
+    lon: string;
+}
+
+export default function AddressAutocomplete({ 
+    placeHolder = "", 
+    Icon, 
+    onChange, 
+    miUbicacion = true 
+}: Readonly<AddressAutocompleteProps>) {
     const [query, setQuery] = useState<string>("");
-    const [results, setResults] = useState<{ name: string; lat: string; lon: string }[]>([]);
+    const [results, setResults] = useState<PlaceResult[]>([]);
     const [selected, setSelected] = useState<boolean>(false);
+    const [isPending, startTransition] = useTransition();
     const bbox = "-62.5,-39.0,-61.5,-38.5";
 
     async function fetchPlaces(searchText: string) {
@@ -37,25 +49,23 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange, 
         setResults(
             data.map((place: Place) => ({
                 name: place.display_name,
-                lat: place.lat,
-                lon: place.lon,
+                lat: place.lat.toString(),
+                lon: place.lon.toString(),
             }))
         );
     }
 
     const handleSearch = useDebouncedCallback((searchText: string) => {
         setSelected(false);
-        fetchPlaces(searchText);
-        if (onChange) {
-            onChange(searchText);
-        }
+        void fetchPlaces(searchText);
+        onChange(searchText);
     }, 300);
 
-    function handleSelectPlace(place: any) {
+    function handleSelectPlace(place: PlaceResult) {
         setQuery(place.name);
         setResults([]);
         setSelected(true);
-        onChange && onChange(place.name);
+        onChange(place.name);
     }
 
     async function getCurrentLocation() {
@@ -64,11 +74,13 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange, 
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
+        try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject);
+            });
 
-                // Inversión de coordenadas a dirección con OpenStreetMap
+            startTransition(async () => {
+                const { latitude, longitude } = position.coords;
                 const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
                 const response = await fetch(url);
                 const data = await response.json();
@@ -78,11 +90,10 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange, 
                     setSelected(true);
                     onChange(data.display_name);
                 }
-            },
-            (error) => {
-                alert("No se pudo obtener la ubicación: " + error.message);
-            }
-        );
+            });
+        } catch (error) {
+            alert("No se pudo obtener la ubicación: " + (error instanceof Error ? error.message : 'Error desconocido'));
+        }
     }
 
     return (
@@ -101,17 +112,20 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange, 
                     }}
                     className="pl-10 h-10 text-black w-full"
                 />
-                {
-                    miUbicacion && (
-                        <Button
-                            onClick={getCurrentLocation}
-                            className="mx-2 flex items-center p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
-                            title="Usar mi ubicación"
-                        >
+                {miUbicacion && (
+                    <Button
+                        onClick={() => void getCurrentLocation()}
+                        className="mx-2 flex items-center p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+                        title="Usar mi ubicación"
+                        disabled={isPending}
+                    >
+                        {isPending ? (
+                            <Loader2 className="h-5 w-5 text-gray-600 animate-spin" />
+                        ) : (
                             <LocateFixed className="h-5 w-5 text-gray-600" />
-                        </Button>
-                    )
-                }
+                        )}
+                    </Button>
+                )}
             </div>
 
             {!selected && results.length > 0 && (

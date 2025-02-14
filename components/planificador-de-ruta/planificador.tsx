@@ -8,7 +8,7 @@ import { RouteService } from "@/lib/locationUtils/routeService";
 import { VehicleType, Address, RouteSegment } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
-import { Bike, Car, Flag, Footprints, Home,MapPin, Clock } from "lucide-react";
+import { Bike, Car, Flag, Footprints, Home, MapPin, Clock } from "lucide-react";
 import { MapComponent } from "./mapRoute";
 import AddressAutocomplete from "./addresAutoComplete";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -213,6 +213,16 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
 
     const canFinish = orderedAddresses.length > 0 && orderedAddresses.every((addr) => addr.visited || addr.type === "end");
 
+    const finish = <Button
+        onClick={() => {
+            setOrderedAddresses((prev) => prev.map((addr) => (addr.type === "end" ? { ...addr, visited: true } : addr))
+            );
+            setRouteSegments([]);
+        }}
+        className="w-full bg-blue-500 hover:bg-blue-700 mt-4"
+    >
+        <span>🏁 Finalizar Ruta</span>
+    </Button>;
     const Controls = () => (
         <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
@@ -220,7 +230,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                     <span className="mr-2">Volver atras</span>
                     <FatCornerUpLeft className="w-6 h-6" />
                 </Button>
-                <h1 className="text-2xl hidden md:block font-bold">Planificador de Ruta</h1>
+
             </div>
 
             <RouteControls vehicle={vehicle} setVehicle={setVehicle} />
@@ -248,17 +258,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
             </Button>
 
             {canFinish && (
-                <Button
-                    onClick={() => {
-                        setOrderedAddresses((prev) =>
-                            prev.map((addr) => (addr.type === "end" ? { ...addr, visited: true } : addr))
-                        );
-                        setRouteSegments([]);
-                    }}
-                    className="w-full bg-blue-500 hover:bg-blue-700 mt-4"
-                >
-                    <span>🏁 Finalizar Ruta</span>
-                </Button>
+                finish
             )}
 
             {routeMetrics && <RouteMetrics metrics={routeMetrics} />}
@@ -291,8 +291,8 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
             </div>
         </div>
     );
-    
-    
+
+
     return (
         <div className="h-full w-full relative">
             {/* Map is always full screen */}

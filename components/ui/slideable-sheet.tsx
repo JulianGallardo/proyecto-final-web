@@ -64,7 +64,7 @@ const SlideableSheet: React.FC<SlideableSheetProps> = ({
     const bind = useDrag(
         ({ first, last, movement: [, my], offset: [, oy], velocity: [, vy], direction: [, dy] }) => {
             if (first) {
-                api.set({ y:y.get() });
+                api.set({ y: y.get() });
             }
 
             if (Math.abs(my) < dragThreshold) return; // 🔥 Ignorar movimientos muy pequeños
@@ -78,8 +78,7 @@ const SlideableSheet: React.FC<SlideableSheetProps> = ({
                 return;
             }
 
-            const newY = Math.max(0, Math.min(minPosition, y.get() + my));
-            api.start({ y: newY});
+            api.start({ y: Math.max(0, Math.min(minPosition, y.get() + my)) });
         },
         { from: () => [0, y.get()], bounds: { top: 0, bottom: minPosition }, rubberband: true }
     );

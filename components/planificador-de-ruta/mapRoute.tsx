@@ -1,5 +1,5 @@
 import { MapCenter, MapBounds } from "@/types/MapTypes";
-import { Address } from "@/types/PlannerTypes";
+import { Address, RouteSegment } from "@/types/PlannerTypes";
 
 import { HomeIcon, MapPin, MapPinCheck } from "lucide-react";
 import Map, { Marker, Popup, Source, Layer, GeolocateControl, FullscreenControl, NavigationControl } from "@vis.gl/react-maplibre";
@@ -8,15 +8,15 @@ import { Flag } from "@mynaui/icons-react";
 import { useState } from "react";
 
 interface MapComponentProps {
-    selectedInstruments: any[];
+    selectedInstruments: InstrumentoExtendido[];
     orderedAddresses: Address[];
-    routeSegments?: any[];
+    routeSegments?: RouteSegment[];
 }
 
 
 
 
-function calculateIcon(address: Address, index: number) {
+function calculateIcon(address: Address) {
 
     if(address.visited){
         return <MapPinCheck className="h-10 w-10 text-green-500" />
@@ -42,7 +42,7 @@ function calculateIcon(address: Address, index: number) {
 function calculateMarker(Address: Address, index: number) {
     return (
         <div className="relative inline-block">
-            {calculateIcon(Address, index)}
+            {calculateIcon(Address)}
 
             {Address.type === "waypoint" && (
                 <span className="absolute -top-2 -right-2 bg-red-800 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">

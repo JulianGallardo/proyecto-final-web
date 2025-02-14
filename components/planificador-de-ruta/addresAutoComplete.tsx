@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
-import { MapPin, LocateFixed } from "lucide-react";
+import {  LocateFixed } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface AddressAutocompleteProps {
@@ -10,6 +10,12 @@ interface AddressAutocompleteProps {
     onChange: (value: string) => void;
     miUbicacion?: boolean;
 }
+
+type Place = {
+    display_name: string;
+    lat: number;
+    lon: number;
+};
 
 export default function AddressAutocomplete({ placeHolder = "", Icon, onChange, miUbicacion= true }: Readonly<AddressAutocompleteProps>) {
     const [query, setQuery] = useState<string>("");
@@ -29,7 +35,7 @@ export default function AddressAutocomplete({ placeHolder = "", Icon, onChange, 
         const data = await response.json();
 
         setResults(
-            data.map((place: any) => ({
+            data.map((place: Place) => ({
                 name: place.display_name,
                 lat: place.lat,
                 lon: place.lon,

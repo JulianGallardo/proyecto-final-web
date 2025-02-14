@@ -3,7 +3,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { RouteService } from "@/lib/locationUtils/routeService";
-import { VehicleType, Address } from "@/types/PlannerTypes";
+import { VehicleType, Address, RouteSegment } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
 import { Bike, Car, Flag, Footprints, Home } from "lucide-react";
@@ -23,7 +23,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
     const [endPoint, setEndPoint] = useState<string>("");
     const [routeMetrics, setRouteMetrics] = useState<{ distance: number; duration: number } | null>(null);
     const [selectedInstruments, setSelectedInstruments] = useState<InstrumentoExtendido[]>([]);
-    const [routeSegments, setRouteSegments] = useState<any[]>([]);
+    const [routeSegments, setRouteSegments] = useState<RouteSegment[]>([]);
 
     const routeService = new RouteService();
 
@@ -59,7 +59,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 visited: false
             }));
 
-            let allAddresses = instrumentAddresses;
+            const allAddresses = instrumentAddresses;
 
 
             const locationsWithCoords = await Promise.all(
@@ -337,6 +337,13 @@ export function InstrumentList({ instruments, orderedAddresses, markAsVisited }:
 
 
 
+    const calculateText = (address: Address) => {
+        if (address.type === "start") return "Inicio";
+        if (address.type === "end") return "Fin";
+        if (address.type === "waypoint") return `Parada ${address.stopNumber} - `;
+        return "";
+    };
+
 
     return (
         <div className="space-y-2">
@@ -362,7 +369,7 @@ export function InstrumentList({ instruments, orderedAddresses, markAsVisited }:
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">
-                            {address.type === "start" ? "Inicio " : address.type === "end" ? "Fin " : ""}
+                            {calculateText(address)} 
                             {address.instrument ? `${address.instrument.instrumentoType.name} - ${address.instrument.codigoInstrumento}` : ""}
                         </p>
                         <div className="flex flex-row gap-2 items-center justify-between">

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { RouteService } from "@/lib/locationUtils/routeService";
 import { VehicleType, Address } from "@/types/PlannerTypes";
@@ -147,11 +146,11 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
     }
 
     async function markAsVisited(stopNumber: number) {
-        
+
 
         const hasStart = orderedAddresses.some((addr) => addr.type === "start");
 
-        if(hasStart ){
+        if (hasStart) {
             setOrderedAddresses((prev) =>
                 prev.map((addr) => (addr.type === "start" ? { ...addr, visited: true } : addr))
             );
@@ -162,7 +161,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
 
         await recalculateRoute(stopNumber);
 
-        
+
 
     }
 
@@ -177,7 +176,7 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
 
 
 
-        if(hasStart ){
+        if (hasStart) {
             ordered = ordered.filter((addr) => addr.type !== "start");
         }
 
@@ -201,6 +200,8 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
 
     }
 
+
+    const canFinish = orderedAddresses.length > 0 && orderedAddresses.every((addr) => addr.visited || addr.type === "end");
 
     return (
         <div className="flex flex-col gap-2 md:gap-0 md:flex-row h-screen w-full">
@@ -235,6 +236,24 @@ export default function RoutePlanner({ instruments, volver }: Readonly<RoutePlan
                 >
                     {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
                 </Button>
+
+                {
+                    canFinish && (
+                        <Button
+                            onClick={() => {
+                                setOrderedAddresses((prev) =>
+                                    prev.map((addr) => (addr.type === "end" ? { ...addr, visited: true } : addr))
+                                )
+                                setRouteSegments([]);
+                            }
+
+                            }
+                            className="w-full bg-blue-500 hover:bg-blue-700 mt-4"
+                        >
+                            <span>🏁 Finalizar Ruta</span>
+                        </Button>
+                    )
+                }
 
                 {routeMetrics && <RouteMetrics metrics={routeMetrics} />}
             </div>
@@ -356,7 +375,7 @@ export function InstrumentList({ instruments, orderedAddresses, markAsVisited }:
                                     disabled={address.visited}
                                     className="bg-blue-500 hover:bg-blue-700" onClick={() => markAsVisited(address.stopNumber)}>
                                     Marcar visitada
-                                </Button>   
+                                </Button>
                             }
                         </div>
                     </div>

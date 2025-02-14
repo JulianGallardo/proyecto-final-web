@@ -149,7 +149,6 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                                 {address.text}
                             </div>
                         }
-
                     </div>
                 </Marker>
                 

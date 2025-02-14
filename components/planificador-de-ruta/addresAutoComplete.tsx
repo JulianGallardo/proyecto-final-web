@@ -70,13 +70,14 @@ export default function AddressAutocomplete({
     }
 
     async function getCurrentLocation() {
-        // eslint-disable
+        // @ts-ignore
         if (!navigator.geolocation) {
             alert("La geolocalización no es compatible con tu navegador.");
             return;
         }
 
         try {
+            //@ts-ignore
             const position = await new Promise<GeolocationPosition>((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(resolve, reject);
             });

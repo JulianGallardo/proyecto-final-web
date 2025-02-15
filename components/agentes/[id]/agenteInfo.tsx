@@ -4,7 +4,7 @@ import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import EntregasRepartidor from "./entregas";
+import EntregasRepartidor from "../../entregas/entregas";
 import { MapPinnedIcon } from "lucide-react";
 import { FatCornerUpLeft, SadCircle, SkipBack } from "@mynaui/icons-react";
 import SkeletonAgenteInfo from "./skeletonAgenteInfo";

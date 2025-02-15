@@ -1,7 +1,6 @@
-import { getAgenteByMail, getAgentesPaginated, getTotalPages } from "@/actions/agente-actions"
+import { getAgenteByMail } from "@/actions/agente-actions"
 import { auth } from "@/auth"
-import EntregasRepartidor from "@/components/agentes/[id]/entregas"
-import ListAgentes from "@/components/agentes/list-agentes"
+import EntregasRepartidor from "@/components/entregas/entregas"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 
 interface SearchParamsAgentes {
@@ -28,7 +27,7 @@ export default async function EntregasPage(props: Readonly<{
     return (
         <div className="flex flex-col gap-4 p-4 ">
             <h2 className="text-2xl font-bold">Lista de Entregas</h2>
-            <EntregasRepartidor agenteId={agente.id} />
+            <EntregasRepartidor agenteId={agente.id} user={session}/>
         </div>
 
     )

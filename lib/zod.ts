@@ -1,4 +1,5 @@
 import { InstrumentoTypeDTO } from "@/types/instrumentoTypes";
+import { EstadoEntrega } from "@prisma/client";
 import {  object, string, z } from "zod"
 
 export const logInSchema = object({
@@ -114,3 +115,9 @@ export const editAgenteSchema = object({
     .positive()
     .min(10, { message: "El teléfono debe tener al menos 10 dígitos" })
 });
+
+export const loadNewEntregaInstrumentoSchema = object({
+  observaciones: string(),
+  estado: z.enum([EstadoEntrega.ENTREGADO, EstadoEntrega.NO_ENTREGADO, EstadoEntrega.PENDIENTE_DE_PROCESAR]),
+})
+  

@@ -2,8 +2,8 @@
 
 import EntregasRepository from "@/repositories/EntregasRepository";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import { EntregaInstrumentoUpdateDto } from "@/types/entregasType";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
-import { EstadoEntrega } from "@prisma/client";
 
 const entregaInstrumentosRepo = new EntregasRepository();
 
@@ -26,6 +26,6 @@ export async function createEntrega(instrument: InstrumentoExtendido, agente: Ag
     return entregaInstrumentosRepo.createEntrega(instrument,agente)
 }
 
-export async function updateEntrega(entregaId: number, instrument: InstrumentoExtendido, estado: EstadoEntrega, observaciones?: string) {
-    return entregaInstrumentosRepo.updateEntrega(entregaId, instrument, estado, observaciones);
+export async function updateEntrega(entregaId: number, data:EntregaInstrumentoUpdateDto) {
+    return entregaInstrumentosRepo.updateEntrega(entregaId, data);
 }

@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { EstadoEntrega } from "@prisma/client";
 import { Button } from "../ui/button";
 
-interface EntregaCardProps{
-    entrega: EntregaInstrumentosDto
+interface EntregaCardProps {
+    entrega: EntregaInstrumentosDto | null,
+    cargarEntrega: (entrega: EntregaInstrumentosDto) => void
 }
 
 const getStatusColor = (estado: EstadoEntrega) => {
@@ -21,7 +22,10 @@ const getStatusColor = (estado: EstadoEntrega) => {
     }
 };
 
-export default function EntregasCard({ entrega }: Readonly<EntregaCardProps>) {
+export default function EntregasCard({ entrega, cargarEntrega }: Readonly<EntregaCardProps>) {
+
+
+    if (!entrega) return null;
 
     const statusColor = getStatusColor(entrega.estado);
     return (
@@ -73,10 +77,12 @@ export default function EntregasCard({ entrega }: Readonly<EntregaCardProps>) {
                 )}
 
                 {
-                    <Button className="col-span-full" 
-                    
+                    <Button className="col-span-full"
+                        onClick={() => cargarEntrega(entrega)}
                     >
-                        Cargar Entrega
+                        {
+                            entrega.estado === EstadoEntrega.PENDIENTE_DE_PROCESAR ? "Cargar Entrega" : "Editar Entrega"
+                        }
                     </Button>
                 }
             </CardContent>

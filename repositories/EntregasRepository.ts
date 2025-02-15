@@ -1,7 +1,7 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { EntregaInstrumentos, EstadoEntrega } from "@prisma/client";
-import { EntregaInstrumentosDto } from "@/types/entregasType";
+import { EntregaInstrumentos } from "@prisma/client";
+import { EntregaInstrumentosDto, EntregaInstrumentoUpdateDto } from "@/types/entregasType";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 
@@ -23,21 +23,16 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
 
     }
 
-    updateEntrega(entregaId: number, instrument: InstrumentoExtendido, estado: EstadoEntrega, observaciones?: string): Promise<EntregaInstrumentos> {
+    updateEntrega(entregaId: number, data:EntregaInstrumentoUpdateDto): Promise<EntregaInstrumentos> {
         return this.modelClient.update({
             where: {
                 id: entregaId,
             },
             data: {
-                instrumentoId: instrument.codigoInstrumento,
-                instrumento: {
-                    connect: {
-                        instrumentoId: instrument.codigoInstrumento,
-                    }
-                },
-                estado: estado,
+                instrumentoId: data.instrumento.codigoInstrumento,
+                estado: data.estado,
                 updatedAt: new Date(),
-                observaciones: observaciones
+                observaciones: data.observaciones
             },
 
         });

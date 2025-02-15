@@ -23,11 +23,11 @@ interface PlaceResult {
     lon: string;
 }
 
-export default function AddressAutocomplete({ 
-    placeHolder = "", 
-    Icon, 
-    onChange, 
-    miUbicacion = true 
+export default function AddressAutocomplete({
+    placeHolder = "",
+    Icon,
+    onChange,
+    miUbicacion = true
 }: Readonly<AddressAutocompleteProps>) {
     const [query, setQuery] = useState<string>("");
     const [results, setResults] = useState<PlaceResult[]>([]);
@@ -41,18 +41,23 @@ export default function AddressAutocomplete({
             return;
         }
 
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&countrycodes=AR&limit=5&bounded=1&viewbox=${bbox}`;
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&countrycodes=AR&limit=5&bounded=1&viewbox=${bbox}`;
 
-        const response = await fetch(url);
-        const data = await response.json();
+            const response = await fetch(url);
+            const data = await response.json();
 
-        setResults(
-            data.map((place: Place) => ({
-                name: place.display_name,
-                lat: place.lat.toString(),
-                lon: place.lon.toString(),
-            }))
-        );
+            setResults(
+                data.map((place: Place) => ({
+                    name: place.display_name,
+                    lat: place.lat.toString(),
+                    lon: place.lon.toString(),
+                }))
+            );
+        } catch (error) {
+            console.error(error);
+            
+        }
     }
 
     const handleSearch = useDebouncedCallback(async (searchText: string) => {

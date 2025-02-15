@@ -1,4 +1,3 @@
-
 import { VehicleType, RouteSegment, Address } from '@/types/PlannerTypes';
 
 export class RouteService {
@@ -12,8 +11,6 @@ export class RouteService {
 
         const res = await fetch(url);
         const data = await res.json();
-
-
 
         if (data.length > 0) {
             return [parseFloat(data[0].lon), parseFloat(data[0].lat)];
@@ -45,121 +42,103 @@ export class RouteService {
         vehicle: VehicleType,
         ordenNumber?: number
     ): Promise<RouteSegment[]> {
+        // Filtrar los instrumentos desde el ordenNumber si existe
+        const startIndex = ordenNumber 
+            ? orderedInstruments.findIndex(i => i.stopNumber === ordenNumber)
+            : 0;
+        
+        const relevantInstruments = ordenNumber 
+            ? orderedInstruments.slice(startIndex)
+            : orderedInstruments;
+
+        // Verificar que tenemos suficientes instrumentos
+        if (relevantInstruments.length < 2) {
+            console.warn("No hay suficientes instrumentos para crear una ruta.");
+            return [];
+        }
+
+        // Extraer las coordenadas de los instrumentos relevantes
+        const waypoints = relevantInstruments
+            .filter(instrument => instrument.coordinates)
+            .map(instrument => instrument.coordinates as [number, number]);
+
+        // Obtener el orden optimizado de los waypoints
+        const optimizedIndices = await this.getOptimizedRoute(waypoints, vehicle);
+        
+        // Reordenar los waypoints según la optimización
+        const optimizedWaypoints = optimizedIndices.map(index => waypoints[index]);
+        
+        // Reordenar los instrumentos según la optimización
+        const optimizedInstruments = optimizedIndices.map(index => relevantInstruments[index]);
+
+        // Configurar la petición para la API de directions
         const url = `https://api.openrouteservice.org/v2/directions/${vehicle}/geojson`;
+        const requestBody = {
+            coordinates: optimizedWaypoints,
+            radiuses: Array(optimizedWaypoints.length).fill(50), // Radio de 50 metros para cada parada
+            continue_straight: true,
+            options: {
+                avoid_features: ["highways"], // Evitar autopistas si es posible
+                avoid_borders: "controlled" // Evitar cruces de fronteras controladas
+            }
+        };
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 Authorization: this.API_KEY,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ coordinates })
+            body: JSON.stringify(requestBody)
         });
 
         const data = await response.json();
+
+        if (!data.features?.[0]?.properties?.segments) {
+            console.error("No se pudo obtener la ruta");
+            return [];
+        }
+
+        // Crear los segmentos de ruta con los datos recibidos
+        const routeCoordinates = data.features[0].geometry.coordinates;
+        const segments = data.features[0].properties.segments;
+
         return this.createRouteSegments(
-            orderedInstruments,
-            data.features[0].geometry.coordinates,
-            data.features[0].properties.segments,
-            ordenNumber
+            optimizedInstruments,
+            routeCoordinates,
+            segments,
+            startIndex
         );
     }
 
     private createRouteSegments(
         orderedInstruments: Address[],
         coordinates: [number, number][],
-        segmentData: { distance: number; duration: number }[],
-        lastVisitedOrder?: number
+        segmentData: { distance: number; duration: number; steps: any[] }[],
+        startIndex: number
     ): RouteSegment[] {
         const segments: RouteSegment[] = [];
-        
-        
 
-        if (orderedInstruments.length < 2) {
-            console.warn("No hay suficientes instrumentos para segmentar la ruta.");
-            return [];
-        }
+        for (let i = 0; i < segmentData.length; i++) {
+            const segment = segmentData[i];
+            const steps = segment.steps;
+            
+            // Encontrar los índices de inicio y fin para este segmento
+            const segmentStart = i > 0 ? steps[0].way_points[0] : 0;
+            const segmentEnd = steps[steps.length - 1].way_points[1];
 
-    
-        // Si tenemos lastVisitedOrder, filtramos desde ese punto
-        const startIndex = lastVisitedOrder ? orderedInstruments.findIndex((i) => i.stopNumber === lastVisitedOrder) : 0;
-    
-
-
-        // Si el índice es inválido o es el último elemento, retornamos array vacío
-        if (startIndex === -1 || startIndex === orderedInstruments.length - 1) {
-            console.warn("Índice de inicio inválido o es el último elemento.");
-            return [];
-        }
-    
-        // Tomamos solo los instrumentos desde el punto de inicio
-        const relevantInstruments = orderedInstruments.slice(startIndex);
-        
-        let start = 0;
-        let end = 0;
-    
-        for (let i = 0; i < relevantInstruments.length - 1; i++) {
-            const currentInstrument = relevantInstruments[i];
-            const nextInstrument = relevantInstruments[i + 1];
-    
-            // Establecemos el punto de inicio usando las coordenadas del instrumento actual
-            if (i === 0 && currentInstrument.coordinates) {
-                start = this.findNearestIndex(currentInstrument.coordinates, coordinates, 0);
-            }
-    
-            if (nextInstrument.coordinates) {
-                end = this.findNearestIndex(nextInstrument.coordinates, coordinates, start);
-            } else {
-                console.warn(`Instrument at index ${i + 1} has undefined coordinates.`);
-                end = start;
-            }
-    
             segments.push({
                 start: startIndex + i,
                 end: startIndex + i + 1,
-                coordinates: coordinates.slice(start, end + 1),
+                coordinates: coordinates.slice(segmentStart, segmentEnd + 1),
                 description: `Tramo ${startIndex + i + 1} → ${startIndex + i + 2}`,
-                distance: segmentData[i]?.distance || 0,
-                duration: segmentData[i]?.duration || 0
+                distance: segment.distance,
+                duration: segment.duration
             });
-    
-            start = end;
         }
-    
+
         return segments;
     }
-    
-    /**
-     * Encuentra el índice en `coordinates` que es más cercano a `targetCoord`
-     */
-    private findNearestIndex(targetCoord: [number, number] , coordinates: [number, number][], startIndex: number): number {
-        
-
-
-        let minDist = Infinity;
-        let nearestIndex = startIndex;
-
-        for (let i = startIndex; i < coordinates.length; i++) {
-            const dist = this.calculateDistance(targetCoord, coordinates[i]);
-            if (dist < minDist) {
-                minDist = dist;
-                nearestIndex = i;
-            }
-        }
-
-        return nearestIndex;
-    }
-
-    /**
-     * Calcula la distancia euclidiana entre dos coordenadas
-     */
-    private calculateDistance(coord1: [number, number], coord2: [number, number]): number {
-        const [lon1, lat1] = coord1;
-        const [lon2, lat2] = coord2;
-        return Math.sqrt((lon2 - lon1) ** 2 + (lat2 - lat1) ** 2);
-    }
-
-
-
 
     private optimizeRoute(durations: number[][]): number[] {
         const n = durations.length;

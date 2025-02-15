@@ -81,7 +81,7 @@ export class RouteService {
 
     
         // Si tenemos lastVisitedOrder, filtramos desde ese punto
-        const startIndex = lastVisitedOrder ? orderedInstruments.findIndex((i) => i.stopNumber === lastVisitedOrder) : orderedInstruments.findIndex((i) => i.type === 'start');
+        const startIndex = lastVisitedOrder ? orderedInstruments.findIndex((i) => i.stopNumber === lastVisitedOrder) : 0;
     
 
 

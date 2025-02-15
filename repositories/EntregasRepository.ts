@@ -58,7 +58,7 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                 AND: [
                     {
                         agenteId: agenteId,
-                        createdAt: {
+                        fecha_entrega: {
                             gte: gte,
                             lt: lt
                         },
@@ -87,10 +87,11 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                             }
                         },
 
-                        instrumentoId: true,
                     }
                 },
-                createdAt: true,
+                estado:true,
+                observaciones: true,
+                fecha_entrega: true,
                 updatedAt: true,
             },
             skip: (page - 1) * this.itemsPerPage,
@@ -113,7 +114,7 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                 AND: [
                     {
                         agenteId: agenteId,
-                        createdAt: {
+                        fecha_entrega: {
                             gte: gte, // Inicio del día
                             lt: lt
                         },

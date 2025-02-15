@@ -6,7 +6,6 @@ import { AddressInputs } from "./AddressInputs";
 import { InstrumentList } from "./InstrumentList";
 import { useRoutePlanner } from "@/hooks/use-route";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
-import { Address } from "@/types/PlannerTypes";
 
 interface ControlsProps {
     volver: () => void;

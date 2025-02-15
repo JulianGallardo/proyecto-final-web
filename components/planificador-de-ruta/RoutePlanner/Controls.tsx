@@ -29,6 +29,8 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
         canFinish,
         selectedInstruments,
         routeMetrics,
+        routeChoice,
+        setRouteChoice
     } = useRoutePlanner(instrumentos);
 
 
@@ -42,7 +44,7 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
 
             </div>
 
-            <RouteControls vehicle={vehicle} setVehicle={setVehicle} />
+            <RouteControls vehicle={vehicle} setVehicle={setVehicle} routeChoice={routeChoice} setRouteChoice={setRouteChoice}/>
 
             <AddressInputs
                 startPoint={startPoint}

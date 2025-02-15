@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { RouteService } from "@/lib/locationUtils/routeService";
-import { VehicleType, Address, RouteSegment } from "@/types/PlannerTypes";
+import { VehicleType, Address, RouteSegment, RouteChoiceType } from "@/types/PlannerTypes";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { useEffect } from 'react'
 
@@ -13,8 +13,10 @@ interface RouteState {
     routeMetrics: { distance: number; duration: number } | null;
     selectedInstruments: InstrumentoExtendido[];
     routeSegments: RouteSegment[];
+    routeChoice: RouteChoiceType;
 
     // Actions
+
     setOrderedAddresses: (addresses: Address[]) => void;
     setVehicle: (vehicle: VehicleType) => void;
     setLoading: (loading: boolean) => void;
@@ -26,6 +28,7 @@ interface RouteState {
     calculateRoute: () => Promise<void>;
     markAsVisited: (stopNumber: number) => Promise<void>;
     recalculateRoute: (stopNumber?: number) => Promise<void>;
+    setRouteChoice: (choice: RouteChoiceType) => void;
 }
 
 const routeService = new RouteService();
@@ -39,7 +42,9 @@ export const useRouteStore = create<RouteState>((set, get) => ({
     routeMetrics: null,
     selectedInstruments: [],
     routeSegments: [],
+    routeChoice: "fastest",
 
+    setRouteChoice: (choice) => set({ routeChoice: choice }),
     setOrderedAddresses: (addresses) => set({ orderedAddresses: addresses }),
     setVehicle: (vehicle) => set({ vehicle }),
     setLoading: (loading) => set({ loading }),
@@ -53,6 +58,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
         const {
             selectedInstruments,
             vehicle,
+            routeChoice,
             startPoint,
             endPoint,
             setOrderedAddresses,
@@ -141,7 +147,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
 
             const routeSegments = await routeService.getRouteGeometry(
                 ordered,
-                ordered.map(loc => loc.coordinates),
+                routeChoice,
                 vehicle
             );
 
@@ -194,7 +200,8 @@ export const useRouteStore = create<RouteState>((set, get) => ({
             orderedAddresses,
             vehicle,
             setRouteMetrics,
-            setRouteSegments
+            setRouteSegments,
+            routeChoice
         } = get();
 
         const hasStart = orderedAddresses.some((addr) => addr.type === "start");
@@ -209,7 +216,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
 
         const routeSegments = await routeService.getRouteGeometry(
             ordered,
-            ordered.map(loc => loc.coordinates).filter((coords): coords is [number, number] => coords !== undefined),
+            routeChoice,
             vehicle,
             stopNumber
         );
@@ -244,7 +251,9 @@ export const useRoutePlanner = (instruments: InstrumentoExtendido[]) => {
         markAsVisited,
         setStartPoint,
         setEndPoint,
-        setVehicle
+        setVehicle,
+        routeChoice,
+        setRouteChoice
     } = useRouteStore();
 
     useEffect(() => {
@@ -255,6 +264,8 @@ export const useRoutePlanner = (instruments: InstrumentoExtendido[]) => {
         orderedAddresses.every((addr) => addr.visited || addr.type === "end");
 
     return {
+        routeChoice,
+        setRouteChoice,
         orderedAddresses,
         setOrderedAddresses,
         setRouteSegments,

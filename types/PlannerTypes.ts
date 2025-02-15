@@ -6,6 +6,8 @@ export interface Coordinates {
     lng: number;
 }
 
+export type RouteChoiceType = "fastest" | "shortest" | "recommended";
+
 export interface Address {
     type: 'start' | 'end' | 'waypoint';
     stopNumber: number; 

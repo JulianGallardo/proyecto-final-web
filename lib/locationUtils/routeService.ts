@@ -1,4 +1,4 @@
-import { VehicleType, RouteSegment, Address } from '@/types/PlannerTypes';
+import { VehicleType, RouteSegment, Address, RouteChoiceType } from '@/types/PlannerTypes';
 
 export class RouteService {
     private readonly API_KEY = "5b3ce3597851110001cf624882964b6d51a94e329e8f7d689d9f7767";
@@ -38,7 +38,7 @@ export class RouteService {
 
     public async getRouteGeometry(
         orderedInstruments: Address[],
-        coordinates: [number, number][],
+        routeChoice: RouteChoiceType,
         vehicle: VehicleType,
         ordenNumber?: number
     ): Promise<RouteSegment[]> {
@@ -71,16 +71,14 @@ export class RouteService {
         // Reordenar los instrumentos según la optimización
         const optimizedInstruments = optimizedIndices.map(index => relevantInstruments[index]);
 
+        console.log(optimizedWaypoints.map((c, i) => ({ c, i })));
+
         // Configurar la petición para la API de directions
         const url = `https://api.openrouteservice.org/v2/directions/${vehicle}/geojson`;
         const requestBody = {
             coordinates: optimizedWaypoints,
-            radiuses: Array(optimizedWaypoints.length).fill(50), // Radio de 50 metros para cada parada
-            continue_straight: true,
-            options: {
-                avoid_features: ["highways"], // Evitar autopistas si es posible
-                avoid_borders: "controlled" // Evitar cruces de fronteras controladas
-            }
+            preference: routeChoice,
+            
         };
 
         const response = await fetch(url, {

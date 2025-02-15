@@ -3,9 +3,9 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { InstrumentoExtendido } from "@/types/instrumentoTypes";
-import ReviewStep from "./reviewStep";
-import SelectStep from "./selectStep";
-import MapWithPopUps from "./MapWithMarkers";
+import ReviewStep from "./ReviewStep/reviewStep";
+import SelectStep from "./SelectStep/selectStep";
+import MapWithPopUps from "../Maps/MapWithMarkers";
 
 
 interface InstrumentSelectorProps {

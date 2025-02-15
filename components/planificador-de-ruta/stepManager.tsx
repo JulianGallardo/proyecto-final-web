@@ -1,7 +1,7 @@
 "use client";
 
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
-import InstrumentSelector from "./selectInstrumentos";
+import InstrumentSelector from "./InstrumentSelector/selectInstrumentos";
 import { useState } from "react";
 import RoutePlanner from "./RoutePlanner/RouttePlanner";
 import "maplibre-gl/dist/maplibre-gl.css";

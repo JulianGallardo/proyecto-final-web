@@ -1,7 +1,7 @@
 import { useMediaQuery } from "@/hooks/use-media-query";
 import SlideableSheet from "@/components/ui/slideable-sheet";
 import PreviewContent from "./PreviewContent";
-import { MapComponent } from "../mapRoute";
+import { MapComponent } from "../Maps/mapRoute";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { useRoutePlanner } from "@/hooks/use-route";
 import { useState } from 'react';

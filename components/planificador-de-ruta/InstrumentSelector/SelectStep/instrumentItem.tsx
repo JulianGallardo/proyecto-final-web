@@ -1,6 +1,6 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent} from "../ui/accordion";
-import { Checkbox } from "../ui/checkbox";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface InstrumentItemProps {
     instrument: InstrumentoExtendido;

@@ -1,9 +1,9 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "../ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card";
-import { Badge } from "../ui/badge";
-import InputSearch from "./searchClient";
+import { Button } from "../../../ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../../ui/card";
+import { Badge } from "../../../ui/badge";
+import InputSearch from "../searchClient";
 import InstrumentItem from "./instrumentItem";
 import { SadCircle } from "@mynaui/icons-react";
 interface SelectStepProps {

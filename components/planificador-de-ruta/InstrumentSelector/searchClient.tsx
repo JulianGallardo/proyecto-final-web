@@ -1,5 +1,5 @@
 import { Search } from "@mynaui/icons-react";
-import { Input } from "../ui/input";
+import { Input } from "@/components/ui/input";
 
 
 interface InputSearchProps {

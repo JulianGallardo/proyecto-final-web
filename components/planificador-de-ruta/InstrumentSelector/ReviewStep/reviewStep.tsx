@@ -1,9 +1,7 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { ScrollArea } from "../../../ui/scroll-area";
 import { Button } from "../../../ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../../ui/card";
 import InstrumentReviewItem from "./reviewItems";
-
 
 interface ReviewStepProps {
     selectedInstruments: InstrumentoExtendido[];
@@ -12,16 +10,26 @@ interface ReviewStepProps {
     setStep: (value: "select" | "review") => void;
 }
 
-export default function ReviewStep({ selectedInstruments, handleToggleInstrument, handleDistribute, setStep }: Readonly<ReviewStepProps>) {
+export default function ReviewStep({ 
+    selectedInstruments, 
+    handleToggleInstrument, 
+    handleDistribute, 
+    setStep 
+}: Readonly<ReviewStepProps>) {
     return (
-        <Card className="shadow-lg">
-            <CardHeader className="space-y-2">
-                <CardTitle className="text-2xl font-bold">Revisar Selección</CardTitle>
-                <CardDescription className="text-base">
+        <div className="bg-white w-full h-full">
+            {/* Header Section */}
+            <div className="p-6 space-y-2 border-b">
+                <h2 className="text-2xl font-bold">
+                    Revisar Selección
+                </h2>
+                <p className="text-base text-gray-500">
                     {selectedInstruments.length} instrumentos seleccionados para distribución
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+                </p>
+            </div>
+
+            {/* Content Section */}
+            <div className="p-6 space-y-4">
                 <ScrollArea className="h-max-screen border rounded-lg">
                     <div className="p-4 space-y-2">
                         {selectedInstruments.map((instrument) => (
@@ -33,7 +41,9 @@ export default function ReviewStep({ selectedInstruments, handleToggleInstrument
                         ))}
                     </div>
                 </ScrollArea>
-                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
+
+                {/* Footer Section */}
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-2 pt-4 border-t">
                     <Button
                         variant="outline"
                         onClick={() => setStep("select")}
@@ -48,7 +58,7 @@ export default function ReviewStep({ selectedInstruments, handleToggleInstrument
                         Distribuir Instrumentos
                     </Button>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

@@ -1,11 +1,11 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "../../../ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../../ui/card";
 import { Badge } from "../../../ui/badge";
 import InputSearch from "../searchClient";
 import InstrumentItem from "./instrumentItem";
 import { SadCircle } from "@mynaui/icons-react";
+
 interface SelectStepProps {
     instruments: InstrumentoExtendido[];
     searchTerm: string;
@@ -15,8 +15,6 @@ interface SelectStepProps {
     setStep: (value: "select" | "review") => void;
 }
 
-
-
 export default function SelectStep({
     instruments,
     searchTerm,
@@ -25,33 +23,35 @@ export default function SelectStep({
     handleToggleInstrument,
     setStep
 }: Readonly<SelectStepProps>) {
-
-
-
-
     return (
-        <Card className="shadow-lg h-full ">
-            <CardHeader className="space-y-2">
-                <CardTitle className="text-2xl font-bold">Seleccionar Instrumentos</CardTitle>
-                <CardDescription className="text-base">
+        <div className="bg-white  h-full ">
+            {/* Header Section */}
+            <div className="p-6 space-y-2 border-b">
+                <h2 className="text-2xl font-bold">
+                    Seleccionar Instrumentos
+                </h2>
+                <p className="text-base text-gray-500">
                     Seleccione los instrumentos que desea distribuir
-                    {selectedInstruments.length > 0 && (
+                    {selectedInstruments.length > 0 ? (
                         <Badge variant="secondary" className="ml-2">
                             {selectedInstruments.length} seleccionados
                         </Badge>
+                    ) : (
+                        <Badge variant="secondary" className="ml-2">
+                            No hay instrumentos seleccionados
+                        </Badge>
                     )}
-                    {
-                        selectedInstruments.length === 0 && (
-                            <Badge variant="secondary" className="ml-2">
-                                No hay instrumentos seleccionados
-                            </Badge>
-                        )
-                    }
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 ">
-                <InputSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-                <ScrollArea className=" border rounded-lg">
+                </p>
+            </div>
+
+            {/* Content Section */}
+            <div className="p-6 space-y-4">
+                <InputSearch 
+                    searchTerm={searchTerm} 
+                    setSearchTerm={setSearchTerm} 
+                />
+                
+                <ScrollArea className="border rounded-lg">
                     <div className="p-4 space-y-2">
                         {instruments.map((instrument) => (
                             <InstrumentItem
@@ -61,17 +61,18 @@ export default function SelectStep({
                                 handleToggleInstrument={handleToggleInstrument}
                             />
                         ))}
-                        {
-                            instruments.length === 0 && searchTerm.length > 0 && (
-                                <div className="text-center text-gray-500">
-                                    <SadCircle className="w-12 h-12 mx-auto" />
-                                    <p>No hay resultados para la búsqueda</p>
-                                </div>
-                            )
-                        }
+                        
+                        {instruments.length === 0 && searchTerm.length > 0 && (
+                            <div className="text-center text-gray-500 py-8">
+                                <SadCircle className="w-12 h-12 mx-auto mb-2" />
+                                <p>No hay resultados para la búsqueda</p>
+                            </div>
+                        )}
                     </div>
                 </ScrollArea>
-                <div className="flex justify-end space-x-2 pt-4">
+
+                {/* Footer Section */}
+                <div className="flex justify-end space-x-2 pt-4 border-t">
                     <Button
                         onClick={() => setStep("review")}
                         disabled={selectedInstruments.length === 0}
@@ -80,9 +81,7 @@ export default function SelectStep({
                         Revisar Selección ({selectedInstruments.length})
                     </Button>
                 </div>
-            </CardContent>
-        </Card>
-
-
+            </div>
+        </div>
     );
 }

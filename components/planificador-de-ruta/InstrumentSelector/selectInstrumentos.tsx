@@ -58,9 +58,9 @@ export default function InstrumentSelector({
     return (
         <div className="flex flex-col w-full h-full">
             {isMobile &&
-                <div className="md:hidden w-full">
+                <div className="h-full w-full">
                     <Tabs defaultValue="list" className="w-full">
-                        <TabsList className="w-full mb-4">
+                        <TabsList className="w-full ">
                             <TabsTrigger value="list" className="w-1/2" onClick={() => setActiveView("list")}>
                                 <List className="w-4 h-4 mr-2" />
                                 Lista
@@ -93,17 +93,17 @@ export default function InstrumentSelector({
                             </div>
                         </TabsContent>
 
-                        <TabsContent value="map" className="mt-0">
-                            <div className="container h-screen w-full">
+                        <TabsContent value="map" className="h-[calc(100vh-11vh)] mt-0">
+                            <div className="w-full h-full">
                                 <MapWithPopUps selectedInstruments={selectedInstruments} />
                             </div>
                         </TabsContent>
                     </Tabs>
                 </div>
             }
-            { !isMobile &&
+            {!isMobile &&
                 <div className="hidden md:flex flex-row w-full h-full">
-                    <div className="w-1/2 p-4">
+                    <div className="w-1/2 ">
                         {step === "select" ? (
                             <SelectStep
                                 instruments={filteredInstruments}
@@ -122,7 +122,7 @@ export default function InstrumentSelector({
                             />
                         )}
                     </div>
-                    <div className="w-1/2 p-4">
+                    <div className="w-1/2 ">
                         <MapWithPopUps selectedInstruments={selectedInstruments} />
                     </div>
                 </div>

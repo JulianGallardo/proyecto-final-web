@@ -36,15 +36,17 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
 
     return (
         <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-                <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full">
-                    <span className="mr-2">Volver atras</span>
-                    <FatCornerUpLeft className="w-6 h-6" />
-                </Button>
 
-            </div>
+            <Button
+                onClick={calculateRoute}
+                className="w-full bg-green-500 hover:bg-green-600 mt-4"
+                disabled={loading || selectedInstruments.length === 0}
+            >
+                {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
+            </Button>
 
-            <RouteControls vehicle={vehicle} setVehicle={setVehicle} routeChoice={routeChoice} setRouteChoice={setRouteChoice}/>
+
+            <RouteControls vehicle={vehicle} setVehicle={setVehicle} routeChoice={routeChoice} setRouteChoice={setRouteChoice} />
 
             <AddressInputs
                 startPoint={startPoint}
@@ -60,13 +62,15 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
                 markAsVisited={markAsVisited}
             />
 
-            <Button
-                onClick={calculateRoute}
-                className="w-full bg-green-500 hover:bg-green-600 mt-4"
-                disabled={loading || selectedInstruments.length === 0}
-            >
-                {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
-            </Button>
+            <div className="flex items-center justify-between">
+                <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full">
+                    <span className="mr-2">Volver atras</span>
+                    <FatCornerUpLeft className="w-6 h-6" />
+                </Button>
+
+            </div>
+
+
 
             {canFinish && (
                 <Button

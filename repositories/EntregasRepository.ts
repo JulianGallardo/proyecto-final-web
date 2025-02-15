@@ -76,6 +76,8 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                                 name: true,
                             }
                         },
+                        codigoInstrumento: true,
+                        cargaInstrumento: true,
                         orden: {
                             select: {
                                 ordenNumber: true,

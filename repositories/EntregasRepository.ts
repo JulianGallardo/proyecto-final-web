@@ -17,11 +17,6 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
         return this.modelClient.create({
             data: {
                 instrumentoId: instrument.codigoInstrumento,
-                instrumento: {
-                    connect: {
-                        instrumentoId: instrument.codigoInstrumento,
-                    }
-                },
                 agenteId: agente.id,
             },
         });

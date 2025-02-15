@@ -57,14 +57,20 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
         try {
 
 
-            await createEntregas(instrumentosDelivered, agente);
+            const entregas = await createEntregas(instrumentosDelivered, agente);
 
+            if (entregas.length === 0) {
+                throw new Error("No se pudieron registrar las entregas");
+            }
+            else{
+                
             toast({
                 title: "Entregas registradas",
                 description: `Las entregas han sido registradas correctamente`,
                 className: "bg-green-500 text-white",
                 duration: 3000,
             });
+            }
 
         } catch (error) {
             console.error(error);

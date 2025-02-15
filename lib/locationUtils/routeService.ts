@@ -112,7 +112,9 @@ export class RouteService {
     private createRouteSegments(
         orderedInstruments: Address[],
         coordinates: [number, number][],
-        segmentData: { distance: number; duration: number; steps: any[] }[],
+        segmentData: { distance: number; duration: number; steps: {
+            way_points: number[];
+        }[] }[],
         startIndex: number
     ): RouteSegment[] {
         const segments: RouteSegment[] = [];

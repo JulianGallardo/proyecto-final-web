@@ -8,6 +8,7 @@ export enum Resource {
     ZONAS = "Zonas",
     CONTROL = "CONTROL",
     PLANIFICADOR = "Planificador de Ruta",
+    ENTREGAS = "Entregas",
 }
 
 export enum Operation {

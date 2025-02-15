@@ -27,7 +27,7 @@ export default function Menu() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 items-center justify-center gap-6 md:gap-6 lg:gap-6 mx-4">
         {/* Card Áreas */}
 
-        { canView(session.user.role, Resource.ZONAS) &&
+        {canView(session.user.role, Resource.ZONAS) &&
           <CustomCard
             title="Zonas"
             description="Gestiona y visualiza las zonas disponibles en el sistema."
@@ -38,41 +38,50 @@ export default function Menu() {
 
         {/* Card Repartidores */}
         {
+          canView(session.user.role, Resource.ENTREGAS) &&
+          <CustomCard
+            title="Entregas"
+            description="Consulta y administra la información de tus entregas"
+            icon={Package}
+            onClick={() => router.push("/entregas")}
+          />
+        }
+        {
           canView(session.user.role, Resource.AGENTE) &&
           <CustomCard
-          title="Agentes"
-          description="Consulta y administra la información de los agente."
-          icon={Truck}
-          onClick={() => router.push("/agentes")}
-        />}
+            title="Agentes"
+            description="Consulta y administra la información de los agente."
+            icon={Truck}
+            onClick={() => router.push("/agentes")}
+          />}
 
         {/* Card Paquetes */}
         {
           canView(session.user.role, Resource.INSTRUMENTOS) &&
           <CustomCard
-          title="Instrumentos"
-          description="Gestiona y rastrea los instrumentos en tránsito."
-          icon={Package}
-          onClick={() => router.push("/instrumentos")}
-        />}
+            title="Instrumentos"
+            description="Gestiona y rastrea los instrumentos en tránsito."
+            icon={Package}
+            onClick={() => router.push("/instrumentos")}
+          />}
 
         {/* Card Reportes */}
         {
           canView(session.user.role, Resource.CONTROL) &&
           <CustomCard
-          title="Control"
-          description="Revisa los datos y genera reportes detallados."
-          icon={ChartGraph}
-          onClick={() => router.push("/control")}
-        />}
+            title="Control"
+            description="Revisa los datos y genera reportes detallados."
+            icon={ChartGraph}
+            onClick={() => router.push("/control")}
+          />}
 
         {
           canView(session.user.role, Resource.PLANIFICADOR) &&
           <CustomCard
-          title="Planificador"
-          description="Planifica la ruta de reparto."
-          icon={Map}
-          onClick={() => router.push("/planificador-de-ruta")} />
+            title="Planificador"
+            description="Planifica la ruta de reparto."
+            icon={Map}
+            onClick={() => router.push("/planificador-de-ruta")} />
         }
       </div>
     </div>

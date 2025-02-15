@@ -7,6 +7,7 @@ import { parseDate } from "@/lib/utils";
 import EntregasList from "./entregasList";
 import { Session } from "next-auth";
 import { Input } from "../ui/input";
+import DateSelector from "./datePicker";
 
 interface EntregasRepartidorProps {
     agenteId: number;
@@ -46,14 +47,7 @@ export default async function EntregasServerSide({
                 </CardHeader>
                 <CardContent className="flex flex-col space-y-4">
                     {/* Convert to form for server actions */}
-                    <form action="/entregas" className="w-full">
-                        <Input
-                            type="date"
-                            name="date"
-                            defaultValue={selectedDate}
-                            className="w-full p-2 rounded-md"
-                        />
-                    </form>
+                    <DateSelector defaultValue={selectedDate} />
 
                     {error && (
                         <div className="text-red-500 text-sm font-semibold">

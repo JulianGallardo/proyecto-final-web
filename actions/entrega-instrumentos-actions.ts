@@ -15,6 +15,13 @@ export async function getTotalPages(agenteId: number, dateQuery: string) {
     return entregaInstrumentosRepo.getTotalPages(agenteId, dateQuery);
 }
 
+
+export async function createEntregas(instruments: InstrumentoExtendido[], agente: AgenteExtendidoDto) {
+    return instruments.map(async (instrument) => {
+        return await entregaInstrumentosRepo.createEntrega(instrument, agente);
+    });
+}
+
 export async function createEntrega(instrument: InstrumentoExtendido, agente: AgenteExtendidoDto) {
     return entregaInstrumentosRepo.createEntrega(instrument,agente)
 }

@@ -260,8 +260,7 @@ export const useRoutePlanner = (instruments: InstrumentoExtendido[]) => {
         setSelectedInstruments(instruments);
     }, [instruments, setSelectedInstruments]);
 
-    const canFinish = orderedAddresses.length > 0 &&
-        orderedAddresses.every((addr) => addr.visited || addr.type === "end");
+    const canFinish = orderedAddresses.length > 0 && orderedAddresses.some(addr => addr.visited);
 
     return {
         routeChoice,

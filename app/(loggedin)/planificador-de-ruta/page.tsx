@@ -33,7 +33,7 @@ export default async function PlanificadorPage() {
   const instrumentos = await getInstrumentosByZones(agente.zonas.map(zona => zona.zoneName))
   return (
     <div className="flex h-full w-full  ">
-      <StepPlanner instrumentos={instrumentos} />
+      <StepPlanner instrumentos={instrumentos} agente={agente} />
     </div>
   )
 }

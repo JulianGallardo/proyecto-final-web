@@ -7,13 +7,18 @@ import { InstrumentList } from "./InstrumentList";
 import { useRoutePlanner } from "@/hooks/use-route";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { FlagTriangleRightIcon } from "lucide-react";
+import { createEntregas } from "@/actions/entrega-instrumentos-actions";
+import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import { toast } from "@/hooks/use-toast";
 
 interface ControlsProps {
     volver: () => void;
     instrumentos: InstrumentoExtendido[];
+    agente: AgenteExtendidoDto
 }
 
-export default function Controls({ volver, instrumentos }: Readonly<ControlsProps>) {
+export default function Controls({ volver, instrumentos, agente }: Readonly<ControlsProps>) {
     const {
         orderedAddresses,
         setOrderedAddresses,
@@ -36,9 +41,45 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
 
     const isMobile = useIsMobile();
 
+    console.log(agente);
 
-    function handleFinalizarEntrega() {
-        
+    async function handleFinalizarEntrega() {
+        const instrumentosFilter = orderedAddresses.filter((addr) => addr.visited && addr.instrument !== undefined);
+
+        const instrumentosDelivered = instrumentosFilter.map((addr) => addr.instrument!);
+
+        console.log(instrumentosDelivered);
+        setRouteSegments([]);
+        setOrderedAddresses([]);
+        setStartPoint("");
+        setEndPoint("");
+
+        try {
+
+
+            await createEntregas(instrumentosDelivered, agente);
+
+            toast({
+                title: "Entregas registradas",
+                description: `Las entregas han sido registradas correctamente`,
+                className: "bg-green-500 text-white",
+                duration: 3000,
+            });
+
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Error",
+                description: (error instanceof Error ? error.message : "Ha ocurrido un error al registrar las entregas"),
+                className: "bg-red-500 text-white",
+                duration: 3000,
+
+            }
+            );
+        }
+
+
+
     }
 
 
@@ -70,6 +111,17 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
                 markAsVisited={markAsVisited}
             />
 
+            <Button
+                disabled={!canFinish}
+                onClick={
+                    handleFinalizarEntrega
+                }
+                className="w-full bg-yellow-500 hover:bg-yellow-700 mt-4"
+            >
+                <span>Finalizar Entrega</span>
+                <FlagTriangleRightIcon className="w-6 h-6" />
+            </Button>
+
             <div className="flex items-center justify-between">
                 <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full">
                     <span className="mr-2">Volver atras</span>
@@ -77,22 +129,6 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
                 </Button>
 
             </div>
-
-
-
-            {canFinish && (
-                <Button
-                    onClick={() => {
-                        setOrderedAddresses(orderedAddresses.map((addr) => (addr.type === "end" ? { ...addr, visited: true } : addr))
-                        );
-                        setRouteSegments([]);
-                    }}
-                    className="w-full bg-blue-500 hover:bg-blue-700 mt-4"
-                >
-                    <span>🏁 Finalizar Entrega</span>
-                </Button>
-            )}
-
             {routeMetrics && !isMobile && <RouteMetrics metrics={routeMetrics} />}
         </div>
     );

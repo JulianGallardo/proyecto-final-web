@@ -1,4 +1,5 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl } from "@vis.gl/react-maplibre";

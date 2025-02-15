@@ -3,7 +3,8 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import InstrumentSelector from "./selectInstrumentos";
 import { useState } from "react";
-import RoutePlanner from "./planificador";
+import RoutePlanner from "./RoutePlanner/RouttePlanner";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 interface StepPlannerProps{
     instrumentos: InstrumentoExtendido[];
@@ -30,7 +31,7 @@ export default function StepPlanner({instrumentos}: Readonly<StepPlannerProps>) 
     
     
     return (
-        <div className="flex flex-col w-full h-full ">
+        <div className="flex w-full h-full ">
             
             {
                 step === 0 && <InstrumentSelector instruments={instrumentos} handleSetInstrumentosARepartir={handleSetInstrumentosARepartir} />

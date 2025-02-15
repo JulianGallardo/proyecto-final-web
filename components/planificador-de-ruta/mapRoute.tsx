@@ -18,17 +18,17 @@ interface MapComponentProps {
 
 function calculateIcon(address: Address) {
 
-    if(address.visited){
+    if (address.visited) {
         return <MapPinCheck className="h-10 w-10 text-green-500" />
     }
 
-    if(address.type === "start") {
+    if (address.type === "start") {
         return <HomeIcon className="h-10 w-10 text-blue-500" />
     }
-    if(address.type === "end") {
+    if (address.type === "end") {
         return <Flag className="h-10 w-10 text-black" />
     }
-    else{
+    else {
         return <MapPin className="h-10 w-10 text-red-500" />
     }
 
@@ -76,12 +76,12 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
         >
             <NavigationControl showCompass={false} />
             <FullscreenControl />
-            <GeolocateControl 
+            <GeolocateControl
                 positionOptions={{ enableHighAccuracy: true }}
                 trackUserLocation={true}
                 showUserLocation={true}
-                
-                
+
+
             />
 
             {orderedAddresses.length === 0 && selectedInstruments.map((instrument) => (
@@ -124,7 +124,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
             )}
 
             {orderedAddresses.map((address, index) => (
-                
+
                 <Marker
                     key={address.instrument?.codigoInstrumento ?? index}
                     latitude={address.coordinates?.[1]}
@@ -157,7 +157,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                         }
                     </div>
                 </Marker>
-                
+
             ))}
 
             {routeSegments?.map((segment, index) => {

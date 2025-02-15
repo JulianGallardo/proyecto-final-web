@@ -30,7 +30,7 @@ export default function SelectStep({
                 <h2 className="text-2xl font-bold">
                     Seleccionar Instrumentos
                 </h2>
-                <p className="text-base text-gray-500">
+                <div className="text-base text-gray-500">
                     Seleccione los instrumentos que desea distribuir
                     {selectedInstruments.length > 0 ? (
                         <Badge variant="secondary" className="ml-2">
@@ -41,7 +41,7 @@ export default function SelectStep({
                             No hay instrumentos seleccionados
                         </Badge>
                     )}
-                </p>
+                </div>
             </div>
 
             {/* Content Section */}

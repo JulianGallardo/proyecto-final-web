@@ -1,23 +1,28 @@
 import { useState, useMemo } from "react";
-import { X } from "lucide-react";
+import { X, MapPin, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import ReviewStep from "./ReviewStep/reviewStep";
 import SelectStep from "./SelectStep/selectStep";
 import MapWithPopUps from "../Maps/MapWithMarkers";
-
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface InstrumentSelectorProps {
     instruments: InstrumentoExtendido[];
     handleSetInstrumentosARepartir: (instrumentos: InstrumentoExtendido[]) => void;
 }
 
-export default function InstrumentSelector({ instruments, handleSetInstrumentosARepartir }: Readonly<InstrumentSelectorProps>) {
+export default function InstrumentSelector({
+    instruments,
+    handleSetInstrumentosARepartir
+}: Readonly<InstrumentSelectorProps>) {
     const [selectedInstruments, setSelectedInstruments] = useState<InstrumentoExtendido[]>([]);
     const [message, setMessage] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState("");
     const [step, setStep] = useState<"select" | "review">("select");
+    const [activeView, setActiveView] = useState<"list" | "map">("list");
 
     const filteredInstruments = useMemo(() => {
         return instruments.filter((instrument) => {
@@ -31,6 +36,8 @@ export default function InstrumentSelector({ instruments, handleSetInstrumentosA
             );
         });
     }, [instruments, searchTerm]);
+
+    const isMobile = useIsMobile();
 
     const handleToggleInstrument = (instrument: InstrumentoExtendido) => {
         setSelectedInstruments((prev) =>
@@ -49,42 +56,88 @@ export default function InstrumentSelector({ instruments, handleSetInstrumentosA
     };
 
     return (
-        <div className="flex flex-col md:flex-row w-full h-full">
-            <div className=" w-full h-content p-4">
-                {step === "select" ? (
-                    <SelectStep
-                        instruments={filteredInstruments}
-                        searchTerm={searchTerm}
-                        setSearchTerm={setSearchTerm}
-                        selectedInstruments={selectedInstruments}
-                        handleToggleInstrument={handleToggleInstrument}
-                        setStep={setStep}
-                    />
-                ) : (
-                    <ReviewStep
-                        selectedInstruments={selectedInstruments}
-                        handleToggleInstrument={handleToggleInstrument}
-                        handleDistribute={handleDistribute}
-                        setStep={setStep}
-                    />
-                )}
-                {message && (
-                    <Alert className="mt-4">
-                        <AlertDescription className="flex items-center justify-between">
-                            {message}
-                            <Button variant="ghost" size="sm" onClick={() => setMessage("")}>
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </AlertDescription>
-                    </Alert>
-                )}
-            </div>
-            <div className="w-full h-full p-4">
-                <MapWithPopUps selectedInstruments={selectedInstruments} />
-            </div>
+        <div className="flex flex-col w-full h-full">
+            {isMobile &&
+                <div className="md:hidden w-full">
+                    <Tabs defaultValue="list" className="w-full">
+                        <TabsList className="w-full mb-4">
+                            <TabsTrigger value="list" className="w-1/2" onClick={() => setActiveView("list")}>
+                                <List className="w-4 h-4 mr-2" />
+                                Lista
+                            </TabsTrigger>
+                            <TabsTrigger value="map" className="w-1/2" onClick={() => setActiveView("map")}>
+                                <MapPin className="w-4 h-4 mr-2" />
+                                Mapa
+                            </TabsTrigger>
+                        </TabsList>
 
+                        <TabsContent value="list" className="mt-0">
+                            <div className="p-4">
+                                {step === "select" ? (
+                                    <SelectStep
+                                        instruments={filteredInstruments}
+                                        searchTerm={searchTerm}
+                                        setSearchTerm={setSearchTerm}
+                                        selectedInstruments={selectedInstruments}
+                                        handleToggleInstrument={handleToggleInstrument}
+                                        setStep={setStep}
+                                    />
+                                ) : (
+                                    <ReviewStep
+                                        selectedInstruments={selectedInstruments}
+                                        handleToggleInstrument={handleToggleInstrument}
+                                        handleDistribute={handleDistribute}
+                                        setStep={setStep}
+                                    />
+                                )}
+                            </div>
+                        </TabsContent>
+
+                        <TabsContent value="map" className="mt-0">
+                            <div className="container h-screen w-full">
+                                <MapWithPopUps selectedInstruments={selectedInstruments} />
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+            }
+            { !isMobile &&
+                <div className="hidden md:flex flex-row w-full h-full">
+                    <div className="w-1/2 p-4">
+                        {step === "select" ? (
+                            <SelectStep
+                                instruments={filteredInstruments}
+                                searchTerm={searchTerm}
+                                setSearchTerm={setSearchTerm}
+                                selectedInstruments={selectedInstruments}
+                                handleToggleInstrument={handleToggleInstrument}
+                                setStep={setStep}
+                            />
+                        ) : (
+                            <ReviewStep
+                                selectedInstruments={selectedInstruments}
+                                handleToggleInstrument={handleToggleInstrument}
+                                handleDistribute={handleDistribute}
+                                setStep={setStep}
+                            />
+                        )}
+                    </div>
+                    <div className="w-1/2 p-4">
+                        <MapWithPopUps selectedInstruments={selectedInstruments} />
+                    </div>
+                </div>
+            }
+
+            {message && (
+                <Alert className="mt-4">
+                    <AlertDescription className="flex items-center justify-between">
+                        {message}
+                        <Button variant="ghost" size="sm" onClick={() => setMessage("")}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </AlertDescription>
+                </Alert>
+            )}
         </div>
     );
 }
-
-

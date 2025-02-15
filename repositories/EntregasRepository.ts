@@ -1,8 +1,9 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { EntregaInstrumentos } from "@prisma/client";
+import { EntregaInstrumentos, EstadoEntrega } from "@prisma/client";
 import { EntregaInstrumentosDto } from "@/types/entregasType";
-import { parseDate } from "@/lib/utils";
+import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+import { AgenteExtendidoDto } from "@/types/agenteTypes";
 
 export default class EntregasRepository extends BaseRepository<EntregaInstrumentos> {
     constructor() {
@@ -10,6 +11,42 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
     }
 
     itemsPerPage = 9;
+
+
+    createEntrega(instrument: InstrumentoExtendido, agente: AgenteExtendidoDto): Promise<EntregaInstrumentos> {
+        return this.modelClient.create({
+            data: {
+                instrumentoId: instrument.codigoInstrumento,
+                instrumento: {
+                    connect: {
+                        instrumentoId: instrument.codigoInstrumento,
+                    }
+                },
+                agenteId: agente.id,
+            },
+        });
+
+    }
+
+    updateEntrega(entregaId: number, instrument: InstrumentoExtendido, estado: EstadoEntrega, observaciones?: string): Promise<EntregaInstrumentos> {
+        return this.modelClient.update({
+            where: {
+                id: entregaId,
+            },
+            data: {
+                instrumentoId: instrument.codigoInstrumento,
+                instrumento: {
+                    connect: {
+                        instrumentoId: instrument.codigoInstrumento,
+                    }
+                },
+                estado: estado,
+                updatedAt: new Date(),
+                observaciones: observaciones
+            },
+
+        });
+    }
 
 
 

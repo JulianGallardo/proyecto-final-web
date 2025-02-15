@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { RouteChoiceType, VehicleType } from "@/types/PlannerTypes";
-import { Config } from "@mynaui/icons-react";
 import { Car, Bike, Footprints, Rabbit, Spline, ShieldCheck, Settings } from "lucide-react";
 
 interface RouteControlsProps {

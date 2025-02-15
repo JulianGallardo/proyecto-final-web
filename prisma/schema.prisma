@@ -35,6 +35,8 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
+
+  
 model Agente {
   id                  Int                   @id @default(autoincrement())
   userId              String                @unique
@@ -42,8 +44,15 @@ model Agente {
   zonas               Zone[]
   EntregaInstrumentos EntregaInstrumentos[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum EstadoEntrega {
+  PENDIENTE_DE_PROCESAR
+  ENTREGADO
+  NO_ENTREGADO
 }
 
 model EntregaInstrumentos {
@@ -53,7 +62,12 @@ model EntregaInstrumentos {
   instrumentoId String
   instrumento   Instrumento @relation(fields: [instrumentoId], references: [codigoInstrumento], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+  estado EstadoEntrega @default(PENDIENTE_DE_PROCESAR)
+
+  observaciones String?
+
+  fecha_entrega DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 }
 
@@ -177,8 +191,8 @@ model Instrumento {
   instrumentoType   InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
 
   HistorialEntregas EntregaInstrumentos[]
-  zoneName          String?                
-  Zona              Zone?                  @relation(fields: [zoneName], references: [zoneName])
+  zoneName          String?
+  Zona              Zone?                 @relation(fields: [zoneName], references: [zoneName])
 
   latitude  Float?
   longitude Float?

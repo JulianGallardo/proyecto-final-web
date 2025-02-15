@@ -6,6 +6,7 @@ import { AddressInputs } from "./AddressInputs";
 import { InstrumentList } from "./InstrumentList";
 import { useRoutePlanner } from "@/hooks/use-route";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ControlsProps {
     volver: () => void;
@@ -32,6 +33,13 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
         routeChoice,
         setRouteChoice
     } = useRoutePlanner(instrumentos);
+
+    const isMobile = useIsMobile();
+
+
+    function handleFinalizarEntrega() {
+        
+    }
 
 
     return (
@@ -81,11 +89,11 @@ export default function Controls({ volver, instrumentos }: Readonly<ControlsProp
                     }}
                     className="w-full bg-blue-500 hover:bg-blue-700 mt-4"
                 >
-                    <span>🏁 Finalizar Ruta</span>
+                    <span>🏁 Finalizar Entrega</span>
                 </Button>
             )}
 
-            {routeMetrics && <RouteMetrics metrics={routeMetrics} />}
+            {routeMetrics && !isMobile && <RouteMetrics metrics={routeMetrics} />}
         </div>
     );
 }

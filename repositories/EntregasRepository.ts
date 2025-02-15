@@ -23,21 +23,34 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
 
     }
 
-    updateEntrega(entregaId: number, data:EntregaInstrumentoUpdateDto): Promise<EntregaInstrumentos> {
-        return this.modelClient.update({
-            where: {
-                id: entregaId,
-            },
-            data: {
-                instrumentoId: data.instrumento.codigoInstrumento,
-                estado: data.estado,
-                updatedAt: new Date(),
-                observaciones: data.observaciones
-            },
+    async updateEntrega(entregaId: number, data: EntregaInstrumentoUpdateDto): Promise<EntregaInstrumentos> {
+        const result  = await prisma.$transaction(async (tsx) => {
+            const update = await tsx.entregaInstrumentos.update({
+                where: {
+                    id: entregaId,
+                },
+                data: {
+                    instrumentoId: data.instrumento.codigoInstrumento,
+                    estado: data.estado,
+                    updatedAt: new Date(),
+                    observaciones: data.observaciones
+                },
+            });
 
+            const instrumento = await tsx.instrumento.update({
+                where: {
+                    codigoInstrumento: data.instrumento.codigoInstrumento,
+                },
+                data: {
+                    fecha_de_salida: data.estado === "ENTREGADO" ? new Date() : null,
+                },
+            });
+    
+            return {update, instrumento};
         });
-    }
 
+        return result.update;
+    }
 
 
     getEntregasPaginated(page: number, agenteId: number, dateQuery: string): Promise<EntregaInstrumentosDto[]> {

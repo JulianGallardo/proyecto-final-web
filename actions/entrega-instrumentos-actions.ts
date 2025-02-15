@@ -34,5 +34,6 @@ export async function createEntrega(instrument: InstrumentoExtendido, agente: Ag
 export async function updateEntrega(entregaId: number, data: EntregaInstrumentoUpdateDto) {
     const entrega = entregaInstrumentosRepo.updateEntrega(entregaId, data);
     revalidatePath("/entregas");
+    revalidatePath("/instrumentos");
     return entrega;
 }

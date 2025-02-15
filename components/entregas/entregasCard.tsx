@@ -77,7 +77,7 @@ export default function EntregasCard({ entrega, cargarEntrega }: Readonly<Entreg
                 )}
 
                 {
-                    <Button className="col-span-full"
+                    <Button className={`col-span-full bg-gray-200 text-black hover:bg-gray-300 ${entrega.estado === EstadoEntrega.PENDIENTE_DE_PROCESAR  && statusColor }`}
                         onClick={() => cargarEntrega(entrega)}
                     >
                         {

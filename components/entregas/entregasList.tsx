@@ -1,3 +1,5 @@
+"use client";
+
 import { EntregaInstrumentosDto, EntregaInstrumentoUpdateDto } from "@/types/entregasType";
 import EntregasCard from "./entregasCard";
 import { useCustomDialog } from "@/hooks/useCustomDialog";

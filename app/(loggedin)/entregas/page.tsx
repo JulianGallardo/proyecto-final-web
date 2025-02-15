@@ -1,11 +1,11 @@
 import { getAgenteByMail } from "@/actions/agente-actions"
 import { auth } from "@/auth"
-import EntregasRepartidor from "@/components/entregas/entregas"
+import EntregasServerSide from "@/components/entregas/entregasServerSide"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 
 interface SearchParamsAgentes {
-    query: string
-    currentPage: number
+    page?: string;
+    date?: string;
 }
 
 export default async function EntregasPage(props: Readonly<{
@@ -27,7 +27,7 @@ export default async function EntregasPage(props: Readonly<{
     return (
         <div className="flex flex-col gap-4 p-4 ">
             <h2 className="text-2xl font-bold">Lista de Entregas</h2>
-            <EntregasRepartidor agenteId={agente.id} user={session}/>
+            {searchParams && <EntregasServerSide searchParams={searchParams} agenteId={agente.id} user={session} />}
         </div>
 
     )

@@ -62,6 +62,8 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/planificador-de-ruta", handler: {resource: Resource.PLANIFICADOR, operation: Operation.READ }},
 
     {path: "/entregas", handler: {resource: Resource.ENTREGAS, operation: Operation.READ }},
+
+    {path: "/control", handler: {resource: Resource.CONTROL, operation: Operation.READ }},
     
    
 ]

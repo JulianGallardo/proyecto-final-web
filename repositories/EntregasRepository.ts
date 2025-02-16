@@ -12,7 +12,6 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
 
     itemsPerPage = 9;
 
-
     createEntrega(instrument: InstrumentoExtendido, agente: AgenteExtendidoDto): Promise<EntregaInstrumentos> {
         return this.modelClient.create({
             data: {
@@ -20,7 +19,6 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                 agenteId: agente.id,
             },
         });
-
     }
 
     async updateEntrega(entregaId: number, data: EntregaInstrumentoUpdateDto): Promise<EntregaInstrumentos> {
@@ -52,14 +50,10 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
         return result.update;
     }
 
-
     getEntregasPaginated(page: number, agenteId: number, dateQuery: string): Promise<EntregaInstrumentosDto[]> {
-        // Convertir el string a una fecha en UTC
         const [year, month, day] = dateQuery.split("-").map(Number);
-
-        // Crear el inicio y fin del día en UTC
-        const gte = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0)); // Inicio del día
-        const lt = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999)); // Fin del día
+        const gte = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+        const lt = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
         return this.modelClient.findMany({
             where: {
@@ -110,14 +104,9 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
     }
 
     async getTotalPages(agenteId: number, dateQuery: string): Promise<number> {
-
-        // Convertir el string a una fecha en UTC
         const [year, month, day] = dateQuery.split("-").map(Number);
-
-        // Crear el inicio y fin del día en UTC
-        const gte = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0)); // Inicio del día
-        const lt = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999)); // Fin del día
-
+        const gte = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+        const lt = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
 
         const entregaInstrumentosCountPromise = await this.modelClient.count({
             where: {
@@ -125,7 +114,7 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                     {
                         agenteId: agenteId,
                         fecha_entrega: {
-                            gte: gte, // Inicio del día
+                            gte: gte,
                             lt: lt
                         },
 
@@ -135,9 +124,49 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
         });
 
         const [instrumentosCount] = await Promise.all([entregaInstrumentosCountPromise]);
-
-        const totalPages = Math.ceil(instrumentosCount / this.itemsPerPage);
-
-        return totalPages;
+        return Math.ceil(instrumentosCount / this.itemsPerPage);
     }
+
+    async getHistoricalActivity(): Promise<any> {
+        return this.modelClient.findMany({
+            select: {
+                fecha_entrega: true,
+                estado: true,
+                agente: {
+                    select: {
+                        nombre: true
+                    }
+                }
+            },
+            orderBy: {
+                fecha_entrega: "asc"
+            }
+        });
+    }
+
+    async getRecentActivity(): Promise<any> {
+        return this.modelClient.findMany({
+            select: {
+                id: true,
+                estado: true,
+                fecha_entrega: true,
+                agente: {
+                    select: {
+                        nombre: true
+                    }
+                },
+                instrumento: {
+                    select: {
+                        caratula: true,
+                        codigoInstrumento: true
+                    }
+                }
+            },
+            orderBy: {
+                fecha_entrega: "desc"
+            },
+            take: 20
+        });
+    }
+    
 }

@@ -22,13 +22,13 @@ export default class AgenteRepository extends BaseRepository<Agente> {
                 lastname: data.lastName,
                 telefono: data.telefono,
             });
-            
+
             const agente = await tx.agente.create({
                 data: {
                     userId: user.id,
                 },
             });
-            
+
             return agente;
         });
     }
@@ -101,7 +101,7 @@ export default class AgenteRepository extends BaseRepository<Agente> {
 
 
     async findByMail(mail: string) {
-        const result =  this.modelClient.findFirst({
+        const result = this.modelClient.findFirst({
             where: {
                 user: {
                     email: mail,
@@ -111,4 +111,26 @@ export default class AgenteRepository extends BaseRepository<Agente> {
         });
         return result;
     }
+
+    async getAgentGrowth(): Promise<{ total: number; growth: number }> {
+        const totalAgents = await prisma.agente.count();
+
+        const lastMonth = new Date();
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+        const lastMonthAgents = await prisma.agente.count({
+            where: {
+                createdAt: {
+                    lt: lastMonth,
+                },
+            },
+        });
+
+        const growth = totalAgents - lastMonthAgents;
+
+        return { total: totalAgents, growth };
+    }
+
+
 }
+

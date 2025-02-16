@@ -313,12 +313,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     latitude: punto ? punto[1] : undefined,
                     longitude: punto ? punto[0] : undefined,
                     observaciones: data.observaciones,
-            
+
                     Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,
                 },
                 select: selectOptions
             });
-            
+
             return instrumento;
         } catch (error) {
             console.warn(error);
@@ -348,7 +348,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const { punto, nuevaZona } = await this.getNewZoneAndCoordinates(data);
 
-        
+
 
         const update = await this.modelClient.update({
             where: { ordenId: ordenActual?.id },
@@ -359,7 +359,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 destinatario: data.destinatario,
                 domicilio_denunciado: data.domicilio_denunciado,
                 orden: { connect: { id: newOrden?.id } },
-                Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined, 
+                Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,
                 instrumentoType: { connect: { identifier: data.instrumentoTypeIdentifier } },
                 latitude: punto ? punto[1] : undefined,
                 longitude: punto ? punto[0] : undefined,
@@ -411,7 +411,72 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
 
+    async getTotalInstrumentos(): Promise<{ total: number; growthPercentage: number }> {
+        const currentDate = new Date();
+        const firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
 
+        // Contar instrumentos totales
+        const totalInstrumentos = await this.modelClient.count({ where: { deleted: false } });
+
+        // Contar instrumentos creados en el mes actual y en el mes anterior
+        const currentMonthCount = await this.modelClient.count({
+            where: {
+                fecha_de_ingreso: { gte: firstDayOfCurrentMonth },
+                deleted: false,
+            },
+        });
+
+        const previousMonthCount = await this.modelClient.count({
+            where: {
+                fecha_de_ingreso: { gte: firstDayOfPreviousMonth, lt: firstDayOfCurrentMonth },
+                deleted: false,
+            },
+        });
+
+        // Calcular crecimiento porcentual
+        const growthPercentage = previousMonthCount > 0
+            ? ((currentMonthCount - previousMonthCount) / previousMonthCount) * 100
+            : currentMonthCount > 0 ? 100 : 0;
+
+        return { total: totalInstrumentos, growthPercentage };
+    }
+
+    async getInstrumentosActivos(): Promise<{ totalActivos: number; growthPercentage: number }> {
+        const currentDate = new Date();
+        const firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+
+        // Instrumentos activos son aquellos sin fecha de salida
+        const totalActivos = await this.modelClient.count({
+            where: {
+                fecha_de_salida: null,
+                deleted: false,
+            },
+        });
+
+        const currentMonthActivos = await this.modelClient.count({
+            where: {
+                fecha_de_ingreso: { gte: firstDayOfCurrentMonth },
+                fecha_de_salida: null,
+                deleted: false,
+            },
+        });
+
+        const previousMonthActivos = await this.modelClient.count({
+            where: {
+                fecha_de_ingreso: { gte: firstDayOfPreviousMonth, lt: firstDayOfCurrentMonth },
+                fecha_de_salida: null,
+                deleted: false,
+            },
+        });
+
+        const growthPercentage = previousMonthActivos > 0
+            ? ((currentMonthActivos - previousMonthActivos) / previousMonthActivos) * 100
+            : currentMonthActivos > 0 ? 100 : 0;
+
+        return { totalActivos, growthPercentage };
+    }
 
 
 }

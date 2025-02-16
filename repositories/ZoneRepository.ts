@@ -190,5 +190,8 @@ export default class ZoneRepository extends BaseRepository<Zone> {
         }
     }
 
+    async getTotalZones(): Promise<number> {
+        return await prisma.zone.count();
+    }
     
 }

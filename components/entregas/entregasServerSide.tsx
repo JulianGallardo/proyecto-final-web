@@ -107,7 +107,7 @@ function NoEntregasMessage({ date }: { date: string }) {
         <div className="flex flex-col items-center space-y-2">
             <SearchX className="w-12 h-12 text-gray-400 mx-auto" />
             <p className="text-sm text-gray-400 font-semibold">
-                No hay entregas para la fecha seleccionada.
+                No hay entregas para la fecha {parseDate(date)}.
             </p>
         </div>
     );

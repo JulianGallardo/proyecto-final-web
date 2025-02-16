@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getInstrumentosPorEstado } from "@/actions/estadisticas-actions";
 
 const estadoColores = {
@@ -40,14 +40,24 @@ const InstrumentosPorEstado = () => {
     }
 
     return (
-        <div className="flex flex-col w-full gap-2">
-            {Object.entries(instrumentos).map(([estado, count]) => (
-                <Card key={estado} className={`p-4 text-white ${estadoColores[estado as keyof typeof estadoColores]}`}> 
-                    <h3 className="text-lg font-bold">{getTextoEstado(estado)}</h3>
-                    <p className="text-2xl">{count}</p>
-                </Card>
-            ))}
-        </div>
+
+        <Card className="col-span-3">
+            <CardHeader>
+                <CardTitle>Instrumentos por estado</CardTitle>
+                <CardDescription>Hay 127 agentes activos este mes.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-col w-full gap-2">
+                    {Object.entries(instrumentos).map(([estado, count]) => (
+                        <Card key={estado} className={`p-4 text-white ${estadoColores[estado as keyof typeof estadoColores]}`}>
+                            <h3 className="text-lg font-bold">{getTextoEstado(estado)}</h3>
+                            <p className="text-2xl">{count}</p>
+                        </Card>
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
+
     );
 };
 

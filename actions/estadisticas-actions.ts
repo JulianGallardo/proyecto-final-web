@@ -37,23 +37,23 @@ export async function getEntregasRecentActivity() {
     return estadisticaService.getEntregasRecentActivity();
 }
 
-export async function getTotalInstrumentos() {
-    return estadisticaService.getTotalInstrumentos();
+export async function getTotalInstrumentos(zoneName?: string, agenteId?: number) {
+    return estadisticaService.getTotalInstrumentos(zoneName, agenteId);
 }
 
-export async function getInstrumentosActivos() {
-    return estadisticaService.getInstrumentosActivos();
+export async function getInstrumentosActivos(zoneName?: string, agenteId?: number) {
+    return estadisticaService.getInstrumentosActivos(zoneName, agenteId);
 }
 
 export async function getAgentGrowht(){
     return estadisticaService.getAgentGrowht();
 }
 
-export async function getInstrumentosPorEstado(){
-    return estadisticaService.getInstrumentosPorEstado();
+export async function getInstrumentosPorEstado(zoneName?: string, agenteId?: number){
+    return estadisticaService.getInstrumentosPorEstado(zoneName, agenteId);
 }
 
-export async function getInstrumentosEntregadosUltimosSeisMeses(){
-    return estadisticaService.getInstrumentosEntregadosUltimosSeisMeses();
+export async function getInstrumentosEntregadosUltimosSeisMeses(zoneName?: string, agenteId?: number){
+    return estadisticaService.getInstrumentosEntregadosUltimosSeisMeses(zoneName, agenteId);
 }
 

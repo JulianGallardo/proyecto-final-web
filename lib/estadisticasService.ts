@@ -22,32 +22,32 @@ export default class EstadisticaService {
         return this.zoneRepository.getTotalZones();
     }
 
-    async getEntregasHistoricalActivity() {
+    async getEntregasHistoricalActivity(zoneName?: string, agenteId?: number) {
         return this.entregasRepository.getHistoricalActivity();
     }
 
-    async getEntregasRecentActivity() {
+    async getEntregasRecentActivity(zoneName?: string, agenteId?: number) {
         return this.entregasRepository.getRecentActivity();
     }
 
-    async getTotalInstrumentos() {
-        return this.instrumentoRepository.getTotalInstrumentos();
+    async getTotalInstrumentos(zoneName?: string, agenteId?: number) {
+        return this.instrumentoRepository.getTotalInstrumentos(zoneName, agenteId);
     }
 
-    async getInstrumentosActivos() {
-        return this.instrumentoRepository.getInstrumentosActivos();
+    async getInstrumentosActivos(zoneName?: string, agenteId?: number) {
+        return this.instrumentoRepository.getInstrumentosActivos(zoneName, agenteId);
     }
 
     async getAgentGrowht() {
         return this.agenteRepository.getAgentGrowth();
     }
 
-    async getInstrumentosPorEstado() {
-        return this.instrumentoRepository.getInstrumentosPorEstado();
+    async getInstrumentosPorEstado(zoneName?: string, agenteId?: number) {
+        return this.instrumentoRepository.getInstrumentosPorEstado(zoneName, agenteId);
     }
 
-    async getInstrumentosEntregadosUltimosSeisMeses() {
-        return this.instrumentoRepository.getInstrumentosEntregadosUltimosSeisMeses();
+    async getInstrumentosEntregadosUltimosSeisMeses(zoneName?: string, agenteId?: number) {
+        return this.instrumentoRepository.getInstrumentosEntregadosUltimosSeisMeses(zoneName, agenteId);
     }
 
 

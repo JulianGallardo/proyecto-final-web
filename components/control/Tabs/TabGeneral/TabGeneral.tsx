@@ -17,23 +17,9 @@ export default function TabGeneral() {
                 
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4">
-                    <CardHeader>
-                        <CardTitle>Instrumentos entregados por mes</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pl-2">
-                        <Overview />
-                    </CardContent>
-                </Card>
-                <Card className="col-span-3">
-                    <CardHeader>
-                        <CardTitle>Instrumentos por estado</CardTitle>
-                        <CardDescription>Hay 127 agentes activos este mes.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <InstrumentosPorEstado />
-                    </CardContent>
-                </Card>
+                <Overview />
+                <InstrumentosPorEstado />
+                
             </div>
         </div>
     );

@@ -410,99 +410,113 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         return instrumentosCreados;
     }
 
-
-    async getTotalInstrumentos(): Promise<{ total: number; growthPercentage: number }> {
+    async getTotalInstrumentos(zona?: string, agente?: number): Promise<{ total: number; growthPercentage: number }> {
         const currentDate = new Date();
         const firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-
+    
+        // Filtros condicionales
+        const whereConditions: Record<string, any> = { deleted: false };
+        if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
+        if (agente) whereConditions['EntregaInstrumentos.agenteId'] = agente; // Filtrar por agente a través de EntregaInstrumentos
+    
         // Contar instrumentos totales
-        const totalInstrumentos = await this.modelClient.count({ where: { deleted: false } });
-
+        const totalInstrumentos = await this.modelClient.count({ where: whereConditions });
+    
         // Contar instrumentos creados en el mes actual y en el mes anterior
         const currentMonthCount = await this.modelClient.count({
             where: {
                 fecha_de_ingreso: { gte: firstDayOfCurrentMonth },
-                deleted: false,
+                ...whereConditions,
             },
         });
-
+    
         const previousMonthCount = await this.modelClient.count({
             where: {
                 fecha_de_ingreso: { gte: firstDayOfPreviousMonth, lt: firstDayOfCurrentMonth },
-                deleted: false,
+                ...whereConditions,
             },
         });
-
+    
         // Calcular crecimiento porcentual
         const growthPercentage = previousMonthCount > 0
             ? ((currentMonthCount - previousMonthCount) / previousMonthCount) * 100
             : currentMonthCount > 0 ? 100 : 0;
-
+    
         return { total: totalInstrumentos, growthPercentage };
     }
+    
 
-    async getInstrumentosActivos(): Promise<{ totalActivos: number; growthPercentage: number }> {
+    async getInstrumentosActivos(zona?: string, agente?: number): Promise<{ totalActivos: number; growthPercentage: number }> {
         const currentDate = new Date();
         const firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-
-        // Instrumentos activos son aquellos sin fecha de salida
-        const totalActivos = await this.modelClient.count({
-            where: {
-                fecha_de_salida: null,
-                deleted: false,
-            },
-        });
-
+    
+        // Filtros condicionales
+        const whereConditions: Record<string, any> = { fecha_de_salida: null, deleted: false };
+        if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
+        if (agente) whereConditions['EntregaInstrumentos.agenteId'] = agente; // Filtrar por agente
+    
+        // Instrumentos activos
+        const totalActivos = await this.modelClient.count({ where: whereConditions });
+    
         const currentMonthActivos = await this.modelClient.count({
             where: {
                 fecha_de_ingreso: { gte: firstDayOfCurrentMonth },
                 fecha_de_salida: null,
-                deleted: false,
+                ...whereConditions,
             },
         });
-
+    
         const previousMonthActivos = await this.modelClient.count({
             where: {
                 fecha_de_ingreso: { gte: firstDayOfPreviousMonth, lt: firstDayOfCurrentMonth },
                 fecha_de_salida: null,
-                deleted: false,
+                ...whereConditions,
             },
         });
-
+    
         const growthPercentage = previousMonthActivos > 0
             ? ((currentMonthActivos - previousMonthActivos) / previousMonthActivos) * 100
             : currentMonthActivos > 0 ? 100 : 0;
-
+    
         return { totalActivos, growthPercentage };
     }
+    
+    
 
-    async getInstrumentosPorEstado() {
+    async getInstrumentosPorEstado(zona?: string, agente?: number) {
         const estados = EstadoInstrumento;
-
+    
+        // Filtros condicionales
+        const whereConditions: Record<string, any> = { deleted: false };
+        if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
+        if (agente) whereConditions['EntregaInstrumentos.agenteId'] = agente; // Filtrar por agente
+    
         const counts = await Promise.all(Object.values(estados).map(async (estado) => {
             const count = await this.modelClient.count({
                 where: {
                     estado: estado,
-                    deleted: false,
+                    ...whereConditions,
                 },
             });
             return { estado, count };
         }));
-
+    
         return counts.reduce((acc: Record<EstadoInstrumento, number>, { estado, count }) => {
             acc[estado] = count;
             return acc;
         }, {} as Record<EstadoInstrumento, number>);
     }
+    
+    
 
-    async getInstrumentosEntregadosUltimosSeisMeses() {
+    async getInstrumentosEntregadosUltimosSeisMeses(zona?: string, agente?: number) {
         const currentDate = new Date();
-        
+    
         // Definir el arreglo de los meses
         const months = [
-            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
             'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
         ];
     
@@ -518,13 +532,18 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             });
         }
     
+        // Filtros condicionales
+        const whereConditions: Record<string, any> = { deleted: false };
+        if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
+        if (agente) whereConditions['EntregaInstrumentos.agenteId'] = agente; // Filtrar por agente
+    
         // Obtener las entregas por cada mes
         const deliveriesByMonth = [];
         for (const monthData of lastSixMonths) {
-            const count:number = await this.modelClient.count({
+            const count: number = await this.modelClient.count({
                 where: {
                     fecha_de_salida: { gte: monthData.startDate, lt: monthData.endDate },
-                    deleted: false,
+                    ...whereConditions,
                 },
             });
     
@@ -538,6 +557,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         return deliveriesByMonth;
     }
     
+    
+
 
 
 

@@ -4,16 +4,7 @@ import ControlAgente from "@/components/control/controlAgente";
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 
 
-interface SearchParamsControl {
-    agenteId?: string;
-    zoneName?: string;
-}
-
-
-
-export default async function ControlPage(props: Readonly<{
-    searchParams?: Promise<SearchParamsControl>
-}>) {
+export default async function ControlPage() {
 
     const session = await auth()
 

@@ -102,7 +102,7 @@ function EmptyDateMessage() {
     );
 }
 
-function NoEntregasMessage({ date }: { date: string }) {
+function NoEntregasMessage({ date }: Readonly<{ date: string }>) {
     return (
         <div className="flex flex-col items-center space-y-2">
             <SearchX className="w-12 h-12 text-gray-400 mx-auto" />
@@ -113,7 +113,7 @@ function NoEntregasMessage({ date }: { date: string }) {
     );
 }
 
-function DateDisplay({ date }: { date: string }) {
+function DateDisplay({ date }: Readonly<{ date: string }>) {
     return (
         <p className="text-sm text-gray-400 font-semibold">
             Entregas para el {parseDate(date)}

@@ -32,5 +32,5 @@ export interface EntregaInstrumentoUpdateDto {
 
     };
     estado: EstadoEntrega;
-    observaciones: string;
+    observaciones: string|null;
 }

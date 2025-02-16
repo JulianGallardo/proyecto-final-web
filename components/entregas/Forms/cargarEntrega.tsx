@@ -93,7 +93,7 @@ export function FormularioNuevaEntrega({ entrega, onSubmit }: Readonly<Formulari
                         <FormItem>
                             <FormLabel className="text-sm font-medium text-gray-700">Observaciones</FormLabel>
                             <FormControl>
-                                <Input type="string" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                                <Input type="string" {...field} value={field.value ?? ''} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
                             </FormControl>
                             <FormMessage className="text-sm text-red-500 mt-1" />
                         </FormItem>

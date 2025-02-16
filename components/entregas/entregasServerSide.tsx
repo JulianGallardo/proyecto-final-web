@@ -85,6 +85,7 @@ export async function EntregasContent({
             </div>
         );
     } catch (error) {
+        console.error(error);
         return <ErrorMessage />;
     }
 }

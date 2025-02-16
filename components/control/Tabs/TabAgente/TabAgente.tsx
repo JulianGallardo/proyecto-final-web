@@ -6,18 +6,20 @@ import SelectAgente from "./selectAgente";
 import TotalInstrumentos from "../TabGeneral/TotalInstrumentos";
 import TotalInsturmentosActivos from "../TabGeneral/TotalInstrumentosActivos";
 import { getTotalInstrumentos, getInstrumentosActivos, getInstrumentosEntregadosUltimosSeisMeses, getInstrumentosPorEstado } from "@/actions/estadisticas-actions";
+import { AgenteExtendidoDto } from "@/types/agenteTypes";
 
 
 interface TabGeneralProps {
     searchParams?: {
         agenteId?: string;
         zoneName?: string;
-    }
+    },
+    agentes: AgenteExtendidoDto[];
 }
 
 
-export default async function TabAgente({ searchParams }: Readonly<TabGeneralProps>) {
-    
+export default async function TabAgente({ searchParams, agentes }: Readonly<TabGeneralProps>) {
+
 
 
     let zoneName = searchParams?.zoneName;
@@ -31,19 +33,16 @@ export default async function TabAgente({ searchParams }: Readonly<TabGeneralPro
     if (zoneName) {
         zoneName = zoneName.replace(/\+/g, " ");
     }
-    const agentesPromise =  getAgentes();
-    
+
     const totalInstrumentosPromise = getTotalInstrumentos(zoneName, agenteId);
 
     const totalInstrumentosActivosPromise = getInstrumentosActivos(zoneName, agenteId);
-
-
 
     const dataPromise = getInstrumentosEntregadosUltimosSeisMeses(zoneName, agenteId);
 
     const instrumentosPromse = getInstrumentosPorEstado(zoneName, agenteId);
 
-    const [totalInstrumentos, totalInstrumentosActivos, data, instrumentos,agentes] = await Promise.all([totalInstrumentosPromise, totalInstrumentosActivosPromise, dataPromise, instrumentosPromse,agentesPromise]);
+    const [totalInstrumentos, totalInstrumentosActivos, data, instrumentos] = await Promise.all([totalInstrumentosPromise, totalInstrumentosActivosPromise, dataPromise, instrumentosPromse]);
 
 
 

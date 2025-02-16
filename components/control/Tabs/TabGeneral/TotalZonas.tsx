@@ -1,15 +1,11 @@
-import {  getTotalZones } from "@/actions/estadisticas-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
 
-export default function TotalZonas() {
-    const [totalZonas, setTotalZonas] = useState(0);
 
-    useEffect(() => {
-        getTotalZones().then((total) => {
-            setTotalZonas(total);
-        });
-    }, []);
+interface TotalZonasProps {
+    totalZonas: number;
+}
+
+export default function TotalZonas({ totalZonas }: Readonly<TotalZonasProps>) {
 
     return (
         <Card>

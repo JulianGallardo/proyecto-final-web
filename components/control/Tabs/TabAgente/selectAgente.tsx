@@ -1,0 +1,45 @@
+'use client'
+
+import { AgenteExtendidoDto } from '@/types/agenteTypes';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { useRouter, useSearchParams } from 'next/navigation'
+
+
+interface SelectComponentProps {
+    agentes: AgenteExtendidoDto[];
+    defaultValue?: string;
+}
+
+export default function SelectComponent({ agentes,defaultValue }: Readonly<SelectComponentProps>) {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
+    // Función para manejar la selección
+    const handleSelectChange = (value: string) => {
+        const params = new URLSearchParams(searchParams.toString())
+
+        params.set('agenteId', value)
+
+
+        router.push(`?${params.toString()}`) // Actualiza la URL sin recargar la página
+    }
+
+    return (
+        <div>
+            <h1 className="text-xl font-bold mb-4">Selecciona una opción</h1>
+
+            <Select onValueChange={handleSelectChange} defaultValue={defaultValue}>
+                <SelectTrigger className="w-64">
+                    <SelectValue placeholder="Selecciona una opción" />
+                </SelectTrigger>
+                <SelectContent>
+                    {agentes.map((option) => (
+                        <SelectItem key={option.id} value={option.id.toString()}>
+                            {option.user.name + ' ' + option.user.lastname}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+    )
+}

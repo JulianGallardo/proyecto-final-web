@@ -1,22 +1,16 @@
-"use client"
+"use client";
 
-import { getInstrumentosEntregadosUltimosSeisMeses } from "@/actions/estadisticas-actions"
-import { useEffect, useState } from "react"
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
 
-export function Overview() {
-  const [data, setData] = useState<{ month: string; year: number; count: number }[]>([])
+interface OverviewProps {
+  data: { month: string; year: number; count: number }[]
+}
 
-  // Llamar la función para obtener los datos cuando el componente se monte
-  useEffect(() => {
-    async function fetchData() {
-      const data = await getInstrumentosEntregadosUltimosSeisMeses()
-      setData(data)
-    }
-    fetchData()
-  }, [])
 
+
+
+export default function Overview({ data }: Readonly<OverviewProps>) {
   return (
 
     <Card className="col-span-4">

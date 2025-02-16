@@ -1,20 +1,12 @@
-import {  getAgentGrowht } from "@/actions/estadisticas-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useEffect, useState } from "react";
 
-export default function TotalAgentes() {
-    const [totalAgentes, setTotalAgentes] = useState(0);
-    const [growth, setGrowth] = useState(0);
 
-    useEffect(() => {
-        getAgentGrowht().then((total) => {
-            setTotalAgentes(
-                total.total
-            );
-            setGrowth(total.growth);  
-        });
-    }, []);
+interface TotalAgentesProps {
+    totalAgentes: number;
+    growth: number;
+}
 
+export default function TotalAgentes({ totalAgentes, growth }: Readonly<TotalAgentesProps>) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

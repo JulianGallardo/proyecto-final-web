@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getInstrumentosPorEstado } from "@/actions/estadisticas-actions";
 
 const estadoColores = {
     PENDIENTE_DE_ENTREGA: "bg-gray-500",
@@ -10,16 +9,12 @@ const estadoColores = {
     ENTREGADO_ROJO: "bg-red-500"
 };
 
-const InstrumentosPorEstado = () => {
-    const [instrumentos, setInstrumentos] = useState<Record<string, number>>({});
+interface InstrumentosPorEstadoProps {
+    instrumentos: { [estado: string]: number };
+}
 
-    useEffect(() => {
-        const fetchInstrumentos = async () => {
-            const instrumentos = await getInstrumentosPorEstado();
-            setInstrumentos(instrumentos);
-        };
-        fetchInstrumentos();
-    }, []);
+
+const InstrumentosPorEstado = ({ instrumentos }: Readonly<InstrumentosPorEstadoProps>) => {
 
 
     function getTextoEstado(estado: string) {
@@ -44,7 +39,9 @@ const InstrumentosPorEstado = () => {
         <Card className="col-span-3">
             <CardHeader>
                 <CardTitle>Instrumentos por estado</CardTitle>
-                <CardDescription>Hay 127 agentes activos este mes.</CardDescription>
+                <CardDescription>
+                    Desglose de instrumentos por estado.
+                </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col w-full gap-2">

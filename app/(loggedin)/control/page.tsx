@@ -2,7 +2,19 @@ import { auth } from "@/auth"
 import DashboardControl from "@/components/control/controlInstrumentos"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 
-export default async function HomePage() {
+
+interface SearchParamsControl {
+  agenteId?: string;
+  zoneName?: string;
+}
+
+
+
+export default async function ControlPage(props: Readonly<{
+  searchParams?: Promise<SearchParamsControl>
+}>) {
+
+  const searchParams = await props.searchParams;
   const session = await auth()
 
   if (!session) {
@@ -11,7 +23,7 @@ export default async function HomePage() {
 
   return (
     <div className="w-full h-full">
-      <DashboardControl />
+      <DashboardControl searchParams={searchParams} />
     </div>
 
   )

@@ -1,19 +1,14 @@
-import { getTotalInstrumentos } from "@/actions/estadisticas-actions";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
 
-export default function TotalInstrumentos() {
 
-    const [totalInstrumentos, setTotalInstrumentos] = useState(0);
-    const [growth, setGrowth] = useState(0);
+interface TotalInstrumentosProps {
+    totalInstrumentos: number;
+    growth: number;
+}
 
-    useEffect(() => {
-        getTotalInstrumentos().then((total) => {
-            setTotalInstrumentos(total.total);
-            setGrowth(total.growthPercentage);
-        });
-    }, []);
 
+
+export default function TotalInstrumentos({ totalInstrumentos, growth }: Readonly<TotalInstrumentosProps>) {
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

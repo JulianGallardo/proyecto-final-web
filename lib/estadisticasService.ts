@@ -22,11 +22,11 @@ export default class EstadisticaService {
         return this.zoneRepository.getTotalZones();
     }
 
-    async getEntregasHistoricalActivity(zoneName?: string, agenteId?: number) {
+    async getEntregasHistoricalActivity() {
         return this.entregasRepository.getHistoricalActivity();
     }
 
-    async getEntregasRecentActivity(zoneName?: string, agenteId?: number) {
+    async getEntregasRecentActivity() {
         return this.entregasRepository.getRecentActivity();
     }
 

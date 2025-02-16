@@ -1,18 +1,11 @@
-import { getInstrumentosActivos } from "@/actions/estadisticas-actions";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
 
-export default function TotalInsturmentosActivos() {
+interface TotalInstrumentosActivosProps {
+    totalInstrumentos: number;
+    growth: number;
+}
 
-    const [totalInstrumentos, setTotalInstrumentos] = useState(0);
-    const [growth, setGrowth] = useState(0);
-
-    useEffect(() => {
-        getInstrumentosActivos().then((total) => {
-            setTotalInstrumentos(total.totalActivos);
-            setGrowth(total.growthPercentage);
-        });
-    }, []);
+export default function TotalInsturmentosActivos({ totalInstrumentos, growth }: Readonly<TotalInstrumentosActivosProps>) {
 
     return (
         <Card>

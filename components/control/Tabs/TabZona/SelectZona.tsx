@@ -26,9 +26,13 @@ export default function SelectZona({ zoneNames, defaultValue }: Readonly<SelectC
     }
 
     useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString())
+        params.delete('zoneName')
+        params.delete('agenteId')
         return () => {
             const params = new URLSearchParams(searchParams.toString())
             params.delete('zoneName')
+            params.delete('agenteId')
             router.push(`?${params.toString()}`)
         };
     }, []);

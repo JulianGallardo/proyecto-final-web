@@ -1,6 +1,7 @@
 
 import { getAgentGrowht, getInstrumentosActivos, getInstrumentosEntregadosUltimosSeisMeses, getInstrumentosPorEstado, getTotalInstrumentos, getTotalZones } from "@/actions/estadisticas-actions";
 import ControlTabs from "./Tabs/Tabs";
+import { Suspense } from "react";
 
 
 interface DashboardControlProps {
@@ -25,17 +26,20 @@ export default async function DashboardControl({ searchParams }: Readonly<Dashbo
     zoneName = zoneName.replace(/\+/g, " ");
   }
 
-  const totalInstrumentos = await getTotalInstrumentos(zoneName, agenteId);
+  const totalInstrumentosPromise =  getTotalInstrumentos(zoneName, agenteId);
 
-  const totalInstrumentosActivos = await getInstrumentosActivos(zoneName, agenteId);
+  const totalInstrumentosActivosPromise =  getInstrumentosActivos(zoneName, agenteId);
 
-  const totalAgentes = await getAgentGrowht();
+  const totalAgentesPromise =  getAgentGrowht();
 
-  const totalZonas = await getTotalZones();
+  const totalZonasPromise =  getTotalZones();
 
-  const data = await getInstrumentosEntregadosUltimosSeisMeses(zoneName, agenteId);
+  const dataPromise =  getInstrumentosEntregadosUltimosSeisMeses(zoneName, agenteId);
 
-  const instrumentos = await getInstrumentosPorEstado(zoneName, agenteId);
+  const instrumentosPromse =  getInstrumentosPorEstado(zoneName, agenteId);
+
+  const [totalInstrumentos, totalInstrumentosActivos, totalAgentes, totalZonas, data, instrumentos] = await Promise.all([totalInstrumentosPromise, totalInstrumentosActivosPromise, totalAgentesPromise, totalZonasPromise, dataPromise, instrumentosPromse]);
+
 
 
   return (
@@ -44,7 +48,9 @@ export default async function DashboardControl({ searchParams }: Readonly<Dashbo
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Control de Instrumentos</h2>
         </div>
-        <ControlTabs totalInstrumentos={totalInstrumentos} totalInstrumentosActivos={totalInstrumentosActivos} totalAgentes={totalAgentes} totalZonas={totalZonas} data={data} instrumentos={instrumentos} />
+        <Suspense fallback={<div>Cargando...</div>}>
+          <ControlTabs totalInstrumentos={totalInstrumentos} totalInstrumentosActivos={totalInstrumentosActivos} totalAgentes={totalAgentes} totalZonas={totalZonas} data={data} instrumentos={instrumentos} />
+        </Suspense>
       </div>
     </div>
   )

@@ -26,8 +26,12 @@ export default function SelectAgente({ agentes,defaultValue }: Readonly<SelectCo
     }
 
     useEffect(() => {
+        const params = new URLSearchParams(searchParams.toString())
+        params.delete('zoneName')
+        params.delete('agenteId')
         return () => {
             const params = new URLSearchParams(searchParams.toString())
+            params.delete('zoneName')
             params.delete('agenteId')
             router.push(`?${params.toString()}`)
         };

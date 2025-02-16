@@ -28,6 +28,7 @@ export default async function EntregasPage(props: Readonly<{
         <div className="flex flex-col gap-4 p-4 ">
             <h2 className="text-2xl font-bold">Lista de Entregas</h2>
             {searchParams && <EntregasServerSide searchParams={searchParams} agenteId={agente.id} user={session} />}
+            
         </div>
 
     )

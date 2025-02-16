@@ -1,9 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import TabGeneral from "./Tabs/TabGeneral/TabGeneral"
+
 import { getAgentGrowht, getInstrumentosActivos, getInstrumentosEntregadosUltimosSeisMeses, getInstrumentosPorEstado, getTotalInstrumentos, getTotalZones } from "@/actions/estadisticas-actions";
-import TabAgente from "./Tabs/TabAgente/TabAgente";
-import TabZonas from "./Tabs/TabZona/TabZona";
+import ControlTabs from "./Tabs/Tabs";
 
 
 interface DashboardControlProps {
@@ -24,7 +21,7 @@ export default async function DashboardControl({ searchParams }: Readonly<Dashbo
     agenteId = parseInt(agenteIdString);
   }
 
-  if(zoneName){
+  if (zoneName) {
     zoneName = zoneName.replace(/\+/g, " ");
   }
 
@@ -47,22 +44,7 @@ export default async function DashboardControl({ searchParams }: Readonly<Dashbo
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Control de Instrumentos</h2>
         </div>
-        <Tabs defaultValue="overview" >
-          <TabsList>
-            <TabsTrigger value="overview">Vista General</TabsTrigger>
-            <TabsTrigger value="agentes">Por Agente</TabsTrigger>
-            <TabsTrigger value="zonas">Por Zona</TabsTrigger>
-          </TabsList>
-          <TabsContent value="overview" className="space-y-4">
-            <TabGeneral totalInstrumentos={totalInstrumentos} totalInstrumentosActivos={totalInstrumentosActivos} totalAgentes={totalAgentes} totalZonas={totalZonas} data={data} instrumentos={instrumentos} />
-          </TabsContent>
-          <TabsContent value="agentes" className="space-y-4">
-            <TabAgente totalInstrumentos={totalInstrumentos} totalInstrumentosActivos={totalInstrumentosActivos} totalAgentes={totalAgentes} totalZonas={totalZonas} data={data} instrumentos={instrumentos} />
-          </TabsContent>
-          <TabsContent value="zonas" className="space-y-4">
-            <TabZonas totalInstrumentos={totalInstrumentos} totalInstrumentosActivos={totalInstrumentosActivos} totalAgentes={totalAgentes} totalZonas={totalZonas} data={data} instrumentos={instrumentos} />
-          </TabsContent>  
-        </Tabs>
+        <ControlTabs totalInstrumentos={totalInstrumentos} totalInstrumentosActivos={totalInstrumentosActivos} totalAgentes={totalAgentes} totalZonas={totalZonas} data={data} instrumentos={instrumentos} />
       </div>
     </div>
   )

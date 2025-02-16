@@ -3,6 +3,7 @@
 import { AgenteExtendidoDto } from '@/types/agenteTypes';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react';
 
 
 interface SelectComponentProps {
@@ -20,9 +21,17 @@ export default function SelectAgente({ agentes,defaultValue }: Readonly<SelectCo
 
         params.set('agenteId', value)
 
-
+        
         router.push(`?${params.toString()}`) // Actualiza la URL sin recargar la página
     }
+
+    useEffect(() => {
+        return () => {
+            const params = new URLSearchParams(searchParams.toString())
+            params.delete('agenteId')
+            router.push(`?${params.toString()}`)
+        };
+    }, []);
 
     return (
         <div>

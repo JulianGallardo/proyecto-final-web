@@ -3,6 +3,7 @@
 import { AgenteExtendidoDto } from '@/types/agenteTypes';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react';
 
 
 interface SelectComponentProps {
@@ -10,7 +11,7 @@ interface SelectComponentProps {
     defaultValue?: string;
 }
 
-export default function SelectZona({ zoneNames,defaultValue }: Readonly<SelectComponentProps>) {
+export default function SelectZona({ zoneNames, defaultValue }: Readonly<SelectComponentProps>) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -23,6 +24,14 @@ export default function SelectZona({ zoneNames,defaultValue }: Readonly<SelectCo
 
         router.push(`?${params.toString()}`) // Actualiza la URL sin recargar la página
     }
+
+    useEffect(() => {
+        return () => {
+            const params = new URLSearchParams(searchParams.toString())
+            params.delete('zoneName')
+            router.push(`?${params.toString()}`)
+        };
+    }, []);
 
     return (
         <div>

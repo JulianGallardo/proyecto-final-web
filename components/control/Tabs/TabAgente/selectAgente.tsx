@@ -10,7 +10,7 @@ interface SelectComponentProps {
     defaultValue?: string;
 }
 
-export default function SelectComponent({ agentes,defaultValue }: Readonly<SelectComponentProps>) {
+export default function SelectAgente({ agentes,defaultValue }: Readonly<SelectComponentProps>) {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -26,7 +26,7 @@ export default function SelectComponent({ agentes,defaultValue }: Readonly<Selec
 
     return (
         <div>
-            <h1 className="text-xl font-bold mb-4">Selecciona una opción</h1>
+            <h1 className="text-xl font-bold mb-4">Selecciona un agente</h1>
 
             <Select onValueChange={handleSelectChange} defaultValue={defaultValue}>
                 <SelectTrigger className="w-64">

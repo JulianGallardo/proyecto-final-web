@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import TabGeneral from "./Tabs/TabGeneral/TabGeneral"
 import { getAgentGrowht, getInstrumentosActivos, getInstrumentosEntregadosUltimosSeisMeses, getInstrumentosPorEstado, getTotalInstrumentos, getTotalZones } from "@/actions/estadisticas-actions";
 import TabAgente from "./Tabs/TabAgente/TabAgente";
+import TabZonas from "./Tabs/TabZona/TabZona";
 
 
 interface DashboardControlProps {
@@ -15,12 +16,16 @@ interface DashboardControlProps {
 
 export default async function DashboardControl({ searchParams }: Readonly<DashboardControlProps>) {
 
-  const zoneName = searchParams?.zoneName;
+  let zoneName = searchParams?.zoneName;
   const agenteIdString = searchParams?.agenteId;
 
   let agenteId: number | undefined;
   if (agenteIdString) {
     agenteId = parseInt(agenteIdString);
+  }
+
+  if(zoneName){
+    zoneName = zoneName.replace(/\+/g, " ");
   }
 
   const totalInstrumentos = await getTotalInstrumentos(zoneName, agenteId);
@@ -34,13 +39,6 @@ export default async function DashboardControl({ searchParams }: Readonly<Dashbo
   const data = await getInstrumentosEntregadosUltimosSeisMeses(zoneName, agenteId);
 
   const instrumentos = await getInstrumentosPorEstado(zoneName, agenteId);
-
-
-
-
-
-
-
 
 
   return (
@@ -62,17 +60,8 @@ export default async function DashboardControl({ searchParams }: Readonly<Dashbo
             <TabAgente totalInstrumentos={totalInstrumentos} totalInstrumentosActivos={totalInstrumentosActivos} totalAgentes={totalAgentes} totalZonas={totalZonas} data={data} instrumentos={instrumentos} />
           </TabsContent>
           <TabsContent value="zonas" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Estadísticas por Zona</CardTitle>
-                <CardDescription>Desglose de instrumentos por cada zona geográfica.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Aquí iría un componente con estadísticas por zona */}
-                <p>Contenido de estadísticas por zona (a implementar)</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
+            <TabZonas totalInstrumentos={totalInstrumentos} totalInstrumentosActivos={totalInstrumentosActivos} totalAgentes={totalAgentes} totalZonas={totalZonas} data={data} instrumentos={instrumentos} />
+          </TabsContent>  
         </Tabs>
       </div>
     </div>

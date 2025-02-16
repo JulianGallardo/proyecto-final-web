@@ -3,6 +3,8 @@ import Overview from "../../overview";
 import InstrumentosPorEstado from "../../estadisticasEntregas";
 import { getAgentes } from "@/actions/agente-actions";
 import SelectAgente from "./selectAgente";
+import TotalInstrumentos from "../TabGeneral/TotalInstrumentos";
+import TotalInsturmentosActivos from "../TabGeneral/TotalInstrumentosActivos";
 
 
 interface TabGeneralProps {
@@ -24,15 +26,14 @@ interface TabGeneralProps {
 }
 
 
-export default async function TabAgente({ totalInstrumentos, totalInstrumentosActivos, totalAgentes, totalZonas, data, instrumentos }: Readonly<TabGeneralProps>) {
-
+export default async function TabAgente({ totalInstrumentos, totalInstrumentosActivos, data, instrumentos }: Readonly<TabGeneralProps>) {
     const agentes = await getAgentes();
-
-
     return (
         <div className="space-y-4">
+            <SelectAgente agentes={agentes} />
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <SelectAgente agentes={agentes} />
+                <TotalInstrumentos totalInstrumentos={totalInstrumentos.total} growth={totalInstrumentos.growthPercentage} />
+                <TotalInsturmentosActivos totalInstrumentos={totalInstrumentosActivos.totalActivos} growth={totalInstrumentosActivos.growthPercentage} />
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Overview data={data} />

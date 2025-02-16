@@ -46,6 +46,9 @@ export default class EstadisticaService {
         return this.instrumentoRepository.getInstrumentosPorEstado();
     }
 
+    async getInstrumentosEntregadosUltimosSeisMeses() {
+        return this.instrumentoRepository.getInstrumentosEntregadosUltimosSeisMeses();
+    }
 
 
 

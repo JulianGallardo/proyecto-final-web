@@ -1,9 +1,10 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { EntregaInstrumentos } from "@prisma/client";
+import { EntregaInstrumentos, EstadoEntrega, EstadoInstrumento, Prisma, PrismaClient } from "@prisma/client";
 import { EntregaInstrumentosDto, EntregaInstrumentoUpdateDto } from "@/types/entregasType";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
 export default class EntregasRepository extends BaseRepository<EntregaInstrumentos> {
     constructor() {
@@ -12,17 +13,33 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
 
     itemsPerPage = 9;
 
-    createEntrega(instrument: InstrumentoExtendido, agente: AgenteExtendidoDto): Promise<EntregaInstrumentos> {
-        return this.modelClient.create({
-            data: {
-                instrumentoId: instrument.codigoInstrumento,
-                agenteId: agente.id,
-            },
+    async createEntrega(instrument: InstrumentoExtendido, agente: AgenteExtendidoDto): Promise<EntregaInstrumentos> {
+
+        const result = await prisma.$transaction(async (tsx) => {
+            const entrega = await tsx.entregaInstrumentos.create({
+                data: {
+                    instrumentoId: instrument.codigoInstrumento,
+                    agenteId: agente.id,
+                },
+            });
+
+            const instrumento = await tsx.instrumento.update({
+                where: {
+                    codigoInstrumento: instrument.codigoInstrumento,
+                },
+                data: {
+                    estado: EstadoInstrumento.PENDIENTE_DE_PROCESAR,
+                },
+            });
+
+            return { entrega, instrumento };
         });
+
+        return result.entrega;
     }
 
     async updateEntrega(entregaId: number, data: EntregaInstrumentoUpdateDto): Promise<EntregaInstrumentos> {
-        const result  = await prisma.$transaction(async (tsx) => {
+        const result = await prisma.$transaction(async (tsx) => {
             const update = await tsx.entregaInstrumentos.update({
                 where: {
                     id: entregaId,
@@ -35,16 +52,21 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                 },
             });
 
+
+            let estadoInstrumento = await calcularEstadoInstrumento(data, tsx);
+
+
             const instrumento = await tsx.instrumento.update({
                 where: {
                     codigoInstrumento: data.instrumento.codigoInstrumento,
                 },
                 data: {
+                    estado: estadoInstrumento,
                     fecha_de_salida: data.estado === "ENTREGADO" ? new Date() : null,
                 },
             });
-    
-            return {update, instrumento};
+
+            return { update, instrumento };
         });
 
         return result.update;
@@ -93,7 +115,7 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
 
                     }
                 },
-                estado:true,
+                estado: true,
                 observaciones: true,
                 fecha_entrega: true,
                 updatedAt: true,
@@ -168,5 +190,34 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
             take: 20
         });
     }
-    
+
 }
+async function calcularEstadoInstrumento(data: EntregaInstrumentoUpdateDto, tsx: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) {
+    let estadoInstrumento;
+    if (data.estado === EstadoEntrega.ENTREGADO) {
+        const instrumento = await tsx.instrumento.findUnique({
+            where: {
+                codigoInstrumento: data.instrumento.codigoInstrumento
+            }
+        });
+
+        const fecha_entrada = instrumento?.fecha_de_ingreso;
+
+        if (fecha_entrada) {
+            const diferenciaDeDias = Math.floor((new Date().getTime() - fecha_entrada.getTime()) / (1000 * 60 * 60 * 24));
+            if (diferenciaDeDias <= 7) {
+                estadoInstrumento = EstadoInstrumento.ENTREGADO_VERDE;
+            } else if (diferenciaDeDias <= 14) {
+                estadoInstrumento = EstadoInstrumento.ENTREGADO_AMARILLO;
+            } else {
+                estadoInstrumento = EstadoInstrumento.ENTREGADO_ROJO;
+            }
+        }
+    } else if (data.estado === EstadoEntrega.PENDIENTE_DE_PROCESAR) {
+        estadoInstrumento = EstadoInstrumento.PENDIENTE_DE_PROCESAR;
+    } else if (data.estado === EstadoEntrega.NO_ENTREGADO) {
+        estadoInstrumento = EstadoInstrumento.PENDIENTE_DE_ENTREGA;
+    }
+    return estadoInstrumento;
+}
+

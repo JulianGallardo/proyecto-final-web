@@ -497,6 +497,48 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         }, {} as Record<EstadoInstrumento, number>);
     }
 
+    async getInstrumentosEntregadosUltimosSeisMeses() {
+        const currentDate = new Date();
+        
+        // Definir el arreglo de los meses
+        const months = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ];
+    
+        // Generar un arreglo con los meses de los últimos 6 meses
+        const lastSixMonths = [];
+        for (let i = 0; i < 6; i++) {
+            const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+            lastSixMonths.push({
+                month: months[monthDate.getMonth()],
+                year: monthDate.getFullYear(),
+                startDate: new Date(monthDate.getFullYear(), monthDate.getMonth(), 1),
+                endDate: new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0), // Último día del mes
+            });
+        }
+    
+        // Obtener las entregas por cada mes
+        const deliveriesByMonth = [];
+        for (const monthData of lastSixMonths) {
+            const count:number = await this.modelClient.count({
+                where: {
+                    fecha_de_salida: { gte: monthData.startDate, lt: monthData.endDate },
+                    deleted: false,
+                },
+            });
+    
+            deliveriesByMonth.push({
+                month: monthData.month,
+                year: monthData.year,
+                count,
+            });
+        }
+    
+        return deliveriesByMonth;
+    }
+    
+
 
 
 

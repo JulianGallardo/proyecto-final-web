@@ -53,3 +53,7 @@ export async function getInstrumentosPorEstado(){
     return estadisticaService.getInstrumentosPorEstado();
 }
 
+export async function getInstrumentosEntregadosUltimosSeisMeses(){
+    return estadisticaService.getInstrumentosEntregadosUltimosSeisMeses();
+}
+

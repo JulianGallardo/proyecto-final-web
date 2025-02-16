@@ -22,7 +22,6 @@ export default function InstrumentSelector({
     const [message, setMessage] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState("");
     const [step, setStep] = useState<"select" | "review">("select");
-    const [activeView, setActiveView] = useState<"list" | "map">("list");
 
     const filteredInstruments = useMemo(() => {
         return instruments.filter((instrument) => {
@@ -61,11 +60,11 @@ export default function InstrumentSelector({
                 <div className="h-full w-full">
                     <Tabs defaultValue="list" className="w-full">
                         <TabsList className="w-full ">
-                            <TabsTrigger value="list" className="w-1/2" onClick={() => setActiveView("list")}>
+                            <TabsTrigger value="list" className="w-1/2" >
                                 <List className="w-4 h-4 mr-2" />
                                 Lista
                             </TabsTrigger>
-                            <TabsTrigger value="map" className="w-1/2" onClick={() => setActiveView("map")}>
+                            <TabsTrigger value="map" className="w-1/2" >
                                 <MapPin className="w-4 h-4 mr-2" />
                                 Mapa
                             </TabsTrigger>

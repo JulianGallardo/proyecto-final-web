@@ -11,17 +11,15 @@ import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
 import { useSearchParams } from "next/navigation";
 import { parseDate } from "@/lib/utils";
 import EntregasList from "./entregasList";
-import { Session } from "next-auth";
 import EntregasSkeleton from "./entregasListSkeleton";
 
 
 interface EntregasRepartidorProps {
     agenteId: number;
-    user: Session;
 }
 
 
-export default function EntregasRepartidor({ agenteId, user }: Readonly<EntregasRepartidorProps>) {
+export default function EntregasRepartidor({ agenteId }: Readonly<EntregasRepartidorProps>) {
     const [totalPages, setTotalPages] = useState<number>(0);
     const [entregas, setEntregas] = useState<EntregaInstrumentosDto[]>([]);
     const { toast } = useToast();

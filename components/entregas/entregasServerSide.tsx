@@ -9,8 +9,7 @@ import { Session } from "next-auth";
 import DateSelector from "./datePicker";
 import { Suspense } from "react";
 import EntregasSkeleton from "./entregasListSkeleton";
-import { getAgenteByMail } from "@/actions/agente-actions";
-import { canEdit, canView } from "@/permissions/hasPermissions";
+import { canEdit } from "@/permissions/hasPermissions";
 import { Resource } from "@/permissions/typePermissions";
 
 interface EntregasRepartidorProps {

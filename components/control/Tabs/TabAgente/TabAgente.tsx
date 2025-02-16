@@ -1,7 +1,6 @@
 
 import Overview from "../../overview";
 import InstrumentosPorEstado from "../../estadisticasEntregas";
-import { getAgentes } from "@/actions/agente-actions";
 import SelectAgente from "./selectAgente";
 import TotalInstrumentos from "../TabGeneral/TotalInstrumentos";
 import TotalInsturmentosActivos from "../TabGeneral/TotalInstrumentosActivos";

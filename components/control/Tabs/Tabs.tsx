@@ -3,7 +3,7 @@ import TabGeneral from "./TabGeneral/TabGeneral";
 import TabAgente from "./TabAgente/TabAgente";
 import { Suspense } from "react";
 import TabSkeleton from "./TabSkeleton";
-import ControllerTabZonas from "./TabZona/ControlerTabZona";
+import ControllerTabZonas from "./TabZona/ControllerTabZona";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 
 interface ControlTabsProps {

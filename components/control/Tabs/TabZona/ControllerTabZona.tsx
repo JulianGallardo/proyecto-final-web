@@ -1,5 +1,4 @@
 
-import { getAllZones } from "@/actions/zone-actions";
 import SelectZona from "./SelectZona";
 import { Suspense } from "react";
 import TabGeneralSkeleton from "../TabSkeleton";

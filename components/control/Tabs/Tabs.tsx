@@ -2,6 +2,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TabGeneral from "./TabGeneral/TabGeneral";
 import TabAgente from "./TabAgente/TabAgente";
 import TabZonas from "./TabZona/TabZona";
+import { Suspense } from "react";
+import TabSkeleton from "./TabSkeleton";
 
 interface ControlTabsProps {
   searchParams?: {
@@ -20,18 +22,25 @@ export default function ControlTabs({ searchParams }: Readonly<ControlTabsProps>
         <TabsTrigger value="zonas">Por Zona</TabsTrigger>
       </TabsList>
       <TabsContent value="overview" className="space-y-4">
-        <TabGeneral searchParams={searchParams}
-        />
+        <Suspense fallback={<TabSkeleton />}>
+          <TabGeneral searchParams={searchParams}
+          />
+        </Suspense>
       </TabsContent>
       <TabsContent value="agentes" className="space-y-4">
-        <TabAgente
-          searchParams={searchParams}
-        />
+        <Suspense fallback={<TabSkeleton />}>
+
+          <TabAgente
+            searchParams={searchParams}
+          />
+        </Suspense>
       </TabsContent>
       <TabsContent value="zonas" className="space-y-4">
-        <TabZonas
-          searchParams={searchParams}
-        />
+        <Suspense fallback={<TabSkeleton />}>
+          <TabZonas
+            searchParams={searchParams}
+          />
+        </Suspense>
       </TabsContent>
     </Tabs>
   );

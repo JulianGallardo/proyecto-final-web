@@ -12,10 +12,12 @@ import { toast } from "@/hooks/use-toast";
 
 
 
-export default function EntregasList({ entregas }: Readonly<{ entregas: EntregaInstrumentosDto[] }>) {
+export default function EntregasList({ entregas, permisos }: Readonly<{ entregas: EntregaInstrumentosDto[], permisos?:boolean }>) {
 
     const { setIsOpen } = useCustomDialog();
     const [entrega, setEntrega] = useState<EntregaInstrumentosDto | null>(null);
+
+    
 
     function handleOpenDialog(entrega: EntregaInstrumentosDto) {
         setEntrega(entrega);
@@ -69,7 +71,7 @@ export default function EntregasList({ entregas }: Readonly<{ entregas: EntregaI
                 }
             />
             {entregas.map((entrega) => {
-                return <EntregasCard entrega={entrega} key={entrega.id} cargarEntrega={handleOpenDialog} />;
+                return <EntregasCard entrega={entrega} key={entrega.id} cargarEntrega={handleOpenDialog} permisos={permisos}/>;
             })}
         </div>
     );

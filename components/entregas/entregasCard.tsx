@@ -6,7 +6,8 @@ import { Button } from "../ui/button";
 
 interface EntregaCardProps {
     entrega: EntregaInstrumentosDto | null,
-    cargarEntrega: (entrega: EntregaInstrumentosDto) => void
+    cargarEntrega: (entrega: EntregaInstrumentosDto) => void,
+    permisos?: boolean
 }
 
 const getStatusColor = (estado: EstadoEntrega) => {
@@ -22,7 +23,7 @@ const getStatusColor = (estado: EstadoEntrega) => {
     }
 };
 
-export default function EntregasCard({ entrega, cargarEntrega }: Readonly<EntregaCardProps>) {
+export default function EntregasCard({ entrega, cargarEntrega, permisos }: Readonly<EntregaCardProps>) {
 
 
     if (!entrega) return null;
@@ -76,7 +77,7 @@ export default function EntregasCard({ entrega, cargarEntrega }: Readonly<Entreg
                     </div>
                 )}
 
-                {
+                { permisos &&
                     <Button className={`col-span-full bg-gray-200 text-black hover:bg-gray-300 ${entrega.estado === EstadoEntrega.PENDIENTE_DE_PROCESAR  && statusColor }`}
                         onClick={() => cargarEntrega(entrega)}
                     >

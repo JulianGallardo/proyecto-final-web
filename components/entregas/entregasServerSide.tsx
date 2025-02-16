@@ -6,8 +6,12 @@ import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
 import { parseDate } from "@/lib/utils";
 import EntregasList from "./entregasList";
 import { Session } from "next-auth";
-import { Input } from "../ui/input";
 import DateSelector from "./datePicker";
+import { Suspense } from "react";
+import EntregasSkeleton from "./entregasListSkeleton";
+import { getAgenteByMail } from "@/actions/agente-actions";
+import { canEdit, canView } from "@/permissions/hasPermissions";
+import { Resource } from "@/permissions/typePermissions";
 
 interface EntregasRepartidorProps {
     agenteId: number;
@@ -18,13 +22,18 @@ interface EntregasRepartidorProps {
     };
 }
 
-export default async function EntregasServerSide({ 
-    agenteId, 
-    user, 
-    searchParams 
+export default async function EntregasServerSide({
+    agenteId,
+    user,
+    searchParams
 }: Readonly<EntregasRepartidorProps>) {
     const currentPage = Number(searchParams.page) || 1;
     const selectedDate = searchParams.date ?? new Date().toISOString().split('T')[0];
+    
+    
+    const permisos = canEdit(user.user.role, Resource.ENTREGAS);
+
+
 
     // Fetch data server-side
     let entregas: EntregaInstrumentosDto[] = [];
@@ -69,8 +78,12 @@ export default async function EntregasServerSide({
                             </p>
                             {entregas.length > 0 ? (
                                 <div className="flex flex-col space-y-4 w-full">
-                                    <EntregasList entregas={entregas} />
-                                    <PaginationInstruments totalPages={totalPages} />
+                                    <Suspense fallback={
+                                        <EntregasSkeleton />
+                                    }>
+                                        <EntregasList entregas={entregas} permisos={permisos} />
+                                        <PaginationInstruments totalPages={totalPages} />
+                                    </Suspense>
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center space-y-2">

@@ -5,29 +5,49 @@ import { getAgentes } from "@/actions/agente-actions";
 import SelectAgente from "./selectAgente";
 import TotalInstrumentos from "../TabGeneral/TotalInstrumentos";
 import TotalInsturmentosActivos from "../TabGeneral/TotalInstrumentosActivos";
+import { getTotalInstrumentos, getInstrumentosActivos, getInstrumentosEntregadosUltimosSeisMeses, getInstrumentosPorEstado } from "@/actions/estadisticas-actions";
 
 
 interface TabGeneralProps {
-    totalInstrumentos: {
-        total: number;
-        growthPercentage: number;
+    searchParams?: {
+        agenteId?: string;
+        zoneName?: string;
     }
-    totalInstrumentosActivos: {
-        totalActivos: number;
-        growthPercentage: number;
-    }
-    totalAgentes: {
-        total: number;
-        growth: number;
-    }
-    totalZonas: number
-    data: { month: string; year: number; count: number }[]
-    instrumentos: { [estado: string]: number }
 }
 
 
-export default async function TabAgente({ totalInstrumentos, totalInstrumentosActivos, data, instrumentos }: Readonly<TabGeneralProps>) {
-    const agentes = await getAgentes();
+export default async function TabAgente({ searchParams }: Readonly<TabGeneralProps>) {
+    
+
+
+    let zoneName = searchParams?.zoneName;
+    const agenteIdString = searchParams?.agenteId;
+
+    let agenteId: number | undefined;
+    if (agenteIdString) {
+        agenteId = parseInt(agenteIdString);
+    }
+
+    if (zoneName) {
+        zoneName = zoneName.replace(/\+/g, " ");
+    }
+    const agentesPromise =  getAgentes();
+    
+    const totalInstrumentosPromise = getTotalInstrumentos(zoneName, agenteId);
+
+    const totalInstrumentosActivosPromise = getInstrumentosActivos(zoneName, agenteId);
+
+
+
+    const dataPromise = getInstrumentosEntregadosUltimosSeisMeses(zoneName, agenteId);
+
+    const instrumentosPromse = getInstrumentosPorEstado(zoneName, agenteId);
+
+    const [totalInstrumentos, totalInstrumentosActivos, data, instrumentos,agentes] = await Promise.all([totalInstrumentosPromise, totalInstrumentosActivosPromise, dataPromise, instrumentosPromse,agentesPromise]);
+
+
+
+
     return (
         <div className="space-y-4">
             <SelectAgente agentes={agentes} />

@@ -1,6 +1,5 @@
 'use client'
 
-import { AgenteExtendidoDto } from '@/types/agenteTypes';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react';

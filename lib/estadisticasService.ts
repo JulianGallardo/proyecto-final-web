@@ -38,6 +38,14 @@ export default class EstadisticaService {
         return this.instrumentoRepository.getInstrumentosActivos();
     }
 
+    async getAgentGrowht() {
+        return this.agenteRepository.getAgentGrowth();
+    }
+
+    async getInstrumentosPorEstado() {
+        return this.instrumentoRepository.getInstrumentosPorEstado();
+    }
+
 
 
 

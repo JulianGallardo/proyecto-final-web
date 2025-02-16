@@ -172,7 +172,8 @@ enum TipoCarga {
 
 enum EstadoInstrumento {
   PENDIENTE_DE_ENTREGA
-  ENTREGADO_VERDE //Entregado en menos de 
+  PENDIENTE_DE_PROCESAR
+  ENTREGADO_VERDE 
   ENTREGADO_AMARILLO
   ENTREGADO_ROJO
 }

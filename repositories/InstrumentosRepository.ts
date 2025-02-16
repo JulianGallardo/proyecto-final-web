@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { Instrumento, TipoCarga } from "@prisma/client";
+import { EstadoInstrumento, Instrumento, TipoCarga } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import OrdenRepository from "./OrdenRepository";
@@ -477,6 +477,27 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         return { totalActivos, growthPercentage };
     }
+
+    async getInstrumentosPorEstado() {
+        const estados = EstadoInstrumento;
+
+        const counts = await Promise.all(Object.values(estados).map(async (estado) => {
+            const count = await this.modelClient.count({
+                where: {
+                    estado: estado,
+                    deleted: false,
+                },
+            });
+            return { estado, count };
+        }));
+
+        return counts.reduce((acc: Record<EstadoInstrumento, number>, { estado, count }) => {
+            acc[estado] = count;
+            return acc;
+        }, {} as Record<EstadoInstrumento, number>);
+    }
+
+
 
 
 }

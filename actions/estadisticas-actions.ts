@@ -7,10 +7,6 @@ import InstrumentosRepository from "@/repositories/InstrumentosRepository";
 import OrdenRepository from "@/repositories/OrdenRepository";
 import UserRepository from "@/repositories/UserRepository";
 import ZoneRepository from "@/repositories/ZoneRepository";
-import { AgenteExtendidoDto } from "@/types/agenteTypes";
-import { EntregaInstrumentoUpdateDto } from "@/types/entregasType";
-import { InstrumentoExtendido } from "@/types/instrumentoTypes";
-import { revalidatePath } from "next/cache";
 
 const entregaInstrumentosRepo = new EntregasRepository();
 const zoneRepo = new ZoneRepository();
@@ -47,5 +43,13 @@ export async function getTotalInstrumentos() {
 
 export async function getInstrumentosActivos() {
     return estadisticaService.getInstrumentosActivos();
+}
+
+export async function getAgentGrowht(){
+    return estadisticaService.getAgentGrowht();
+}
+
+export async function getInstrumentosPorEstado(){
+    return estadisticaService.getInstrumentosPorEstado();
 }
 

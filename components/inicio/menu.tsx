@@ -82,7 +82,17 @@ export default function Menu() {
             description="Planifica la ruta de reparto."
             icon={Map}
             onClick={() => router.push("/planificador-de-ruta")} />
-        }
+        },
+          
+          {
+            canView(session.user.role, Resource.CONTROL_AGENTE) &&
+            <CustomCard
+              title="Estadísticas"
+              description="Visualiza tus estadísticas de entrega."
+              icon={ChartGraph}
+              onClick={() => router.push("/control-agente")}
+            />
+          }
       </div>
     </div>
   );

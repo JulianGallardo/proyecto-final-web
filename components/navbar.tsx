@@ -25,6 +25,7 @@ const navItems = [
   { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
   { href: "/planificador-de-ruta", label: "Planificador", icon: Location , resource: Resource.PLANIFICADOR },
   { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
+  { href: "/control-agente", label: "Estadísticas", icon: ChartGraph, resource: Resource.CONTROL_AGENTE },
   
 ]
 

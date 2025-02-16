@@ -65,6 +65,7 @@ const routeList:{path: string, handler: Permission}[] = [
 
     {path: "/control", handler: {resource: Resource.CONTROL, operation: Operation.READ }},
     
+    {path: "/control-agente", handler: {resource: Resource.CONTROL_AGENTE, operation: Operation.READ }},
    
 ]
 routeList.forEach(route => recognizer.add([route]));

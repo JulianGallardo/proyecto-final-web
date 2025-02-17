@@ -18,6 +18,7 @@ import { InstrumentoDTO } from "@/types/instrumentoTypes"
 import { instrumentSchema } from "@/lib/zod"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { InstrumentoType, Juzgado, TipoCarga } from "@prisma/client"
+import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete"
 
 interface FormularioInstrumentoProps {
   instrumento?: InstrumentoDTO,
@@ -36,7 +37,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       address: instrumento?.domicilio_denunciado ?? "",
       juzgado: Juzgados.find(juzgado => juzgado.identifier === instrumento?.juzgadoIdentifier)?.identifier ?? "",
       instrumentType: instrumentoTypes.find(instrumentType => instrumentType.identifier === instrumento?.instrumentoTypeIdentifier)?.identifier ?? "",
-      observaciones:instrumento?.observaciones ?? ""
+      observaciones: instrumento?.observaciones ?? ""
     },
   })
 
@@ -135,12 +136,21 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
             name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Dirección</FormLabel>
+                <FormLabel className="text-sm font-medium text-gray-700">Destinatario</FormLabel>
                 <FormControl>
-                  <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                  <AddressAutocomplete onChange={
+                    (address) => {
+                      form.setValue("address", address)
+                    }
+                  }
+
+                    defaultValue={field.value}
+                    miUbicacion={false}
+                  />
                 </FormControl>
                 <FormMessage className="text-sm text-red-500 mt-1" />
               </FormItem>
+
             )}
           />
           <FormField

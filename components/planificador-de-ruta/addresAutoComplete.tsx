@@ -1,4 +1,4 @@
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
 import { LocateFixed, Loader2 } from "lucide-react";
@@ -9,6 +9,7 @@ interface AddressAutocompleteProps {
     Icon?: React.ElementType;
     onChange: (value: string) => void;
     miUbicacion?: boolean;
+    defaultValue?: string;
 }
 
 interface Place {
@@ -27,6 +28,7 @@ export default function AddressAutocomplete({
     placeHolder = "",
     Icon,
     onChange,
+    defaultValue,
     miUbicacion = true
 }: Readonly<AddressAutocompleteProps>) {
     const [query, setQuery] = useState<string>("");
@@ -56,9 +58,15 @@ export default function AddressAutocomplete({
             );
         } catch (error) {
             console.error(error);
-            
+
         }
     }
+
+    useEffect(() => {
+        if (defaultValue) {
+            setQuery(defaultValue);
+        }
+    }, [defaultValue]);
 
     const handleSearch = useDebouncedCallback(async (searchText: string) => {
         setSelected(false);
@@ -107,9 +115,13 @@ export default function AddressAutocomplete({
     return (
         <div className="relative w-full text-gray-400 mx-auto">
             <div className="relative flex items-center">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    {Icon && <Icon className="h-4 w-4 text-gray-500" />}
-                </div>
+                {
+                    Icon && 
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <Icon className="h-4 w-4 text-gray-500" />
+                    </div>
+                }
+
                 <Input
                     id="search"
                     placeholder={placeHolder}
@@ -118,7 +130,7 @@ export default function AddressAutocomplete({
                         setQuery(e.target.value);
                         handleSearch(e.target.value);
                     }}
-                    className="pl-10 h-10 text-black w-full"
+                    className={`${Icon ? "pl-10" : ""} h-10 text-black w-full`}
                 />
                 {miUbicacion && (
                     <Button

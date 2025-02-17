@@ -147,9 +147,12 @@ export default class InstrumentoService {
         return this.instrumentoRepository.getInstrumentosByZone(zone);
     }
 
-    async getInstrumentosByZones(zones: string[]) {
 
-        const promises = zones.map(zone => this.getInstrumentosByZone(zone));
+
+
+    async getInstrumentosAEntregar(zones: string[]) {
+
+        const promises = zones.map(zone => this.instrumentoRepository.getInstrumentosAEntregarPorZonas(zone));
         const instrumentos = await Promise.all(promises);
 
         return instrumentos.flat();

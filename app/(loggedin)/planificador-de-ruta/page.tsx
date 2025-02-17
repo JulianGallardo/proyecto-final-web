@@ -1,5 +1,5 @@
 import { getAgenteByMail } from "@/actions/agente-actions"
-import { getInstrumentosByZones } from "@/actions/instrumentos-actions"
+import { getInstrumentosAEntregar } from "@/actions/instrumentos-actions"
 import { auth } from "@/auth"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 import StepPlanner from "@/components/planificador-de-ruta/stepManager"
@@ -30,7 +30,7 @@ export default async function PlanificadorPage() {
 
 
 
-  const instrumentos = await getInstrumentosByZones(agente.zonas.map(zona => zona.zoneName))
+  const instrumentos = await getInstrumentosAEntregar(agente.zonas.map(zona => zona.zoneName))
   return (
     <div className="flex h-full w-full  ">
       <StepPlanner instrumentos={instrumentos} agente={agente} />

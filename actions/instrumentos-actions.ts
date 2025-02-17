@@ -96,8 +96,8 @@ export async function getInstrumentosByZone(zone: string) {
     return instrumentoService.getInstrumentosByZone(zone);
 }
 
-export async function getInstrumentosByZones(zones: string[]) {
-    return instrumentoService.getInstrumentosByZones(zones);
+export async function getInstrumentosAEntregar(zones: string[]) {
+    return instrumentoService.getInstrumentosAEntregar(zones);
 }
 
 export async function getInstrumentosPaginated(searchParams:SearchParamsInstrumentos, page: number) {

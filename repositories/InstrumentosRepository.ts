@@ -587,6 +587,18 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
 
+    async getInstrumentosAEntregarPorZonas(zoneName:string) {
+        return this.modelClient.findMany({
+            where: {
+                estado: EstadoInstrumento.PENDIENTE_DE_ENTREGA,
+                Zona: {
+                    zoneName: zoneName
+                }
+            },
+            select: selectOptions,
+        });
+    }
+
 
 
 

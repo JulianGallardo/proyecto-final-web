@@ -59,7 +59,7 @@ export default function LoginForm() {
                     {/* Imagen */}
                     <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-gray-100">
                         <Image
-                            src="/login.svg"
+                            src="/login.jpg"
                             alt="Login visual"
                             layout="fill"
                             objectFit="fit"
@@ -151,17 +151,7 @@ export default function LoginForm() {
                             </form>
                         </Form>
 
-                        {/* Link de recuperación */}
-                        <p className="mt-4 text-sm text-center text-gray-600">
-                            ¿Olvidaste tu contraseña?{" "}
-                            <button
-                                type="button"
-                                className="text-blue-600 hover:underline"
-                                onClick={() => alert('Recuperación de contraseña no implementada')}
-                            >
-                                Recupérala
-                            </button>
-                        </p>
+                        
                     </div>
                 </div>
             </Card>

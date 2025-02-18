@@ -46,7 +46,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
     const filteredAddresses = useMemo(() => {
         if (!orderedAddresses.length) return orderedAddresses;
 
-        return orderedAddresses.filter((address, index) => {
+        return orderedAddresses.filter((address) => {
             if (address.type !== "end") return true;
 
             const startPoint = orderedAddresses.find(a => a.type === "start");

@@ -41,10 +41,10 @@ export function AddressInputs({
             <div className="space-y-2">
                 <Label className="
                     flex items-center gap-2
-                    text-sm font-semibold text-gray-700
+                    text-sm font-semibold text-gray-500
                 ">
-                    <span>Inicio</span>
                     <Home className="w-5 h-5" />
+                    <span>Inicio</span>
                 </Label>
                 <AddressAutocomplete
                     placeHolder="Ingrese el punto de inicio"
@@ -56,10 +56,11 @@ export function AddressInputs({
             <div className="space-y-2">
                 <Label className="
                     flex items-center gap-2
-                    text-sm font-semibold text-gray-700
+                    text-sm font-semibold text-gray-500
                 ">
-                    <span>Final</span>
                     <Flag className="w-5 h-5" />
+                    <span>Final</span>
+                    
                 </Label>
                 <Select value={endPointOption} onValueChange={handleEndPointOptionChange}>
                     <SelectTrigger className="w-full">

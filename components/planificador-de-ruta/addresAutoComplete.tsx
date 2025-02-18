@@ -14,6 +14,18 @@ interface AddressAutocompleteProps {
 
 interface Place {
     display_name: string;
+    address:{
+        city: string;
+        country: string;
+        country_code: string;
+        county: string;
+        house_number: string;
+        postcode: string;
+        road: string;
+        state: string;
+        state_district: string;
+        suburb: string;
+    }
     lat: number;
     lon: number;
 }
@@ -44,14 +56,16 @@ export default function AddressAutocomplete({
         }
 
         try {
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&countrycodes=AR&limit=5&bounded=1&viewbox=${bbox}`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchText)}&addressdetails=0&countrycodes=AR&limit=5&bounded=1&viewbox=${bbox}&addressdetails=1`;
 
             const response = await fetch(url);
             const data = await response.json();
 
+            console.log(data);
+
             setResults(
                 data.map((place: Place) => ({
-                    name: place.display_name,
+                    name: place.address.road + " " + place.address.house_number + ", " + place.address.city + ", " + place.address.state + ", " + place.address.country,
                     lat: place.lat.toString(),
                     lon: place.lon.toString(),
                 }))

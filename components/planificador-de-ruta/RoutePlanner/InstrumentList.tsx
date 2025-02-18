@@ -19,9 +19,6 @@ export function InstrumentList({ instruments, orderedAddresses, markAsVisited }:
         return "";
     };
 
-
-    
-
     return (
         <div className="space-y-2">
             {orderedAddresses.length === 0 && instruments.map((instrument) => (

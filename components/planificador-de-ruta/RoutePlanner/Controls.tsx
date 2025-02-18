@@ -41,7 +41,8 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
         routeMetrics,
         routeChoice,
         setRouteChoice,
-        routeSegments
+        routeSegments,
+        setRouteMetrics,
     } = useRoutePlanner(instrumentos);
 
     const isMobile = useIsMobile();
@@ -51,6 +52,7 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
         const instrumentosDelivered = instrumentosFilter.map(addr => addr.instrument).filter((instrument): instrument is InstrumentoExtendido => instrument !== undefined);
 
         setRouteSegments([]);
+        setRouteMetrics({ distance: 0, duration: 0 });
         setOrderedAddresses([]);
         setStartPoint("");
         setEndPoint("");

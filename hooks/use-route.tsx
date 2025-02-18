@@ -142,20 +142,25 @@ export const useRouteStore = create<RouteState>((set, get) => ({
                 end?.coordinates
             );
 
-            const orderedLocations:Address[] = [];
+            const optimizedLocationsWithoutRepeats = optimizedLocations.filter((location, index, self) =>
+                index === self.findIndex((t) => (
+                    t[0] === location[0] && t[1] === location[1]
+                ))
+            );
+
+            const orderedLocations: Address[] = [];
             if (start) orderedLocations.push(start);
-            optimizedLocations.forEach(location => {
+
+            optimizedLocationsWithoutRepeats.forEach(location => {
                 const found = validLocations.find(loc => loc.coordinates[0] === location[0] && loc.coordinates[1] === location[1]);
                 if (found) orderedLocations.push(found);
             });
+
             if (end) orderedLocations.push(end);
 
-            orderedLocations.forEach((loc, index) => {
-                loc.stopNumber = index;
-                loc.visited = false;
-            }
-            );
+            calculateOrdenNumber(orderedLocations, start);
 
+            console.log("ubicaciones ordenadas", orderedLocations);
 
             setOrderedAddresses(orderedLocations);
 
@@ -299,3 +304,13 @@ export const useRoutePlanner = (instruments: InstrumentoExtendido[]) => {
         setVehicle
     };
 };
+
+function calculateOrdenNumber(orderedLocations: Address[], start: Address | undefined) {
+    orderedLocations.forEach((loc, index) => {
+        if ((loc.type === "waypoint" || loc.type === "end") && !start) { loc.stopNumber = index + 1; }
+        else {
+            loc.stopNumber = index;
+        }
+    }
+    );
+}

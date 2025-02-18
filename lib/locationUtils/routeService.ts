@@ -20,8 +20,7 @@ export class RouteService {
 
     public async getOptimizedRoute(
         locations: [number, number][],
-        vehicle: VehicleType,
-        routeChoice: RouteChoiceType = 'shortest'
+        vehicle: VehicleType
 
     ): Promise<number[]> {
         const url = `https://api.openrouteservice.org/v2/matrix/${vehicle}`;
@@ -32,24 +31,20 @@ export class RouteService {
                 'Content-Type': 'application/json'
             },
             
-            body: JSON.stringify({ locations, metrics: ['distance','duration'] })
+            body: JSON.stringify({ locations, metrics: ['distance'] })
         });
 
         const data = await response.json();
         if(
-            !data.distances || !data.durations
+            !data.distances
         ) {
-            console.error("No se pudo obtener la matriz de distancias y duraciones");
+            console.error("No se pudo obtener la matriz de distancias ");
             return [];
         }
 
-        if(routeChoice === 'shortest'){
-            const distanceMatrix = data.distances;
-            return this.optimizeRoute(distanceMatrix);
-        } else {
-            const durationMatrix = data.durations;
-            return this.optimizeRoute(durationMatrix);
-        }
+        const distanceMatrix = data.distances;
+        const optimizedRoute = this.optimizeRoute(distanceMatrix);
+        return optimizedRoute;
     }
 
     public async getRouteGeometry(
@@ -118,7 +113,6 @@ export class RouteService {
         const segments = data.features[0].properties.segments;
 
         return this.createRouteSegments(
-            optimizedInstruments,
             routeCoordinates,
             segments,
             startIndex
@@ -126,7 +120,6 @@ export class RouteService {
     }
 
     private createRouteSegments(
-        orderedInstruments: Address[],
         coordinates: [number, number][],
         segmentData: { distance: number; duration: number; steps: {
             way_points: number[];

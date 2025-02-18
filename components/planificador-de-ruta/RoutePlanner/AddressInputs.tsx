@@ -1,5 +1,8 @@
 import { Flag, Home } from "@mynaui/icons-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AddressAutocomplete from "../addresAutoComplete";
+import { useState } from "react";
+import { Label } from "@/components/ui/label";
 
 interface AddressInputsProps {
     startPoint: string;
@@ -8,22 +11,75 @@ interface AddressInputsProps {
     onEndPointChange: (value: string) => void;
 }
 
+type EndPointOption = "none" | "same" | "custom";
+
 export function AddressInputs({
+    startPoint,
     onStartPointChange,
     onEndPointChange
 }: Readonly<AddressInputsProps>) {
+    const [endPointOption, setEndPointOption] = useState<EndPointOption>("none");
+
+    const handleEndPointOptionChange = (value: EndPointOption) => {
+        setEndPointOption(value);
+        if (value === "none") {
+            onEndPointChange("");
+        } else if (value === "same") {
+            onEndPointChange(startPoint);
+        }
+    };
+
+    const handleStartPointChange = (value: string) => {
+        onStartPointChange(value);
+        if (endPointOption === "same") {
+            onEndPointChange(value);
+        }
+    };
+
     return (
-        <div className="mb-4 flex flex-col gap-2">
-            <AddressAutocomplete placeHolder="Ingrese el punto de inicio (opcional)"
+        <div className="flex flex-col gap-4">
+            <div className="space-y-2">
+                <Label className="
+                    flex items-center gap-2
+                    text-sm font-semibold text-gray-700
+                ">
+                    <span>Inicio</span>
+                    <Home className="w-5 h-5" />
+                </Label>
+                <AddressAutocomplete
+                    placeHolder="Ingrese el punto de inicio"
+                    Icon={Home}
+                    onChange={handleStartPointChange}
+                />
+            </div>
 
-                Icon={Home}
-                onChange={onStartPointChange}
-            />
-            <AddressAutocomplete placeHolder="Ingrese el punto final (opcional)"
+            <div className="space-y-2">
+                <Label className="
+                    flex items-center gap-2
+                    text-sm font-semibold text-gray-700
+                ">
+                    <span>Final</span>
+                    <Flag className="w-5 h-5" />
+                </Label>
+                <Select value={endPointOption} onValueChange={handleEndPointOptionChange}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccione el tipo de punto final" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="none">Sin punto final</SelectItem>
+                        <SelectItem value="same">Volver al inicio</SelectItem>
+                        <SelectItem value="custom">Personalizado</SelectItem>
+                    </SelectContent>
+                </Select>
 
-                Icon={Flag}
-                onChange={onEndPointChange}
-            />
+                {endPointOption === "custom" && (
+                    <AddressAutocomplete
+                        placeHolder="Ingrese el punto final"
+                        Icon={Flag}
+                        onChange={onEndPointChange}
+                    />
+                )}
+            </div>
         </div>
     );
 }

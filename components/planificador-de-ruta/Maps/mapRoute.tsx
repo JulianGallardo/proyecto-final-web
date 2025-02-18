@@ -1,11 +1,10 @@
 import { MapCenter, MapBounds } from "@/types/MapTypes";
 import { Address, RouteSegment } from "@/types/PlannerTypes";
-
 import { HomeIcon, MapPin, MapPinCheck } from "lucide-react";
 import Map, { Marker, Popup, Source, Layer, GeolocateControl, FullscreenControl, NavigationControl } from "@vis.gl/react-maplibre";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Flag } from "@mynaui/icons-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 interface MapComponentProps {
     selectedInstruments: InstrumentoExtendido[];
@@ -13,38 +12,24 @@ interface MapComponentProps {
     routeSegments?: RouteSegment[];
 }
 
-
-
-
 function calculateIcon(address: Address) {
-
     if (address.visited) {
         return <MapPinCheck className="h-10 w-10 text-green-500" />
     }
-
     if (address.type === "start") {
         return <HomeIcon className="h-10 w-10 text-blue-500" />
     }
     if (address.type === "end") {
         return <Flag className="h-10 w-10 text-black" />
     }
-    else {
-        return <MapPin className="h-10 w-10 text-red-500" />
-    }
-
-
-
-
+    return <MapPin className="h-10 w-10 text-red-500" />
 }
 
-
-
-function calculateMarker(Address: Address, index: number) {
+function calculateMarker(address: Address, index: number) {
     return (
         <div className="relative inline-block">
-            {calculateIcon(Address)}
-
-            {Address.type === "waypoint" && (
+            {calculateIcon(address)}
+            {address.type === "waypoint" && (
                 <span className="absolute -top-2 -right-2 bg-red-800 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                     {index}
                 </span>
@@ -52,10 +37,27 @@ function calculateMarker(Address: Address, index: number) {
         </div>
     );
 }
+
+
 export function MapComponent({ selectedInstruments, orderedAddresses, routeSegments }: Readonly<MapComponentProps>) {
     const [popupInfo, setPopupInfo] = useState<InstrumentoExtendido | null>(null);
 
+    // Filtrar marcadores finales coincidentes
+    const filteredAddresses = useMemo(() => {
+        if (!orderedAddresses.length) return orderedAddresses;
 
+        return orderedAddresses.filter((address, index) => {
+            if (address.type !== "end") return true;
+
+            const startPoint = orderedAddresses.find(a => a.type === "start");
+            if (!startPoint) return true;
+
+            return !(
+                address.coordinates?.[0] === startPoint.coordinates?.[0] &&
+                address.coordinates?.[1] === startPoint.coordinates?.[1]
+            );
+        });
+    }, [orderedAddresses]);
 
     return (
         <Map
@@ -72,7 +74,6 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
             style={{ width: '100%', height: '100%' }}
             attributionControl={true}
             reuseMaps
-
         >
             <NavigationControl showCompass={false} />
             <FullscreenControl />
@@ -80,8 +81,6 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                 positionOptions={{ enableHighAccuracy: true }}
                 trackUserLocation={true}
                 showUserLocation={true}
-
-
             />
 
             {orderedAddresses.length === 0 && selectedInstruments.map((instrument) => (
@@ -123,8 +122,7 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                 </Popup>
             )}
 
-            {orderedAddresses.map((address, index) => (
-
+            {filteredAddresses.map((address, index) => (
                 <Marker
                     key={address.instrument?.codigoInstrumento ?? index}
                     latitude={address.coordinates?.[1]}
@@ -132,66 +130,59 @@ export function MapComponent({ selectedInstruments, orderedAddresses, routeSegme
                     anchor="bottom"
                 >
                     <div className="relative group">
-                        {
-                            calculateMarker(address, address.stopNumber)
-                        }
-
+                        {calculateMarker(address, address.stopNumber)}
                         {address.instrument &&
                             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-xs">
                                 {address.instrument?.instrumentoType?.name} - {address.instrument?.codigoInstrumento}
                             </div>
                         }
-                        {
-                            !address.instrument &&
+                        {!address.instrument &&
                             <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white px-2 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-xs">
-                                {
-                                    address.type === 'start' && "Inicio "
-                                }
-                                {
-                                    address.type === 'end' && "Fin "
-                                }
-                                -
-
-                                {address.text}
+                                {address.type === 'start' && "Inicio"}
+                                {address.type === 'end' && "Llegada"}
                             </div>
                         }
                     </div>
                 </Marker>
-
             ))}
 
             {routeSegments?.map((segment, index) => {
                 const sourceId = `route-source-${index}`;
                 const layerId = `route-line-${index}`;
+                const routeColor = `hsl(${index * 30}, 70%, 50%)`;
 
                 return (
-                    <Source
-                        key={sourceId}
-                        id={sourceId}
-                        type="geojson"
-                        data={{
-                            type: 'Feature',
-                            properties: { description: segment.description },
-                            geometry: {
-                                type: 'LineString',
-                                coordinates: segment.coordinates,
-                            },
-                        }}
-                    >
-                        <Layer
-                            id={layerId}
-                            type="line"
-                            layout={{
-                                'line-join': 'round',
-                                'line-cap': 'round',
+                    
+                        <Source
+                            key={sourceId}
+                            id={sourceId}
+                            type="geojson"
+                            data={{
+                                type: 'Feature',
+                                properties: { description: segment.description },
+                                geometry: {
+                                    type: 'LineString',
+                                    coordinates: segment.coordinates,
+                                },
                             }}
-                            paint={{
-                                'line-color': `hsl(${index * 30}, 70%, 50%)`,  // Color dinámico
-                                'line-width': 6,
-                                'line-opacity': 0.8,
-                            }}
-                        />
-                    </Source>
+                        >
+                            <Layer
+                                id={layerId}
+                                type="line"
+                                layout={{
+                                    'line-join': 'round',
+                                    'line-cap': 'round',
+                                }}
+                                paint={{
+                                    'line-color': routeColor,
+                                    'line-width': 6,
+                                    'line-opacity': 0.8,
+                                }}
+                            />
+                        </Source>
+
+                        
+                    
                 );
             })}
         </Map>

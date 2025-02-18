@@ -11,6 +11,7 @@ import { FlagTriangleRightIcon } from "lucide-react";
 import { createEntregas } from "@/actions/entrega-instrumentos-actions";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import { toast } from "@/hooks/use-toast";
+import PreviewContent from "./PreviewContent";
 
 interface ControlsProps {
     volver: () => void;
@@ -59,14 +60,14 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
             if (entregas.length === 0) {
                 throw new Error("No se pudieron registrar las entregas");
             }
-            else{
-                
-            toast({
-                title: "Entregas registradas",
-                description: `Las entregas han sido registradas correctamente`,
-                className: "bg-green-500 text-white",
-                duration: 3000,
-            });
+            else {
+
+                toast({
+                    title: "Entregas registradas",
+                    description: `Las entregas han sido registradas correctamente`,
+                    className: "bg-green-500 text-white",
+                    duration: 3000,
+                });
             }
 
         } catch (error) {
@@ -88,7 +89,16 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
 
     return (
         <div className="flex flex-col gap-2">
+            {
+                !isMobile && (
+                    <div className="flex flex-col gap-4 rounded-lg">
+                        <PreviewContent
+                            routeMetrics={routeMetrics}
 
+                        />
+                    </div>
+                )
+            }
             <Button
                 onClick={calculateRoute}
                 className="w-full bg-green-500 hover:bg-green-600 mt-4"
@@ -132,7 +142,6 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
                 </Button>
 
             </div>
-            {routeMetrics && !isMobile && <RouteMetrics metrics={routeMetrics} />}
         </div>
     );
 }

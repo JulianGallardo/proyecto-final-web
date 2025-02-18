@@ -8,7 +8,7 @@ export default function PreviewContent({ routeMetrics }: Readonly<RouteMetrics>)
     
 
     return (
-        <div className="p-2  bg-white ">
+        <div className="p-2  bg-white rounded-lg ">
             <div className="flex items-center justify-between text-gray-900">
                 {routeMetrics ? (
                     <>

@@ -87,8 +87,8 @@ export class RouteService {
             coordinates: waypoints,
             preference: routeChoice,
             instructions: true,
-            language: 'es',
-            instructions_format: 'html',
+            language: 'es-es',
+            instructions_format: 'text',
             
         };
 

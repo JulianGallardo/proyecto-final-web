@@ -20,7 +20,9 @@ export class RouteService {
 
     public async getOptimizedRoute(
         locations: [number, number][],
-        vehicle: VehicleType
+        vehicle: VehicleType,
+        routeChoice: RouteChoiceType = 'shortest'
+
     ): Promise<number[]> {
         const url = `https://api.openrouteservice.org/v2/matrix/${vehicle}`;
         const response = await fetch(url, {
@@ -30,11 +32,24 @@ export class RouteService {
                 'Content-Type': 'application/json'
             },
             
-            body: JSON.stringify({ locations, metrics: ['distance'] })
+            body: JSON.stringify({ locations, metrics: ['distance','duration'] })
         });
 
         const data = await response.json();
-        return this.optimizeRoute(data.distances);
+        if(
+            !data.distances || !data.durations
+        ) {
+            console.error("No se pudo obtener la matriz de distancias y duraciones");
+            return [];
+        }
+
+        if(routeChoice === 'shortest'){
+            const distanceMatrix = data.distances;
+            return this.optimizeRoute(distanceMatrix);
+        } else {
+            const durationMatrix = data.durations;
+            return this.optimizeRoute(durationMatrix);
+        }
     }
 
     public async getRouteGeometry(

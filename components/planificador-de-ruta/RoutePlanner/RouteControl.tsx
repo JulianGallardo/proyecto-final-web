@@ -1,12 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { RouteChoiceType, VehicleType } from "@/types/PlannerTypes";
-import { Car, Bike, Footprints, Rabbit, Spline, ShieldCheck, Settings } from "lucide-react";
+import { Car, Bike, Footprints, Rabbit, Spline,  Settings } from "lucide-react";
 
 interface RouteControlsProps {
     vehicle: VehicleType;
     setVehicle: (vehicle: VehicleType) => void;
     routeChoice: RouteChoiceType;
-    setRouteChoice: (choice: "fastest" | "shortest" | "recommended") => void;
+    setRouteChoice: (choice: RouteChoiceType) => void;
 }
 
 const vehicles = [
@@ -52,7 +52,7 @@ export function RouteControls({ vehicle, setVehicle, routeChoice, setRouteChoice
                     <Button
                         key={id}
                         variant={routeChoice === id ? "default" : "outline"}
-                        onClick={() => setRouteChoice(id as "fastest" | "shortest" | "recommended")}
+                        onClick={() => setRouteChoice(id as RouteChoiceType)}
                         className={`${buttonBaseClasses} ${routeChoice === id ? buttonActiveClasses : buttonInactiveClasses
                             }`}
                     >

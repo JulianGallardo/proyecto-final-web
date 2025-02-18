@@ -108,7 +108,8 @@ export const useRouteStore = create<RouteState>((set, get) => ({
             const waypointsIndices = Array.from({ length: validLocations.length }, (_, i) => i);
             const optimizedWaypoints = await routeService.getOptimizedRoute(
                 waypointsIndices.map(i => validLocations[i].coordinates),
-                vehicle
+                vehicle,
+                routeChoice
             );
 
             const ordered = optimizedWaypoints.map(i => validLocations[i]);

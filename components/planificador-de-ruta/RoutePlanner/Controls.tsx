@@ -46,7 +46,6 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
 
         const instrumentosDelivered = instrumentosFilter.map((addr) => addr.instrument!);
 
-        console.log(instrumentosDelivered);
         setRouteSegments([]);
         setOrderedAddresses([]);
         setStartPoint("");

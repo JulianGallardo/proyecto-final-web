@@ -16,9 +16,8 @@ const vehicles = [
 ];
 
 const routeChoices = [
-    { id: "fastest", label: "Más rápido", icon: Rabbit },
-    { id: "shortest", label: "Más corto", icon: Spline },
-    { id: "recommended", label: "Recomendado", icon: ShieldCheck },
+    { id: "fastest", label: "Más rápida", icon: Rabbit },
+    { id: "shortest", label: "Más corta", icon: Spline },
 ];
 
 export function RouteControls({ vehicle, setVehicle, routeChoice, setRouteChoice }: Readonly<RouteControlsProps>) {
@@ -48,7 +47,7 @@ export function RouteControls({ vehicle, setVehicle, routeChoice, setRouteChoice
                     </Button>
                 ))}
             </div>
-            <div className="grid grid-cols-3 gap-2 w-full">
+            <div className="grid grid-cols-2 gap-2 w-full">
                 {routeChoices.map(({ id, label, icon: Icon }) => (
                     <Button
                         key={id}

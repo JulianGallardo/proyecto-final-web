@@ -29,7 +29,8 @@ export class RouteService {
                 Authorization: this.API_KEY,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ locations, metrics: ['distance','duration'] })
+            
+            body: JSON.stringify({ locations, metrics: ['distance'] })
         });
 
         const data = await response.json();

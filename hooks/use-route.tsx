@@ -105,48 +105,62 @@ export const useRouteStore = create<RouteState>((set, get) => ({
                 return;
             }
 
-            const waypointsIndices = Array.from({ length: validLocations.length }, (_, i) => i);
-            const optimizedWaypoints = await routeService.getOptimizedRoute(
-                waypointsIndices.map(i => validLocations[i].coordinates),
-                vehicle
-            );
 
-            const ordered = optimizedWaypoints.map(i => validLocations[i]);
-
-            ordered.forEach((loc, i) => {
-                loc.stopNumber = i + 1;
-            });
+            let start: Address | undefined;
+            let end: Address | undefined;
 
             if (startPoint) {
                 const coords = await routeService.getCoordinates(startPoint);
                 if (coords) {
-                    ordered.unshift({
+                    start = {
                         type: "start",
                         text: startPoint,
                         coordinates: coords,
                         stopNumber: 0,
                         visited: false
-                    });
+                    };
                 }
             }
 
             if (endPoint) {
                 const coords = await routeService.getCoordinates(endPoint);
                 if (coords) {
-                    ordered.push({
+                    end = {
                         type: "end",
                         text: endPoint,
                         coordinates: coords,
-                        stopNumber: ordered.length,
+                        stopNumber: validLocations.length + 1,
                         visited: false
-                    });
+                    };
                 }
             }
 
-            setOrderedAddresses(ordered);
+            const optimizedLocations = await routeService.getOptimizedRoute(
+                validLocations.map((loc) => loc.coordinates),
+                vehicle,
+                start?.coordinates,
+                end?.coordinates
+            );
+
+            const orderedLocations:Address[] = [];
+            if (start) orderedLocations.push(start);
+            optimizedLocations.forEach(location => {
+                const found = validLocations.find(loc => loc.coordinates[0] === location[0] && loc.coordinates[1] === location[1]);
+                if (found) orderedLocations.push(found);
+            });
+            if (end) orderedLocations.push(end);
+
+            orderedLocations.forEach((loc, index) => {
+                loc.stopNumber = index;
+                loc.visited = false;
+            }
+            );
+
+
+            setOrderedAddresses(orderedLocations);
 
             const routeSegments = await routeService.getRouteGeometry(
-                ordered,
+                orderedLocations,
                 routeChoice,
                 vehicle
             );

@@ -19,32 +19,54 @@ export class RouteService {
     }
 
     public async getOptimizedRoute(
-        locations: [number, number][],
-        vehicle: VehicleType
+        instrumentLocations: [number, number][],
+        vehicle: VehicleType,
+        startLocation?: [number, number],
+        endLocation?: [number, number],
+        
 
-    ): Promise<number[]> {
-        const url = `https://api.openrouteservice.org/v2/matrix/${vehicle}`;
+    ): Promise<number[][]> {
+        const url = `https://api.openrouteservice.org/optimization`;
+
+        
+        const body = {
+            jobs: instrumentLocations.map((location, index) => ({
+                id: index,
+                location
+            })),
+            vehicles: [{ 
+                id: 1, 
+                profile: vehicle,
+                start: startLocation || instrumentLocations[0],
+                end: endLocation || instrumentLocations[instrumentLocations.length - 1],
+            }],
+            options: {
+                g: true
+            }
+        };
+
+
+
         const response = await fetch(url, {
             method: 'POST',
             headers: {
                 Authorization: this.API_KEY,
                 'Content-Type': 'application/json'
             },
-            
-            body: JSON.stringify({ locations, metrics: ['distance'] })
+
+            body: JSON.stringify(body)
         });
 
         const data = await response.json();
-        if(
-            !data.distances
-        ) {
-            console.error("No se pudo obtener la matriz de distancias ");
-            return [];
-        }
+        
 
-        const distanceMatrix = data.distances;
-        const optimizedRoute = this.optimizeRoute(distanceMatrix);
-        return optimizedRoute;
+        const optimizedJobs = data.routes[0].steps;
+
+
+        const optimizedRouteLocations:number[][] = optimizedJobs.map((job: { job: number, location:number[] }) => job.location);
+
+
+        return optimizedRouteLocations;
     }
 
     public async getRouteGeometry(
@@ -54,11 +76,11 @@ export class RouteService {
         ordenNumber?: number
     ): Promise<RouteSegment[]> {
         // Filtrar los instrumentos desde el ordenNumber si existe
-        const startIndex = ordenNumber 
+        const startIndex = ordenNumber
             ? orderedInstruments.findIndex(i => i.stopNumber === ordenNumber)
             : 0;
-        
-        const relevantInstruments = ordenNumber 
+
+        const relevantInstruments = ordenNumber
             ? orderedInstruments.slice(startIndex)
             : orderedInstruments;
 
@@ -73,12 +95,7 @@ export class RouteService {
             .filter(instrument => instrument.coordinates)
             .map(instrument => instrument.coordinates as [number, number]);
 
-        // Obtener el orden optimizado de los waypoints
-        const optimizedIndices = await this.getOptimizedRoute(waypoints, vehicle);
-        
-        // Reordenar los waypoints según la optimización
-        const optimizedWaypoints = optimizedIndices.map(index => waypoints[index]);
-        
+       
 
 
         // Configurar la petición para la API de directions
@@ -89,7 +106,7 @@ export class RouteService {
             instructions: true,
             language: 'es-es',
             instructions_format: 'text',
-            
+
         };
 
         const response = await fetch(url, {
@@ -123,10 +140,12 @@ export class RouteService {
 
     private createRouteSegments(
         coordinates: [number, number][],
-        segmentData: { distance: number; duration: number; steps: {
-            way_points: number[];
-            instruction: string;
-        }[] }[],
+        segmentData: {
+            distance: number; duration: number; steps: {
+                way_points: number[];
+                instruction: string;
+            }[]
+        }[],
         startIndex: number,
     ): RouteSegment[] {
         const segments: RouteSegment[] = [];
@@ -134,7 +153,7 @@ export class RouteService {
         for (let i = 0; i < segmentData.length; i++) {
             const segment = segmentData[i];
             const steps = segment.steps;
-            
+
             // Encontrar los índices de inicio y fin para este segmento
             const segmentStart = i > 0 ? steps[0].way_points[0] : 0;
             const segmentEnd = steps[steps.length - 1].way_points[1];
@@ -184,5 +203,5 @@ export class RouteService {
         return route;
     }
 
-    
+
 }

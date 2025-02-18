@@ -79,16 +79,16 @@ export class RouteService {
         // Reordenar los waypoints según la optimización
         const optimizedWaypoints = optimizedIndices.map(index => waypoints[index]);
         
-        // Reordenar los instrumentos según la optimización
-        const optimizedInstruments = optimizedIndices.map(index => relevantInstruments[index]);
 
-        console.log(optimizedWaypoints.map((c, i) => ({ c, i })));
 
         // Configurar la petición para la API de directions
         const url = `https://api.openrouteservice.org/v2/directions/${vehicle}/geojson`;
         const requestBody = {
             coordinates: waypoints,
             preference: routeChoice,
+            instructions: true,
+            language: 'es',
+            instructions_format: 'html',
             
         };
 
@@ -103,6 +103,8 @@ export class RouteService {
 
         const data = await response.json();
 
+        console.log(data);
+
         if (!data.features?.[0]?.properties?.segments) {
             console.error("No se pudo obtener la ruta");
             return [];
@@ -115,7 +117,7 @@ export class RouteService {
         return this.createRouteSegments(
             routeCoordinates,
             segments,
-            startIndex
+            startIndex,
         );
     }
 
@@ -123,8 +125,9 @@ export class RouteService {
         coordinates: [number, number][],
         segmentData: { distance: number; duration: number; steps: {
             way_points: number[];
+            instruction: string;
         }[] }[],
-        startIndex: number
+        startIndex: number,
     ): RouteSegment[] {
         const segments: RouteSegment[] = [];
 
@@ -136,16 +139,21 @@ export class RouteService {
             const segmentStart = i > 0 ? steps[0].way_points[0] : 0;
             const segmentEnd = steps[steps.length - 1].way_points[1];
 
+            const segmentInstructions = steps.map(step => step.instruction);
+
             segments.push({
                 start: startIndex + i,
                 end: startIndex + i + 1,
                 coordinates: coordinates.slice(segmentStart, segmentEnd + 1),
                 description: `Tramo ${startIndex + i + 1} → ${startIndex + i + 2}`,
                 distance: segment.distance,
-                duration: segment.duration
+                duration: segment.duration,
+                instructions: segmentInstructions
+
             });
         }
 
+        console.log(segments);
         return segments;
     }
 

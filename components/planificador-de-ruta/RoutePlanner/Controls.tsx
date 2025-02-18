@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { FatCornerUpLeft } from "@mynaui/icons-react";
-import { RouteMetrics } from "./RouteMetrics";
 import { RouteControls } from "./RouteControl";
 import { AddressInputs } from "./AddressInputs";
 import { InstrumentList } from "./InstrumentList";

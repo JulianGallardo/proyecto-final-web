@@ -24,6 +24,7 @@ export interface RouteSegment {
     description: string;
     distance: number;
     duration: number;
+    instructions: string[];
 }
 
 

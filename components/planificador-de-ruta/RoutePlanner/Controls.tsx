@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast";
 import PreviewContent from "./PreviewContent";
 import Instrucciones from "./Instrucciones";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ClipLoader } from "react-spinners";
 
 interface ControlsProps {
     volver: () => void;
@@ -60,7 +61,7 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
             if (entregas.length === 0) {
                 throw new Error("No se pudieron registrar las entregas");
             }
-            
+
             toast({
                 title: "Entregas registradas",
                 description: "Las entregas han sido registradas correctamente",
@@ -83,27 +84,33 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
                 <TabsTrigger value="controls" className="w-1/2">Controles</TabsTrigger>
                 <TabsTrigger value="instructions" className="w-1/2">Instrucciones</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="controls">
                 <div className="flex flex-col gap-2">
                     {!isMobile && (
                         <PreviewContent routeMetrics={routeMetrics} />
                     )}
-                    
+
                     <Button
                         onClick={calculateRoute}
                         className="w-full bg-green-500 hover:bg-green-600 mt-4"
                         disabled={loading || selectedInstruments.length === 0}
                     >
-                        {loading ? "Calculando..." : "🛣️ Calcular Ruta"}
+                        {loading ? <ClipLoader
+                            loading
+                            size={15}
+                            speedMultiplier={1}
+                            color="#ffffff"
+                        />
+                            : "Calcular recorrido"}
                     </Button>
-                    
+
                     <RouteControls vehicle={vehicle} setVehicle={setVehicle} routeChoice={routeChoice} setRouteChoice={setRouteChoice} />
                     <AddressInputs startPoint={startPoint} endPoint={endPoint} onStartPointChange={setStartPoint} onEndPointChange={setEndPoint} />
-                    
+
                     <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
                     <InstrumentList instruments={selectedInstruments} orderedAddresses={orderedAddresses} markAsVisited={markAsVisited} />
-                    
+
                     <Button
                         disabled={!canFinish}
                         onClick={handleFinalizarEntrega}
@@ -112,7 +119,7 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
                         <span>Finalizar Entrega</span>
                         <FlagTriangleRightIcon className="w-6 h-6" />
                     </Button>
-                    
+
                     <div className="flex items-center justify-between">
                         <Button onClick={volver} className="bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition w-full">
                             <span className="mr-2">Volver atras</span>
@@ -121,7 +128,7 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
                     </div>
                 </div>
             </TabsContent>
-            
+
             <TabsContent value="instructions">
                 <Instrucciones instrucciones={
                     routeSegments.map(segment => ({ segmento: segment.description, instrucciones: segment.instructions }))

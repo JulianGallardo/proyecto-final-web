@@ -4,7 +4,7 @@ import PreviewContent from "./PreviewContent";
 import { MapComponent } from "../Maps/mapRoute";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { useRoutePlanner } from "@/hooks/use-route";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Controls from "./Controls";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 
@@ -20,7 +20,25 @@ export default function RoutePlanner({ instruments, volver,agente }: Readonly<Ro
         routeSegments,
         selectedInstruments,
         routeMetrics,
+        setRouteSegments,
+        setOrderedAddresses,
+        setEndPoint,
+        setStartPoint,
+        setRouteMetrics,
+        
     } = useRoutePlanner(instruments);
+
+    useEffect(() => {
+        return () => {
+            setRouteMetrics({ distance: 0, duration: 0 });
+            setStartPoint("");
+            setEndPoint("");
+            setRouteSegments([]);
+            setOrderedAddresses([]);
+        };
+
+    }, []);
+
 
     const [sheetOpen, setSheetOpen] = useState(false);
     const isDesktop = useMediaQuery("(min-width: 768px)");

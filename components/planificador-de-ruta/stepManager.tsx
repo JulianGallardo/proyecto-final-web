@@ -27,6 +27,7 @@ export default function StepPlanner({instrumentos,agente}: Readonly<StepPlannerP
     }
 
     function handleBack(){
+        setInstrumentosARepartir([]);
         setStep(0);
     }
     

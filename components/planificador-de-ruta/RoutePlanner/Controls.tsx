@@ -41,8 +41,6 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
 
     const isMobile = useIsMobile();
 
-    console.log(agente);
-
     async function handleFinalizarEntrega() {
         const instrumentosFilter = orderedAddresses.filter((addr) => addr.visited && addr.instrument !== undefined);
 

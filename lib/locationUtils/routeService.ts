@@ -29,11 +29,11 @@ export class RouteService {
                 Authorization: this.API_KEY,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ locations, metrics: ['duration'] })
+            body: JSON.stringify({ locations, metrics: ['distance','duration'] })
         });
 
         const data = await response.json();
-        return this.optimizeRoute(data.durations);
+        return this.optimizeRoute(data.distances);
     }
 
     public async getRouteGeometry(
@@ -76,7 +76,7 @@ export class RouteService {
         // Configurar la petición para la API de directions
         const url = `https://api.openrouteservice.org/v2/directions/${vehicle}/geojson`;
         const requestBody = {
-            coordinates: optimizedWaypoints,
+            coordinates: waypoints,
             preference: routeChoice,
             
         };
@@ -140,8 +140,8 @@ export class RouteService {
         return segments;
     }
 
-    private optimizeRoute(durations: number[][]): number[] {
-        const n = durations.length;
+    private optimizeRoute(distance: number[][]): number[] {
+        const n = distance.length;
         const visited = new Array(n).fill(false);
         const route = [0];
         visited[0] = true;
@@ -152,9 +152,9 @@ export class RouteService {
             let minDistance = Infinity;
 
             for (let j = 0; j < n; j++) {
-                if (!visited[j] && durations[last][j] < minDistance) {
+                if (!visited[j] && distance[last][j] < minDistance) {
                     next = j;
-                    minDistance = durations[last][j];
+                    minDistance = distance[last][j];
                 }
             }
 
@@ -166,4 +166,6 @@ export class RouteService {
 
         return route;
     }
+
+    
 }

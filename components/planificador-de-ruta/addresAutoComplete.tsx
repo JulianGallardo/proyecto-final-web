@@ -111,14 +111,16 @@ export default function AddressAutocomplete({
 
             startTransition(async () => {
                 const { latitude, longitude } = position.coords;
-                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`;
                 const response = await fetch(url);
                 const data = await response.json();
 
                 if (data.display_name) {
-                    setQuery(data.display_name);
+                    const addressComponents = [data.address.road, data.address?.house_number, data.address.city, data.address.state, data.address.country];
+                    const place = addressComponents.filter(Boolean).join(", ");
+                    setQuery(place);
                     setSelected(true);
-                    onChange(data.display_name);
+                    onChange(place);
                 }
             });
         } catch (error) {

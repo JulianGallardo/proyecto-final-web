@@ -2,7 +2,7 @@ import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
 import { Zone } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
-import { ZoneDto } from "@/types/ZoneTypes";
+import { ExtendedZone, ZoneDto } from "@/types/ZoneTypes";
 
 export default class ZoneRepository extends BaseRepository<Zone> {
     constructor() {
@@ -192,6 +192,27 @@ export default class ZoneRepository extends BaseRepository<Zone> {
 
     async getTotalZones(): Promise<number> {
         return await prisma.zone.count();
+    }
+
+    async getZoneById(id: string): Promise<ExtendedZone> {
+        return this.modelClient.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                zoneName: true,
+                zoneColor: true,
+                geometry: {
+                    select: {
+                        coordinates: {
+                            select: {
+                                latitude: true,
+                                longitude: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
     
 }

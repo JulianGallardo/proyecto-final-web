@@ -35,8 +35,6 @@ model User {
   updatedAt DateTime @updatedAt
 }
 
-
-  
 model Agente {
   id                  Int                   @id @default(autoincrement())
   userId              String                @unique
@@ -44,9 +42,8 @@ model Agente {
   zonas               Zone[]
   EntregaInstrumentos EntregaInstrumentos[]
 
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum EstadoEntrega {
@@ -174,7 +171,7 @@ enum EstadoInstrumento {
   CORRECCIONES_SOLICITADAS
   PENDIENTE_DE_NOTIFICAR
   PENDIENTE_DE_PROCESAR_NOTIFICACION
-  NOTIFICADO_VERDE 
+  NOTIFICADO_VERDE
   NOTIFICADO_AMARILLO
   NOTIFICADO_ROJO
 }
@@ -183,6 +180,15 @@ enum UrgenciaInstrumento {
   NORMAL
   URGENTE
 }
+
+enum SubZona {
+  A
+  B
+  C
+  D
+  Sin_SubZona
+}
+
 model Instrumento {
   codigoInstrumento String    @unique
   cargaInstrumento  TipoCarga
@@ -193,7 +199,6 @@ model Instrumento {
   fecha_de_salida  DateTime?
 
   observaciones String?
-
 
   caratula             String
   destinatario         String
@@ -210,8 +215,9 @@ model Instrumento {
 
   urgencia UrgenciaInstrumento @default(NORMAL)
 
-  zoneName          String?
-  Zona              Zone?                 @relation(fields: [zoneName], references: [zoneName])
+  zoneName String?
+  Zona     Zone?   @relation(fields: [zoneName], references: [zoneName])
+  subZona  SubZona @default(Sin_SubZona)
 
   latitude  Float?
   longitude Float?

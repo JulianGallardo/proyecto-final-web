@@ -97,7 +97,6 @@ export default function InfoInstrumento() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Primera columna - sin cambios */}
                         <div className="space-y-4">
                             <div className="flex items-center space-x-2">
                                 <ScrollText className="h-5 w-5 text-muted-foreground" />
@@ -134,13 +133,12 @@ export default function InfoInstrumento() {
                             <div className="flex items-center space-x-2">
                                 <MapIcon className="h-5 w-5 text-muted-foreground" />
                                 <div>
-                                    <p className="text-sm text-muted-foreground">Zona</p>
-                                    <p className="font-medium">{instrumento.zoneName ? instrumento.zoneName : "Sin Zona"}</p>
+                                    <p className="text-sm text-muted-foreground">Zona y Subzona</p>
+                                    <p className="font-medium">{instrumento.zoneName ? instrumento.zoneName : "Sin Zona"} - {instrumento.subZona}</p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Segunda columna - sin cambios */}
                         <div className="space-y-4">
                             <div className="flex items-center space-x-2">
                                 <Calendar className="h-5 w-5 text-muted-foreground" />

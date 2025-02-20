@@ -1,10 +1,10 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { EstadoInstrumento, Instrumento, TipoCarga } from "@prisma/client";
+import { EstadoInstrumento, Instrumento, SubZona, TipoCarga } from "@prisma/client";
 import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import OrdenRepository from "./OrdenRepository";
-import { getCoordinates, getZoneInCoords } from "@/lib/locationUtils/zoneUtils";
+import { getCoordinates, getSubzoneInCoords, getZoneInCoords } from "@/lib/locationUtils/zoneUtils";
 
 
 const selectOptions = {
@@ -40,6 +40,7 @@ const selectOptions = {
     createdAt: true,
     updatedAt: true,
     zoneName: true,
+    subZona: true,
     estado: true,
     HistorialEntregas: {
         select: {
@@ -48,8 +49,8 @@ const selectOptions = {
             estado: true,
             agente: {
                 select: {
-                    user:{
-                        select:{
+                    user: {
+                        select: {
                             name: true,
                             lastname: true
                         }
@@ -314,7 +315,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             data.codigo = (await this.calculateManualCode()).toString();
         }
 
-        const { punto, nuevaZona } = await this.getNewZoneAndCoordinates(data);
+        const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
 
 
@@ -334,6 +335,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     latitude: punto ? punto[1] : undefined,
                     longitude: punto ? punto[0] : undefined,
                     observaciones: data.observaciones,
+                    subZona: nuevaSubZona,
 
                     Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,
                 },
@@ -367,7 +369,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             newOrden = ordenActual;
         }
 
-        const { punto, nuevaZona } = await this.getNewZoneAndCoordinates(data);
+        const { punto, nuevaZona,nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
 
 
@@ -381,6 +383,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 domicilio_denunciado: data.domicilio_denunciado,
                 orden: { connect: { id: newOrden?.id } },
                 Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,
+                subZona: nuevaSubZona,
                 instrumentoType: { connect: { identifier: data.instrumentoTypeIdentifier } },
                 latitude: punto ? punto[1] : undefined,
                 longitude: punto ? punto[0] : undefined,
@@ -400,10 +403,14 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         }
 
         let nuevaZona = undefined;
+        let nuevaSubZona:SubZona = SubZona.Sin_SubZona;
         if (punto) {
             nuevaZona = await getZoneInCoords(punto[0], punto[1]);
+            if (nuevaZona)
+                nuevaSubZona = (await getSubzoneInCoords(punto[0], punto[1], nuevaZona.id) as SubZona) ?? SubZona.Sin_SubZona;
+
         }
-        return { punto, nuevaZona };
+        return { punto, nuevaZona, nuevaSubZona };
     }
 
     async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number): Promise<Instrumento | null> {
@@ -611,7 +618,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async getInstrumentosAEntregarPorZonas(zoneName: string) {
         return this.modelClient.findMany({
             where: {
-                estado: EstadoInstrumento.PENDIENTE_DE_ENTREGA,
+                estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
                 Zona: {
                     zoneName: zoneName
                 }

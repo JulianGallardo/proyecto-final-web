@@ -3,6 +3,7 @@ import { Badge } from "../ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { EstadoEntrega } from "@prisma/client";
 import { Button } from "../ui/button";
+import { getEntregasStatusColor } from "@/lib/utils";
 
 interface EntregaCardProps {
     entrega: EntregaInstrumentosDto | null,
@@ -10,25 +11,14 @@ interface EntregaCardProps {
     permisos?: boolean
 }
 
-const getStatusColor = (estado: EstadoEntrega) => {
-    switch (estado) {
-        case EstadoEntrega.PENDIENTE_DE_PROCESAR:
-            return 'bg-yellow-100 text-yellow-800 border-yellow-500 hover:bg-yellow-400';
-        case EstadoEntrega.ENTREGADO:
-            return 'bg-green-100 text-green-800 border-green-500 hover:bg-green-400';
-        case EstadoEntrega.NO_ENTREGADO:
-            return 'bg-red-100 text-red-800 border-red-500 hover:bg-red-400';
-        default:
-            return 'bg-gray-100 text-gray-800 border-gray-500';
-    }
-};
+
 
 export default function EntregasCard({ entrega, cargarEntrega, permisos }: Readonly<EntregaCardProps>) {
 
 
     if (!entrega) return null;
 
-    const statusColor = getStatusColor(entrega.estado);
+    const statusColor = getEntregasStatusColor(entrega.estado);
     return (
         <Card
             key={entrega.id}

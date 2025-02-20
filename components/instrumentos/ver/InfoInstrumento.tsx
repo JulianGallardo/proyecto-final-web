@@ -1,8 +1,8 @@
 "use client";
 
 import { getInstrumentoByCode } from "@/actions/instrumentos-actions";
-import { parseDate } from "@/lib/utils";
-import {  InstrumentoExtendidoConEntregas } from "@/types/instrumentoTypes";
+import { getEntregasStatusColor, getInstrumentosStatusColor, parseDate } from "@/lib/utils";
+import { InstrumentoExtendidoConEntregas } from "@/types/instrumentoTypes";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,51 +10,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ScrollText, Calendar, User, Scale, FileText, AlertCircle, Info, MapIcon } from "lucide-react";
 import { EstadoEntrega, EstadoInstrumento } from "@prisma/client";
-import { SadCircle } from "@mynaui/icons-react";
+import { FatCornerUpLeft, SadCircle } from "@mynaui/icons-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function InfoInstrumento() {
     const pathname = usePathname();
     const codigoInstrumento = pathname.split("/").pop();
     const [instrumento, setInstrumento] = useState<InstrumentoExtendidoConEntregas | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
         startTransition(async () => {
             if (!codigoInstrumento) return;
+            setIsLoading(true);
             const instrumento = await getInstrumentoByCode(codigoInstrumento);
-            
             setInstrumento(instrumento);
+            setIsLoading(false);
         });
     }, [codigoInstrumento]);
 
-    const getInstrumentosStatusColor = (estado: EstadoInstrumento) => {
-        switch (estado) {
-            case EstadoInstrumento.PENDIENTE_DE_PROCESAR:
-                return 'bg-blue-100 text-blue-800 border-blue-500 hover:bg-blue-400';
-            case EstadoInstrumento.ENTREGADO_VERDE:
-                return 'bg-green-100 text-green-800 border-green-500 hover:bg-green-400';
-            case EstadoInstrumento.ENTREGADO_AMARILLO:
-                return 'bg-yellow-100 text-yellow-800 border-yellow-500 hover:bg-yellow-400';
-            case EstadoInstrumento.ENTREGADO_ROJO:
-                return 'bg-red-100 text-red-800 border-red-500 hover:bg-red-400';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-500';
-        }
-    };
-    const getEntregasStatusColor = (estado: EstadoEntrega) => {
-        switch (estado) {
-            case EstadoEntrega.PENDIENTE_DE_PROCESAR:
-                return 'bg-yellow-100 text-yellow-800 border-yellow-500 hover:bg-yellow-400';
-            case EstadoEntrega.ENTREGADO:
-                return 'bg-green-100 text-green-800 border-green-500 hover:bg-green-400';
-            case EstadoEntrega.NO_ENTREGADO:
-                return 'bg-red-100 text-red-800 border-red-500 hover:bg-red-400';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-500';
-        }
-    };
+    
 
-    if (isPending) {
+    
+
+    if (isLoading || isPending) {
         return (
             <Card className="w-full mx-auto mt-8">
                 <CardHeader>
@@ -69,7 +50,7 @@ export default function InfoInstrumento() {
         );
     }
 
-    if (!instrumento && !isPending) {
+    if (!instrumento && !isLoading && !isPending) {
         return (
             <Card className="w-full mx-auto mt-8">
                 <CardHeader>
@@ -77,9 +58,17 @@ export default function InfoInstrumento() {
                 </CardHeader>
                 <CardContent>
                     <SadCircle className="h-12 w-12 text-muted-foreground mx-auto" />
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground text-center mt-4">
                         No se ha encontrado un instrumento con el código {codigoInstrumento}
                     </p>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                    >
+                        <span className="">Volver al listado</span>
+                        <FatCornerUpLeft className="w-6 h-6" />
+
+                    </Button>
                 </CardContent>
             </Card>
         );
@@ -87,17 +76,27 @@ export default function InfoInstrumento() {
 
     if (instrumento)
         return (
-            <Card className="w-full  mx-auto mt-8">
+            <Card className="w-full mx-auto mt-8">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-2xl font-bold">
                             Información del Instrumento
                         </CardTitle>
+                        <Link href={`/instrumentos`}>
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                            >
+                                <span className="">Volver al listado</span>
+                                <FatCornerUpLeft className="w-6 h-6" />
 
+                            </Button>
+                        </Link>
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Primera columna - sin cambios */}
                         <div className="space-y-4">
                             <div className="flex items-center space-x-2">
                                 <ScrollText className="h-5 w-5 text-muted-foreground" />
@@ -138,12 +137,9 @@ export default function InfoInstrumento() {
                                     <p className="font-medium">{instrumento.zoneName ? instrumento.zoneName : "Sin Zona"}</p>
                                 </div>
                             </div>
-
-
-
-
                         </div>
 
+                        {/* Segunda columna - sin cambios */}
                         <div className="space-y-4">
                             <div className="flex items-center space-x-2">
                                 <Calendar className="h-5 w-5 text-muted-foreground" />
@@ -159,7 +155,8 @@ export default function InfoInstrumento() {
                                     <p className="text-sm text-muted-foreground">Fecha de Descarga</p>
                                     <p className="font-medium">
                                         {instrumento.fecha_de_salida
-                                            ? parseDate(instrumento.fecha_de_salida.toISOString()) : "Sin fecha"}
+                                            ? parseDate(instrumento.fecha_de_salida.toISOString())
+                                            : "Sin fecha"}
                                     </p>
                                 </div>
                             </div>
@@ -183,15 +180,12 @@ export default function InfoInstrumento() {
                             <div className="flex items-center space-x-2">
                                 <Info className="h-5 w-5 text-muted-foreground" />
                                 <div>
-
                                     <p className="text-sm text-muted-foreground">Estado</p>
                                     <Badge className={getInstrumentosStatusColor(instrumento.estado)}>
                                         {instrumento.estado.replace(/_/g, ' ')}
                                     </Badge>
                                 </div>
-
                             </div>
-
                         </div>
                     </div>
 
@@ -207,44 +201,50 @@ export default function InfoInstrumento() {
                         </div>
                     )}
 
-                    {
-                        instrumento.HistorialEntregas.length > 0 && (
-                            <div className="mt-6">
-                                <div className="flex items-center space-x-2 mb-2">
-                                    <AlertCircle className="h-5 w-5 text-muted-foreground" />
-                                    <p className="text-sm text-muted-foreground">Historial de Entregas</p>
-                                </div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead>
-                                            <tr>
-                                                <th className="text-left">Fecha de Entrega</th>
-                                                <th className="text-left">Estado</th>
-                                                <th className="text-left">Agente</th>
-                                                <th className="text-left">Observaciones</th>
+                    <div className="mt-6">
+                        <div className="flex items-center space-x-2 mb-2">
+                            <AlertCircle className="h-5 w-5 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Historial de Entregas</p>
+                        </div>
+
+                        {instrumento.HistorialEntregas.length > 0 ? (
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead>
+                                        <tr>
+                                            <th className="text-left">Fecha de Entrega</th>
+                                            <th className="text-left">Estado</th>
+                                            <th className="text-left">Agente</th>
+                                            <th className="text-left">Observaciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {instrumento.HistorialEntregas.map((entrega, index) => (
+                                            <tr key={index}>
+                                                <td>{parseDate(entrega.fecha_entrega.toISOString())}</td>
+                                                <td>
+                                                    <Badge className={getEntregasStatusColor(entrega.estado)}>
+                                                        {entrega.estado.replace(/_/g, ' ')}
+                                                    </Badge>
+                                                </td>
+                                                <td>{entrega.agente.user.name} {entrega.agente.user.lastname}</td>
+                                                <td>{entrega.observaciones}</td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            {instrumento.HistorialEntregas.map((entrega, index) => (
-                                                <tr key={index}>
-                                                    <td>{parseDate(entrega.fecha_entrega.toISOString())}</td>
-                                                    <td>
-                                                        <Badge className={getEntregasStatusColor(entrega.estado)}>
-                                                            {entrega.estado.replace(/_/g, ' ')}
-                                                        </Badge>
-                                                    </td>
-                                                    <td>{entrega.agente.user.name} {entrega.agente.user.lastname}</td>
-                                                    <td>{entrega.observaciones}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
-                        )
-                    }
-
-
+                        ) : (
+                            <Card className="bg-muted">
+                                <CardContent className="flex flex-col items-center justify-center py-6">
+                                    <SadCircle className="h-12 w-12 text-muted-foreground" />
+                                    <p className="text-sm text-muted-foreground mt-4 text-center">
+                                        Todavía no se realizaron entregas para este instrumento
+                                    </p>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </div>
                 </CardContent>
             </Card>
         );

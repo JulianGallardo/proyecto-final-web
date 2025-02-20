@@ -31,9 +31,9 @@ export default function InfoInstrumento() {
         });
     }, [codigoInstrumento]);
 
-    
 
-    
+
+
 
     if (isLoading || isPending) {
         return (
@@ -52,23 +52,25 @@ export default function InfoInstrumento() {
 
     if (!instrumento && !isLoading && !isPending) {
         return (
-            <Card className="w-full mx-auto mt-8">
-                <CardHeader>
-                    <CardTitle>Instrumento no encontrado</CardTitle>
-                </CardHeader>
-                <CardContent>
+            <Card className="w-full max-w-3xl mx-auto mt-8">
+                <CardContent className="flex flex-col items-center justify-center  py-6">
                     <SadCircle className="h-12 w-12 text-muted-foreground mx-auto" />
-                    <p className="text-sm text-muted-foreground text-center mt-4">
+                    <h2 className="text-xl font-bold text-center text-muted-foreground">Instrumento no encontrado</h2>
+                    <p className="text-sm text-muted-foreground text-center ">
                         No se ha encontrado un instrumento con el código {codigoInstrumento}
                     </p>
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                    >
-                        <span className="">Volver al listado</span>
-                        <FatCornerUpLeft className="w-6 h-6" />
+                    <Link href={`/instrumentos`}>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="mt-4"
 
-                    </Button>
+                        >
+                            <span className="">Volver al listado</span>
+                            <FatCornerUpLeft className="w-6 h-6" />
+
+                        </Button>
+                    </Link>
                 </CardContent>
             </Card>
         );

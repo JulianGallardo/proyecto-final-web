@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ScrollText, Calendar, User, Scale, FileText, AlertCircle, Info, MapIcon } from "lucide-react";
-import { EstadoEntrega, EstadoInstrumento } from "@prisma/client";
 import { FatCornerUpLeft, SadCircle } from "@mynaui/icons-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -206,7 +205,7 @@ export default function InfoInstrumento() {
                     <div className="mt-6">
                         <div className="flex items-center space-x-2 mb-2">
                             <AlertCircle className="h-5 w-5 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">Historial de Entregas</p>
+                            <p className="text-sm text-muted-foreground">Historial de Notificaciones</p>
                         </div>
 
                         {instrumento.HistorialEntregas.length > 0 ? (
@@ -222,7 +221,7 @@ export default function InfoInstrumento() {
                                     </thead>
                                     <tbody>
                                         {instrumento.HistorialEntregas.map((entrega, index) => (
-                                            <tr key={index}>
+                                            <tr key={entrega.agente.user.name + index}>
                                                 <td>{parseDate(entrega.fecha_entrega.toISOString())}</td>
                                                 <td>
                                                     <Badge className={getEntregasStatusColor(entrega.estado)}>
@@ -241,7 +240,7 @@ export default function InfoInstrumento() {
                                 <CardContent className="flex flex-col items-center justify-center py-6">
                                     <SadCircle className="h-12 w-12 text-muted-foreground" />
                                     <p className="text-sm text-muted-foreground mt-4 text-center">
-                                        Todavía no se realizaron entregas para este instrumento
+                                        Todavía no se realizaron notificaciones para este instrumento
                                     </p>
                                 </CardContent>
                             </Card>

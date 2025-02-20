@@ -118,6 +118,6 @@ export const editAgenteSchema = object({
 
 export const loadNewEntregaInstrumentoSchema = object({
   observaciones: string().optional().or(z.null()).default(null),
-  estado: z.enum([EstadoEntrega.ENTREGADO, EstadoEntrega.NO_ENTREGADO, EstadoEntrega.PENDIENTE_DE_PROCESAR]),
+  estado: z.enum([EstadoEntrega.NOTIFICADO, EstadoEntrega.NO_NOTIFICADO, EstadoEntrega.PENDIENTE_DE_PROCESAR]),
 })
   

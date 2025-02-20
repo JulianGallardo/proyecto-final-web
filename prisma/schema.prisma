@@ -51,8 +51,8 @@ model Agente {
 
 enum EstadoEntrega {
   PENDIENTE_DE_PROCESAR
-  ENTREGADO
-  NO_ENTREGADO
+  NOTIFICADO
+  NO_NOTIFICADO
 }
 
 model EntregaInstrumentos {
@@ -171,11 +171,17 @@ enum TipoCarga {
 }
 
 enum EstadoInstrumento {
-  PENDIENTE_DE_ENTREGA
-  PENDIENTE_DE_PROCESAR
-  ENTREGADO_VERDE 
-  ENTREGADO_AMARILLO
-  ENTREGADO_ROJO
+  CORRECCIONES_SOLICITADAS
+  PENDIENTE_DE_NOTIFICAR
+  PENDIENTE_DE_PROCESAR_NOTIFICACION
+  NOTIFICADO_VERDE 
+  NOTIFICADO_AMARILLO
+  NOTIFICADO_ROJO
+}
+
+enum UrgenciaInstrumento {
+  NORMAL
+  URGENTE
 }
 model Instrumento {
   codigoInstrumento String    @unique
@@ -200,7 +206,9 @@ model Instrumento {
 
   HistorialEntregas EntregaInstrumentos[]
 
-  estado EstadoInstrumento @default(PENDIENTE_DE_ENTREGA)
+  estado EstadoInstrumento @default(PENDIENTE_DE_NOTIFICAR)
+
+  urgencia UrgenciaInstrumento @default(NORMAL)
 
   zoneName          String?
   Zona              Zone?                 @relation(fields: [zoneName], references: [zoneName])

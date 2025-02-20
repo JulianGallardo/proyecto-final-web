@@ -41,13 +41,15 @@ export const hashPassword = async (password: string) => {
 
 export const getInstrumentosStatusColor = (estado: EstadoInstrumento) => {
   switch (estado) {
-    case EstadoInstrumento.PENDIENTE_DE_PROCESAR:
+    case EstadoInstrumento.CORRECCIONES_SOLICITADAS:
+      return 'bg-purple-100 text-purple-800 border-purple-500 hover:bg-purple-400';
+    case EstadoInstrumento.PENDIENTE_DE_NOTIFICAR:
       return 'bg-blue-100 text-blue-800 border-blue-500 hover:bg-blue-400';
-    case EstadoInstrumento.ENTREGADO_VERDE:
+    case EstadoInstrumento.NOTIFICADO_VERDE:
       return 'bg-green-100 text-green-800 border-green-500 hover:bg-green-400';
-    case EstadoInstrumento.ENTREGADO_AMARILLO:
+    case EstadoInstrumento.NOTIFICADO_AMARILLO:
       return 'bg-yellow-100 text-yellow-800 border-yellow-500 hover:bg-yellow-400';
-    case EstadoInstrumento.ENTREGADO_ROJO:
+    case EstadoInstrumento.NOTIFICADO_ROJO:
       return 'bg-red-100 text-red-800 border-red-500 hover:bg-red-400';
     default:
       return 'bg-gray-100 text-gray-800 border-gray-500';
@@ -58,9 +60,9 @@ export const getEntregasStatusColor = (estado: EstadoEntrega) => {
   switch (estado) {
       case EstadoEntrega.PENDIENTE_DE_PROCESAR:
           return 'bg-yellow-100 text-yellow-800 border-yellow-500 hover:bg-yellow-400';
-      case EstadoEntrega.ENTREGADO:
+      case EstadoEntrega.NOTIFICADO:
           return 'bg-green-100 text-green-800 border-green-500 hover:bg-green-400';
-      case EstadoEntrega.NO_ENTREGADO:
+      case EstadoEntrega.NO_NOTIFICADO:
           return 'bg-red-100 text-red-800 border-red-500 hover:bg-red-400';
       default:
           return 'bg-gray-100 text-gray-800 border-gray-500';

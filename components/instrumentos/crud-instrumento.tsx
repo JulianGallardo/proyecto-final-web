@@ -11,7 +11,7 @@ import { FormularioInstrumento } from "./Forms/formulario-instrumento"
 import useInfoInstrumentos from "@/hooks/useInfoInstrumentos"
 import { useCustomDialog } from "@/hooks/useCustomDialog"
 import { Button } from "../ui/button"
-import { Plus } from "@mynaui/icons-react"
+import { File, Plus } from "@mynaui/icons-react"
 import CustomAlert from "./Dialogs/alert"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
 import { toast } from "@/hooks/use-toast";
@@ -235,6 +235,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
 
                         Cargar instrumentos por PDF
+                        <File className="h-4 w-4 text-white" />
 
                     </Button>
                 </Link>

@@ -1,4 +1,4 @@
-import { Instrumento, TipoCarga } from "@prisma/client";
+import { EstadoEntrega, Instrumento, TipoCarga } from "@prisma/client";
 
 export interface InstrumentPDFDTO {
     organismo: string;
@@ -44,6 +44,20 @@ export interface InstrumentoExtendido extends Instrumento {
     name: string;
     identifier: string;
   };
+}
+
+export interface InstrumentoExtendidoConEntregas extends InstrumentoExtendido {
+  HistorialEntregas: {
+    fecha_entrega: Date;
+    observaciones: string;
+    estado: EstadoEntrega;
+    agente:{
+      user:{
+        name: string;
+        lastname: string;
+      }
+    }
+  }[];
 }
 
 export interface InstrumentoTypeDTO extends InstrumentoTypeInput {

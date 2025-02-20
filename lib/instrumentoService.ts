@@ -69,7 +69,7 @@ export default class InstrumentoService {
         return this.instrumentoRepository.getAll();
     }
 
-    async getInstrumentoByCode(code: string, tipoDeCarga: TipoCarga) {
+    async getInstrumentoByCode(code: string, tipoDeCarga?: TipoCarga) {
         return this.instrumentoRepository.getInstrumentoByCode(code, tipoDeCarga);
     }
 

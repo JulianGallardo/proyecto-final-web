@@ -34,8 +34,8 @@ export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInst
     getSortedRowModel: getSortedRowModel(),
     initialState:{
       columnVisibility:{
-        codigoInstrumento:false,
-        cargaInstrumento:false
+        fecha_de_ingreso: false,
+        fecha_de_salida: false,
       }
     },
     state: {

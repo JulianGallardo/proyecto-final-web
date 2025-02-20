@@ -40,6 +40,25 @@ const selectOptions = {
     createdAt: true,
     updatedAt: true,
     zoneName: true,
+    estado: true,
+    HistorialEntregas: {
+        select: {
+            fecha_entrega: true,
+            observaciones: true,
+            estado: true,
+            agente: {
+                select: {
+                    user:{
+                        select:{
+                            name: true,
+                            lastname: true
+                        }
+                    }
+                }
+            }
+
+        }
+    }
 
 };
 
@@ -155,13 +174,15 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
 
-    async getInstrumentoByCode(code: string, tipoDeCarga: TipoCarga) {
+    async getInstrumentoByCode(code: string, tipoDeCarga?: TipoCarga) {
+
         return this.modelClient.findFirst(
             {
                 where: {
                     codigoInstrumento: code,
                     cargaInstrumento: tipoDeCarga
-                }
+                },
+                select: selectOptions
             }
         );
     }
@@ -587,7 +608,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
 
-    async getInstrumentosAEntregarPorZonas(zoneName:string) {
+    async getInstrumentosAEntregarPorZonas(zoneName: string) {
         return this.modelClient.findMany({
             where: {
                 estado: EstadoInstrumento.PENDIENTE_DE_ENTREGA,

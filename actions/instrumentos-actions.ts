@@ -88,6 +88,11 @@ export async function getJuzgadosTotalPages(query: string) {
 
 //----------------------------------------------- Instrumentos----------------------------------------------------------------
 
+
+export async function getInstrumentoByCode(code:string) {
+    return instrumentoService.getInstrumentoByCode(code);
+}
+
 export async function getInstrumentos() {
     return instrumentoService.getInstrumentos();
 }

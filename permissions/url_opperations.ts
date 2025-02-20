@@ -37,6 +37,7 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.CREATE }},
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.UPDATE }},
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.DELETE }},
+    {path: "/instrumentos/ver/:id", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.READ }},
 
     {path: "/instrumentos/upload", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.CREATE }},
 

@@ -2,6 +2,8 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { Pencil, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+import { Eye } from "@mynaui/icons-react";
+import { useRouter } from "next/navigation";
 
 
 interface ColumnsProps {
@@ -12,8 +14,29 @@ interface ColumnsProps {
 
 export default function AccionesList({ Instrumento, onEdit, onDelete }: Readonly<ColumnsProps>) {
 
+  const router = useRouter();
+
+
   return (
-    <div className="flex flex-row gap-4 items-center p-2 w-full h-full">
+    <div className="flex flex-row gap-4 items-center justify-center  p-2 w-full h-full">
+
+      {/* Botón ver mas */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="bg-green-500 hover:bg-green-600"
+            onClick={() =>
+              router.push(`/instrumentos/ver/${Instrumento.codigoInstrumento}`)
+            }
+          >
+            <Eye className="h-4 w-4 text-white" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Ver mas</p>
+        </TooltipContent>
+      </Tooltip>
+
       {/* Botón Editar */}
       <Tooltip>
         <TooltipTrigger asChild>

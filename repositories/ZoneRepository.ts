@@ -1,8 +1,9 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { Zone } from "@prisma/client";
+import {  Zone } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
 import { ExtendedZone, ZoneDto } from "@/types/ZoneTypes";
+import { createSubZones } from "@/lib/locationUtils/subZoneUtils";
 
 export default class ZoneRepository extends BaseRepository<Zone> {
     constructor() {
@@ -100,6 +101,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     }
 
     async create(zone: CustomFeature) {
+        const subzones = await createSubZones(zone);
         return this.modelClient.create({
             data: {
                 id: zone.id,
@@ -116,6 +118,25 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                             }))
                         }
                     }
+                },
+                SubZonas: {
+                    create: subzones.map(subzone => ({
+                        zoneName: subzone.name,
+                        type: subzone.polygon?.type ?? "Polygon",
+                        geometry: {
+                            create: {
+                                type: subzone.polygon?.geometry.type ?? "Polygon",
+                                coordinates: {
+                                    create: (subzone.polygon?.geometry.coordinates as Position[][])[0].map(([lat, lon]) => ({
+                                        latitude: lat,
+                                        longitude: lon
+                                    }))
+                                }
+                            }
+                        },
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    }))
                 },
                 createdAt: new Date(),
                 updatedAt: new Date()
@@ -142,6 +163,8 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                     longitude: lon
                 }));
 
+                const subZones = await createSubZones(data);
+
                 return trx.zone.update({
                     where: { id },
                     data: {
@@ -152,6 +175,26 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                             update: {
                                 coordinates: { create: newCoordinates }
                             }
+                        },
+                        SubZonas: {
+                            deleteMany: {},
+                            create: subZones.map(subzone => ({
+                                zoneName: subzone.name,
+                                type: subzone.polygon?.type ?? "Polygon",
+                                geometry: {
+                                    create: {
+                                        type: subzone.polygon?.geometry.type ?? "Polygon",
+                                        coordinates: {
+                                            create: (subzone.polygon?.geometry.coordinates as Position[][])[0].map(([lat, lon]) => ({
+                                                latitude: lat,
+                                                longitude: lon
+                                            }))
+                                        }
+                                    }
+                                },
+                                createdAt: new Date(),
+                                updatedAt: new Date()
+                            }))
                         },
                         updatedAt: new Date()
                     }
@@ -210,9 +253,25 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                             }
                         }
                     }
+                },
+                SubZonas: {
+                    select: {
+                        id: true,
+                        zoneName: true,
+                        geometry: {
+                            select: {
+                                coordinates: {
+                                    select: {
+                                        latitude: true,
+                                        longitude: true
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         });
     }
-    
+
 }

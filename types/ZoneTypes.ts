@@ -8,6 +8,16 @@ export interface ExtendedZone extends Zone {
             longitude: number;
         }[];
     };
+    SubZonas: {
+        zonename: string;
+        geometry: {
+            type: string;
+            coordinates: {
+                latitude: number;
+                longitude: number;
+            }[];
+        };
+    }[];
 }
 
 export interface ZoneDto {

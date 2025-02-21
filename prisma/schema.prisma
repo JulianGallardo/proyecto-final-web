@@ -116,6 +116,7 @@ model Geometry {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   zone        Zone?
+  subZone     SubZone?
 }
 
 model Zone {
@@ -128,10 +129,27 @@ model Zone {
   geometry     Geometry      @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
   Agentes      Agente[]
   Instrumentos Instrumento[]
+  SubZonas     SubZone[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model SubZone {
+  id        String @id @default(cuid())
+  zoneName  String 
+  type      String @default("Feature")
+
+  geometryId   String        @unique
+  geometry     Geometry      @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  zonaId String
+  Zona      Zone? @relation(fields: [zonaId], references: [id])
+}
+
 
 model Juzgado {
   id         Int    @id @default(autoincrement())

@@ -1,10 +1,9 @@
 "use server";
 import ZoneRepository from "@/repositories/ZoneRepository";
 import { ExtendedZone } from "@/types/ZoneTypes";
-import { point, polygon, booleanPointInPolygon, centroid, bbox, bboxPolygon, intersect } from "@turf/turf";
+import { point, polygon, booleanPointInPolygon } from "@turf/turf";
 import { RouteService } from "./routeService";
 import { SubZona } from "@prisma/client";
-import { CustomFeature, Position } from "@/types/MapTypes";
 
 const zoneRepo = new ZoneRepository();
 const routeService = new RouteService();
@@ -45,7 +44,11 @@ async function getSubzoneInCoords(lat: number, long: number, zoneId: string) {
         return booleanPointInPolygon(pointToCheck, turfPolygon); // Verificar si el punto está dentro del polígono
     });
 
-    return foundSubzone ? foundSubzone.zonename : SubZona.Sin_SubZona;
+    console.log("subzona, ", JSON.stringify(foundSubzone));
+
+    const result = foundSubzone?.zoneName ?? SubZona.Sin_SubZona;
+
+    return result; // Retornar el nombre de la subzona encontrada o null si no pertenece a ninguna
 }
 
 

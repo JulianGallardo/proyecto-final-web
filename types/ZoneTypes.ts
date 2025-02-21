@@ -9,7 +9,7 @@ export interface ExtendedZone extends Zone {
         }[];
     };
     SubZonas: {
-        zonename: string;
+        zoneName: string;
         geometry: {
             type: string;
             coordinates: {

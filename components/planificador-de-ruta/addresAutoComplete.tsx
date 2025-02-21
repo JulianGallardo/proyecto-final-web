@@ -61,8 +61,6 @@ export default function AddressAutocomplete({
             const response = await fetch(url);
             const data = await response.json();
 
-            console.log(data);
-
             setResults(
                 data.map((place: Place) => ({
                     name: place.address.road + " " + place.address.house_number + ", " + place.address.city + ", " + place.address.state + ", " + place.address.country,

@@ -160,7 +160,6 @@ export const useRouteStore = create<RouteState>((set, get) => ({
 
             calculateOrdenNumber(orderedLocations, start);
 
-            console.log("ubicaciones ordenadas", orderedLocations);
 
             setOrderedAddresses(orderedLocations);
 

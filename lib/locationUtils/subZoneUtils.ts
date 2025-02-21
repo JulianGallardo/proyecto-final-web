@@ -63,11 +63,6 @@ async function createSubZones(zone: CustomFeature) {
         { name: SubZona.D, polygon: intersect(featureCollection([turfPolygon, subBoxes[3]])) }
     ].filter(subzone => subzone.polygon);
 
-    console.log(
-        JSON.stringify(
-            subzones
-        )
-    )
     return subzones;
 }
 

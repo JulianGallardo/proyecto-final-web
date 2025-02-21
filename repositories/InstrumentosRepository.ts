@@ -260,7 +260,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             ],
         });
 
-        console.log(instrumentos);
 
         return instrumentos;
     }

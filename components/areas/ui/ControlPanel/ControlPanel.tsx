@@ -79,8 +79,6 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
         if (mymap) {
             const mapInstance = mymap.getMap();
 
-            console.log("Zones", zones);
-            console.log("Map", mapInstance);
 
 
             mapInstance.getSource("zone-labels")?.setData({
@@ -88,13 +86,10 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
                 features: zones
             });
 
-            console.log(mapInstance.getSource("zone-labels"))
 
 
         }
-        return () => {
-            console.log("Cleaning up");
-        };
+       
     }, [zones, mymap]);
 
 

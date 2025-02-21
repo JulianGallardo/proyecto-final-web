@@ -120,7 +120,6 @@ export class RouteService {
 
         const data = await response.json();
 
-        console.log(data);
 
         if (!data.features?.[0]?.properties?.segments) {
             console.error("No se pudo obtener la ruta");
@@ -172,7 +171,6 @@ export class RouteService {
             });
         }
 
-        console.log(segments);
         return segments;
     }
 

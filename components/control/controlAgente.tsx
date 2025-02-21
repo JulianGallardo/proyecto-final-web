@@ -30,7 +30,6 @@ export default async function ControlAgente({ agenteId  }: Readonly<TabGeneralPr
     const [totalInstrumentos, totalInstrumentosActivos, data, instrumentos] = await Promise.all([totalInstrumentosPromise, totalInstrumentosActivosPromise, dataPromise, instrumentosPromse]);
 
 
-    console.log(totalInstrumentos);
 
     return (
         <div className="space-y-4">

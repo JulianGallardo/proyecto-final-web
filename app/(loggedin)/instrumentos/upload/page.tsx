@@ -33,7 +33,6 @@ export default function PDFUploadProcess() {
             const parsedData = await extractTextFromPDFAndParse(file) as InstrumentPDFDTO[];
             if (!parsedData || parsedData.length === 0) throw new Error("No se encontraron instrumentos en el PDF");
 
-            console.log("Parsed data", parsedData);
 
             const result = await deleteDuplicatePdfEntries(parsedData);
 
@@ -89,7 +88,6 @@ export default function PDFUploadProcess() {
                 newErrors.splice(index, 1);
                 setInstrumentosConErrores(newErrors);
                 setData((prev) => [...prev, instrument]);
-                console.log("New data", data);
             }
         }
     };

@@ -44,7 +44,6 @@ async function getSubzoneInCoords(lat: number, long: number, zoneId: string) {
         return booleanPointInPolygon(pointToCheck, turfPolygon); // Verificar si el punto está dentro del polígono
     });
 
-    console.log("subzona, ", JSON.stringify(foundSubzone));
 
     const result = foundSubzone?.zoneName ?? SubZona.Sin_SubZona;
 

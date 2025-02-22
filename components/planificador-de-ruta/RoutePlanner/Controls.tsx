@@ -119,7 +119,7 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
                         onClick={handleFinalizarEntrega}
                         className="w-full bg-yellow-500 hover:bg-yellow-700 mt-4"
                     >
-                        <span>Finalizar Entrega</span>
+                        <span>Finalizar Diligenciamiento</span>
                         <FlagTriangleRightIcon className="w-6 h-6" />
                     </Button>
 

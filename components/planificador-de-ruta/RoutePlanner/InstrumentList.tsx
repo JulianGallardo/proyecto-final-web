@@ -57,7 +57,7 @@ export function InstrumentList({ instruments, orderedAddresses, markAsVisited,ca
                                     <Button
                                         disabled={address.visited}
                                         className="bg-blue-500 hover:bg-blue-700" onClick={() => markAsVisited(address.stopNumber)}>
-                                        Marcar visitada
+                                        Marcar notificado
                                     </Button>
                                 }
                                 {

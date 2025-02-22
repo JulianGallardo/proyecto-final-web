@@ -30,7 +30,7 @@ export default function RoutePlanner({ instruments, volver,agente }: Readonly<Ro
 
     useEffect(() => {
         return () => {
-            setRouteMetrics({ distance: 0, duration: 0 });
+            setRouteMetrics(null);
             setStartPoint("");
             setEndPoint("");
             setRouteSegments([]);

@@ -10,7 +10,7 @@ export default function PreviewContent({ routeMetrics }: Readonly<RouteMetrics>)
     return (
         <div className="p-2  bg-white rounded-lg ">
             <div className="flex items-center justify-between text-gray-900">
-                {routeMetrics ? (
+                {routeMetrics ? (   
                     <>
                         <div className="flex items-center gap-2">
                             <MapPin className="w-5 h-5 text-blue-500" />

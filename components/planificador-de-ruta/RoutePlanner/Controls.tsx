@@ -43,6 +43,7 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
         setRouteChoice,
         routeSegments,
         setRouteMetrics,
+        cancelVisit
     } = useRoutePlanner(instrumentos);
 
     const isMobile = useIsMobile();
@@ -111,7 +112,7 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
                     <AddressInputs startPoint={startPoint} endPoint={endPoint} onStartPointChange={setStartPoint} onEndPointChange={setEndPoint} />
 
                     <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
-                    <InstrumentList instruments={selectedInstruments} orderedAddresses={orderedAddresses} markAsVisited={markAsVisited} />
+                    <InstrumentList instruments={selectedInstruments} orderedAddresses={orderedAddresses} markAsVisited={markAsVisited} cancelVisit={cancelVisit}  />
 
                     <Button
                         disabled={!canFinish}

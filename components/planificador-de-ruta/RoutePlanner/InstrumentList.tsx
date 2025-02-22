@@ -6,9 +6,10 @@ interface InstrumentListProps {
     instruments: InstrumentoExtendido[];
     orderedAddresses: Address[];
     markAsVisited: (stopNumber: number) => void;
+    cancelVisit: (stopNumber: number) => void;
 }
 
-export function InstrumentList({ instruments, orderedAddresses, markAsVisited }: Readonly<InstrumentListProps>) {
+export function InstrumentList({ instruments, orderedAddresses, markAsVisited,cancelVisit }: Readonly<InstrumentListProps>) {
 
 
 
@@ -46,18 +47,28 @@ export function InstrumentList({ instruments, orderedAddresses, markAsVisited }:
                             {calculateText(address)}
                             {address.instrument ? `${address.instrument.instrumentoType.name} - ${address.instrument.codigoInstrumento}` : ""}
                         </p>
-                        <div className="flex flex-row gap-2 items-center justify-between">
+                        <div className="flex flex-col md:flex-row gap-2  justify-between">
                             <p className="text-sm text-gray-500 truncate">
                                 {address.text}
                             </p>
-                            {
-                                address.type === "waypoint" &&
-                                <Button
-                                    disabled={address.visited}
-                                    className="bg-blue-500 hover:bg-blue-700" onClick={() => markAsVisited(address.stopNumber)}>
-                                    Marcar visitada
-                                </Button>
-                            }
+                            <div className="flex gap-2 items-start justify-start ">
+                                {
+                                    address.type === "waypoint" &&
+                                    <Button
+                                        disabled={address.visited}
+                                        className="bg-blue-500 hover:bg-blue-700" onClick={() => markAsVisited(address.stopNumber)}>
+                                        Marcar visitada
+                                    </Button>
+                                }
+                                {
+                                    address.type === "waypoint" &&
+                                    <Button
+                                        disabled={address.visited}
+                                        className="bg-red-500 hover:bg-red-700" onClick={() => cancelVisit(address.stopNumber)}>
+                                        Anular
+                                    </Button>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

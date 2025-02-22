@@ -27,8 +27,10 @@ interface RouteState {
     setRouteSegments: (segments: RouteSegment[]) => void;
     calculateRoute: () => Promise<void>;
     markAsVisited: (stopNumber: number) => Promise<void>;
+    cancelVisit: (stopNumber: number) => Promise<void>;
     recalculateRoute: (stopNumber?: number) => Promise<void>;
     setRouteChoice: (choice: RouteChoiceType) => void;
+
 }
 
 const routeService = new RouteService();
@@ -186,6 +188,31 @@ export const useRouteStore = create<RouteState>((set, get) => ({
             setLoading(false);
         }
     },
+    cancelVisit: async (stopNumber: number) => {
+        const {
+            orderedAddresses,
+            setOrderedAddresses,
+            recalculateRoute
+        } = get();
+
+        const filteredAdresses = orderedAddresses.filter((addr) => addr.stopNumber !== stopNumber);
+        const hasStart = filteredAdresses.some((addr) => addr.type === "start");
+        if (hasStart) {
+            calculateOrdenNumber(filteredAdresses, filteredAdresses.find((addr) => addr.type === "start"));
+        }
+        else {
+            calculateOrdenNumber(filteredAdresses, undefined);
+        }
+        setOrderedAddresses(filteredAdresses);
+
+        const lastVisited = filteredAdresses.find((addr) => addr.visited);
+        if (lastVisited) {
+            await recalculateRoute(lastVisited.stopNumber);
+        }
+        else {
+            await recalculateRoute();
+        }
+    },
 
     markAsVisited: async (stopNumber) => {
         const {
@@ -272,7 +299,8 @@ export const useRoutePlanner = (instruments: InstrumentoExtendido[]) => {
         setEndPoint,
         setVehicle,
         routeChoice,
-        setRouteChoice
+        setRouteChoice,
+        cancelVisit
     } = useRouteStore();
 
     useEffect(() => {
@@ -300,7 +328,8 @@ export const useRoutePlanner = (instruments: InstrumentoExtendido[]) => {
         markAsVisited,
         setStartPoint,
         setEndPoint,
-        setVehicle
+        setVehicle,
+        cancelVisit
     };
 };
 

@@ -21,6 +21,12 @@ export async function updateAgente(id: number, data: UpdateAgenteDto) {
     return agente;
 }
 
+export async function deleteAgente(id: number) {
+    const agente = agenteRepo.delete(id);
+    revalidatePath('/agentes');
+    return agente;
+}
+
 export async function getAgentes() {
     return agenteRepo.findAll();
 }

@@ -219,14 +219,14 @@ export default function InfoInstrumento() {
                                     </thead>
                                     <tbody>
                                         {instrumento.HistorialEntregas.map((entrega, index) => (
-                                            <tr key={entrega.agente.user.name + index}>
+                                            <tr key={entrega.agenteFullName + index}>
                                                 <td>{parseDate(entrega.fecha_entrega.toISOString())}</td>
                                                 <td>
                                                     <Badge className={getEntregasStatusColor(entrega.estado)}>
                                                         {entrega.estado.replace(/_/g, ' ')}
                                                     </Badge>
                                                 </td>
-                                                <td>{entrega.agente.user.name} {entrega.agente.user.lastname}</td>
+                                                <td>{entrega.agenteFullName}</td>
                                                 <td>{entrega.observaciones}</td>
                                             </tr>
                                         ))}

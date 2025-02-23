@@ -51,12 +51,7 @@ export interface InstrumentoExtendidoConEntregas extends InstrumentoExtendido {
     fecha_entrega: Date;
     observaciones: string;
     estado: EstadoEntrega;
-    agente:{
-      user:{
-        name: string;
-        lastname: string;
-      }
-    }
+    agenteFullName: string;
   }[];
 }
 

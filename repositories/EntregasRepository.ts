@@ -20,6 +20,7 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                 data: {
                     instrumentoId: instrument.codigoInstrumento,
                     agenteId: agente.id,
+                    agenteFullName: `${agente.user.name} ${agente.user.lastname}`,
                 },
             });
 
@@ -28,7 +29,7 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                     codigoInstrumento: instrument.codigoInstrumento,
                 },
                 data: {
-                    estado: EstadoInstrumento.PENDIENTE_DE_PROCESAR,
+                    estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
                 },
             });
 
@@ -62,7 +63,7 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
                 },
                 data: {
                     estado: estadoInstrumento,
-                    fecha_de_salida: data.estado === "ENTREGADO" ? new Date() : null,
+                    fecha_de_salida: data.estado === "NOTIFICADO" ? new Date() : null,
                 },
             });
 
@@ -194,7 +195,7 @@ export default class EntregasRepository extends BaseRepository<EntregaInstrument
 }
 async function calcularEstadoInstrumento(data: EntregaInstrumentoUpdateDto, tsx: Omit<PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">) {
     let estadoInstrumento;
-    if (data.estado === EstadoEntrega.ENTREGADO) {
+    if (data.estado === EstadoEntrega.NOTIFICADO) {
         const instrumento = await tsx.instrumento.findUnique({
             where: {
                 codigoInstrumento: data.instrumento.codigoInstrumento
@@ -206,17 +207,17 @@ async function calcularEstadoInstrumento(data: EntregaInstrumentoUpdateDto, tsx:
         if (fecha_entrada) {
             const diferenciaDeDias = Math.floor((new Date().getTime() - fecha_entrada.getTime()) / (1000 * 60 * 60 * 24));
             if (diferenciaDeDias <= 7) {
-                estadoInstrumento = EstadoInstrumento.ENTREGADO_VERDE;
+                estadoInstrumento = EstadoInstrumento.NOTIFICADO_VERDE;
             } else if (diferenciaDeDias <= 14) {
-                estadoInstrumento = EstadoInstrumento.ENTREGADO_AMARILLO;
+                estadoInstrumento = EstadoInstrumento.NOTIFICADO_AMARILLO;
             } else {
-                estadoInstrumento = EstadoInstrumento.ENTREGADO_ROJO;
+                estadoInstrumento = EstadoInstrumento.NOTIFICADO_ROJO;
             }
         }
     } else if (data.estado === EstadoEntrega.PENDIENTE_DE_PROCESAR) {
-        estadoInstrumento = EstadoInstrumento.PENDIENTE_DE_PROCESAR;
-    } else if (data.estado === EstadoEntrega.NO_ENTREGADO) {
-        estadoInstrumento = EstadoInstrumento.PENDIENTE_DE_ENTREGA;
+        estadoInstrumento = EstadoInstrumento.PENDIENTE_DE_PROCESAR_NOTIFICACION;
+    } else if (data.estado === EstadoEntrega.NO_NOTIFICADO) {
+        estadoInstrumento = EstadoInstrumento.PENDIENTE_DE_NOTIFICAR;
     }
     return estadoInstrumento;
 }

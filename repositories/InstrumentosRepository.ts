@@ -47,17 +47,7 @@ const selectOptions = {
             fecha_entrega: true,
             observaciones: true,
             estado: true,
-            agente: {
-                select: {
-                    user: {
-                        select: {
-                            name: true,
-                            lastname: true
-                        }
-                    }
-                }
-            }
-
+            agenteFullName: true,
         }
     }
 
@@ -151,12 +141,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 .filter((condition) => condition !== null), // Elimina las condiciones nulas
         };
 
-        where.AND.push({ deleted: false }); // Añadir condición para mostrar solo los registros no eliminados
-
-
-        if (where.AND.length === 0) {
-            delete where.AND;
-        }
 
 
         return where;

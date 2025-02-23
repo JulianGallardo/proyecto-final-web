@@ -63,9 +63,25 @@ export default class AgenteRepository extends BaseRepository<Agente> {
     }
 
     async delete(id: number) {
-        return this.modelClient.delete({
-            where: { id },
+        return prisma.$transaction(async (tx) => {
+            
+            const agente = await this.modelClient.findUnique({
+                where: { id },
+                include: { user: true },
+            });
+
+            if (!agente) {
+                throw new Error("Agente no encontrado");
+            }
+
+            await tx.agente.delete({ where: { id } });
+
+            await tx.user.delete({ where: { id: agente.userId } });
+
+            return agente;
         });
+
+
     }
 
 

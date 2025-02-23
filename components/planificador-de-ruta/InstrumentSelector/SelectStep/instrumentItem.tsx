@@ -54,7 +54,7 @@ export default function InstrumentItem({ instrument, selectedInstruments, handle
                                     Detalles del instrumento
                                 </span>
                             </AccordionTrigger>
-                            <AccordionContent className="space-y-4 pt-2">
+                            <AccordionContent className="space-y-4 p-2">
                                 {instrument.zoneName && (
                                     <div className="flex items-center gap-6 bg-gray-50 p-3 rounded-lg">
                                         <div className="flex items-center gap-2">

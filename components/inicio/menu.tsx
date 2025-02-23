@@ -31,7 +31,7 @@ export default function Menu() {
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 p-6">
       {/* Welcome Header */}
-      <h1 className="mb-8 text-3xl font-semibold text-gray-800">
+      <h1 className="mb-8 text-2xl md:text-3xl font-semibold text-gray-800">
         Bienvenido, {userName} 👋
       </h1>
 

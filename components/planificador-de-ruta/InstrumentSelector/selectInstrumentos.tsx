@@ -8,12 +8,12 @@ import ReviewStep from "./ReviewStep/reviewStep";
 import SelectStep from "./SelectStep/selectStep";
 import MapWithPopUps from "../Maps/MapWithMarkers";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ZoneDtoWithSubZones } from "@/types/ZoneTypes";
+import { ExtendedZone } from "@/types/ZoneTypes";
 
 interface InstrumentSelectorProps {
     instruments: InstrumentoExtendido[];
     handleSetInstrumentosARepartir: (instrumentos: InstrumentoExtendido[]) => void;
-    zones: ZoneDtoWithSubZones[];
+    zones: ExtendedZone[];
 }
 
 export default function InstrumentSelector({
@@ -118,7 +118,7 @@ export default function InstrumentSelector({
 
                         <TabsContent value="map" className="h-[calc(100vh-11vh)] mt-0">
                             <div className="w-full h-full">
-                                <MapWithPopUps selectedInstruments={selectedInstruments} />
+                                <MapWithPopUps selectedInstruments={selectedInstruments} zones={zones} />
                             </div>
                         </TabsContent>
                     </Tabs>
@@ -149,7 +149,7 @@ export default function InstrumentSelector({
                         )}
                     </div>
                     <div className="w-1/2 ">
-                        <MapWithPopUps selectedInstruments={selectedInstruments} />
+                        <MapWithPopUps selectedInstruments={selectedInstruments} zones={zones}/>
                     </div>
                 </div>
             }

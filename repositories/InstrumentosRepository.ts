@@ -368,7 +368,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             newOrden = ordenActual;
         }
 
-        const { punto, nuevaZona,nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
+        const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
 
 
@@ -402,7 +402,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         }
 
         let nuevaZona = undefined;
-        let nuevaSubZona:SubZona = SubZona.Sin_SubZona;
+        let nuevaSubZona: SubZona = SubZona.Sin_SubZona;
         if (punto) {
             nuevaZona = await getZoneInCoords(punto[0], punto[1]);
             if (nuevaZona)
@@ -415,15 +415,22 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number): Promise<Instrumento | null> {
         const ordenActual = await this.ordenRepository.getOrden(ordenNumber, juzgadoIdentifier);
 
-        return this.modelClient.update({
-            where: {
-                ordenId: ordenActual?.id,
-            },
-            data: {
-                deletedAt: new Date(),
-                deleted: true,
-            },
+        return prisma.$transaction(async (prisma) => {
+            const result = await prisma.instrumento.delete({
+                where: {
+                    ordenId: ordenActual?.id,
+                },
+            });
+
+            await prisma.orden.delete({
+                where: {
+                    id: ordenActual?.id,
+                },
+            });
+
+            return result;
         });
+
     }
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {

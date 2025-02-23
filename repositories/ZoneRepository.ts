@@ -1,8 +1,8 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import {  Zone } from "@prisma/client";
+import {   Zone } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
-import { ExtendedZone, ZoneDto } from "@/types/ZoneTypes";
+import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import { createSubZones } from "@/lib/locationUtils/subZoneUtils";
 
 export default class ZoneRepository extends BaseRepository<Zone> {
@@ -48,7 +48,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
         });
     }
 
-    async getAllWithAgents():Promise<ZoneDto[]> {
+    async getAllWithAgents():Promise<ZoneDtoWithSubZones[]> {
         return this.modelClient.findMany({
             select: {
                 id: true,
@@ -63,6 +63,32 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                         }
                     }
                 },
+                geometry: {
+                    select: {
+                        coordinates: {
+                            select: {
+                                latitude: true,
+                                longitude: true
+                            }
+                        }
+                    }
+                },
+                SubZonas: {
+                    select: {
+                        id: true,
+                        zoneName: true,
+                        geometry: {
+                            select: {
+                                coordinates: {
+                                    select: {
+                                        latitude: true,
+                                        longitude: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
             }
         });

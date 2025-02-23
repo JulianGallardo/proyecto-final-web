@@ -9,12 +9,12 @@ import { MapPinnedIcon } from "lucide-react";
 import { FatCornerUpLeft, SadCircle } from "@mynaui/icons-react";
 import SkeletonAgenteInfo from "./skeletonAgenteInfo";
 import AgenteInfoSection from "./agenteInfoSection";
-import { CustomFeature } from "@/types/MapTypes";
 import ZonesAgente from "./zones-agente";
+import { ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 
 
 interface AgenteInfoProps {
-    zonasBDD: CustomFeature[];
+    zonasBDD: ZoneDtoWithSubZones[];
 }
 
 export default function AgenteInfo({ zonasBDD }: Readonly<AgenteInfoProps>) {

@@ -1,10 +1,11 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, GeolocateControl, Layer, Source } from "@vis.gl/react-maplibre";
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { MapPin, Layers } from 'lucide-react';
 import { MapCenter, MapBounds } from "@/types/MapTypes";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { Button } from "@/components/ui/button";
+
 
 const isValidCoordinate = (lat: number | undefined | null, lng: number | undefined | null): boolean => {
     return (

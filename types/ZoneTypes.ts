@@ -32,10 +32,30 @@ export interface ZoneDto {
     }[];
 }
 
+export interface ZoneDtoWithSubZones extends ZoneDto {
+    geometry: {
+        type: string;
+        coordinates: {
+            latitude: number;
+            longitude: number;
+        }[];
+    };
+    SubZonas: {
+        id: string;
+        zoneName: string;
+        geometry: {
+            type: string;
+            coordinates: {
+                latitude: number;
+                longitude: number;
+            }[];
+        };
+    }[];
+
+}
+
+
 export interface SubzoneDto {
     id: string;
     zoneName: string;
-}
-export interface ZoneDtoWithSubZones extends Omit<ZoneDto, "Agentes"> {
-    SubZonas: SubzoneDto[];
 }

@@ -433,8 +433,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         const firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
         const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
 
-        // Filtros condicionales
-        const whereConditions: Record<string, any> = { deleted: false };
+        const whereConditions: Record<string, any> = {};
         if (zona) whereConditions['zoneName'] = zona; // Filter by zone
 
         // Now use the `some` filter to check if any related `HistorialEntregas` entry
@@ -479,7 +478,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
 
         // Filtros condicionales
-        const whereConditions: Record<string, any> = { fecha_de_salida: null, deleted: false };
+        const whereConditions: Record<string, any> = { fecha_de_salida: null};
         if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
         // Now use the `some` filter to check if any related `HistorialEntregas` entry
         // has the `agenteId` that you are looking for.
@@ -522,7 +521,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         const estados = EstadoInstrumento;
 
         // Filtros condicionales
-        const whereConditions: Record<string, any> = { deleted: false };
+        const whereConditions: Record<string, any> = { };
         if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
         // Now use the `some` filter to check if any related `HistorialEntregas` entry
         // has the `agenteId` that you are looking for.
@@ -573,7 +572,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         }
 
         // Filtros condicionales
-        const whereConditions: Record<string, any> = { deleted: false };
+        const whereConditions: Record<string, any> = {};
         if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
         // Now use the `some` filter to check if any related `HistorialEntregas` entry
         // has the `agenteId` that you are looking for.

@@ -33,21 +33,27 @@ async function getSubzoneInCoords(lat: number, long: number, zoneId: string) {
     if (!zone) return null; // Retornar null si la zona no existe
     const subzones = zone.SubZonas
 
+    try {
 
-    const pointToCheck = point([long, lat]); // Crear un punto con Turf.js
+        const pointToCheck = point([long, lat]); // Crear un punto con Turf.js
 
-    const foundSubzone = subzones.find((subzone) => {
-        const polygonCoords = subzone.geometry.coordinates.map(coord => [coord.longitude, coord.latitude]); // Convertir coordenadas
+        const foundSubzone = subzones.find((subzone) => {
+            const polygonCoords = subzone.geometry.coordinates.map(coord => [coord.longitude, coord.latitude]); // Convertir coordenadas
 
-        const turfPolygon = polygon([polygonCoords]); // Crear polígono con Turf.js
+            const turfPolygon = polygon([polygonCoords]); // Crear polígono con Turf.js
 
-        return booleanPointInPolygon(pointToCheck, turfPolygon); // Verificar si el punto está dentro del polígono
-    });
+            return booleanPointInPolygon(pointToCheck, turfPolygon); // Verificar si el punto está dentro del polígono
+        });
 
 
-    const result = foundSubzone?.zoneName ?? SubZona.Sin_SubZona;
+        const result = foundSubzone?.zoneName ?? SubZona.Sin_SubZona;
 
-    return result; // Retornar el nombre de la subzona encontrada o null si no pertenece a ninguna
+        return result; // Retornar el nombre de la subzona encontrada o null si no pertenece a ninguna
+    } catch (e) {
+        console.log(e);
+        return null;
+
+    }
 }
 
 

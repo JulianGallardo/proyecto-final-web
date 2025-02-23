@@ -121,6 +121,23 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
             
         },
         {
+            accessorKey: "estado",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Estado
+                    </Button>
+                );
+            },
+            cell: ({ row }) => {
+                const estado = row.original.estado;
+                return <span>{estado.replace("_"," ")}</span>;
+            }
+        },
+        {
             id: "acciones",
             header: ({ column }) => {
                 return (
@@ -143,4 +160,5 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
                 );
             },
         },
+
     ];

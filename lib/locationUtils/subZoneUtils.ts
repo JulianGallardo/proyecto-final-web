@@ -3,11 +3,65 @@ import { bbox, bboxPolygon, centroid, intersect, polygon, area, point, featureCo
 import { SubZona } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
 
+interface ValidatedSubzone {
+  name: SubZona;
+  polygon: any;
+  isValid: boolean;
+  error?: string;
+  wasFixed?: boolean;
+}
+
+function validateAndFixPolygonCoordinates(coordinates: Position[]): {
+  coordinates: Position[];
+  wasFixed: boolean;
+} {
+  if (!coordinates || coordinates.length < 4) {
+    return { coordinates, wasFixed: false };
+  }
+  
+  const firstCoord = coordinates[0];
+  const lastCoord = coordinates[coordinates.length - 1];
+  
+  if (firstCoord[0] === lastCoord[0] && firstCoord[1] === lastCoord[1]) {
+    return { coordinates, wasFixed: false };
+  }
+  
+  // Si no coinciden, añadimos el primer punto al final
+  const fixedCoordinates: Position[] = [...coordinates, [firstCoord[0], firstCoord[1]]];
+  return { coordinates: fixedCoordinates, wasFixed: true };
+}
+
+async function validateAndFixSubZones(subzones: { name: SubZona; polygon: any }[]): Promise<ValidatedSubzone[]> {
+  return subzones.map(subzone => {
+    if (!subzone.polygon || !subzone.polygon.geometry || !subzone.polygon.geometry.coordinates) {
+      return {
+        ...subzone,
+        isValid: false,
+        error: "Invalid polygon structure"
+      };
+    }
+
+    const coordinates = subzone.polygon.geometry.coordinates[0];
+    const { coordinates: fixedCoordinates, wasFixed } = validateAndFixPolygonCoordinates(coordinates);
+
+    // Si se hizo una corrección, actualizamos la geometría del polígono
+    if (wasFixed) {
+      subzone.polygon.geometry.coordinates[0] = fixedCoordinates;
+    }
+
+    return {
+      ...subzone,
+      isValid: true,
+      wasFixed,
+      error: wasFixed ? "Coordinates were fixed" : undefined
+    };
+  });
+}
+
 async function createSubZones(zone: CustomFeature) {
     // Obtener el polígono de la zona seleccionada
     const polygonCoords: Position[] = zone.geometry.coordinates.flat(1) as Position[];
     const turfPolygon = polygon([polygonCoords]);
-    
     
     // Obtener el centroide inicial
     const initialCenter = centroid(turfPolygon);
@@ -23,7 +77,6 @@ async function createSubZones(zone: CustomFeature) {
             const testX = minX + (maxX - minX) * (i / 4);
             const testY = minY + (maxY - minY) * (j / 4);
             
-            // Crear las cuatro subzonas con el punto de prueba
             const testBoxes = [
                 bboxPolygon([minX, testY, testX, maxY]),
                 bboxPolygon([testX, testY, maxX, maxY]),
@@ -31,13 +84,11 @@ async function createSubZones(zone: CustomFeature) {
                 bboxPolygon([testX, minY, maxX, testY])
             ];
             
-            // Calcular las áreas de las intersecciones
             const areas = testBoxes.map(box => {
                 const intersection = intersect(featureCollection([turfPolygon, box]));
                 return intersection ? area(intersection) : 0;
             });
             
-            // Calcular la diferencia máxima entre áreas
             const maxAreaDiff = Math.max(...areas) - Math.min(...areas);
             
             if (maxAreaDiff < bestAreaDiff) {
@@ -47,7 +98,6 @@ async function createSubZones(zone: CustomFeature) {
         }
     }
     
-    // Crear las subzonas finales usando el mejor punto encontrado
     const subBoxes = [
         bboxPolygon([minX, bestCenter.y, bestCenter.x, maxY]),
         bboxPolygon([bestCenter.x, bestCenter.y, maxX, maxY]),
@@ -55,7 +105,6 @@ async function createSubZones(zone: CustomFeature) {
         bboxPolygon([bestCenter.x, minY, maxX, bestCenter.y])
     ];
     
-    // Crear las subzonas finales con sus nombres
     const subzones = [
         { name: SubZona.A, polygon: intersect(featureCollection([turfPolygon, subBoxes[0]])) },
         { name: SubZona.B, polygon: intersect(featureCollection([turfPolygon, subBoxes[1]])) },
@@ -63,9 +112,21 @@ async function createSubZones(zone: CustomFeature) {
         { name: SubZona.D, polygon: intersect(featureCollection([turfPolygon, subBoxes[3]])) }
     ].filter(subzone => subzone.polygon);
 
-    return subzones;
+    // Validar y corregir las subzonas antes de devolverlas
+    const validatedSubzones = await validateAndFixSubZones(subzones);
+    
+    // Log de resultados
+    validatedSubzones.forEach(subzone => {
+        if (subzone.wasFixed) {
+            console.log(`Subzone ${subzone.name} was fixed: First and last coordinates were synchronized`);
+        }
+    });
+
+    return validatedSubzones;
 }
 
 export {
     createSubZones,
+    validateAndFixSubZones,
+    validateAndFixPolygonCoordinates
 }

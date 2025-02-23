@@ -12,6 +12,7 @@ import { columns } from "./col-tabla-instrumento";
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import NoResults from "@/components/shared/noResults";
+import { EstadoInstrumento } from "@prisma/client";
 
 interface TablaInstrumentosProps {
   data: InstrumentoExtendido[];
@@ -19,8 +20,20 @@ interface TablaInstrumentosProps {
   onDelete: (instrumento: InstrumentoExtendido) => void;
 }
 
-export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInstrumentosProps>) {
+function getRowColor(instrumento: InstrumentoExtendido) {
+  switch (instrumento.estado) {
+    case EstadoInstrumento.CORRECCIONES_SOLICITADAS:
+      return "bg-red-50";
+    case EstadoInstrumento.NOTIFICADO_VERDE:
+    case EstadoInstrumento.NOTIFICADO_AMARILLO:
+    case EstadoInstrumento.NOTIFICADO_ROJO:
+      return "bg-gray-50";
+    default:
+      return "";
+  }
+}
 
+export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInstrumentosProps>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const tableColumns = columns({ onEdit, onDelete });
@@ -36,6 +49,7 @@ export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInst
       columnVisibility:{
         fecha_de_ingreso: false,
         fecha_de_salida: false,
+        estado: false,
       }
     },
     state: {
@@ -63,7 +77,7 @@ export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInst
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="hover:bg-gray-100 transition-colors ">
+                <TableRow key={row.id} className={"hover:bg-gray-100 transition-colors " + getRowColor(row.original)}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className=" p-2 text-center">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

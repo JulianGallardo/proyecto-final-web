@@ -10,9 +10,6 @@ interface IndicadorFechaProps {
 const IndicadorFecha: React.FC<IndicadorFechaProps> = ({ fecha, urgencia }) => {
     const diferenciaEnSemanas = differenceInWeeks(new Date(), fecha)
     const diferenciaEnDias = differenceInDays(new Date(), fecha)
-
-
-    console.log(urgencia)
     if (urgencia === UrgenciaInstrumento.URGENTE) {
         return (
             <div className="flex items-center justify-center">
@@ -40,7 +37,7 @@ const IndicadorFecha: React.FC<IndicadorFechaProps> = ({ fecha, urgencia }) => {
     return (
         <div className="flex items-center justify-center">
             <div 
-                className={`w-5 h-5 rounded-full items-center justify-center ${color}`} 
+                className={`w-8 h-8 rounded-full items-center justify-center ${color}`} 
                 title={`${diferenciaEnSemanas} semanas de diferencia`}
             />
         </div>

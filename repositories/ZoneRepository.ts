@@ -10,12 +10,24 @@ export default class ZoneRepository extends BaseRepository<Zone> {
         super(prisma.zone);
     }
 
-    async getAll() {
-        return this.modelClient.findMany({
+    _select = {
+        id: true,
+        zoneName: true,
+        zoneColor: true,
+        geometry: {
+            select: {
+                coordinates: {
+                    select: {
+                        latitude: true,
+                        longitude: true
+                    }
+                }
+            }
+        },
+        SubZonas: {
             select: {
                 id: true,
                 zoneName: true,
-                zoneColor: true,
                 geometry: {
                     select: {
                         coordinates: {
@@ -27,6 +39,12 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                     }
                 }
             }
+        }
+    };
+
+    async getAll() {
+        return this.modelClient.findMany({
+            select: this._select
         });
     }
 
@@ -240,37 +258,20 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     async getZoneById(id: string): Promise<ExtendedZone> {
         return this.modelClient.findUnique({
             where: { id },
-            select: {
-                id: true,
-                zoneName: true,
-                zoneColor: true,
-                geometry: {
-                    select: {
-                        coordinates: {
-                            select: {
-                                latitude: true,
-                                longitude: true
-                            }
-                        }
-                    }
-                },
-                SubZonas: {
-                    select: {
-                        id: true,
-                        zoneName: true,
-                        geometry: {
-                            select: {
-                                coordinates: {
-                                    select: {
-                                        latitude: true,
-                                        longitude: true
-                                    }
-                                }
-                            }
-                        }
+            select: this._select
+        });
+    }
+
+    async getZonesByAgent(agentId: number): Promise<ExtendedZone[]> {
+        return this.modelClient.findMany({
+            where: {
+                Agentes: {
+                    some: {
+                        id: agentId
                     }
                 }
-            }
+            },
+            select: this._select
         });
     }
 

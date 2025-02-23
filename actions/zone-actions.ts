@@ -2,7 +2,7 @@
 import prisma from "@/lib/db";
 import ZoneRepository from "@/repositories/ZoneRepository";
 import { CustomFeature, Position } from "@/types/MapTypes";
-import { ZoneDto } from "@/types/ZoneTypes";
+import { ExtendedZone, ZoneDto } from "@/types/ZoneTypes";
 import { Zone } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { HexColor } from "terra-draw";
@@ -96,6 +96,10 @@ export async function getAllZones(): Promise<CustomFeature[]> {
 
 export async function getAllZonesWithAgents(): Promise<ZoneDto[]> {
     return zoneRepo.getAllWithAgents();
+}
+
+export async function getZonesByAgent(agentId: number): Promise<ExtendedZone[]> {
+    return zoneRepo.getZonesByAgent(agentId);
 }
 
 export async function updateZonesAgents(zonesIdToAddAgent:string[],zonesIdToDeleteAgent:string[],agenteId:number): Promise<{ success: boolean; message: string }> {

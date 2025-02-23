@@ -9,6 +9,7 @@ export interface ExtendedZone extends Zone {
         }[];
     };
     SubZonas: {
+        id: string;
         zoneName: string;
         geometry: {
             type: string;
@@ -29,4 +30,12 @@ export interface ZoneDto {
             name: string
         }
     }[];
+}
+
+export interface SubzoneDto {
+    id: string;
+    zoneName: string;
+}
+export interface ZoneDtoWithSubZones extends Omit<ZoneDto, "Agentes"> {
+    SubZonas: SubzoneDto[];
 }

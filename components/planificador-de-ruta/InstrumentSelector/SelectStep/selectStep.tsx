@@ -5,6 +5,8 @@ import { Badge } from "../../../ui/badge";
 import InputSearch from "../searchClient";
 import InstrumentItem from "./instrumentItem";
 import { SadCircle } from "@mynaui/icons-react";
+import ZoneSelects from "../selectZone";
+import { ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 
 interface SelectStepProps {
     instruments: InstrumentoExtendido[];
@@ -13,6 +15,9 @@ interface SelectStepProps {
     selectedInstruments: InstrumentoExtendido[];
     handleToggleInstrument: (instrument: InstrumentoExtendido) => void;
     setStep: (value: "select" | "review") => void;
+    zones: ZoneDtoWithSubZones[];
+    setSelectedZone: (value: string) => void;
+    setSelectedSubZone: (value: string) => void;
 }
 
 export default function SelectStep({
@@ -21,7 +26,10 @@ export default function SelectStep({
     setSearchTerm,
     selectedInstruments,
     handleToggleInstrument,
-    setStep
+    zones,
+    setStep,
+    setSelectedZone,
+    setSelectedSubZone,
 }: Readonly<SelectStepProps>) {
     return (
         <div className="bg-white  h-full ">
@@ -46,11 +54,12 @@ export default function SelectStep({
 
             {/* Content Section */}
             <div className="p-6 space-y-4">
-                <InputSearch 
-                    searchTerm={searchTerm} 
-                    setSearchTerm={setSearchTerm} 
+                <InputSearch
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
                 />
-                
+                <ZoneSelects onSubZoneChange={setSelectedSubZone} onZoneChange={setSelectedZone} zones={zones} />
+
                 <ScrollArea className="border rounded-lg">
                     <div className="p-4 space-y-2">
                         {instruments.map((instrument) => (
@@ -61,11 +70,11 @@ export default function SelectStep({
                                 handleToggleInstrument={handleToggleInstrument}
                             />
                         ))}
-                        
-                        {instruments.length === 0 && searchTerm.length > 0 && (
+
+                        {instruments.length === 0  && (
                             <div className="text-center text-gray-500 py-8">
                                 <SadCircle className="w-12 h-12 mx-auto mb-2" />
-                                <p>No hay resultados para la búsqueda</p>
+                                <p>No hay instrumentos para diligenciar</p>
                             </div>
                         )}
                     </div>

@@ -6,14 +6,16 @@ import { useState } from "react";
 import RoutePlanner from "./RoutePlanner/RouttePlanner";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import { ExtendedZone } from "@/types/ZoneTypes";
 
 interface StepPlannerProps{
     instrumentos: InstrumentoExtendido[];
-    agente: AgenteExtendidoDto  
+    agente: AgenteExtendidoDto
+    zonas: ExtendedZone[]  
 }
 
 
-export default function StepPlanner({instrumentos,agente}: Readonly<StepPlannerProps>) {
+export default function StepPlanner({instrumentos,agente,zonas}: Readonly<StepPlannerProps>) {
     
 
     const [instrumentosARepartir, setInstrumentosARepartir] = useState<InstrumentoExtendido[]>(instrumentos);
@@ -37,7 +39,7 @@ export default function StepPlanner({instrumentos,agente}: Readonly<StepPlannerP
         <div className="flex w-full h-full ">
             
             {
-                step === 0 && <InstrumentSelector instruments={instrumentos} handleSetInstrumentosARepartir={handleSetInstrumentosARepartir} />
+                step === 0 && <InstrumentSelector zones={zonas} instruments={instrumentos} handleSetInstrumentosARepartir={handleSetInstrumentosARepartir} />
             }
             {
                 step === 1 && <RoutePlanner instruments={instrumentosARepartir} volver={handleBack} agente={agente}/>

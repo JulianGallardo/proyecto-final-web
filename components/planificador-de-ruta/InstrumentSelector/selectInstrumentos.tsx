@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { X, MapPin, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -8,33 +8,56 @@ import ReviewStep from "./ReviewStep/reviewStep";
 import SelectStep from "./SelectStep/selectStep";
 import MapWithPopUps from "../Maps/MapWithMarkers";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 
 interface InstrumentSelectorProps {
     instruments: InstrumentoExtendido[];
     handleSetInstrumentosARepartir: (instrumentos: InstrumentoExtendido[]) => void;
+    zones: ZoneDtoWithSubZones[];
 }
 
 export default function InstrumentSelector({
     instruments,
-    handleSetInstrumentosARepartir
+    handleSetInstrumentosARepartir,
+    zones
 }: Readonly<InstrumentSelectorProps>) {
     const [selectedInstruments, setSelectedInstruments] = useState<InstrumentoExtendido[]>([]);
     const [message, setMessage] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState("");
     const [step, setStep] = useState<"select" | "review">("select");
+    const [selectedZone, setSelectedZone] = useState<string>('');
+    const [selectedSubZone, setSelectedSubZone] = useState<string>('');
+
+
+    useEffect(() => {
+        console.log("zona seleccionada", selectedZone);
+        console.log("subzona seleccionada", selectedSubZone);
+    }, [selectedZone, selectedSubZone]);
+
+
 
     const filteredInstruments = useMemo(() => {
+        const searchLower = searchTerm.toLowerCase().trim();
+
         return instruments.filter((instrument) => {
-            const searchLower = searchTerm.toLowerCase();
-            return (
-                instrument.codigoInstrumento.toLowerCase().includes(searchLower) ||
-                instrument.instrumentoType.name.toLowerCase().includes(searchLower) ||
-                instrument.caratula.toLowerCase().includes(searchLower) ||
-                instrument.destinatario.toLowerCase().includes(searchLower) ||
-                (instrument.zoneName?.toLowerCase().includes(searchLower) ?? false)
-            );
+            // Primero verificamos los filtros de zona y subzona
+            const matchesZone = selectedZone
+                ? instrument.zoneName?.toLowerCase() === selectedZone.toLowerCase()
+                : true;
+
+            const matchesSubZone = selectedSubZone
+                ? instrument.subZona?.toLowerCase() === selectedSubZone.toLowerCase()
+                : true;
+
+            // Luego verificamos el término de búsqueda
+            const matchesSearch = searchLower
+                ? instrument.codigoInstrumento.toLowerCase().includes(searchLower) ||
+                instrument.caratula.toLowerCase().includes(searchLower)
+                : true;
+
+            return matchesZone && matchesSubZone && matchesSearch;
         });
-    }, [instruments, searchTerm]);
+    }, [instruments, searchTerm, selectedZone, selectedSubZone]);
 
     const isMobile = useIsMobile();
 
@@ -80,6 +103,9 @@ export default function InstrumentSelector({
                                         selectedInstruments={selectedInstruments}
                                         handleToggleInstrument={handleToggleInstrument}
                                         setStep={setStep}
+                                        zones={zones}
+                                        setSelectedSubZone={setSelectedSubZone}
+                                        setSelectedZone={setSelectedZone}
                                     />
                                 ) : (
                                     <ReviewStep
@@ -87,6 +113,7 @@ export default function InstrumentSelector({
                                         handleToggleInstrument={handleToggleInstrument}
                                         handleDistribute={handleDistribute}
                                         setStep={setStep}
+
                                     />
                                 )}
                             </div>
@@ -111,6 +138,9 @@ export default function InstrumentSelector({
                                 selectedInstruments={selectedInstruments}
                                 handleToggleInstrument={handleToggleInstrument}
                                 setStep={setStep}
+                                zones={zones}
+                                setSelectedSubZone={setSelectedSubZone}
+                                setSelectedZone={setSelectedZone}
                             />
                         ) : (
                             <ReviewStep

@@ -433,17 +433,24 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
 
         const whereConditions: Record<string, any> = {};
-        if (zona) whereConditions['zoneName'] = zona; // Filter by zone
 
-        // Now use the `some` filter to check if any related `HistorialEntregas` entry
-        // has the `agenteId` that you are looking for.
-        if (agente) {
-            whereConditions['HistorialEntregas'] = {
-                some: {
-                    agenteId: agente, // Filter by agent ID in the related `HistorialEntregas` table
-                },
-            };
-        }
+        const zonasAgente = await prisma.agente.findUnique({
+            where: { id: agente },
+            select: {
+                zonas: {
+                    select: {
+                        zoneName: true,
+                    }
+                }
+            }
+        });
+
+
+
+        if (zona) whereConditions['zoneName'] = zona || zonasAgente ;
+
+       
+        
         // Contar instrumentos totales
         const totalInstrumentos = await this.modelClient.count({ where: whereConditions });
 
@@ -478,17 +485,21 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         // Filtros condicionales
         const whereConditions: Record<string, any> = { fecha_de_salida: null};
-        if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
-        // Now use the `some` filter to check if any related `HistorialEntregas` entry
-        // has the `agenteId` that you are looking for.
-        if (agente) {
-            whereConditions['HistorialEntregas'] = {
-                some: {
-                    agenteId: agente, // Filter by agent ID in the related `HistorialEntregas` table
-                },
-            };
-        }
-        // Instrumentos activos
+        const zonasAgente = await prisma.agente.findUnique({
+            where: { id: agente },
+            select: {
+                zonas: {
+                    select: {
+                        zoneName: true,
+                    }
+                }
+            }
+        });
+
+
+
+        if (zona) whereConditions['zoneName'] = zona || zonasAgente ;
+        
         const totalActivos = await this.modelClient.count({ where: whereConditions });
 
         const currentMonthActivos = await this.modelClient.count({
@@ -521,16 +532,20 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         // Filtros condicionales
         const whereConditions: Record<string, any> = { };
-        if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
-        // Now use the `some` filter to check if any related `HistorialEntregas` entry
-        // has the `agenteId` that you are looking for.
-        if (agente) {
-            whereConditions['HistorialEntregas'] = {
-                some: {
-                    agenteId: agente, // Filter by agent ID in the related `HistorialEntregas` table
-                },
-            };
-        }
+        const zonasAgente = await prisma.agente.findUnique({
+            where: { id: agente },
+            select: {
+                zonas: {
+                    select: {
+                        zoneName: true,
+                    }
+                }
+            }
+        });
+
+
+
+        if (zona) whereConditions['zoneName'] = zona || zonasAgente ;
         const counts = await Promise.all(Object.values(estados).map(async (estado) => {
             const count = await this.modelClient.count({
                 where: {

@@ -220,7 +220,6 @@ model Instrumento {
   observaciones String?
 
   caratula             String
-  destinatario         String
   domicilio_denunciado String
 
   instrumentoTypeId Int

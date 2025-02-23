@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input"
 import { InstrumentoDTO } from "@/types/instrumentoTypes"
 import { instrumentSchema } from "@/lib/zod"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { InstrumentoType, Juzgado, TipoCarga } from "@prisma/client"
+import { InstrumentoType, Juzgado, TipoCarga, UrgenciaInstrumento } from "@prisma/client"
 import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete"
 
 interface FormularioInstrumentoProps {
@@ -33,7 +33,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
     defaultValues: {
       entryDate: instrumento?.fecha_de_ingreso.toISOString().split("T")[0] ?? "",
       caratula: instrumento?.caratula ?? "",
-      destinatario: instrumento?.destinatario ?? "",
+      urgencia: instrumento?.urgencia ?? UrgenciaInstrumento.NORMAL,
       address: instrumento?.domicilio_denunciado ?? "",
       juzgado: Juzgados.find(juzgado => juzgado.identifier === instrumento?.juzgadoIdentifier)?.identifier ?? "",
       instrumentType: instrumentoTypes.find(instrumentType => instrumentType.identifier === instrumento?.instrumentoTypeIdentifier)?.identifier ?? "",
@@ -61,7 +61,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       fecha_de_ingreso: fecha_de_ingreso_parsed,
       fecha_de_salida: fecha_de_salida_parsed,
       caratula: values.caratula,
-      destinatario: values.destinatario,
+      urgencia: values.urgencia,
       domicilio_denunciado: values.address,
       juzgadoIdentifier: Juzgado?.identifier ?? "",
       instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
@@ -120,12 +120,26 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
           />
           <FormField
             control={form.control}
-            name="destinatario"
+            name="urgencia"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Destinatario</FormLabel>
+                <FormLabel className="text-sm font-medium text-gray-700">Urgencia</FormLabel>
                 <FormControl>
-                  <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                  <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value} >
+                    <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                      <SelectValue placeholder="Seleccione una Urgencia" className="text-sm" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                      <SelectGroup>
+                        <SelectItem value={UrgenciaInstrumento.NORMAL} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                          Normal
+                        </SelectItem>
+                        <SelectItem value={UrgenciaInstrumento.URGENTE} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                          Urgente
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage className="text-sm text-red-500 mt-1" />
               </FormItem>
@@ -136,7 +150,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
             name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Destinatario</FormLabel>
+                <FormLabel className="text-sm font-medium text-gray-700">Domicilio</FormLabel>
                 <FormControl>
                   <AddressAutocomplete onChange={
                     (address) => {

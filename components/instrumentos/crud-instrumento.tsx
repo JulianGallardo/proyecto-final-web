@@ -168,7 +168,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
             fecha_de_ingreso: instrumento.fecha_de_ingreso,
             fecha_de_salida: instrumento.fecha_de_salida,
             caratula: instrumento.caratula,
-            destinatario: instrumento.destinatario,
+            urgencia: instrumento.urgencia,
             domicilio_denunciado: instrumento.domicilio_denunciado,
             juzgadoIdentifier: instrumento.orden.juzgado.identifier,
             instrumentoTypeIdentifier: instrumento.instrumentoType.identifier,

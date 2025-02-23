@@ -13,7 +13,6 @@ const selectOptions = {
     fecha_de_ingreso: true,
     fecha_de_salida: true,
     caratula: true,
-    destinatario: true,
     domicilio_denunciado: true,
     ordenId: true,
     instrumentoTypeId: true,
@@ -42,6 +41,7 @@ const selectOptions = {
     zoneName: true,
     subZona: true,
     estado: true,
+    urgencia: true,
     HistorialEntregas: {
         select: {
             fecha_entrega: true,
@@ -191,10 +191,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     startsWith: caratula,
                     mode: "insensitive",
                 },
-                destinatario: {
-                    startsWith: destinatario,
-                    mode: "insensitive",
-                },
                 orden: {
                     juzgado: {
                         identifier: juzgadoIdentifier,
@@ -291,6 +287,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
 
     async createInstrumento(data: InstrumentoDTO): Promise<InstrumentoExtendido> {
+        
         const orden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
         if (!orden) throw new Error("No se pudo crear la orden");
 
@@ -311,7 +308,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     fecha_de_ingreso: data.fecha_de_ingreso,
                     fecha_de_salida: data.fecha_de_salida || undefined,
                     caratula: data.caratula,
-                    destinatario: data.destinatario,
+                    urgencia: data.urgencia,
                     domicilio_denunciado: data.domicilio_denunciado,
                     orden: { connect: { id: orden.id } },
                     instrumentoType: { connect: { identifier: data.instrumentoTypeIdentifier } },
@@ -328,6 +325,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             return instrumento;
         } catch (error) {
             console.warn(error);
+            orden && await this.ordenRepository.deleteOrden(orden.ordenNumber, data.juzgadoIdentifier);
             throw new Error("No se pudo crear el instrumento");
         }
     }
@@ -362,7 +360,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 fecha_de_ingreso: data.fecha_de_ingreso,
                 fecha_de_salida: data.fecha_de_salida || undefined,
                 caratula: data.caratula,
-                destinatario: data.destinatario,
+                urgencia: data.urgencia,
                 domicilio_denunciado: data.domicilio_denunciado,
                 orden: { connect: { id: newOrden?.id } },
                 Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,

@@ -3,6 +3,7 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import AccionesList from "./acciones-list";
 import { Button } from "../../ui/button";
 import IndicadorFecha from "./indicador-fecha";
+import { UrgenciaInstrumento } from "@prisma/client";
 interface ColumnsProps {
     onEdit: (instrumento: InstrumentoExtendido) => void;
     onDelete: (instrumento: InstrumentoExtendido) => void;
@@ -12,7 +13,9 @@ interface ColumnsProps {
 const DemoraCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fechaEntrada: Date = row.getValue("fecha_de_ingreso");
     const fechaSalida: Date = row.getValue("fecha_de_salida");
-    if (!fechaSalida) return <IndicadorFecha fecha={fechaEntrada} />
+    const urgencia: UrgenciaInstrumento = row.getValue("urgencia");
+    
+    if (!fechaSalida) return <IndicadorFecha fecha={fechaEntrada} urgencia={urgencia} />
     else return <span>Ya entregada</span>
 };
 
@@ -136,6 +139,19 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
                 const estado = row.original.estado;
                 return <span>{estado.replace("_"," ")}</span>;
             }
+        },
+        {
+            accessorKey: "urgencia",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Urgencia
+                    </Button>
+                );
+            },
         },
         {
             id: "acciones",

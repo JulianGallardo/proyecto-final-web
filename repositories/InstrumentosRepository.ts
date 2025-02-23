@@ -368,7 +368,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 instrumentoType: { connect: { identifier: data.instrumentoTypeIdentifier } },
                 latitude: punto ? punto[1] : undefined,
                 longitude: punto ? punto[0] : undefined,
-                observaciones: data.observaciones
+                observaciones: data.observaciones,
+                estado: data.estado ?? undefined,	
             },
             select: selectOptions
         });

@@ -1,8 +1,8 @@
 "use client";
 
-import { getInstrumentoByCode } from "@/actions/instrumentos-actions";
+import { getInstrumentoByCode, updateInstrumento } from "@/actions/instrumentos-actions";
 import { getEntregasStatusColor, getInstrumentosStatusColor, parseDate } from "@/lib/utils";
-import { InstrumentoExtendidoConEntregas } from "@/types/instrumentoTypes";
+import { InstrumentoDTO, InstrumentoExtendidoConEntregas } from "@/types/instrumentoTypes";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,10 @@ import { ScrollText, Calendar, User, Scale, FileText, AlertCircle, Info, MapIcon
 import { FatCornerUpLeft, SadCircle } from "@mynaui/icons-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { EstadoInstrumento } from "@prisma/client";
+import { toast } from "@/hooks/use-toast";
+import { useCustomAlert } from "@/hooks/useCustomAlert";
+import CustomAlert from "../Dialogs/alert";
 
 export default function InfoInstrumento() {
     const pathname = usePathname();
@@ -19,6 +23,8 @@ export default function InfoInstrumento() {
     const [instrumento, setInstrumento] = useState<InstrumentoExtendidoConEntregas | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
+
+    const {setIsOpenAlert} = useCustomAlert();
 
     useEffect(() => {
         startTransition(async () => {
@@ -29,6 +35,46 @@ export default function InfoInstrumento() {
             setIsLoading(false);
         });
     }, [codigoInstrumento]);
+
+
+
+
+    const handleSolicitarCorrecciones = async () => {
+        if(!instrumento) return;
+        try{
+            const instrumentoAActualizar = instrumento;
+            if (instrumentoAActualizar) {
+                instrumentoAActualizar.estado = EstadoInstrumento.CORRECCIONES_SOLICITADAS;
+            }
+            const instrumentoDTO:InstrumentoDTO = {
+                juzgadoIdentifier: instrumentoAActualizar.orden.juzgado.identifier,
+                instrumentoTypeIdentifier: instrumentoAActualizar.instrumentoType.identifier,
+                caratula: instrumentoAActualizar.caratula,
+                codigo: instrumentoAActualizar.codigoInstrumento,
+                domicilio_denunciado: instrumentoAActualizar.domicilio_denunciado,
+                urgencia: instrumentoAActualizar.urgencia,
+                observaciones: instrumentoAActualizar.observaciones ?? "",
+                estado: EstadoInstrumento.CORRECCIONES_SOLICITADAS,
+                fecha_de_ingreso: instrumentoAActualizar.fecha_de_ingreso,
+                fecha_de_salida: instrumentoAActualizar.fecha_de_salida,
+                tipoDeCarga: instrumentoAActualizar.cargaInstrumento
+            };
+            const actualizado = await updateInstrumento(instrumentoDTO.juzgadoIdentifier, instrumentoAActualizar.orden.ordenNumber, instrumentoDTO);
+            setInstrumento(instrumentoAActualizar);
+            actualizado && toast({
+                title: "Correcciones solicitadas",
+                description: "Se ha solicitado correcciones para el instrumento",
+            })
+
+            
+
+        }catch(e){
+            toast({
+                title: "Error",
+                description: "Ocurrió un error al solicitar correcciones",
+            })
+        }
+    };
 
 
 
@@ -78,6 +124,29 @@ export default function InfoInstrumento() {
     if (instrumento)
         return (
             <Card className="w-full mx-auto mt-8">
+                <CustomAlert
+                
+                    AlertTitle="Solicitar Correcciones"
+                    AlertDescription="¿Estás seguro que deseas solicitar correcciones para este instrumento?"
+                    propAlertDialogContent={
+                        <div className="flex items-center space-x-2">
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => setIsOpenAlert(false)}
+                            >
+                                Cancelar
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={handleSolicitarCorrecciones}
+
+                            >
+                                Confirmar
+                            </Button>
+                        </div>
+                    }
+                />
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle className="text-2xl font-bold">
@@ -137,6 +206,14 @@ export default function InfoInstrumento() {
                                     <p className="font-medium">{instrumento.zoneName ? instrumento.zoneName : "Sin Zona"} - {instrumento.subZona}</p>
                                 </div>
                             </div>
+
+                            <div className="flex items-center space-x-2">
+                                <MapIcon className="h-5 w-5 text-muted-foreground" />
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Urgencia</p>
+                                    <p className="font-medium">{instrumento.urgencia}</p>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="space-y-4">
@@ -183,6 +260,24 @@ export default function InfoInstrumento() {
                                     <Badge className={getInstrumentosStatusColor(instrumento.estado)}>
                                         {instrumento.estado.replace(/_/g, ' ')}
                                     </Badge>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                                <Info className="h-5 w-5 text-muted-foreground" />
+                                
+                                <div>
+                                    <p className="text-sm text-muted-foreground">Correcciones</p>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        className="flex items-center space-x-2 bg-red-500 text-white hover:bg-red-600"
+                                        onClick={() => setIsOpenAlert(true)}
+
+                                    >
+                                        Solicitar Correcciones
+                                        <Info className="h-5 w-5" />
+                                    </Button>
                                 </div>
                             </div>
                         </div>

@@ -4,7 +4,7 @@ import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { parseDataToYear } from "./utils";
-import { InstrumentoType, Juzgado, TipoCarga } from "@prisma/client";
+import { EstadoInstrumento, InstrumentoType, Juzgado, TipoCarga } from "@prisma/client";
 
 export default class InstrumentoService {
 
@@ -44,6 +44,7 @@ export default class InstrumentoService {
                 error: this._mensajeError(juzgado, instrumentoType),
                 tipoDeCarga: TipoCarga.PDF,
                 codigo: instrumento.codigo,
+                estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
                 observaciones: ""
 
             };
@@ -58,6 +59,7 @@ export default class InstrumentoService {
             juzgadoIdentifier: juzgado.identifier,
             instrumentoTypeIdentifier: instrumentoType.identifier,
             tipoDeCarga: TipoCarga.PDF,
+            estado:  EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
             codigo: instrumento.codigo,
             observaciones: ""
         };

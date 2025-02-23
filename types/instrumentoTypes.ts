@@ -1,4 +1,4 @@
-import { EstadoEntrega, Instrumento, TipoCarga, UrgenciaInstrumento } from "@prisma/client";
+import { EstadoEntrega, EstadoInstrumento, Instrumento, TipoCarga, UrgenciaInstrumento } from "@prisma/client";
 
 export interface InstrumentPDFDTO {
     organismo: string;
@@ -24,6 +24,7 @@ export interface InstrumentoDTO {
   tipoDeCarga: TipoCarga;
   codigo: string;
   urgencia: UrgenciaInstrumento;
+  estado: EstadoInstrumento;
 
   observaciones:string;
 }

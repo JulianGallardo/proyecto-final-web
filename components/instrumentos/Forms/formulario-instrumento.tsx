@@ -17,17 +17,20 @@ import { Input } from "@/components/ui/input"
 import { InstrumentoDTO } from "@/types/instrumentoTypes"
 import { instrumentSchema } from "@/lib/zod"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { InstrumentoType, Juzgado, TipoCarga, UrgenciaInstrumento } from "@prisma/client"
+import { EstadoInstrumento, InstrumentoType, Juzgado, TipoCarga, UrgenciaInstrumento } from "@prisma/client"
 import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete"
+import { Loader2 } from "lucide-react"
 
 interface FormularioInstrumentoProps {
   instrumento?: InstrumentoDTO,
-  onSubmit: (data: InstrumentoDTO) => void,
+  onSubmit: (data: InstrumentoDTO) => Promise<void>,
   Juzgados: Juzgado[],
   instrumentoTypes: InstrumentoType[]
 }
 
 export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes }: Readonly<FormularioInstrumentoProps>) {
+
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
   const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(instrumentSchema),
     defaultValues: {
@@ -37,13 +40,14 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       address: instrumento?.domicilio_denunciado ?? "",
       juzgado: Juzgados.find(juzgado => juzgado.identifier === instrumento?.juzgadoIdentifier)?.identifier ?? "",
       instrumentType: instrumentoTypes.find(instrumentType => instrumentType.identifier === instrumento?.instrumentoTypeIdentifier)?.identifier ?? "",
-      observaciones: instrumento?.observaciones ?? ""
+      observaciones: instrumento?.observaciones ?? "",
+      estado: instrumento?.estado as "CORRECCIONES_SOLICITADAS" | "PENDIENTE_DE_NOTIFICAR" | undefined ?? "PENDIENTE_DE_NOTIFICAR",
     },
   })
 
 
-  function handleSubmit(values: z.infer<typeof instrumentSchema>) {
-
+  async function handleSubmit(values: z.infer<typeof instrumentSchema>) {
+    setIsSubmitting(true)
     const Juzgado = Juzgados.find(juzgado => juzgado.identifier === values.juzgado)
     const instrumentoType = instrumentoTypes.find(instrumentType => instrumentType.identifier === values.instrumentType)
 
@@ -56,19 +60,24 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
     const fecha_de_ingreso_parsed = parseDate(values.entryDate)
     const fecha_de_salida_parsed = values.exitDate ? parseDate(values.exitDate) : null
 
+    try {
+      await onSubmit({
+        fecha_de_ingreso: fecha_de_ingreso_parsed,
+        fecha_de_salida: fecha_de_salida_parsed,
+        caratula: values.caratula,
+        urgencia: values.urgencia,
+        domicilio_denunciado: values.address,
+        juzgadoIdentifier: Juzgado?.identifier ?? "",
+        instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
+        codigo: instrumento?.codigo ?? "9999999999",
+        tipoDeCarga: instrumento?.tipoDeCarga ?? TipoCarga.MAN,
+        observaciones: values?.observaciones ?? "",
+        estado: values.estado
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
 
-    onSubmit({
-      fecha_de_ingreso: fecha_de_ingreso_parsed,
-      fecha_de_salida: fecha_de_salida_parsed,
-      caratula: values.caratula,
-      urgencia: values.urgencia,
-      domicilio_denunciado: values.address,
-      juzgadoIdentifier: Juzgado?.identifier ?? "",
-      instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
-      codigo: instrumento?.codigo ?? "9999999999",
-      tipoDeCarga: instrumento?.tipoDeCarga ?? TipoCarga.MAN,
-      observaciones: values?.observaciones ?? "",
-    })
   }
 
 
@@ -145,6 +154,40 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="estado"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-gray-700">Estado</FormLabel>
+                <FormControl>
+                  <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value} >
+                    <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                      <SelectValue placeholder="Seleccione una Urgencia" className="text-sm" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                      <SelectGroup>
+                        <SelectItem value={EstadoInstrumento.CORRECCIONES_SOLICITADAS} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                          Correcciones solicitadas
+                        </SelectItem>
+                        <SelectItem value={EstadoInstrumento.PENDIENTE_DE_NOTIFICAR} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                          Listo para notificar
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage className="text-sm text-red-500 mt-1" />
+              </FormItem>
+            )}
+          />
+
+
+
+
+
+
           <FormField
             control={form.control}
             name="address"
@@ -235,9 +278,17 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
               </FormItem>
             )}
           />
-          <div className="col-span-full">
-            <Button type="submit" className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-md">
-              {instrumento ? "Actualizar" : "Crear"} Instrumento
+          <div className="col-span-full ">
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-blue-500 hover:bg-blue-600 w-full"
+            >
+              {isSubmitting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                `${instrumento ? "Actualizar" : "Crear"} Instrumento`
+              )}
             </Button>
           </div>
         </form>

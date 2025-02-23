@@ -14,7 +14,7 @@ export default function InputSearch({ searchTerm, setSearchTerm }: Readonly<Inpu
         <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
-                placeholder="Buscar por código, tipo, carátula o destinatario..."
+                placeholder="Buscar por código, carátula o número de orden..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 h-10"

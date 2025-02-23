@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { X, MapPin, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -29,13 +29,6 @@ export default function InstrumentSelector({
     const [selectedSubZone, setSelectedSubZone] = useState<string>('');
 
 
-    useEffect(() => {
-        console.log("zona seleccionada", selectedZone);
-        console.log("subzona seleccionada", selectedSubZone);
-    }, [selectedZone, selectedSubZone]);
-
-
-
     const filteredInstruments = useMemo(() => {
         const searchLower = searchTerm.toLowerCase().trim();
 
@@ -52,7 +45,11 @@ export default function InstrumentSelector({
             // Luego verificamos el término de búsqueda
             const matchesSearch = searchLower
                 ? instrument.codigoInstrumento.toLowerCase().includes(searchLower) ||
-                instrument.caratula.toLowerCase().includes(searchLower)
+                instrument.caratula.toLowerCase().includes(searchLower) ||
+                instrument.orden.ordenNumber.toString().includes(searchLower) ||
+                instrument.orden.juzgado.identifier.toLowerCase().includes(searchLower) ||
+                instrument.orden.juzgado.name.toLowerCase().includes(searchLower)
+
                 : true;
 
             return matchesZone && matchesSubZone && matchesSearch;

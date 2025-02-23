@@ -29,8 +29,8 @@ export default function ReviewStep({
             </div>
 
             {/* Content Section */}
-            <div className="p-6 space-y-4">
-                <ScrollArea className="h-max-screen border rounded-lg">
+            <div className="p-6 space-y-4 w-full">
+                <ScrollArea className="h-max-screen border rounded-lg w-full">
                     <div className="p-4 space-y-2">
                         {selectedInstruments.map((instrument) => (
                             <InstrumentReviewItem

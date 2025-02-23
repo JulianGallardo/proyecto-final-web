@@ -47,8 +47,8 @@ const ZoneSelects = ({ onZoneChange, onSubZoneChange, className = '', zones }: Z
     };
 
     return (
-        <div className={`flex gap-4 ${className}`}>
-            <div className="relative w-[200px]">
+        <div className={`flex flex-col md:flex-row gap-4 ${className}`}>
+            <div className="relative w-full">
                 <Select value={selectedZone} onValueChange={handleZoneChange}>
                     <SelectTrigger>
                         <SelectValue placeholder="Seleccionar zona" />
@@ -71,7 +71,7 @@ const ZoneSelects = ({ onZoneChange, onSubZoneChange, className = '', zones }: Z
                 </Select>
             </div>
 
-            <div className="relative w-[200px]">
+            <div className="relative w-full">
                 <Select
                     value={selectedSubZone}
                     onValueChange={handleSubZoneChange}

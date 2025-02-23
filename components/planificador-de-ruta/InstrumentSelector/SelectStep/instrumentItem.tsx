@@ -1,9 +1,11 @@
+"use client";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Checkbox } from "@/components/ui/checkbox";
 import IndicadorFecha from "@/components/instrumentos/Tabla/indicador-fecha";
 import { Card } from "@/components/ui/card";
 import { MapPin, FileText, Box, Hash, Map } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface InstrumentItemProps {
     instrument: InstrumentoExtendido;
@@ -15,13 +17,14 @@ export default function InstrumentItem({ instrument, selectedInstruments, handle
     const isSelected = selectedInstruments.some(
         (i) => i.codigoInstrumento === instrument.codigoInstrumento
     );
+    const isMobile = useIsMobile();
 
     return (
         <Card className={`
-            transition-all duration-200 ease-in-out
+            transition-all duration-200 ease-in-out w-full
             ${isSelected ? 'bg-primary/5 ring-2 ring-primary/20' : 'hover:shadow-md'}
         `}>
-            <div className="flex items-start space-x-4 p-4">
+            <div className="flex items-start space-x-4 p-4 w-full">
                 <Checkbox
                     id={instrument.codigoInstrumento}
                     checked={isSelected}
@@ -29,23 +32,53 @@ export default function InstrumentItem({ instrument, selectedInstruments, handle
                     className="mt-1"
                 />
                 <div className="flex-1 space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <label
-                                htmlFor={instrument.codigoInstrumento}
-                                className="text-base font-semibold text-gray-900 cursor-pointer hover:text-primary transition-colors"
-                            >
-                                {instrument.instrumentoType.name}
-                            </label>
-                            <span className="text-sm text-gray-500">
-                                Orden {instrument.orden.ordenNumber}
-                            </span>
-                            <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
-                                {instrument.orden.juzgado.identifier}
-                            </span>
-                        </div>
-                        <IndicadorFecha fecha={instrument.fecha_de_ingreso} urgencia={instrument.urgencia} />
-                    </div>
+
+                    {
+                        isMobile && (
+                            <div className="flex flex-col items-center gap-3 w-full">
+                                <div className="flex flex-row items-center justify-between gap-3 w-full">
+                                    <label
+                                        htmlFor={instrument.codigoInstrumento}
+                                        className="text-base font-semibold text-gray-900 cursor-pointer hover:text-primary transition-colors"
+                                    >
+                                        {instrument.instrumentoType.name}
+                                    </label>
+                                    <IndicadorFecha fecha={instrument.fecha_de_ingreso} urgencia={instrument.urgencia} />
+                                </div>
+                                <div className="flex flex-row items-center justify-between w-full">
+                                    <span className="text-sm text-gray-500">
+                                        Orden {instrument.orden.ordenNumber}
+                                    </span>
+                                    <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
+                                        {instrument.orden.juzgado.identifier}
+                                    </span>
+                                </div>
+                            </div>
+                        )
+                    }
+                    {
+                        !isMobile && (
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <label
+                                        htmlFor={instrument.codigoInstrumento}
+                                        className="text-base font-semibold text-gray-900 cursor-pointer hover:text-primary transition-colors"
+                                    >
+                                        {instrument.instrumentoType.name}
+                                    </label>
+                                    <span className="text-sm text-gray-500">
+                                        Orden {instrument.orden.ordenNumber}
+                                    </span>
+                                    <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
+                                        {instrument.orden.juzgado.identifier}
+                                    </span>
+                                </div>
+                                <IndicadorFecha fecha={instrument.fecha_de_ingreso} urgencia={instrument.urgencia} />
+                            </div>
+                        )
+
+                    }
+
 
                     <Accordion type="single" collapsible className="w-full border-none">
                         <AccordionItem value="details" className="border-none bg-white">

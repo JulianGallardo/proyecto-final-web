@@ -2,6 +2,8 @@ import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Checkbox } from "@/components/ui/checkbox";
 import IndicadorFecha from "@/components/instrumentos/Tabla/indicador-fecha";
+import { Card } from "@/components/ui/card";
+import { MapPin, FileText, Box, Hash, Map } from "lucide-react";
 
 interface InstrumentItemProps {
     instrument: InstrumentoExtendido;
@@ -15,57 +17,86 @@ export default function InstrumentItem({ instrument, selectedInstruments, handle
     );
 
     return (
-        <div
-            className={`
-                flex items-start space-x-3 p-3 rounded-lg transition-colors
-                ${isSelected ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-gray-50'}
-            `}
-        >
-            <Checkbox
-                id={instrument.codigoInstrumento}
-                checked={isSelected}
-                onCheckedChange={() => handleToggleInstrument(instrument)}
-                className="mt-1 "
-            />
-            <div className="flex-1 space-y-1">
-                <IndicadorFecha fecha={instrument.fecha_de_ingreso} urgencia={instrument.urgencia} />
-                <label
-                    htmlFor={instrument.codigoInstrumento}
-                    className="text-sm font-medium leading-none cursor-pointer"
-                >
-                    {instrument.instrumentoType.name} - {instrument.codigoInstrumento}
-                </label>
-                <Accordion type="single" collapsible className="w-full ">
-                    <AccordionItem value="details" className="w-full">
-                        <AccordionTrigger className="p-2 text-sm hover:no-underline ">
-                            Ver detalles del instrumento
-                        </AccordionTrigger>
-                        <AccordionContent className="space-y-2 p-2">
-                            {instrument.zoneName && (
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-sm font-medium">Zona:</span>
-                                    <span className="text-sm text-gray-500">{instrument.zoneName}</span>
+        <Card className={`
+            transition-all duration-200 ease-in-out
+            ${isSelected ? 'bg-primary/5 ring-2 ring-primary/20' : 'hover:shadow-md'}
+        `}>
+            <div className="flex items-start space-x-4 p-4">
+                <Checkbox
+                    id={instrument.codigoInstrumento}
+                    checked={isSelected}
+                    onCheckedChange={() => handleToggleInstrument(instrument)}
+                    className="mt-1"
+                />
+                <div className="flex-1 space-y-3">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <label
+                                htmlFor={instrument.codigoInstrumento}
+                                className="text-base font-semibold text-gray-900 cursor-pointer hover:text-primary transition-colors"
+                            >
+                                {instrument.instrumentoType.name}
+                            </label>
+                            <span className="text-sm text-gray-500">
+                                Orden {instrument.orden.ordenNumber}
+                            </span>
+                            <span className="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
+                                {instrument.orden.juzgado.identifier}
+                            </span>
+                        </div>
+                        <IndicadorFecha fecha={instrument.fecha_de_ingreso} urgencia={instrument.urgencia} />
+                    </div>
+
+                    <Accordion type="single" collapsible className="w-full border-none">
+                        <AccordionItem value="details" className="border-none bg-white">
+                            <AccordionTrigger className="py-2 text-sm hover:no-underline bg-white rounded-lg p-2 ">
+                                <span className="">
+                                    Detalles del instrumento
+                                </span>
+                            </AccordionTrigger>
+                            <AccordionContent className="space-y-4 pt-2">
+                                {instrument.zoneName && (
+                                    <div className="flex items-center gap-6 bg-gray-50 p-3 rounded-lg">
+                                        <div className="flex items-center gap-2">
+                                            <Map className="h-4 w-4 text-gray-500" />
+                                            <span className="text-sm font-medium text-gray-700">Zona {instrument.zoneName}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-gray-700">Subzona {instrument.subZona}</span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {instrument.caratula && (
+                                    <div className="flex items-center gap-2 text-gray-700">
+                                        <FileText className="h-4 w-4 text-gray-500" />
+                                        <span className="text-sm font-medium">Carátula:</span>
+                                        <span className="text-sm">{instrument.caratula}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex items-center gap-2 text-gray-700">
+                                    <Box className="h-4 w-4 text-gray-500" />
+                                    <span className="text-sm font-medium">Tipo:</span>
+                                    <span className="text-sm">{instrument.instrumentoType.name}</span>
                                 </div>
-                            )}
-                            {instrument.caratula && (
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-sm font-medium">Carátula:</span>
-                                    <span className="text-sm text-gray-500">{instrument.caratula}</span>
+
+                                <div className="flex items-center gap-2 text-gray-700">
+                                    <MapPin className="h-4 w-4 text-gray-500" />
+                                    <span className="text-sm font-medium">Dirección:</span>
+                                    <span className="text-sm">{instrument.domicilio_denunciado}</span>
                                 </div>
-                            )}
-                            <div className="flex items-center space-x-2">
-                                <span className="text-sm font-medium">Tipo:</span>
-                                <span className="text-sm text-gray-500">{instrument.instrumentoType.name}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <span className="text-sm font-medium">Código:</span>
-                                <span className="text-sm text-gray-500">{instrument.codigoInstrumento}</span>
-                            </div>
-                            {/* Aquí puedes agregar más campos del instrumento según necesites */}
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
+
+                                <div className="flex items-center gap-2 text-gray-700">
+                                    <Hash className="h-4 w-4 text-gray-500" />
+                                    <span className="text-sm font-medium">Código:</span>
+                                    <span className="text-sm">{instrument.codigoInstrumento}</span>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </div>
             </div>
-        </div>
+        </Card>
     );
 }

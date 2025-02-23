@@ -3,7 +3,7 @@ import { AgenteExtendidoDto, CreateAgenteDTO } from "@/types/agenteTypes";
 import SearchInput from "../shared/search";
 import { AgenteCard } from "./agenteCard";
 import { Button } from "../ui/button";
-import { Plus } from "@mynaui/icons-react";
+import { Plus, SadCircle } from "@mynaui/icons-react";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import CustomDialog from "../instrumentos/Dialogs/dialog";
 import { FormularioNuevoAgente } from "./Forms/addNewAgenteForm";
@@ -109,7 +109,7 @@ export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteList
                 AlertDescription="¿Está seguro que desea eliminar este agente?"
                 propAlertDialogContent={
                     <div className="flex justify-end gap-4">
-                        <Button className="bg-red-500 text-white" onClick={()=>handleDeleteAgente()}>Eliminar</Button>
+                        <Button className="bg-red-500 text-white" onClick={() => handleDeleteAgente()}>Eliminar</Button>
                         <Button className="bg-gray-500 text-white" onClick={() => setIsOpenAlert(false)}>Cancelar</Button>
                     </div>
                 }
@@ -131,12 +131,23 @@ export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteList
                     <Plus />
                 </Button>
             </div>
+            {
+                agentes.length === 0 && (
+                    <div className="flex flex-col items-center justify-center w-full h-full p-4 bg-gray-100 rounded-lg">
+                        <SadCircle className="w-12 h-12 text-gray-500" />
+                        <span className="text-gray-500">No se han encontrado agentes registrados.</span>
+                    </div>
+                )
+            }
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {agentes.map((agente) => (
                     <AgenteCard key={agente.id} agente={agente} onDelete={() => handleOpenDeleteAlert(agente)} />
                 ))}
+
             </div>
-            <PaginationInstruments totalPages={totalPages} />
+            {
+                agentes.length !== 0 && <PaginationInstruments totalPages={totalPages} />
+            }
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Checkbox } from "@/components/ui/checkbox";
+import IndicadorFecha from "@/components/instrumentos/Tabla/indicador-fecha";
 
 interface InstrumentItemProps {
     instrument: InstrumentoExtendido;
@@ -27,6 +28,7 @@ export default function InstrumentItem({ instrument, selectedInstruments, handle
                 className="mt-1 "
             />
             <div className="flex-1 space-y-1">
+                <IndicadorFecha fecha={instrument.fecha_de_ingreso} urgencia={instrument.urgencia} />
                 <label
                     htmlFor={instrument.codigoInstrumento}
                     className="text-sm font-medium leading-none cursor-pointer"
@@ -43,12 +45,6 @@ export default function InstrumentItem({ instrument, selectedInstruments, handle
                                 <div className="flex items-center space-x-2">
                                     <span className="text-sm font-medium">Zona:</span>
                                     <span className="text-sm text-gray-500">{instrument.zoneName}</span>
-                                </div>
-                            )}
-                            {instrument.destinatario && (
-                                <div className="flex items-center space-x-2">
-                                    <span className="text-sm font-medium">Destinatario:</span>
-                                    <span className="text-sm text-gray-500">{instrument.destinatario}</span>
                                 </div>
                             )}
                             {instrument.caratula && (

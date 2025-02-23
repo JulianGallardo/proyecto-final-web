@@ -8,6 +8,11 @@ export interface ExtendedZone extends Zone {
             longitude: number;
         }[];
     };
+    Agentes: {
+        user: {
+            name: string
+        }
+    }[];
     SubZonas: {
         id: string;
         zoneName: string;

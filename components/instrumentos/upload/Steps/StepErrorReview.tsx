@@ -113,10 +113,6 @@ export default function StepErrorReview({
             }
             else
                 instrumentoType = "No nomenclado";
-
-
-
-
             const newData = {
                 ...error,
                 juzgadoIdentifier: juzgado,

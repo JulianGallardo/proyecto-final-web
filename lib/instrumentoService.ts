@@ -92,13 +92,9 @@ export default class InstrumentoService {
     }
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {
-        try {
 
-            const created = await this.instrumentoRepository.createInstrumentos(instrumentos);
-            return created;
-        } catch (error) {
-            throw new Error(`Error creando instrumentos: ${(error as Error).message}`);
-        }
+        const created = await this.instrumentoRepository.createInstrumentos(instrumentos);
+        return created;
     }
 
     async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number) {

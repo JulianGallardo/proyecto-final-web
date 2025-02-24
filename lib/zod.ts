@@ -30,7 +30,7 @@ export const instrumentSchema = object({
   juzgado: string({ required_error: "El identificador de juzgado es requerido." }).min(1, "El identificador de juzgado es requerido."),
   instrumentType: string({ required_error: "El tipo de instrumento es requerido." }).min(1, "El tipo de instrumento es requerido."),
   urgencia: z.enum([UrgenciaInstrumento.NORMAL, UrgenciaInstrumento.URGENTE]),
-  estado: z.enum([EstadoInstrumento.CORRECCIONES_SOLICITADAS, EstadoInstrumento.PENDIENTE_DE_NOTIFICAR]),	
+  estado: z.enum([EstadoInstrumento.CORRECCIONES_SOLICITADAS, EstadoInstrumento.PENDIENTE_DE_NOTIFICAR, EstadoInstrumento.PENDIENTE_DE_PROCESAR_NOTIFICACION, EstadoInstrumento.NOTIFICADO_VERDE,EstadoInstrumento.NOTIFICADO_AMARILLO,EstadoInstrumento.NOTIFICADO_ROJO]),	
   observaciones: string()
 })
 

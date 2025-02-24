@@ -52,8 +52,8 @@ const selectOptions = {
 } as const;
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
-    private ordenRepository: OrdenRepository;
-    private itemsPerPage = 10;
+    private readonly ordenRepository: OrdenRepository;
+    private readonly itemsPerPage = 10;
 
     constructor(ordenRepository: OrdenRepository) {
         super(prisma.instrumento);
@@ -108,6 +108,10 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 orden: { juzgado: { identifier: { startsWith: this.parseString(value), mode: "insensitive" } } },
             }),
             instrumentType: (value) => ({ instrumentoType: { name: { equals: this.parseString(value), mode: "insensitive" } } }),
+            estado: (value) => ({ estado: { equals: value as EstadoInstrumento } }),
+            urgencia: (value) => ({ urgencia: { equals: value } }),
+            zona: (value) => ({ zoneName: { equals: this.parseString(value) }
+            }),
         };
 
     // Build Prisma where clause efficiently

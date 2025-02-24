@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {ChevronLeftIcon} from "lucide-react";
+import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
 import { createInstrumentos, deleteDuplicatePdfEntries } from "@/actions/instrumentos-actions";
@@ -36,10 +36,10 @@ export default function PDFUploadProcess() {
 
             const result = await deleteDuplicatePdfEntries(parsedData);
 
-            
+
             if (!result || typeof result !== "object") throw new Error("Error al procesar el PDF");
 
-            const { filteredInstrument, instrumentosWithErrors } = result; 
+            const { filteredInstrument, instrumentosWithErrors } = result;
 
             if (filteredInstrument.length === 0 && instrumentosWithErrors.length === 0) {
                 throw new Error("Los instrumentos en el PDF ya están cargados.");
@@ -75,6 +75,7 @@ export default function PDFUploadProcess() {
                 className: "bg-red-500 text-white",
                 duration: 3000,
             });
+            setStep(5);
         }
     };
 
@@ -121,7 +122,7 @@ export default function PDFUploadProcess() {
 
     const deleteAllInstrumentDataError = () => {
         setInstrumentosConErrores([]);
-    }   
+    }
 
     const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
 
@@ -143,7 +144,7 @@ export default function PDFUploadProcess() {
                                 onFileChange={setFile}
                                 onNext={handleFileUpload}
                             />
-                            
+
                         )}
 
                         {step === 2 && (
@@ -151,7 +152,7 @@ export default function PDFUploadProcess() {
                                 deleteInstrumento={deleteInstrumentErrorData}
                                 errors={instrumentosConErrores}
                                 editInstrumentDataError={editInstrumentDataError}
-                                deleteAllErrors = {deleteAllInstrumentDataError}
+                                deleteAllErrors={deleteAllInstrumentDataError}
                                 onBack={() => setStep(1)}
                                 onNext={() => setStep(3)}
                             />
@@ -183,6 +184,20 @@ export default function PDFUploadProcess() {
                                 }} />
                             )
                         )}
+
+                        {
+                            step === 5 && (
+                                <div className="flex flex-col gap-4">
+                                    <h2 className="text-2xl font-bold">Error al cargar los instrumentos</h2>
+                                    <Button onClick={() => {
+                                        setFile(null);
+                                        setData([]);
+                                        setStep(1);
+                                        setCurrentPage(1);
+                                    }}>Volver</Button>
+                                </div>
+                            )
+                        }
                     </CardContent>
                 </Card>
             </div>

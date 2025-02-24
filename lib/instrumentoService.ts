@@ -59,7 +59,7 @@ export default class InstrumentoService {
             juzgadoIdentifier: juzgado.identifier,
             instrumentoTypeIdentifier: instrumentoType.identifier,
             tipoDeCarga: TipoCarga.PDF,
-            estado:  EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
+            estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
             codigo: instrumento.codigo,
             observaciones: ""
         };
@@ -92,8 +92,13 @@ export default class InstrumentoService {
     }
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {
-        const created = await this.instrumentoRepository.createInstrumentos(instrumentos);
-        return created;
+        try {
+
+            const created = await this.instrumentoRepository.createInstrumentos(instrumentos);
+            return created;
+        } catch (error) {
+            throw new Error(`Error creando instrumentos: ${(error as Error).message}`);
+        }
     }
 
     async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number) {

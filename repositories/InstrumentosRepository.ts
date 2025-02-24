@@ -6,7 +6,6 @@ import SearchParamsInstrumentos from "@/types/searchParams";
 import OrdenRepository from "./OrdenRepository";
 import { getCoordinates, getSubzoneInCoords, getZoneInCoords } from "@/lib/locationUtils/zoneUtils";
 
-
 const selectOptions = {
     codigoInstrumento: true,
     cargaInstrumento: true,
@@ -23,8 +22,8 @@ const selectOptions = {
                 select: {
                     identifier: true,
                     name: true,
-                }
-            }
+                },
+            },
         },
     },
     instrumentoType: {
@@ -48,138 +47,98 @@ const selectOptions = {
             observaciones: true,
             estado: true,
             agenteFullName: true,
-        }
-    }
-
-};
-
-
+        },
+    },
+} as const;
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
-    ordenRepository: OrdenRepository;
-    constructor(
-        ordenRepository: OrdenRepository
-    ) {
+    private ordenRepository: OrdenRepository;
+    private itemsPerPage = 10;
+
+    constructor(ordenRepository: OrdenRepository) {
         super(prisma.instrumento);
         this.ordenRepository = ordenRepository;
     }
 
-
-    itemsPerPage = 10;
-
-
-    filters(searchParams: SearchParamsInstrumentos) {
-
-        const parseString = (value: string) => value.replace(/\+/g, " ");
-
-        const endOfDate = (dateQuery: string) => {
-            const [year, month, day] = dateQuery.split("-").map(Number);
-
-            return new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999)); // Fin del día
-        }
-
-        const parseCode = (value: string) => {
-
-
-
-            const parsedValue = value.replace(/\+/g, "");
-            const code = parsedValue.split("-");
-            if (code.length !== 2) {
-                if (code[0] === "PDF" || code[0] === "MAN") {
-                    return {
-                        type: code[0],
-                        number: undefined
-                    }
-                }
-                else {
-                    return {
-                        type: undefined,
-                        number: code[0]
-                    }
-                }
-
-
-            }
-
-            return {
-                type: code[0],
-                number: code[1]
-            }
-        }
-
-
-
-
-        // Mapeo de las claves de `searchParams` a sus correspondientes condiciones
-        const filterMapping: { [key: string]: (value: any) => any } = {
-            desde: (value) => ({ fecha_de_ingreso: { gte: new Date(value) } }),
-            hasta: (value) => ({ fecha_de_ingreso: { lte: endOfDate(value) } }),
-            exitDate: (value) => (
-                parseString(value) === "No registrada" ? { fecha_de_salida: { equals: null } } : { fecha_de_salida: { lte: new Date(value) } }
-            ),
-            caratula: (value) => ({ caratula: { startsWith: parseString(value), mode: "insensitive" } }),
-            codigo: (value) => {
-                const parsedCode = parseCode(value);
-                return {
-                    codigoInstrumento: { startsWith: parsedCode.number, mode: "insensitive" },
-                    cargaInstrumento: { equals: parsedCode.type }
-                };
-            },
-            address: (value) => ({ domicilio_denunciado: { startsWith: parseString(value), mode: "insensitive" } }),
-            ordenNumber: (value) => ({ orden: { ordenNumber: { equals: Number(value) } } }),
-            juzgado: (value) => ({ orden: { juzgado: { identifier: { startsWith: parseString(value), mode: "insensitive" } } } }),
-            instrumentType: (value) => ({ instrumentoType: { name: { equals: parseString(value), mode: "insensitive" } } }),
-        };
-
-        // Construir dinámicamente el objeto "where"
-        const where: any = {
-            AND: Object.entries(searchParams)
-                .map(([key, value]) => {
-                    const filterBuilder = filterMapping[key];
-                    return filterBuilder ? filterBuilder(value) : null; // Construye la condición si existe en el mapeo
-                })
-                .filter((condition) => condition !== null), // Elimina las condiciones nulas
-        };
-
-
-
-        return where;
+    // Helper to parse strings, removing redundancy
+    private parseString(value: string): string {
+        return value.replace(/\+/g, " ");
     }
 
+    // Helper to parse and validate date for end of day
+    private getEndOfDay(dateQuery: string): Date {
+        const [year, month, day] = dateQuery.split("-").map(Number);
+        return new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+    }
+
+    // Helper to parse instrument code
+    private parseCode(value: string) {
+        const parsedValue = this.parseString(value);
+        const code = parsedValue.split("-");
+        if (code.length !== 2) {
+            if (code[0] === "PDF" || code[0] === "MAN") {
+                return { type: code[0] as TipoCarga | undefined, number: undefined };
+            }
+            return { type: undefined, number: code[0] };
+        }
+        return { type: code[0] as TipoCarga | undefined, number: code[1] };
+    }
+
+    // Dynamic filter mapping with type safety
+    private readonly filterMapping: {
+        [K in keyof SearchParamsInstrumentos]?: (value: string) => Record<string, any>;
+    } = {
+            desde: (value) => ({ fecha_de_ingreso: { gte: new Date(value) } }),
+            hasta: (value) => ({ fecha_de_ingreso: { lte: this.getEndOfDay(value) } }),
+            exitDate: (value) =>
+                this.parseString(value) === "No registrada"
+                    ? { fecha_de_salida: { equals: null } }
+                    : { fecha_de_salida: { lte: new Date(value) } },
+            caratula: (value) => ({ caratula: { startsWith: this.parseString(value), mode: "insensitive" } }),
+            codigo: (value) => {
+                const parsedCode = this.parseCode(value);
+                return {
+                    codigoInstrumento: { startsWith: parsedCode.number, mode: "insensitive" },
+                    cargaInstrumento: parsedCode.type,
+                };
+            },
+            address: (value) => ({ domicilio_denunciado: { startsWith: this.parseString(value), mode: "insensitive" } }),
+            ordenNumber: (value) => ({ orden: { ordenNumber: { equals: Number(value) } } }),
+            juzgado: (value) => ({
+                orden: { juzgado: { identifier: { startsWith: this.parseString(value), mode: "insensitive" } } },
+            }),
+            instrumentType: (value) => ({ instrumentoType: { name: { equals: this.parseString(value), mode: "insensitive" } } }),
+        };
+
+    // Build Prisma where clause efficiently
+    private buildWhereClause(searchParams: SearchParamsInstrumentos): Record<string, any> {
+        const conditions = Object.entries(searchParams)
+            .map(([key, value]) => {
+                const filter = this.filterMapping[key as keyof SearchParamsInstrumentos];
+                return filter ? filter(value as string) : null;
+            })
+            .filter((condition): condition is Record<string, any> => condition !== null);
+
+        return { AND: conditions.length > 0 ? conditions : undefined };
+    }
 
     async getInstrumentosByZone(zoneName: string): Promise<InstrumentoExtendido[]> {
         return this.modelClient.findMany({
-            where: {
-                Zona: {
-                    zoneName: zoneName
-                }
-            },
+            where: { zoneName },
             select: selectOptions,
         });
     }
 
-
-    async getInstrumentoByCode(code: string, tipoDeCarga?: TipoCarga) {
-
-        return this.modelClient.findFirst(
-            {
-                where: {
-                    codigoInstrumento: code,
-                    cargaInstrumento: tipoDeCarga
-                },
-                select: selectOptions
-            }
-        );
+    async getInstrumentoByCode(code: string, tipoDeCarga?: TipoCarga): Promise<InstrumentoExtendido | null> {
+        return this.modelClient.findFirst({
+            where: { codigoInstrumento: code, cargaInstrumento: tipoDeCarga },
+            select: selectOptions,
+        });
     }
 
     async getInstrumentoByCaratula(caratula: string): Promise<InstrumentoExtendido | null> {
         return this.modelClient.findFirst({
-            where: {
-                caratula: {
-                    equals: caratula,
-                    mode: "insensitive",
-                }
-            },
+            where: { caratula: { equals: caratula, mode: "insensitive" } },
             select: selectOptions,
         });
     }
@@ -187,107 +146,72 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async getInstrumento(juzgadoIdentifier: string, caratula: string, destinatario: string): Promise<InstrumentoExtendido | null> {
         return this.modelClient.findFirst({
             where: {
-                caratula: {
-                    startsWith: caratula,
-                    mode: "insensitive",
-                },
-                orden: {
-                    juzgado: {
-                        identifier: juzgadoIdentifier,
-                    },
-                },
+                caratula: { startsWith: caratula, mode: "insensitive" },
+                orden: { juzgado: { identifier: juzgadoIdentifier } },
             },
             select: selectOptions,
         });
     }
 
-
-    async getTotalPagesInstrumentosPaginated(searchParams: SearchParamsInstrumentos) {
-
-
-        const where = this.filters(searchParams);
-
-        const instrumentosCountPromise = await this.modelClient.count({
-            where,
-        });
-
-        const [instrumentosCount] = await Promise.all([instrumentosCountPromise]);
-
-        const totalPages = Math.ceil(instrumentosCount / this.itemsPerPage);
-
-        return totalPages;
+    async getTotalPagesInstrumentosPaginated(searchParams: SearchParamsInstrumentos): Promise<number> {
+        const where = this.buildWhereClause(searchParams);
+        const count = await this.modelClient.count({ where });
+        return Math.ceil(count / this.itemsPerPage);
     }
 
-    async getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number) {
-        const where = this.filters(searchParams);
+    async getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number): Promise<InstrumentoExtendido[]> {
+        const where = this.buildWhereClause(searchParams);
 
-        // Realizar la consulta con Prisma
-        const instrumentos = await this.modelClient.findMany({
+        return this.modelClient.findMany({
             where,
             skip: (page - 1) * this.itemsPerPage,
             take: this.itemsPerPage,
             select: selectOptions,
             orderBy: [
-                {
-                    fecha_de_salida: {
-                        sort: "asc",
-                        nulls: "first",
-                    }
-                },
-                {
-                    fecha_de_ingreso: "asc"
-                }
+                { fecha_de_salida: { sort: "asc", nulls: "first" } },
+                { fecha_de_ingreso: "asc" },
             ],
         });
-
-
-        return instrumentos;
     }
-
-
-
 
     async getInstrumentos(): Promise<InstrumentoExtendido[]> {
         return this.modelClient.findMany({
             select: selectOptions,
             orderBy: [
-                {
-                    fecha_de_salida: {
-                        sort: "asc",
-                        nulls: "first", // Primero los valores nulos
-                    }
-                },
-                {
-                    fecha_de_ingreso: "asc"
-                }
+                { fecha_de_salida: { sort: "asc", nulls: "first" } },
+                { fecha_de_ingreso: "asc" },
             ],
         });
     }
 
     async calculateManualCode(): Promise<number> {
-        const maxCodigo = await this.modelClient.aggregate({
-            _max: {
-                codigoInstrumento: true, // Busca el mayor código de instrumento
-            },
-            where: {
-                cargaInstrumento: TipoCarga.MAN
-            },
+        const { _max } = await this.modelClient.aggregate({
+            _max: { codigoInstrumento: true },
+            where: { cargaInstrumento: TipoCarga.MAN },
         });
-
-        // Extraer el número del código, asumir formato numérico y sumar 1
-        const lastCode = maxCodigo._max.codigoInstrumento
-            ? parseInt(maxCodigo._max.codigoInstrumento, 10)
-            : 0;
-
-        return lastCode + 1;
+        return _max.codigoInstrumento ? parseInt(_max.codigoInstrumento, 10) : 0 + 1;
     }
 
+    private async getNewZoneAndCoordinates(data: Partial<InstrumentoDTO>) {
+        let punto: [number, number] | null = null;
 
+        if (data.domicilio_denunciado && data.domicilio_denunciado !== "") {
+            punto = await getCoordinates(data.domicilio_denunciado);
+        }
 
-
+        let nuevaZona = undefined;
+        let nuevaSubZona: SubZona = SubZona.Sin_SubZona;
+        if (punto) {
+            nuevaZona = await getZoneInCoords(punto[0], punto[1]);
+            if (nuevaZona) {
+                const subZonaResult = await getSubzoneInCoords(punto[0], punto[1], nuevaZona.id);
+                nuevaSubZona = subZonaResult as SubZona ?? SubZona.Sin_SubZona;
+            }
+        }
+        return { punto, nuevaZona, nuevaSubZona };
+    }
 
     async createInstrumento(data: InstrumentoDTO): Promise<InstrumentoExtendido> {
-        
         const orden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
         if (!orden) throw new Error("No se pudo crear la orden");
 
@@ -297,11 +221,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
-
-
-
         try {
-            const instrumento = await this.modelClient.create({
+            return await this.modelClient.create({
                 data: {
                     codigoInstrumento: data.codigo,
                     cargaInstrumento: data.tipoDeCarga,
@@ -316,207 +237,187 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     longitude: punto ? punto[0] : undefined,
                     observaciones: data.observaciones,
                     subZona: nuevaSubZona,
-
                     Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,
                 },
-                select: selectOptions
+                select: selectOptions,
             });
-
-            return instrumento;
         } catch (error) {
-            console.warn(error);
-            orden && await this.ordenRepository.deleteOrden(orden.ordenNumber, data.juzgadoIdentifier);
+            console.error("Error creating instrument:", error);
+            if (orden) await this.ordenRepository.deleteOrden(orden.ordenNumber, data.juzgadoIdentifier);
             throw new Error("No se pudo crear el instrumento");
         }
     }
 
-
-    async updateInstrumento(
-        juzgadoIdentifier: string,
-        ordenNumber: number,
-        data: Partial<InstrumentoDTO>
-    ): Promise<InstrumentoExtendido | null> {
-        let newOrden = null;
-
-        const juzgado = await prisma.juzgado.findUnique({
-            where: { identifier: juzgadoIdentifier }
-        });
+    async updateInstrumento(juzgadoIdentifier: string, ordenNumber: number, data: Partial<InstrumentoDTO>): Promise<InstrumentoExtendido | null> {
+        const juzgado = await prisma.juzgado.findUnique({ where: { identifier: juzgadoIdentifier } });
         if (!juzgado) throw new Error("No se encontró el juzgado");
 
         const ordenActual = await this.ordenRepository.getOrden(ordenNumber, juzgado.identifier);
+        if (!ordenActual) throw new Error("No se encontró la orden");
+
+        let newOrden = ordenActual;
         if (data.juzgadoIdentifier && juzgado.identifier !== data.juzgadoIdentifier) {
-            newOrden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
-        } else {
-            newOrden = ordenActual;
+            const createdOrden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
+            if (!createdOrden) throw new Error("No se pudo crear la nueva orden");
+            newOrden = createdOrden;
         }
 
         const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
-
-
-        const update = await this.modelClient.update({
-            where: { ordenId: ordenActual?.id },
+        return this.modelClient.update({
+            where: { ordenId: ordenActual.id },
             data: {
                 fecha_de_ingreso: data.fecha_de_ingreso,
                 fecha_de_salida: data.fecha_de_salida || undefined,
                 caratula: data.caratula,
                 urgencia: data.urgencia,
                 domicilio_denunciado: data.domicilio_denunciado,
-                orden: { connect: { id: newOrden?.id } },
+                orden: { connect: { id: newOrden.id } },
                 Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,
                 subZona: nuevaSubZona,
-                instrumentoType: { connect: { identifier: data.instrumentoTypeIdentifier } },
+                instrumentoType: data.instrumentoTypeIdentifier ? { connect: { identifier: data.instrumentoTypeIdentifier } } : undefined,
                 latitude: punto ? punto[1] : undefined,
                 longitude: punto ? punto[0] : undefined,
                 observaciones: data.observaciones,
-                estado: data.estado ?? undefined,	
+                estado: data.estado,
             },
-            select: selectOptions
+            select: selectOptions,
         });
-
-        return update;
-    }
-
-    private async getNewZoneAndCoordinates(data: Partial<InstrumentoDTO>) {
-        let punto = null;
-
-        if (data.domicilio_denunciado && data.domicilio_denunciado !== "") {
-            punto = await getCoordinates(data.domicilio_denunciado);
-        }
-
-        let nuevaZona = undefined;
-        let nuevaSubZona: SubZona = SubZona.Sin_SubZona;
-        if (punto) {
-            nuevaZona = await getZoneInCoords(punto[0], punto[1]);
-            if (nuevaZona)
-                nuevaSubZona = (await getSubzoneInCoords(punto[0], punto[1], nuevaZona.id) as SubZona) ?? SubZona.Sin_SubZona;
-
-        }
-        return { punto, nuevaZona, nuevaSubZona };
     }
 
     async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number): Promise<Instrumento | null> {
-        const ordenActual = await this.ordenRepository.getOrden(ordenNumber, juzgadoIdentifier);
+        const orden = await this.ordenRepository.getOrden(ordenNumber, juzgadoIdentifier);
+        if (!orden) throw new Error("No se encontró la orden");
 
         return prisma.$transaction(async (prisma) => {
-            const result = await prisma.instrumento.delete({
-                where: {
-                    ordenId: ordenActual?.id,
-                },
-            });
-
-            await prisma.orden.delete({
-                where: {
-                    id: ordenActual?.id,
-                },
-            });
-
-            return result;
+            const instrument = await prisma.instrumento.delete({ where: { ordenId: orden.id } });
+            await prisma.orden.delete({ where: { id: orden.id } });
+            return instrument;
         });
-
     }
 
-    async createInstrumentos(instrumentos: InstrumentoDTO[]) {
-        const instrumentosCreados: InstrumentoExtendido[] = [];
+    async createInstrumentos(instrumentos: InstrumentoDTO[]): Promise<InstrumentoExtendido[]> {
+        if (!instrumentos.length) return [];
+        const createdInstruments: InstrumentoExtendido[] = [];
+      
+        // Group instruments by juzgadoIdentifier
+        const groupedByJuzgado = instrumentos.reduce((acc, instrumento) => {
+          const juzgado = instrumento.juzgadoIdentifier;
+          acc[juzgado] = acc[juzgado] || [];
+          acc[juzgado].push(instrumento);
+          return acc;
+        }, {} as Record<string, InstrumentoDTO[]>);
+      
+        return prisma.$transaction(async (prisma) => {
+          // Process groups for different juzgados in parallel
+          const results = await Promise.all(
+            Object.entries(groupedByJuzgado).map(async ([juzgadoIdentifier, instruments]) => {
+              const instrumentsForJuzgado: InstrumentoExtendido[] = [];
+      
+              // Process instruments within the same juzgado sequentially to avoid race conditions
+              for (const instrumento of instruments) {
+                try {
+                  // Create or get a unique order for this instrument and juzgado
+                  const orden = await this.ordenRepository.createOrden(juzgadoIdentifier);
+                  if (!orden) throw new Error(`No se pudo crear la orden para el instrumento en el juzgado ${juzgadoIdentifier}`);
+      
+                  if (instrumento.tipoDeCarga === TipoCarga.MAN) {
+                    instrumento.codigo = (await this.calculateManualCode()).toString();
+                  }
+      
+                  const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(instrumento);
+      
+                  // Create the instrument with its unique order
+                  const createdInstrument = await this.modelClient.create({
+                    data: {
+                      codigoInstrumento: instrumento.codigo,
+                      cargaInstrumento: instrumento.tipoDeCarga,
+                      fecha_de_ingreso: instrumento.fecha_de_ingreso,
+                      fecha_de_salida: instrumento.fecha_de_salida || undefined,
+                      caratula: instrumento.caratula,
+                      urgencia: instrumento.urgencia,
+                      domicilio_denunciado: instrumento.domicilio_denunciado,
+                      estado: instrumento.estado,
+                      ordenId: orden.id,
+                      instrumentoTypeId: (await prisma.instrumentoType.findUnique({
+                        where: { identifier: instrumento.instrumentoTypeIdentifier },
+                      }))?.id ?? undefined,
+                      latitude: punto ? punto[1] : undefined,
+                      longitude: punto ? punto[0] : undefined,
+                      observaciones: instrumento.observaciones,
+                      subZona: nuevaSubZona,
+                      zoneName: nuevaZona ? nuevaZona.zoneName : undefined,
+                    },
+                    select: selectOptions,
+                  });
+      
+                  instrumentsForJuzgado.push(createdInstrument);
+                } catch (error) {
+                  console.error("Error creating instrument:", error);
+                  throw new Error(`No se pudo crear el instrumento para el juzgado ${juzgadoIdentifier}`);
+                }
+              }
+      
+              return instrumentsForJuzgado;
+            })
+          );
+      
+          // Flatten the results from all juzgados
+          return results.flat();
+        });
+      }
+    private async getZoneAndAgentConditions(zona?: string, agente?: number): Promise<Record<string, any>> {
+        const whereConditions: Record<string, any> = {};
 
-        for (const instrumento of instrumentos) {
-            const result = await this.createInstrumento(instrumento);
-            instrumentosCreados.push(result);
+        if (zona) {
+            whereConditions['zoneName'] = zona;
+        } else if (agente) {
+            const agentZones = await prisma.agente.findUnique({
+                where: { id: agente },
+                select: { zonas: { select: { zoneName: true } } },
+            });
+            if (agentZones?.zonas?.length) {
+                whereConditions['zoneName'] = { in: agentZones.zonas.map(z => z.zoneName) };
+            }
         }
 
-        return instrumentosCreados;
+        return whereConditions;
     }
 
     async getTotalInstrumentos(zona?: string, agente?: number): Promise<{ total: number; growthPercentage: number }> {
+        const whereConditions = await this.getZoneAndAgentConditions(zona, agente);
         const currentDate = new Date();
-        const firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const [currentMonthStart, previousMonthStart] = [
+            new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+            new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
+        ];
 
-        const whereConditions: Record<string, any> = {};
+        const [total, currentMonthCount, previousMonthCount] = await Promise.all([
+            this.modelClient.count({ where: whereConditions }),
+            this.modelClient.count({ where: { fecha_de_ingreso: { gte: currentMonthStart }, ...whereConditions } }),
+            this.modelClient.count({ where: { fecha_de_ingreso: { gte: previousMonthStart, lt: currentMonthStart }, ...whereConditions } }),
+        ]);
 
-        const zonasAgente = await prisma.agente.findUnique({
-            where: { id: agente },
-            select: {
-                zonas: {
-                    select: {
-                        zoneName: true,
-                    }
-                }
-            }
-        });
-
-
-
-        if (zona) whereConditions['zoneName'] = zona || zonasAgente ;
-
-       
-        
-        // Contar instrumentos totales
-        const totalInstrumentos = await this.modelClient.count({ where: whereConditions });
-
-        // Contar instrumentos creados en el mes actual y en el mes anterior
-        const currentMonthCount = await this.modelClient.count({
-            where: {
-                fecha_de_ingreso: { gte: firstDayOfCurrentMonth },
-                ...whereConditions,
-            },
-        });
-
-        const previousMonthCount = await this.modelClient.count({
-            where: {
-                fecha_de_ingreso: { gte: firstDayOfPreviousMonth, lt: firstDayOfCurrentMonth },
-                ...whereConditions,
-            },
-        });
-
-        // Calcular crecimiento porcentual
         const growthPercentage = previousMonthCount > 0
             ? ((currentMonthCount - previousMonthCount) / previousMonthCount) * 100
             : currentMonthCount > 0 ? 100 : 0;
 
-        return { total: totalInstrumentos, growthPercentage };
+        return { total, growthPercentage };
     }
 
-
     async getInstrumentosActivos(zona?: string, agente?: number): Promise<{ totalActivos: number; growthPercentage: number }> {
+        const whereConditions = await this.getZoneAndAgentConditions(zona, agente);
         const currentDate = new Date();
-        const firstDayOfCurrentMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const firstDayOfPreviousMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        const [currentMonthStart, previousMonthStart] = [
+            new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+            new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1),
+        ];
 
-        // Filtros condicionales
-        const whereConditions: Record<string, any> = { fecha_de_salida: null};
-        const zonasAgente = await prisma.agente.findUnique({
-            where: { id: agente },
-            select: {
-                zonas: {
-                    select: {
-                        zoneName: true,
-                    }
-                }
-            }
-        });
-
-
-
-        if (zona) whereConditions['zoneName'] = zona || zonasAgente ;
-        
-        const totalActivos = await this.modelClient.count({ where: whereConditions });
-
-        const currentMonthActivos = await this.modelClient.count({
-            where: {
-                fecha_de_ingreso: { gte: firstDayOfCurrentMonth },
-                fecha_de_salida: null,
-                ...whereConditions,
-            },
-        });
-
-        const previousMonthActivos = await this.modelClient.count({
-            where: {
-                fecha_de_ingreso: { gte: firstDayOfPreviousMonth, lt: firstDayOfCurrentMonth },
-                fecha_de_salida: null,
-                ...whereConditions,
-            },
-        });
+        const [totalActivos, currentMonthActivos, previousMonthActivos] = await Promise.all([
+            this.modelClient.count({ where: { fecha_de_salida: null, ...whereConditions } }),
+            this.modelClient.count({ where: { fecha_de_ingreso: { gte: currentMonthStart }, fecha_de_salida: null, ...whereConditions } }),
+            this.modelClient.count({ where: { fecha_de_ingreso: { gte: previousMonthStart, lt: currentMonthStart }, fecha_de_salida: null, ...whereConditions } }),
+        ]);
 
         const growthPercentage = previousMonthActivos > 0
             ? ((currentMonthActivos - previousMonthActivos) / previousMonthActivos) * 100
@@ -525,114 +426,59 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         return { totalActivos, growthPercentage };
     }
 
-
-
-    async getInstrumentosPorEstado(zona?: string, agente?: number) {
-        const estados = EstadoInstrumento;
-
-        // Filtros condicionales
-        const whereConditions: Record<string, any> = { };
-        const zonasAgente = await prisma.agente.findUnique({
-            where: { id: agente },
-            select: {
-                zonas: {
-                    select: {
-                        zoneName: true,
-                    }
-                }
-            }
-        });
-
-
-
-        if (zona) whereConditions['zoneName'] = zona || zonasAgente ;
-        const counts = await Promise.all(Object.values(estados).map(async (estado) => {
-            const count = await this.modelClient.count({
-                where: {
-                    estado: estado,
-                    ...whereConditions,
-                },
-            });
-            return { estado, count };
-        }));
-
-        return counts.reduce((acc: Record<EstadoInstrumento, number>, { estado, count }) => {
-            acc[estado] = count;
+    async getInstrumentosPorEstado(zona?: string, agente?: number): Promise<Record<EstadoInstrumento, number>> {
+        const whereConditions = await this.getZoneAndAgentConditions(zona, agente);
+        const counts = await Promise.all(
+            Object.values(EstadoInstrumento).map(estado =>
+                this.modelClient.count({ where: { estado, ...whereConditions } })
+            )
+        );
+        return Object.values(EstadoInstrumento).reduce((acc, estado, index) => {
+            acc[estado] = counts[index];
             return acc;
         }, {} as Record<EstadoInstrumento, number>);
     }
 
-
-
-    async getInstrumentosEntregadosUltimosSeisMeses(zona?: string, agente?: number) {
+    async getInstrumentosEntregadosUltimosSeisMeses(zona?: string, agente?: number): Promise<{ month: string; year: number; count: number }[]> {
         const currentDate = new Date();
-
-        // Definir el arreglo de los meses
-        const months = [
-            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-        ];
-
-        // Generar un arreglo con los meses de los últimos 6 meses
-        const lastSixMonths = [];
-        for (let i = 0; i < 6; i++) {
+        const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const lastSixMonths = Array.from({ length: 6 }, (_, i) => {
             const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-            lastSixMonths.push({
+            return {
                 month: months[monthDate.getMonth()],
                 year: monthDate.getFullYear(),
                 startDate: new Date(monthDate.getFullYear(), monthDate.getMonth(), 1),
-                endDate: new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0), // Último día del mes
-            });
-        }
+                endDate: new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0),
+            };
+        });
 
-        // Filtros condicionales
-        const whereConditions: Record<string, any> = {};
-        if (zona) whereConditions['zoneName'] = zona; // Filtrar por zona
-        // Now use the `some` filter to check if any related `HistorialEntregas` entry
-        // has the `agenteId` that you are looking for.
+        const whereConditions = await this.getZoneAndAgentConditions(zona, agente);
         if (agente) {
             whereConditions['HistorialEntregas'] = {
-                some: {
-                    agenteId: agente, // Filter by agent ID in the related `HistorialEntregas` table
-                },
+                some: { agenteId: agente },
             };
         }
-        // Obtener las entregas por cada mes
-        const deliveriesByMonth = [];
-        for (const monthData of lastSixMonths) {
-            const count: number = await this.modelClient.count({
-                where: {
-                    fecha_de_salida: { gte: monthData.startDate, lt: monthData.endDate },
-                    ...whereConditions,
-                },
-            });
 
-            deliveriesByMonth.push({
-                month: monthData.month,
-                year: monthData.year,
-                count,
-            });
-        }
+        const counts = await Promise.all(lastSixMonths.map(({ startDate, endDate }) =>
+            this.modelClient.count({
+                where: { fecha_de_salida: { gte: startDate, lt: endDate }, ...whereConditions },
+            })
+        ));
 
-        return deliveriesByMonth;
+        return lastSixMonths.map((monthData, index) => ({
+            month: monthData.month,
+            year: monthData.year,
+            count: counts[index],
+        }));
     }
 
-
-    async getInstrumentosAEntregarPorZonas(zoneName: string) {
+    async getInstrumentosAEntregarPorZonas(zoneName: string): Promise<InstrumentoExtendido[]> {
         return this.modelClient.findMany({
             where: {
                 estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
-                Zona: {
-                    zoneName: zoneName
-                }
+                zoneName,
             },
             select: selectOptions,
         });
     }
-
-
-
-
-
-
 }

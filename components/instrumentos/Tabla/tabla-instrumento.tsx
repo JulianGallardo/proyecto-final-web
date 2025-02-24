@@ -50,6 +50,7 @@ export function TablaInstrumentos({ data, onEdit, onDelete }: Readonly<TablaInst
         fecha_de_ingreso: false,
         fecha_de_salida: false,
         estado: false,
+        urgencia:false
       }
     },
     state: {

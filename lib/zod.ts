@@ -135,3 +135,18 @@ export const newPasswordSchema = z.object({
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
 });
+
+export const changePasswordSchema = z
+.object({
+  currentPassword: z.string().min(1, "La contraseña actual es requerida"),
+  newPassword: z
+    .string()
+    .min(8, "La nueva contraseña debe tener al menos 8 caracteres")
+    .regex(/[A-Z]/, "La nueva contraseña debe contener al menos una mayúscula")
+    .regex(/[0-9]/, "La nueva contraseña debe contener al menos un número"),
+  confirmPassword: z.string().min(8, "La confirmación de contraseña debe tener al menos 8 caracteres"),
+})
+.refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Las contraseñas nuevas no coinciden",
+  path: ["confirmPassword"],
+});

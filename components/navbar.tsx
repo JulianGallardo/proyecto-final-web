@@ -23,15 +23,16 @@ const navItems = [
   { href: "/agentes", label: "Agentes", icon: Truck, resource: Resource.AGENTE },
   { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
   { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
-  { href: "/planificador-de-ruta", label: "Planificador", icon: Location , resource: Resource.PLANIFICADOR },
+  { href: "/planificador-de-ruta", label: "Planificador", icon: Location, resource: Resource.PLANIFICADOR },
   { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
   { href: "/control-agente", label: "Estadísticas", icon: ChartGraph, resource: Resource.CONTROL_AGENTE },
-  
+
 ]
 
 const optionItems = [
   { href: "/juzgados", label: "Juzgados", icon: LetterJSquare, resource: Resource.JUZGADOS },
   { href: "/instrumentos-tipo", label: "Tipo de instrumentos", icon: LetterISquare, resource: Resource.TIPOS_INSTRUMENTOS },
+  { href: "/cambiar-contrasena", label: "Cambiar contraseña", icon: Config },
 ]
 
 export default async function Navbar() {
@@ -108,7 +109,19 @@ export default async function Navbar() {
               ))}
               {
                 optionItems.map((item) => (
-                  canView(session.user.role, item.resource) && (
+
+                  item.resource ? canView(session.user.role, item.resource) && (
+                    <SheetTrigger asChild key={item.label}>
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className="flex items-center p-4 text-gray-200 hover:bg-gray-700"
+                      >
+                        <item.icon className="w-6 h-6 mr-4" />
+                        <span className="text-lg">{item.label}</span>
+                      </Link>
+                    </SheetTrigger>
+                  ) : (
                     <SheetTrigger asChild key={item.label}>
                       <Link
                         key={item.label}
@@ -153,7 +166,7 @@ export default async function Navbar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-full">
               {optionItems.map((item) => (
-                pathname !== item.href && canView(session.user.role, item.resource) && (
+                item.resource ? pathname !== item.href && canView(session.user.role, item.resource) && (
 
                   <DropdownMenuItem key={item.href}>
                     <Link href={item.href} >
@@ -163,7 +176,17 @@ export default async function Navbar() {
                       </Button>
                     </Link>
                   </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem key={item.href}>
+                    <Link href={item.href} >
+                      <Button variant="ghost" className="flex flex-row items-center text-black hover:text-blue-400 w-full">
+                        <item.icon className="w-6 h-6" />
+                        <span className="text-sm">{item.label}</span>
+                      </Button>
+                    </Link>
+                  </DropdownMenuItem>
                 )
+
               ))}
               <DropdownMenuItem>
                 <BtnLogout className="flex w-full items-center justify-center bg-red-500 p-4 gap-2 text-white hover:text-red-400 hover:bg-gray-700 transition-all duration-300">

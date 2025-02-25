@@ -1,4 +1,4 @@
-import "server-only"
+
 import RouteRecognizer, {Results} from "route-recognizer";
 import { Operation, Permission, Resource } from "./typePermissions";
 
@@ -15,6 +15,7 @@ export const anonymousPages: string[] = [
 
 export const userPages: string[] = [
     "/inicio",
+    "/cambiar-contrasena"
 ]
 
 

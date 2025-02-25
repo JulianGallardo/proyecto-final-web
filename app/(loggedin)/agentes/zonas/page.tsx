@@ -1,6 +1,6 @@
 
 
-import { getAgentes } from "@/actions/agente-actions"
+import { getAgentes } from "@/actions/user-actions"
 import {  getAllZonesWithAgents } from "@/actions/zone-actions"
 import MapView from "@/components/agentes/zonas/MapView"
 import ZoneList from "@/components/agentes/zonas/ZoneList"

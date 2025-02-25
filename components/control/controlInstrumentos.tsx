@@ -1,7 +1,7 @@
 
 import { getAllZones } from "@/actions/zone-actions";
 import ControlTabs from "./Tabs/Tabs";
-import { getAgentes } from "@/actions/agente-actions";
+import { getAgentes } from "@/actions/user-actions";
 
 interface DashboardControlProps {
   searchParams?: {

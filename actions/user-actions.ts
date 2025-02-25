@@ -3,6 +3,7 @@
 import AgenteRepository from "@/repositories/AgentesRepository";
 import UserRepository from "@/repositories/UserRepository";
 import { CreateAgenteDTO, UpdateAgenteDto } from "@/types/agenteTypes";
+import { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 const userRepo = new UserRepository();
@@ -45,6 +46,14 @@ export async function getAgenteById(id: number) {
 
 export async function getAgenteByMail(mail: string) {
     return agenteRepo.findByMail(mail);
+}
+
+export async function getAllUsersByRole(role: Role, page?: number) {
+    return userRepo.getAllByRolePaginated(role, page);
+}
+
+export async function getTotalPagesByRole(role: Role) {
+    return userRepo.getTotalPagesByRole(role);
 }
 
 

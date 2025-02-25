@@ -1,4 +1,4 @@
-import { getAgenteByMail } from "@/actions/agente-actions";
+import { getAgenteByMail } from "@/actions/user-actions";
 import { auth } from "@/auth"
 import ControlAgente from "@/components/control/controlAgente";
 import NoAutenticado from "@/components/error/errorNoAutenticado"

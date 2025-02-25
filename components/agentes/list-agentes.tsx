@@ -7,7 +7,7 @@ import { Plus, SadCircle } from "@mynaui/icons-react";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import CustomDialog from "../instrumentos/Dialogs/dialog";
 import { FormularioNuevoAgente } from "./Forms/addNewAgenteForm";
-import { createAgente, deleteAgente } from "@/actions/agente-actions";
+import { createAgente, deleteAgente } from "@/actions/user-actions";
 import { toast } from "@/hooks/use-toast";
 import PaginationInstruments from "../instrumentos/Tabla/Pagination";
 import { Map } from "lucide-react";

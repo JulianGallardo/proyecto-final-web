@@ -1,4 +1,4 @@
-import { getAgenteByMail } from "@/actions/agente-actions"
+import { getAgenteByMail } from "@/actions/user-actions"
 import { auth } from "@/auth"
 import EntregasServerSide from "@/components/entregas/entregasServerSide"
 import NoAutenticado from "@/components/error/errorNoAutenticado"

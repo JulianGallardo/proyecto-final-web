@@ -9,7 +9,8 @@ export enum Resource {
     CONTROL = "CONTROL",
     PLANIFICADOR = "Planificador de Ruta",
     ENTREGAS = "Entregas",
-    CONTROL_AGENTE="Control de Agente"
+    CONTROL_AGENTE="Control de Agente",
+    MESA_ENTRADA = "Mesa de Entrada",
 }
 
 export enum Operation {

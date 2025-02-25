@@ -4,7 +4,7 @@ import { Operation, PermissionList, Resource, ProfileRole } from "./typePermissi
 const agentePrivileges: PermissionList[] = [
     { resource: Resource.PLANIFICADOR, operations: [Operation.READ] },
     { resource: Resource.ENTREGAS, operations: [Operation.CREATE, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.LIST] },
-    
+
     { resource: Resource.CONTROL_AGENTE, operations: [Operation.READ] },
 
 ];
@@ -15,7 +15,10 @@ const jefaturaPrivileges: PermissionList[] = [
     { resource: Resource.INSTRUMENTOS, operations: [Operation.LIST, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.CREATE] },
     { resource: Resource.TIPOS_INSTRUMENTOS, operations: [Operation.LIST, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.CREATE] },
     { resource: Resource.ZONAS, operations: [Operation.LIST, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.CREATE] },
-    {resource: Resource.CONTROL, operations: [Operation.LIST, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.CREATE]},
+    { resource: Resource.CONTROL, operations: [Operation.LIST, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.CREATE] },
+    {
+        resource:Resource.MESA_ENTRADA, operations: [Operation.LIST, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.CREATE]
+    }
 ];
 
 const mesaDeEntradaPrivileges: PermissionList[] = [

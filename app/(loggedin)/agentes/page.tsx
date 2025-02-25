@@ -1,4 +1,4 @@
-import {  getAgentesPaginated, getTotalPages } from "@/actions/agente-actions"
+import {  getAgentesPaginated, getTotalPages } from "@/actions/user-actions"
 import { auth } from "@/auth"
 import ListAgentes from "@/components/agentes/list-agentes"
 import NoAutenticado from "@/components/error/errorNoAutenticado"

@@ -1,5 +1,5 @@
 "use client";
-import { getAgenteById } from "@/actions/agente-actions";
+import { getAgenteById } from "@/actions/user-actions";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

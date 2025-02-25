@@ -1,9 +1,10 @@
 "use server";
 
+import { hashPassword } from "@/lib/utils";
 import AgenteRepository from "@/repositories/AgentesRepository";
 import UserRepository from "@/repositories/UserRepository";
 import { CreateAgenteDTO, UpdateAgenteDto } from "@/types/agenteTypes";
-import { Role } from "@prisma/client";
+import { Prisma, Role, User } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 const userRepo = new UserRepository();
@@ -48,13 +49,34 @@ export async function getAgenteByMail(mail: string) {
     return agenteRepo.findByMail(mail);
 }
 
-export async function getAllUsersByRole(role: Role, page?: number) {
-    return userRepo.getAllByRolePaginated(role, page);
+export async function getAllUsersByRole(role: Role, page?: number, query?: string) {
+    return userRepo.getAllByRolePaginated(role, page, query);
 }
 
-export async function getTotalPagesByRole(role: Role) {
-    return userRepo.getTotalPagesByRole(role);
+export async function getTotalPagesByRole(role: Role, query?: string) {
+    return userRepo.getTotalPagesByRole(role, query);
 }
 
+
+export async function createUser(data: Prisma.UserCreateInput) {
+    revalidatePath('/mesa-de-entrada');
+    if (!data.password)
+        throw new Error('Usuario sin contraseña');
+
+    const user= data
+    user.password = await hashPassword(data.password);
+
+    return userRepo.create(user);
+}
+
+export async function updateUser(id: string, data: Prisma.UserUpdateInput) {
+    revalidatePath('/mesa-de-entrada');
+    return userRepo.update(id, data);
+}
+
+export async function deleteUser(id: string) {
+    revalidatePath('/mesa-de-entrada');
+    return userRepo.delete(id);
+}
 
 

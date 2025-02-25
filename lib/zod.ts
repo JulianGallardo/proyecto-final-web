@@ -178,3 +178,23 @@ export const addNewMesaEntradaSchema = object({
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
 });
+
+export const updateMesaEntradaSchema = object({
+  name: string({ required_error: "El nombre es requerido." })
+    .min(1, "El nombre es requerido.")
+    .max(32, "El nombre debe tener menos de 32 caracteres"),
+  lastName: string({ required_error: "El apellido es requerido." })
+    .min(1, "El apellido es requerido.")
+    .max(32, "El apellido debe tener menos de 32 caracteres"),
+  email: string({ required_error: "El correo electrónico es obligatorio" })
+    .min(1, "El correo electrónico es obligatorio")
+    .email("Correo electrónico no válido"),
+  telefono: z.coerce
+    .number({
+      required_error: "El teléfono es requerido",
+      invalid_type_error: "El teléfono debe ser un número",
+    })
+    .int()
+    .positive()
+    .min(10, { message: "El teléfono debe tener al menos 10 dígitos" })
+});

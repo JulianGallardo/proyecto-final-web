@@ -57,10 +57,7 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/instrumentos-tipo", handler: {resource: Resource.JUZGADOS, operation: Operation.CREATE }},
 
     {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.LIST }},
-    {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.UPDATE }},
-    {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.DELETE }},
     {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.READ }},
-    {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.CREATE }},
 
     {path: "/planificador-de-ruta", handler: {resource: Resource.PLANIFICADOR, operation: Operation.READ }},
 

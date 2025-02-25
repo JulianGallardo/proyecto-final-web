@@ -15,7 +15,7 @@ export default async function AgentesPage(props: Readonly<{
 }>) {
     const searchParams = await props.searchParams;
     const session = await auth()
-    const personal = await getAllUsersByRole(Role.mesa_de_entrada, searchParams?.currentPage ?? 1)
+    const personal = await getAllUsersByRole(Role.mesa_de_entrada, searchParams?.currentPage ?? 1, searchParams?.query )
     const totalPages = await getTotalPagesByRole(Role.mesa_de_entrada)
 
     if (!session) {

@@ -1,9 +1,9 @@
-import { Trash2 } from "lucide-react";
+import {  Pencil, Trash2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { parseDate } from "@/lib/utils";
 import { User } from "@prisma/client";
-export function MesaEntradaCard({ personal, onDelete }: Readonly<{ personal: User; onDelete: () => void }>) {
+export function MesaEntradaCard({ personal, onDelete, onEdit }: Readonly<{ personal: User; onDelete: () => void; onEdit: () => void }>) {
     return (
         <Card className="shadow-lg rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-300 flex flex-col h-full">
 
@@ -17,6 +17,9 @@ export function MesaEntradaCard({ personal, onDelete }: Readonly<{ personal: Use
 
             {/* Siempre pegado abajo */}
             <CardFooter className="flex justify-between p-4 bg-gray-100 border-t">
+                <Button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors" onClick={onEdit}>
+                    <Pencil className="h-4 w-4" /> Editar
+                </Button>
 
                 <Button className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors" onClick={onDelete}>
                     <Trash2 className="h-4 w-4" /> Eliminar

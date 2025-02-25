@@ -15,16 +15,16 @@ export default class UserRepository extends BaseRepository<User> {
         return this.modelClient.findFirst({ where: { email, password } });
     }
 
-    async getAllByRolePaginated(role: Role, page?:number): Promise<User[]> {
+    async getAllByRolePaginated(role: Role, page?:number,query?:string): Promise<User[]> {
         return this.modelClient.findMany({
-            where: { role },
+            where: { role, name: { startsWith: query } },
             skip: page ? (page - 1) * 10 : 0,
             take: 10,
         });
     }
 
-    async getTotalPagesByRole(role: Role): Promise<number> {
-        const totalRecords = await this.modelClient.count({ where: { role } });
+    async getTotalPagesByRole(role: Role,query?:string): Promise<number> {
+        const totalRecords = await this.modelClient.count({ where: { role, name: {startsWith: query} } });
         return Math.ceil(totalRecords / 10);
     }
 }

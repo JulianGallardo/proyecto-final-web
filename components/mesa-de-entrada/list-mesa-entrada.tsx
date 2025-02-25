@@ -13,6 +13,8 @@ import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { useState } from "react";
 import { FormularioNuevaMesaEntrada } from "./Forms/addNewMesaEntradaForm";
 import { MesaEntradaCard } from "./mesaEntradaCard";
+import { createUser, deleteUser, updateUser } from "@/actions/user-actions";
+import { FormularioActualizarMesaEntrada } from "./Forms/updateMesaEntradaForm";
 
 interface PersonalDeMesaDeEntradaListProps {
   personal: User[]; // Updated interface name
@@ -23,7 +25,7 @@ export default function ListaMesaDeEntrada({ personal, totalPages }: Readonly<Pe
   const { setIsOpen } = useCustomDialog();
   const { setIsOpenAlert } = useCustomAlert();
 
-  const [personalToDelete, setPersonalToDelete] = useState<User | null>(null);
+  const [personalSelected, setPersonalSelected] = useState<User | null>(null);
 
   const handleNewPersonalDeMesaDeEntrada = () => {
     setIsOpen(true);
@@ -31,7 +33,7 @@ export default function ListaMesaDeEntrada({ personal, totalPages }: Readonly<Pe
 
   const handleCreateNewPersonalDeMesaDeEntrada = async (data: Prisma.UserCreateInput) => {
     try {
-      const personal = null; // Note: Assuming createAgente needs renaming; I’ll keep it as is for now
+      const personal = await createUser(data);
       if (personal) {
         toast({
           title: "Personal de Mesa de Entrada registrado",
@@ -53,14 +55,48 @@ export default function ListaMesaDeEntrada({ personal, totalPages }: Readonly<Pe
   };
 
   const handleOpenDeleteAlert = (personal: User) => {
-    setPersonalToDelete(personal);
+    setPersonalSelected(personal);
     setIsOpenAlert(true);
   };
 
-  const handleDeletePersonalDeMesaDeEntrada = async () => {
-    if (!personalToDelete) return;
+
+  const handleOpenUpdateDialog = (personal: User) => {
+    setPersonalSelected(personal);
+    setIsOpen(true);
+  }
+
+
+  const handleUpdatePersonalDeMesaDeEntrada = async (data: Prisma.UserUpdateInput) => {
+
+    if (!personalSelected?.id) return;
+
     try {
-      const personal = null; // Note: Assuming deleteAgente needs renaming; I’ll keep it as is for now
+      const personal = await updateUser(personalSelected.id, data);
+      if (personal) {
+        toast({
+          title: "Personal de Mesa de Entrada actualizado",
+          description: "El personal de mesa de entrada ha sido actualizado con éxito.",
+          className: "bg-green-500 text-white",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Ha ocurrido un error al actualizar el personal de mesa de entrada.",
+        className: "bg-red-500 text-white",
+        duration: 3000,
+      });
+    }
+    setPersonalSelected(null);
+    setIsOpen(false);
+  }
+
+  const handleDeletePersonalDeMesaDeEntrada = async () => {
+    if (!personalSelected) return;
+    try {
+      const personal = await deleteUser(personalSelected.id);
       if (personal) {
         toast({
           title: "Personal de Mesa de Entrada eliminado",
@@ -78,7 +114,7 @@ export default function ListaMesaDeEntrada({ personal, totalPages }: Readonly<Pe
         duration: 3000,
       });
     }
-    setPersonalToDelete(null);
+    setPersonalSelected(null);
     setIsOpenAlert(false);
   };
 
@@ -87,7 +123,16 @@ export default function ListaMesaDeEntrada({ personal, totalPages }: Readonly<Pe
       <CustomDialog
         dialogTitle="Crear personal de mesa de entrada"
         dialogDescription="Registrar un nuevo personal de mesa de entrada al equipo."
-        propDialogContent={<FormularioNuevaMesaEntrada onSubmit={handleCreateNewPersonalDeMesaDeEntrada} />}
+        propDialogContent={
+          personalSelected ? (
+            <FormularioActualizarMesaEntrada
+              personal={personalSelected}
+              onSubmit={handleUpdatePersonalDeMesaDeEntrada}
+            />
+          ) : (
+            <FormularioNuevaMesaEntrada onSubmit={handleCreateNewPersonalDeMesaDeEntrada} />
+          )
+        }
       />
       <CustomAlert
         AlertTitle="Eliminar personal de mesa de entrada"
@@ -121,7 +166,7 @@ export default function ListaMesaDeEntrada({ personal, totalPages }: Readonly<Pe
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {personal.map((user) => (
-          <MesaEntradaCard key={user.id} personal={user} onDelete={() => handleOpenDeleteAlert(user)} />
+          <MesaEntradaCard key={user.id} personal={user} onDelete={() => handleOpenDeleteAlert(user)} onEdit={()=>handleOpenUpdateDialog(user)}/>
         ))}
       </div>
       {personal.length !== 0 && <PaginationInstruments totalPages={totalPages} />}

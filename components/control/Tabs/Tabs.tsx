@@ -1,10 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TabGeneral from "./TabGeneral/TabGeneral";
-import TabAgente from "./TabAgente/TabAgente";
 import { Suspense } from "react";
 import TabSkeleton from "./TabSkeleton";
 import ControllerTabZonas from "./TabZona/ControllerTabZona";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import ControllerTabAgente from "./TabAgente/ControllerTabAgente";
 
 interface ControlTabsProps {
   searchParams?: {
@@ -16,6 +16,9 @@ interface ControlTabsProps {
 }
 
 export default function ControlTabs({ searchParams,agentes,zonas }: Readonly<ControlTabsProps>) {
+
+
+
 
   return (
     <Tabs defaultValue="overview" >
@@ -33,7 +36,7 @@ export default function ControlTabs({ searchParams,agentes,zonas }: Readonly<Con
       <TabsContent value="agentes" className="space-y-4">
         <Suspense fallback={<TabSkeleton />}>
 
-          <TabAgente
+          <ControllerTabAgente
             searchParams={searchParams}
             agentes={agentes}
           />

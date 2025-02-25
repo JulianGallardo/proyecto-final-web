@@ -48,7 +48,6 @@ export default async function TabAgente({ searchParams, agentes }: Readonly<TabG
 
     return (
         <div className="space-y-4">
-            <SelectAgente agentes={agentes} />
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <TotalInstrumentos totalInstrumentos={totalInstrumentos.total} growth={totalInstrumentos.growthPercentage} />
                 <TotalInsturmentosActivos totalInstrumentos={totalInstrumentosActivos.totalActivos} growth={totalInstrumentosActivos.growthPercentage} />

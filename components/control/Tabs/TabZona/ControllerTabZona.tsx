@@ -18,9 +18,15 @@ export default function ControllerTabZonas({ searchParams, zonas }: Readonly<Tab
     return (
         <div className="space-y-4">
             <SelectZona zoneNames={zonas} />
-            <Suspense fallback={<TabGeneralSkeleton />}>
-                <TabZonas searchParams={searchParams} />
-            </Suspense>
+            {
+                !searchParams?.zoneName && <div className="text-red-500 text-sm">Seleccione una zona para ver los detalles</div>
+            }
+            {
+                searchParams?.zoneName && 
+                <Suspense fallback={<TabGeneralSkeleton />}>
+                    <TabZonas searchParams={searchParams} />
+                </Suspense>
+            }
 
         </div>
     );

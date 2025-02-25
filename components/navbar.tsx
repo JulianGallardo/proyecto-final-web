@@ -151,24 +151,20 @@ export default async function Navbar() {
                 )
               ))}
 
-              {/* Personal Dropdown in Mobile (replacing Agentes link) */}
-              {canView(session.user.role, Resource.AGENTE) && (
-                <div className="p-4 text-gray-200 hover:bg-gray-700">
-                  <span className="text-lg">Personal</span>
-                  {personalItems.map((item) => (
-                    canView(session.user.role, item.resource) && (
-                      <Link
-                        key={item.label}
-                        href={item.href}
-                        className="flex items-center p-2 pl-8 text-gray-200 hover:bg-gray-600 rounded-lg"
-                      >
-                        <item.icon className="w-5 h-5 mr-3" />
-                        <span className="text-sm">{item.label}</span>
-                      </Link>
-                    )
-                  ))}
-                </div>
-              )}
+              {
+                personalItems.map((item) => (
+                  canView(session.user.role, item.resource) && (
+                    <Link
+                      key={item.label}
+                      href={item.href}
+                      className="flex items-center p-4 text-gray-200 hover:bg-gray-700"
+                    >
+                      <item.icon className="w-6 h-6 mr-4" />
+                      <span className="text-lg">{item.label}</span>
+                    </Link>
+                  )
+                ))
+              }
 
               {optionItems.map((item) => (
                 item.resource

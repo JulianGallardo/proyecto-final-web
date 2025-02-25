@@ -5,6 +5,7 @@ import CustomCard from "@/components/inicio/card";
 import { useRouter } from "next/navigation";
 import { canView } from "@/permissions/hasPermissions";
 import { Resource } from "@/permissions/typePermissions";
+import { Table } from "lucide-react";
 
 export default function Menu() {
   const { data: session } = useSession();
@@ -23,6 +24,7 @@ export default function Menu() {
     { resource: Resource.CONTROL, title: "Control", description: "Revisa los datos y genera reportes detallados.", icon: ChartGraph, path: "/control" },
     { resource: Resource.PLANIFICADOR, title: "Planificador", description: "Planifica la ruta de reparto.", icon: Map, path: "/planificador-de-ruta" },
     { resource: Resource.CONTROL_AGENTE, title: "Estadísticas", description: "Visualiza tus estadísticas de entrega.", icon: ChartGraph, path: "/control-agente" },
+    { resource: Resource.MESA_ENTRADA, title: "Mesa de Entrada", description: "Gestiona el personal de mesa de entrada", icon: Table, path: "/mesa-de-entrada" }
   ];
 
   // Filter items based on user permissions
@@ -30,13 +32,11 @@ export default function Menu() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50 p-6">
-      {/* Welcome Header */}
       <h1 className="mb-8 text-2xl md:text-3xl font-semibold text-gray-800">
         Bienvenido, {userName} 👋
       </h1>
 
-      {/* Menu Grid */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8 grid-flow-row-dense">
         {visibleItems.map((item, index) => (
           <CustomCard
             key={index}

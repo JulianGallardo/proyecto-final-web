@@ -34,13 +34,10 @@ export default function ControlTabs({ searchParams,agentes,zonas }: Readonly<Con
         </Suspense>
       </TabsContent>
       <TabsContent value="agentes" className="space-y-4">
-        <Suspense fallback={<TabSkeleton />}>
-
           <ControllerTabAgente
             searchParams={searchParams}
             agentes={agentes}
           />
-        </Suspense>
       </TabsContent>
       <TabsContent value="zonas" className="space-y-4">
           <ControllerTabZonas

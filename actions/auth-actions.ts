@@ -5,6 +5,7 @@ import { signIn } from "@/auth";
 import { z } from "zod";
 import { AuthError } from "next-auth";
 import prisma from "@/lib/db";
+import { hashPassword } from "@/lib/utils";
 
 export const loginAction = async (values: z.infer<typeof logInSchema>) => {
     try {
@@ -52,7 +53,7 @@ export const resetPasswordAction = async (token:string, values: z.infer<typeof n
             id: user.id,
         },
         data: {
-            password: values.password,
+            password: await hashPassword(values.password),
         },
     });
 

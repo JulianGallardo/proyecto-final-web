@@ -1,24 +1,17 @@
 "use client";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import { Form, useForm } from "react-hook-form";
 import { Eye, EyeSlash } from "@mynaui/icons-react";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { useState, useTransition, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
-import { newPasswordSchema } from "@/lib/zod";
 import { resetPasswordAction, validateToken } from "@/actions/auth-actions";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { newPasswordSchema } from "@/lib/zod";
+import { Input } from "@/components/ui/input";
 
 
 export default function NewPasswordForm() {

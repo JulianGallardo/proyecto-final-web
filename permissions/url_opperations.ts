@@ -11,7 +11,6 @@ export const anonymousPages: string[] = [
     "/icon.ico",
     "/login.jpg",
     "/reset-password",
-    "/reset-password/:token",
 ]
 
 export const userPages: string[] = [

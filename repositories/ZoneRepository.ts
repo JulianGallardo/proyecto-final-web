@@ -179,6 +179,9 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                     trx.coordinates.deleteMany({
                         where: { geometryAssociatedId: zoneToDelete.geometryId }
                     }),
+                    trx.subZone.deleteMany({
+                        where: { zonaId: zoneId }
+                    }),
                     trx.zone.delete({ where: { id: zoneId } })
                 ]);
             });

@@ -1,20 +1,20 @@
 "use client";
-import { getAgenteById } from "@/actions/agente-actions";
+import { getAgenteById } from "@/actions/user-actions";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import EntregasRepartidor from "./entregas";
+import EntregasRepartidor from "../../entregas/entregas";
 import { MapPinnedIcon } from "lucide-react";
-import { FatCornerUpLeft, SadCircle, SkipBack } from "@mynaui/icons-react";
+import { FatCornerUpLeft, SadCircle } from "@mynaui/icons-react";
 import SkeletonAgenteInfo from "./skeletonAgenteInfo";
 import AgenteInfoSection from "./agenteInfoSection";
-import { CustomFeature } from "@/types/MapTypes";
 import ZonesAgente from "./zones-agente";
+import { ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 
 
 interface AgenteInfoProps {
-    zonasBDD: CustomFeature[];
+    zonasBDD: ZoneDtoWithSubZones[];
 }
 
 export default function AgenteInfo({ zonasBDD }: Readonly<AgenteInfoProps>) {
@@ -47,7 +47,7 @@ export default function AgenteInfo({ zonasBDD }: Readonly<AgenteInfoProps>) {
                 <p className="text-lg text-gray-600 mt-2">El agente que intentas buscar no existe.</p>
                 <Button className="mt-6 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition mb-2" onClick={() => router.push("/agentes")}>
                     <span className="mr-2">Volver al listado</span>
-                    <SkipBack className="w-6 h-6" />
+                    <FatCornerUpLeft className="w-6 h-6" />
                 </Button>
             </div>
 

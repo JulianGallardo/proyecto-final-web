@@ -4,7 +4,7 @@ import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { parseDataToYear } from "./utils";
-import { InstrumentoType, Juzgado, TipoCarga } from "@prisma/client";
+import { EstadoInstrumento, InstrumentoType, Juzgado, TipoCarga } from "@prisma/client";
 
 export default class InstrumentoService {
 
@@ -37,13 +37,14 @@ export default class InstrumentoService {
                 fecha_de_ingreso: new Date(parseDataToYear(instrumento.altaDisponibilidad)),
                 fecha_de_salida: null,
                 caratula: instrumento.caratula,
-                destinatario: instrumento.destinatario,
+                urgencia: instrumento.estado === "URGENTE" ? "URGENTE" : "NORMAL",
                 domicilio_denunciado: instrumento.destinatarioPostal,
                 juzgadoIdentifier: juzgado?.identifier ?? instrumento.organismo,
                 instrumentoTypeIdentifier: instrumentoType?.identifier ?? instrumentoTypeParsed,
                 error: this._mensajeError(juzgado, instrumentoType),
                 tipoDeCarga: TipoCarga.PDF,
                 codigo: instrumento.codigo,
+                estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
                 observaciones: ""
 
             };
@@ -53,11 +54,12 @@ export default class InstrumentoService {
             fecha_de_ingreso: new Date(parseDataToYear(instrumento.altaDisponibilidad)),
             fecha_de_salida: null,
             caratula: instrumento.caratula,
-            destinatario: instrumento.destinatario,
+            urgencia: instrumento.estado === "URGENTE" ? "URGENTE" : "NORMAL",
             domicilio_denunciado: instrumento.destinatarioPostal,
             juzgadoIdentifier: juzgado.identifier,
             instrumentoTypeIdentifier: instrumentoType.identifier,
             tipoDeCarga: TipoCarga.PDF,
+            estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
             codigo: instrumento.codigo,
             observaciones: ""
         };
@@ -69,7 +71,7 @@ export default class InstrumentoService {
         return this.instrumentoRepository.getAll();
     }
 
-    async getInstrumentoByCode(code: string, tipoDeCarga: TipoCarga) {
+    async getInstrumentoByCode(code: string, tipoDeCarga?: TipoCarga) {
         return this.instrumentoRepository.getInstrumentoByCode(code, tipoDeCarga);
     }
 
@@ -90,6 +92,7 @@ export default class InstrumentoService {
     }
 
     async createInstrumentos(instrumentos: InstrumentoDTO[]) {
+
         const created = await this.instrumentoRepository.createInstrumentos(instrumentos);
         return created;
     }
@@ -121,7 +124,7 @@ export default class InstrumentoService {
 
                         if (isInDb) return;
 
-                        
+
 
                         // Revisa si el juzgado y el tipo de instrumento son válidos
                         if ("error" in instrumentoDto) {
@@ -142,6 +145,23 @@ export default class InstrumentoService {
         return { filteredInstrument, instrumentosWithErrors };
     }
 
+
+    async getInstrumentosByZone(zone: string) {
+        return this.instrumentoRepository.getInstrumentosByZone(zone);
+    }
+
+
+
+
+    async getInstrumentosAEntregar(zones: string[]) {
+
+        const promises = zones.map(zone => this.instrumentoRepository.getInstrumentosAEntregarPorZonas(zone));
+        const instrumentos = await Promise.all(promises);
+
+        return instrumentos.flat();
+
+
+    }
 
 
 }

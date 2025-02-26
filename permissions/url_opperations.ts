@@ -1,4 +1,4 @@
-import "server-only"
+
 import RouteRecognizer, {Results} from "route-recognizer";
 import { Operation, Permission, Resource } from "./typePermissions";
 
@@ -9,11 +9,13 @@ export const anonymousPages: string[] = [
     "/403",
     "/404",
     "/icon.ico",
-    "/login.svg"
+    "/login.jpg",
+    "/reset-password",
 ]
 
 export const userPages: string[] = [
     "/inicio",
+    "/cambiar-contrasena"
 ]
 
 
@@ -37,6 +39,7 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.CREATE }},
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.UPDATE }},
     {path: "/instrumentos", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.DELETE }},
+    {path: "/instrumentos/ver/:id", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.READ }},
 
     {path: "/instrumentos/upload", handler: {resource: Resource.INSTRUMENTOS, operation: Operation.CREATE }},
 
@@ -54,11 +57,17 @@ const routeList:{path: string, handler: Permission}[] = [
     {path: "/instrumentos-tipo", handler: {resource: Resource.JUZGADOS, operation: Operation.CREATE }},
 
     {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.LIST }},
-    {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.UPDATE }},
-    {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.DELETE }},
     {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.READ }},
-    {path: "/zonas", handler: {resource: Resource.ZONAS, operation: Operation.CREATE }},
+
+    {path: "/planificador-de-ruta", handler: {resource: Resource.PLANIFICADOR, operation: Operation.READ }},
+
+    {path: "/entregas", handler: {resource: Resource.ENTREGAS, operation: Operation.READ }},
+
+    {path: "/control", handler: {resource: Resource.CONTROL, operation: Operation.READ }},
     
+    {path: "/control-agente", handler: {resource: Resource.CONTROL_AGENTE, operation: Operation.READ }},
+
+    {path:"/mesa-de-entrada", handler: {resource: Resource.MESA_ENTRADA, operation: Operation.READ }},
    
 ]
 routeList.forEach(route => recognizer.add([route]));

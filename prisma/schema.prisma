@@ -26,10 +26,22 @@ model User {
   lastname String?
   email    String    @unique
   password String?
-  telefono    BigInt?
+  telefono BigInt?
   accounts Account[]
   role     Role      @default(agente)
   agente   Agente?
+  User     Token[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Token {
+  id String @id @default(cuid())
+  
+  hashedToken String
+  expiration DateTime
+  userId String
+  User User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -46,14 +58,26 @@ model Agente {
   updatedAt DateTime @updatedAt
 }
 
+enum EstadoEntrega {
+  PENDIENTE_DE_PROCESAR
+  NOTIFICADO
+  NO_NOTIFICADO
+}
+
 model EntregaInstrumentos {
   id            Int         @id @default(autoincrement())
-  agenteId      Int
-  agente        Agente      @relation(fields: [agenteId], references: [id], onDelete: Cascade)
+  agenteId      Int?
+  agente        Agente?      @relation(fields: [agenteId], references: [id])
+  agenteFullName    String
   instrumentoId String
   instrumento   Instrumento @relation(fields: [instrumentoId], references: [codigoInstrumento], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
+  estado EstadoEntrega @default(PENDIENTE_DE_PROCESAR)
+
+  observaciones String?
+
+  fecha_entrega DateTime @default(now())
+
   updatedAt DateTime @updatedAt
 }
 
@@ -105,6 +129,7 @@ model Geometry {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   zone        Zone?
+  subZone     SubZone?
 }
 
 model Zone {
@@ -113,13 +138,31 @@ model Zone {
   zoneColor String
   type      String @default("Feature")
 
-  geometryId String   @unique
-  geometry   Geometry @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
-  Agentes    Agente[]
+  geometryId   String        @unique
+  geometry     Geometry      @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+  Agentes      Agente[]
+  Instrumentos Instrumento[]
+  SubZonas     SubZone[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model SubZone {
+  id        String @id @default(cuid())
+  zoneName  String 
+  type      String @default("Feature")
+
+  geometryId   String        @unique
+  geometry     Geometry      @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  zonaId String
+  Zona      Zone? @relation(fields: [zonaId], references: [id])
+}
+
 
 model Juzgado {
   id         Int    @id @default(autoincrement())
@@ -155,11 +198,33 @@ enum TipoCarga {
   MAN
 }
 
+enum EstadoInstrumento {
+  CORRECCIONES_SOLICITADAS
+  PENDIENTE_DE_NOTIFICAR
+  PENDIENTE_DE_PROCESAR_NOTIFICACION
+  NOTIFICADO_VERDE
+  NOTIFICADO_AMARILLO
+  NOTIFICADO_ROJO
+}
+
+enum UrgenciaInstrumento {
+  NORMAL
+  URGENTE
+}
+
+enum SubZona {
+  A
+  B
+  C
+  D
+  Sin_SubZona
+}
+
 model Instrumento {
-  codigoInstrumento String @unique
-  cargaInstrumento TipoCarga
-  ordenId           Int    @unique
-  orden             Orden  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  codigoInstrumento String    @unique
+  cargaInstrumento  TipoCarga
+  ordenId           Int       @unique
+  orden             Orden     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
   fecha_de_ingreso DateTime  @default(now())
   fecha_de_salida  DateTime?
@@ -167,20 +232,26 @@ model Instrumento {
   observaciones String?
 
   caratula             String
-  destinatario         String
   domicilio_denunciado String
-
-  positiva Boolean @default(false)
 
   instrumentoTypeId Int
   instrumentoType   InstrumentoType @relation(fields: [instrumentoTypeId], references: [id], onDelete: Cascade)
 
   HistorialEntregas EntregaInstrumentos[]
 
-  deleted   Boolean   @default(false)
+  estado EstadoInstrumento @default(PENDIENTE_DE_NOTIFICAR)
+
+  urgencia UrgenciaInstrumento @default(NORMAL)
+
+  zoneName String?
+  Zona     Zone?   @relation(fields: [zoneName], references: [zoneName])
+  subZona  SubZona @default(Sin_SubZona)
+
+  latitude  Float?
+  longitude Float?
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
 
-  @@id([cargaInstrumento,codigoInstrumento, ordenId])
+  @@id([cargaInstrumento, codigoInstrumento, ordenId])
 }

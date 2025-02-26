@@ -3,7 +3,6 @@ import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import OrdenRepository from "@/repositories/OrdenRepository";
 import UserRepository from "@/repositories/UserRepository";
-import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { Prisma, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
@@ -43,7 +42,8 @@ const instrumentTypes: Prisma.InstrumentoTypeCreateInput[] = [
     { name: "LEY Nº 22.172", identifier: "L" },
     { name: "INTIMACION", identifier: "I" },
     { name: "CONSTATACION", identifier: "CO" },
-    { name: "MANDAMIENTO", identifier: "M" }
+    { name: "MANDAMIENTO", identifier: "M" },
+    { name: "No Nomenclado", identifier: "No nomenclado" },
 ];
 
 const Juzgados: Prisma.JuzgadoCreateInput[] = [
@@ -91,6 +91,7 @@ const Juzgados: Prisma.JuzgadoCreateInput[] = [
     { name: "JUZGADO CRIMINAL Nº 3 - BAHIA BLANCA", identifier: "CRIM 3" },
     { name: "BUS FEDERAL", identifier: "BUS" },
     { name: "SECRETARIA DE SERVICIOS JURISDICCIONALES", identifier: "Sec de SS" },
+    { name: "NO ENCONTRADO", identifier: "No encontrado" }
 ];
 
 

@@ -1,4 +1,4 @@
-import { Zone } from '@prisma/client';
+
 import { type HexColor, type GeoJSONStoreFeatures } from 'terra-draw';
 
 export const MapCenter = { lat: -38.71825410658778, lng: -62.25946510517043 }
@@ -24,5 +24,11 @@ export interface CustomFeature extends GeoJSONStoreFeatures {
         color: HexColorStyling;
         name: string;
     };
+}
+
+export interface Subzone {
+    name: string;
+    polygon: any;
+
 }
 

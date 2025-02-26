@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { addNewAgenteSchema } from "@/lib/zod"
 import { CreateAgenteDTO } from "@/types/agenteTypes"
+import { Eye, EyeSlash } from "@mynaui/icons-react"
 
 
 
@@ -29,15 +30,18 @@ export function FormularioNuevoAgente({ onSubmit }: Readonly<FormularioNuevoAgen
     resolver: zodResolver(addNewAgenteSchema),
   })
 
+  const [showPassword, setShowPassword] = React.useState<string>("password")
 
+  function toggleShowPassword() {
+    setShowPassword((prev) => (prev === "password" ? "text" : "password"))
+  }
 
-  
 
   function handleSubmit(values: z.infer<typeof addNewAgenteSchema>) {
     values.telefono = parseInt(values.telefono.toString())
     onSubmit(
       {
-        name: values.name ,
+        name: values.name,
         lastName: values.lastName,
         email: values.email,
         password: values.password,
@@ -101,7 +105,18 @@ export function FormularioNuevoAgente({ onSubmit }: Readonly<FormularioNuevoAgen
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Contraseña</FormLabel>
               <FormControl>
-                <Input type="password" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                <div className="flex items-center  ">
+
+                  <Input type={showPassword} {...field} className="w-full   px-3 py-2 mr-1" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={toggleShowPassword}
+                    className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg border  "
+                  >
+                    {showPassword === "password" ? <Eye /> : <EyeSlash />}
+                  </Button>
+                </div>
               </FormControl>
               <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
@@ -115,7 +130,19 @@ export function FormularioNuevoAgente({ onSubmit }: Readonly<FormularioNuevoAgen
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Confirmar Contraseña</FormLabel>
               <FormControl>
-                <Input type="password" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                <div className="flex items-center  ">
+
+                  <Input type={showPassword} {...field} className="w-full   px-3 py-2 mr-1" />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={toggleShowPassword}
+                    className="p-2 text-gray-500 hover:bg-gray-100 rounded-lg border "
+                  >
+                    {showPassword === "password" ? <Eye /> : <EyeSlash />}
+                  </Button>
+                </div>
+
               </FormControl>
               <FormMessage className="text-sm text-red-500 mt-1" />
             </FormItem>
@@ -127,7 +154,7 @@ export function FormularioNuevoAgente({ onSubmit }: Readonly<FormularioNuevoAgen
         <FormField
           control={form.control}
           name="telefono"
-          
+
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-sm font-medium text-gray-700">Telefono</FormLabel>

@@ -4,7 +4,6 @@ import { logInSchema } from "./lib/zod";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/db";
 import { NextURL } from "next/dist/server/web/next-url";
-import { NextResponse } from "next/server";
 import { anonymousPages, getPermission, userPages } from "./permissions/url_opperations";
 import { hasPermission } from "./permissions/hasPermissions";
 

@@ -6,7 +6,7 @@ import CustomDialog from "../../Dialogs/dialog";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
 import { useEffect, useState } from "react";
 import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
-import { InstrumentoType, Juzgado } from "@prisma/client";
+import { EstadoInstrumento, InstrumentoType, Juzgado } from "@prisma/client";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../../Dialogs/alert";
 import { Delete, Edit } from "@mynaui/icons-react";
@@ -61,7 +61,7 @@ export default function StepErrorReview({
         setIsOpen(false);
     }
 
-    const handleEditar = (newData: InstrumentoDTO) => {
+    const handleEditar = async (newData: InstrumentoDTO): Promise<void> => {
         editInstrumentDataError(newData);
         setIsOpen(false);
 
@@ -69,7 +69,6 @@ export default function StepErrorReview({
 
     const handleSetInstrumentoEditando = (instrumento: InstrumentoDTO) => {
         setInstrumentoEditando(instrumento);
-        console.log(instrumento);
         setIsOpen(true);
     }
 
@@ -98,6 +97,32 @@ export default function StepErrorReview({
 
     const onCancelarCargaTodos = () => {
         setIsOpenAlert(true)
+    }
+
+    const onNextStep = () => {
+        errors.forEach((error) => {
+            let juzgado = error.juzgadoIdentifier;
+            let instrumentoType = error.instrumentoTypeIdentifier;
+
+            if (error.error === "Juzgado y tipo de instrumento inválidos") {
+                juzgado = "No encontrado";
+                instrumentoType = "No nomenclado";
+            }
+            else if (error.error === "Juzgado inválido") {
+                juzgado = "No encontrado";
+            }
+            else
+                instrumentoType = "No nomenclado";
+            const newData = {
+                ...error,
+                juzgadoIdentifier: juzgado,
+                instrumentoTypeIdentifier: instrumentoType,
+                estado: EstadoInstrumento.CORRECCIONES_SOLICITADAS
+            }
+
+            editInstrumentDataError(newData);
+        });
+        onNext();
     }
 
 
@@ -180,8 +205,7 @@ export default function StepErrorReview({
                 }
                 <Button
                     className="bg-green-500 hover:bg-green-600 disabled:bg-gray-300"
-                    disabled={errors.length > 0}
-                    onClick={onNext}
+                    onClick={onNextStep}
                 >
                     Siguiente paso
                     <ChevronRightIcon className="h-4 w-4" />

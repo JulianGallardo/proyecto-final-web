@@ -11,7 +11,7 @@ import { FormularioInstrumento } from "./Forms/formulario-instrumento"
 import useInfoInstrumentos from "@/hooks/useInfoInstrumentos"
 import { useCustomDialog } from "@/hooks/useCustomDialog"
 import { Button } from "../ui/button"
-import { Plus } from "@mynaui/icons-react"
+import { File, Plus } from "@mynaui/icons-react"
 import CustomAlert from "./Dialogs/alert"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
 import { toast } from "@/hooks/use-toast";
@@ -105,6 +105,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
         if (!instrumentoEditando) return
 
         try {
+            
             const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.identifier, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
             if (!instrumentoActualizado) return
         } catch (error) {
@@ -168,13 +169,14 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
             fecha_de_ingreso: instrumento.fecha_de_ingreso,
             fecha_de_salida: instrumento.fecha_de_salida,
             caratula: instrumento.caratula,
-            destinatario: instrumento.destinatario,
+            urgencia: instrumento.urgencia,
             domicilio_denunciado: instrumento.domicilio_denunciado,
             juzgadoIdentifier: instrumento.orden.juzgado.identifier,
             instrumentoTypeIdentifier: instrumento.instrumentoType.identifier,
             codigo: instrumento.codigoInstrumento,
             tipoDeCarga: instrumento.cargaInstrumento,
-            observaciones: instrumento.observaciones ?? ""
+            observaciones: instrumento.observaciones ?? "",
+            estado: instrumento.estado
         }
 
         return instrumentoDto
@@ -235,6 +237,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
 
                         Cargar instrumentos por PDF
+                        <File className="h-4 w-4 text-white" />
 
                     </Button>
                 </Link>

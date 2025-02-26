@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "EstadoInstrumento" ADD VALUE 'PENDIENTE_DE_PROCESAR';

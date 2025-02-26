@@ -46,7 +46,7 @@ export async function createInstrumentType(data: Prisma.InstrumentoTypeCreateInp
 }
 
 export async function updateJuzgado(id: number, data: Prisma.JuzgadoUpdateInput) {
-    const juzgado = await juzgadoService.updateJuzgado(id,data);
+    const juzgado = await juzgadoService.updateJuzgado(id, data);
     revalidatePath("/juzgados");
     return juzgado;
 }
@@ -88,11 +88,24 @@ export async function getJuzgadosTotalPages(query: string) {
 
 //----------------------------------------------- Instrumentos----------------------------------------------------------------
 
+
+export async function getInstrumentoByCode(code: string) {
+    return instrumentoService.getInstrumentoByCode(code);
+}
+
 export async function getInstrumentos() {
     return instrumentoService.getInstrumentos();
 }
 
-export async function getInstrumentosPaginated(searchParams:SearchParamsInstrumentos, page: number) {
+export async function getInstrumentosByZone(zone: string) {
+    return instrumentoService.getInstrumentosByZone(zone);
+}
+
+export async function getInstrumentosAEntregar(zones: string[]) {
+    return instrumentoService.getInstrumentosAEntregar(zones);
+}
+
+export async function getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number) {
     const instrumentos = await instrumentoService.getInstrumentosPaginated(searchParams, page);
     return instrumentos;
 }
@@ -103,14 +116,14 @@ export async function getTotalPagesInstrumentosPaginated(searchParams: SearchPar
 }
 
 export async function createInstrumento(data: InstrumentoDTO) {
-    const instrumento =  await instrumentoService.createInstrumento(data);
+    const instrumento = await instrumentoService.createInstrumento(data);
     revalidatePath("/instrumentos");
     return instrumento;
-    
+
 }
 
 export async function deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number) {
-   const deleted = await instrumentoService.deleteInstrumento(juzgadoIdentifier, ordenNumber);
+    const deleted = await instrumentoService.deleteInstrumento(juzgadoIdentifier, ordenNumber);
     revalidatePath("/instrumentos");
     return deleted;
 }
@@ -121,10 +134,17 @@ export async function updateInstrumento(juzgadoIdentifier: string, ordenNumber: 
     return updated;
 }
 
+
 export async function createInstrumentos(instrumentos: InstrumentoDTO[]) {
-    const created = await instrumentoService.createInstrumentos(instrumentos);
-    revalidatePath("/instrumentos");
-    return created;
+    try {
+
+        const created = await instrumentoService.createInstrumentos(instrumentos);
+        revalidatePath("/instrumentos");
+        return created;
+    } catch (error) {
+        throw new Error(`Error creando instrumentos: ${(error as Error).message}`);
+
+    }
 }
 
 export async function deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {

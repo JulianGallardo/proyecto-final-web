@@ -82,7 +82,7 @@ export default function StepDataReview({
         setIsOpen(false);
     }
 
-    const handleEditar = (newData: InstrumentoDTO) => {
+    const handleEditar = async (newData: InstrumentoDTO): Promise<void> => {
         editInstrumentData(newData);
         setIsOpen(false);
 

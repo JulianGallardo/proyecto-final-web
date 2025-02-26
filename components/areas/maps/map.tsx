@@ -2,14 +2,14 @@
 export const dynamic = 'force-dynamic'
 
 import * as React from "react";
-import { Map } from "@vis.gl/react-maplibre";
+import { Layer, Map, Source } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ClipLoader } from "react-spinners";
 import TerraDrawHandler from "../terraDrawHandler/terraDrawHandler";
 import { MapCenter, MapBounds } from "@/types/MapTypes";
 
 export default function Areas() {
-    
+
 
     return (
         <div className="flex flex-row w-full h-full ">
@@ -22,14 +22,39 @@ export default function Areas() {
                     zoom: 11.5,
                 }}
 
-                maxBounds= {MapBounds}
+                maxBounds={MapBounds}
 
 
                 style={{ width: "100%", height: "100%" }}
                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 
-            />
-            
+            >   
+                <Source
+                    id="zone-labels"
+                    type="geojson"
+                    data={{
+                        type: "FeatureCollection",
+                        features: []
+                    }}
+                />
+                <Layer
+                    id="terra-draw-text"
+                    type="symbol"
+                    source="zone-labels"  // Usamos la fuente 'zone-labels'
+                    layout={{
+                        "text-field": ["get", "name"],  // Extraemos el nombre de la propiedad
+                        "text-size": 14,
+                        "text-anchor": "center",  // Alineación del texto
+                        "text-offset": [0, 0]  // Evitar desplazamiento
+                    }}
+                    paint={{
+                        "text-color": "#000000",  // Color del texto
+                        "text-halo-color": "#ffffff",  // Color del halo (fondo blanco)
+                        "text-halo-width": 2,  // Ancho del halo
+                    }}
+                />
+            </Map>
+
         </div>
     );
 }

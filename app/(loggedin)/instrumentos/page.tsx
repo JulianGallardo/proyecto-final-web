@@ -1,4 +1,5 @@
 import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
+import { getAllZones } from "@/actions/zone-actions";
 import { auth } from "@/auth"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 import FiltrosList from "@/components/instrumentos/Filtros/filtros-list";
@@ -24,13 +25,16 @@ export default async function InsturmentosPage(props: Readonly<{
 
   const instrumentTypesData = await getInstrumentTypes();
   const juzgadosData = await getJuzgados();
-  const [instrumentTypes, juzgados] = await Promise.all([instrumentTypesData, juzgadosData]);
+  const zonasData = await getAllZones();
+  const [instrumentTypes, juzgados,zonas] = await Promise.all([instrumentTypesData, juzgadosData,zonasData]);
 
 
   return (
     <div className="flex flex-col gap-4 p-4 ">
       <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
-      <FiltrosList Juzgados={juzgados} InstrumentTypes={instrumentTypes} />
+      <FiltrosList Juzgados={juzgados} InstrumentTypes={instrumentTypes} Zonas={zonas.map(
+        (zona) => (zona.properties.name)
+      )}/>
       <Suspense fallback={<TableSkeleton />}>
         <ServerSideTable
           Juzgados={juzgados}

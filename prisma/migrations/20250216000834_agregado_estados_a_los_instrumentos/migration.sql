@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "EstadoInstrumento" AS ENUM ('PENDIENTE_DE_ENTREGA', 'ENTREGADO_VERDE', 'ENTREGADO_AMARILLO', 'ENTREGADO_ROJO');
+
+-- AlterTable
+ALTER TABLE "Instrumento" ADD COLUMN     "estado" "EstadoInstrumento" NOT NULL DEFAULT 'PENDIENTE_DE_ENTREGA';

@@ -5,66 +5,47 @@ import CustomCard from "@/components/inicio/card";
 import { useRouter } from "next/navigation";
 import { canView } from "@/permissions/hasPermissions";
 import { Resource } from "@/permissions/typePermissions";
+import { Table } from "lucide-react";
 
 export default function Menu() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  if (!session?.user) {
-    return null;
-  }
+  if (!session?.user) return null;
 
-  const userName = session.user.name;
+  const { name: userName, role } = session.user;
+
+  // Define menu items with their metadata
+  const menuItems = [
+    { resource: Resource.ZONAS, title: "Zonas", description: "Gestiona y visualiza las zonas disponibles en el sistema.", icon: Map, path: "/zonas" },
+    { resource: Resource.ENTREGAS, title: "Entregas", description: "Consulta y administra la información de tus entregas", icon: Package, path: "/entregas" },
+    { resource: Resource.AGENTE, title: "Agentes", description: "Consulta y administra la información de los agentes.", icon: Truck, path: "/agentes" },
+    { resource: Resource.INSTRUMENTOS, title: "Instrumentos", description: "Gestiona y rastrea los instrumentos en tránsito.", icon: Package, path: "/instrumentos" },
+    { resource: Resource.CONTROL, title: "Control", description: "Revisa los datos y genera reportes detallados.", icon: ChartGraph, path: "/control" },
+    { resource: Resource.PLANIFICADOR, title: "Planificador", description: "Planifica la ruta de reparto.", icon: Map, path: "/planificador-de-ruta" },
+    { resource: Resource.CONTROL_AGENTE, title: "Estadísticas", description: "Visualiza tus estadísticas de entrega.", icon: ChartGraph, path: "/control-agente" },
+    { resource: Resource.MESA_ENTRADA, title: "Mesa de Entrada", description: "Gestiona el personal de mesa de entrada", icon: Table, path: "/mesa-de-entrada" }
+  ];
+
+  // Filter items based on user permissions
+  const visibleItems = menuItems.filter(item => canView(role, item.resource));
 
   return (
-    <div className="p-6 flex flex-col gap-6 w-full">
-      {/* Título de bienvenida */}
-      <h1 className="text-2xl font-bold mb-6 w-full">
+    <div className="flex min-h-screen flex-col bg-gray-50 p-6">
+      <h1 className="mb-8 text-2xl md:text-3xl font-semibold text-gray-800">
         Bienvenido, {userName} 👋
       </h1>
 
-      {/* Contenedor de cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 items-center justify-center gap-6 md:gap-6 lg:gap-6 mx-4">
-        {/* Card Áreas */}
-
-        { canView(session.user.role, Resource.ZONAS) &&
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8 grid-flow-row-dense">
+        {visibleItems.map((item, index) => (
           <CustomCard
-            title="Zonas"
-            description="Gestiona y visualiza las zonas disponibles en el sistema."
-            icon={Map}
-            onClick={() => router.push("/zonas")}
+            key={index}
+            title={item.title}
+            description={item.description}
+            icon={item.icon}
+            onClick={() => router.push(item.path)}
           />
-        }
-
-        {/* Card Repartidores */}
-        {
-          canView(session.user.role, Resource.AGENTE) &&
-          <CustomCard
-          title="Agentes"
-          description="Consulta y administra la información de los agente."
-          icon={Truck}
-          onClick={() => router.push("/agentes")}
-        />}
-
-        {/* Card Paquetes */}
-        {
-          canView(session.user.role, Resource.INSTRUMENTOS) &&
-          <CustomCard
-          title="Instrumentos"
-          description="Gestiona y rastrea los instrumentos en tránsito."
-          icon={Package}
-          onClick={() => router.push("/instrumentos")}
-        />}
-
-        {/* Card Reportes */}
-        {
-          canView(session.user.role, Resource.CONTROL) &&
-          <CustomCard
-          title="Control"
-          description="Revisa los datos y genera reportes detallados."
-          icon={ChartGraph}
-          onClick={() => router.push("/control")}
-        />}
+        ))}
       </div>
     </div>
   );

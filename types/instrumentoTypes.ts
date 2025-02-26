@@ -1,4 +1,4 @@
-import { Instrumento, TipoCarga } from "@prisma/client";
+import { EstadoEntrega, EstadoInstrumento, Instrumento, TipoCarga, UrgenciaInstrumento } from "@prisma/client";
 
 export interface InstrumentPDFDTO {
     organismo: string;
@@ -18,12 +18,14 @@ export interface InstrumentoDTO {
   fecha_de_ingreso: Date;
   fecha_de_salida: Date | null;
   caratula: string;
-  destinatario: string;
   domicilio_denunciado: string;
   juzgadoIdentifier: string;
   instrumentoTypeIdentifier: string;
   tipoDeCarga: TipoCarga;
   codigo: string;
+  urgencia: UrgenciaInstrumento;
+  estado: EstadoInstrumento;
+
   observaciones:string;
 }
 
@@ -44,6 +46,15 @@ export interface InstrumentoExtendido extends Instrumento {
     name: string;
     identifier: string;
   };
+}
+
+export interface InstrumentoExtendidoConEntregas extends InstrumentoExtendido {
+  HistorialEntregas: {
+    fecha_entrega: Date;
+    observaciones: string;
+    estado: EstadoEntrega;
+    agenteFullName: string;
+  }[];
 }
 
 export interface InstrumentoTypeDTO extends InstrumentoTypeInput {

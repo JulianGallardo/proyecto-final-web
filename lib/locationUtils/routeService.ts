@@ -105,6 +105,7 @@ export class RouteService {
             instructions: true,
             language: 'es-es',
             instructions_format: 'text',
+            continue_straight: true,
 
         };
 

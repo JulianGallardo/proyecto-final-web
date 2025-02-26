@@ -23,19 +23,19 @@ export class RouteService {
         vehicle: VehicleType,
         startLocation?: [number, number],
         endLocation?: [number, number],
-        
+
 
     ): Promise<number[][]> {
         const url = `https://api.openrouteservice.org/optimization`;
 
-        
+
         const body = {
             jobs: instrumentLocations.map((location, index) => ({
                 id: index,
                 location
             })),
-            vehicles: [{ 
-                id: 1, 
+            vehicles: [{
+                id: 1,
                 profile: vehicle,
                 start: startLocation || instrumentLocations[0],
                 end: endLocation || instrumentLocations[instrumentLocations.length - 1],
@@ -45,25 +45,24 @@ export class RouteService {
             }
         };
 
-
-
-        const response = await fetch(url, {
+        const responseData = {
             method: 'POST',
             headers: new Headers({
-                Authorization: process.env.NOMINTAIM_API_KEY ?? '',
+                Authorization: process.env.NEXT_PUBLIC_OPENROUTESERVICE_API_KEY  ?? '',
                 'Content-Type': 'application/json'
             }),
-
             body: JSON.stringify(body)
-        });
+        }
+
+        const response = await fetch(url, responseData);
+
 
         const data = await response.json();
-        
 
         const optimizedJobs = data.routes[0].steps;
 
 
-        const optimizedRouteLocations:number[][] = optimizedJobs.map((job: { job: number, location:number[] }) => job.location);
+        const optimizedRouteLocations: number[][] = optimizedJobs.map((job: { job: number, location: number[] }) => job.location);
 
 
         return optimizedRouteLocations;
@@ -95,7 +94,7 @@ export class RouteService {
             .filter(instrument => instrument.coordinates)
             .map(instrument => instrument.coordinates as [number, number]);
 
-       
+
 
 
         // Configurar la petición para la API de directions
@@ -109,14 +108,20 @@ export class RouteService {
 
         };
 
-        const response = await fetch(url, {
+
+
+        const responseData = {
             method: 'POST',
             headers: new Headers({
-                Authorization: process.env.NOMINTAIM_API_KEY ?? '',
+                Authorization: process.env.NEXT_PUBLIC_OPENROUTESERVICE_API_KEY  ?? '',
                 'Content-Type': 'application/json'
             }),
             body: JSON.stringify(requestBody)
-        });
+        }
+
+        const response = await fetch(url, responseData);
+
+
 
         const data = await response.json();
 

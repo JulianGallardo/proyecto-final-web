@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "Proyecto final de carrera desarrollado por Julian Gallardo, para el Poder Judicial de Bahía Blanca",
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{

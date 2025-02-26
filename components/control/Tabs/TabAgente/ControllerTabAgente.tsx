@@ -25,7 +25,7 @@ export default function ControllerTabAgente({ searchParams, agentes }: Readonly<
             {
                 searchParams?.agenteId && 
                 <Suspense fallback={<TabGeneralSkeleton />}>
-                    <TabAgente searchParams={searchParams} agentes={agentes} />
+                    <TabAgente searchParams={searchParams}  />
                 </Suspense>
             }
 

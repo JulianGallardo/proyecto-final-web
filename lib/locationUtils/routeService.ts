@@ -1,7 +1,7 @@
 import { VehicleType, RouteSegment, Address, RouteChoiceType } from '@/types/PlannerTypes';
 
 export class RouteService {
-    private readonly API_KEY = "5b3ce3597851110001cf624882964b6d51a94e329e8f7d689d9f7767";
+
 
     public async getCoordinates(address: string): Promise<[number, number] | null> {
         const bbox = "-62.5,-39.0,-61.5,-38.5";
@@ -49,10 +49,10 @@ export class RouteService {
 
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                Authorization: this.API_KEY,
+            headers: new Headers({
+                Authorization: process.env.NOMINTAIM_API_KEY ?? '',
                 'Content-Type': 'application/json'
-            },
+            }),
 
             body: JSON.stringify(body)
         });
@@ -111,10 +111,10 @@ export class RouteService {
 
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                Authorization: this.API_KEY,
+            headers: new Headers({
+                Authorization: process.env.NOMINTAIM_API_KEY ?? '',
                 'Content-Type': 'application/json'
-            },
+            }),
             body: JSON.stringify(requestBody)
         });
 

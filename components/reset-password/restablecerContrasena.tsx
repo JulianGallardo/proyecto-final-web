@@ -52,6 +52,7 @@ export default function RestablecerContraseña({ tokenServer }: Readonly<Restabl
           setError("No se proporcionó un token de restablecimiento");
         }
       } catch (err) {
+        console.error(err);
         setError("Ha ocurrido un error al validar el token");
       } finally {
         setIsLoadingToken(false);
@@ -97,6 +98,7 @@ export default function RestablecerContraseña({ tokenServer }: Readonly<Restabl
           setError(response.error);
         }
       } catch (err) {
+        console.error(err);
         setError("Ha ocurrido un error al procesar tu solicitud");
       }
     });

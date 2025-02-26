@@ -102,7 +102,7 @@ export default function AddressAutocomplete({
     startTransition(async () => {
       try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) =>
-          // @ts-ignore 
+          /* eslint-disable */
           navigator.geolocation.getCurrentPosition(resolve, reject)
         );
         const { latitude, longitude } = position.coords;

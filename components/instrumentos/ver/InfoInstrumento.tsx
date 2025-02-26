@@ -61,10 +61,12 @@ export default function InfoInstrumento() {
             };
             const actualizado = await updateInstrumento(instrumentoDTO.juzgadoIdentifier, instrumentoAActualizar.orden.ordenNumber, instrumentoDTO);
             setInstrumento(instrumentoAActualizar);
-            actualizado && toast({
-                title: "Correcciones solicitadas",
-                description: "Se ha solicitado correcciones para el instrumento",
-            })
+            if (actualizado) {
+                toast({
+                    title: "Correcciones solicitadas",
+                    description: "Se ha solicitado correcciones para el instrumento",
+                });
+            }
 
             
 

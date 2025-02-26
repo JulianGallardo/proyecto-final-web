@@ -40,7 +40,7 @@ export const POST = async (req: NextRequest) => {
         });
 
         // Create the reset link - replace with your frontend URL
-        const resetLink = `${process.env.FRONTEND_URL ?? "http://localhost:3000"}/reset-password?token=${token}`;
+        const resetLink = `${process.env.FRONTEND_URL ?? "https://localhost:3000"}/reset-password?token=${token}`;
 
         // Configure nodemailer transporter
         const transporter = nodemailer.createTransport({

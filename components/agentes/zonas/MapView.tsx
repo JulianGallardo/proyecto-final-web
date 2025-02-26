@@ -1,157 +1,166 @@
 "use client";
-import { ColorCache } from "@/lib/mapUtils/colorCache";
-import { generateTerraDrawOptions } from "@/lib/mapUtils/terraDrawOptions";
-import { CustomFeature, MapBounds, MapCenter } from "@/types/MapTypes";
-import { useMap, Map, Source, Layer } from "@vis.gl/react-maplibre";
-import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
-import { useEffect, useState } from "react";
-import { ClipLoader } from "react-spinners";
-import { GeoJSONStoreFeatures } from "terra-draw";
-
-import "maplibre-gl/dist/maplibre-gl.css";
+import { useMemo, useState } from "react";
+import { Map, Source, Layer } from "@vis.gl/react-maplibre";
+import { MapBounds, MapCenter } from "@/types/MapTypes";
+import { ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { Button } from "@/components/ui/button";
+import { Layers } from "lucide-react";
 
 interface ZonesAgenteProps {
-    zonasBDD: CustomFeature[];
+    zonasBDD: ZoneDtoWithSubZones[];
     agente?: AgenteExtendidoDto;
 }
 
 export default function MapView({ zonasBDD, agente }: Readonly<ZonesAgenteProps>) {
-    const { mymap } = useMap();
-    const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null);
-    const colorCache = new ColorCache();
-    const [loading, setLoading] = useState(true);
-    const [styleLoading, setStyleLoading] = useState(true);
-    const [zones, setZones] = useState<GeoJSONStoreFeatures[]>([]);  // Para almacenar las zonas con su label
+    const [showSubZones, setShowSubZones] = useState(false);
 
-    function filterZones() {
-        if (agente) {
-            return zonasBDD.filter(zone => agente.zonas.some(z => z.id === zone.id));
-        }
-        return zonasBDD;
-    }
+    // Filtrar zonas según el agente (si está presente)
+    const filteredZones = useMemo(() => {
+        return agente
+            ? zonasBDD.filter(zone => agente.zonas.some(z => z.id === zone.id))
+            : zonasBDD;
+    }, [zonasBDD, agente]);
 
-    function initializeMapControl() {
-        if (!mymap) return null;
-        const terraDrawOptions = generateTerraDrawOptions(colorCache);
-        const newDraw = new MaplibreTerradrawControl(terraDrawOptions);
-        mymap.addControl(newDraw);
-        setDraw(newDraw);
+    // Convertir las zonas al formato GeoJSON
+    const zonesGeoJSON = useMemo(() => ({
+        type: "FeatureCollection",
+        features: getZones(filteredZones)
+    }), [filteredZones]);
 
-        document.querySelectorAll(".maplibregl-ctrl-group").forEach(ctrl => {
-            (ctrl as HTMLElement).style.visibility = "hidden";
-        });
-        return newDraw;
-    }
-
-    function drawZonesOnMap(zonesToDraw: CustomFeature[], newDraw: MaplibreTerradrawControl | null) {
-        const geoJSONZones: GeoJSONStoreFeatures[] = [];
-
-        zonesToDraw.forEach(zone => {
-            // Crear zona con nombre y propiedades
-            const newZone = {
-                id: zone.id,
-                type: "Feature",
-                geometry: { type: "Polygon", coordinates: zone.geometry.coordinates },
-                properties: {
-                    mode: "polygon",
-                    color: zone.properties.color,
-                    name: zone.properties.name, // Usamos el nombre aquí
-                    zoneName: zone.properties.name // Nombre para la etiqueta
-                },
-            } as GeoJSONStoreFeatures;
-
-            colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
-            geoJSONZones.push(newZone);
-            newDraw?.getTerraDrawInstance().addFeatures([newZone]);
-        });
-
-        // Establecer las zonas para usarlas en la capa de etiquetas
-        setZones(geoJSONZones);
-    }
-
-    const fetchZones = async () => {
-        const newDraw = initializeMapControl();
-        const zonesToDraw = filterZones();
-        drawZonesOnMap(zonesToDraw, newDraw);
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        if (styleLoading) return;
-        fetchZones();
-    }, [mymap, styleLoading]);
+    // Convertir las subzonas al formato GeoJSON
+    const subZonesGeoJSON = useMemo(() => ({
+        type: "FeatureCollection",
+        features: getSubZones(filteredZones)
+    }), [filteredZones]);
 
     return (
-        <div className="flex flex-col w-full h-full">
-            <div className="flex flex-col md:flex-row w-full h-full gap-2">
-                <div className="w-full h-full flex flex-col md:flex-row gap-2">
-                    <div className="w-full h-full relative rounded-lg">
-                        {loading && (
-                            <div className="absolute inset-0 bg-gray-500 bg-opacity-75 flex flex-row items-center justify-center z-10">
-                                <ClipLoader
-                                    loading
-                                    size={50}
-                                    speedMultiplier={1}
-                                    color="#ffffff"
-                                />
-                            </div>
-                        )}
-                        <Map
-                            id="mymap"
-                            initialViewState={{
-                                longitude: MapCenter.lng,
-                                latitude: MapCenter.lat,
-                                zoom: 11.5
-                            }}
-                            maxBounds={MapBounds}
-                            style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}
-                            mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
-                            onLoad={() => setStyleLoading(false)}
-                        >
-                            <Source
-                                id="terra-draw"
-                                type="geojson"
-                                data={{
-                                    type: "FeatureCollection",
-                                    features: draw?.getFeatures() || []
-                                }}
-                            />
-                            {/* Capa de texto para mostrar las etiquetas */}
-                            {zones.length > 0 && (
-                                <Source
-                                    id="zone-labels"
-                                    type="geojson"
-                                    data={{
-                                        type: "FeatureCollection",
-                                        features: zones
-                                    }}
-                                />
-                            )}
-                            <Layer
-                                id="terra-draw-text"
-                                type="symbol"
-                                source="zone-labels"  // Usamos la fuente 'zone-labels'
-                                layout={{
-                                    "text-field": ["get", "zoneName"],  // Extraemos el nombre de la propiedad
-                                    "text-size": 14,
-                                    "text-anchor": "center",  // Alineación del texto
-                                    "text-offset": [0, 0]  // Evitar desplazamiento
-                                }}
-                                paint={{
-                                    "text-color": "#000000",  // Color del texto
-                                    "text-halo-color": "#ffffff",  // Color del halo (fondo blanco)
-                                    "text-halo-width": 2,  // Ancho del halo
-                                }}
-                            />
-                        </Map>
-                    </div>
+        <div className="relative flex flex-col w-full h-full">
+        {
+            zonasBDD && zonasBDD.length > 0 && (
+                <div className="absolute top-3 left-3 z-10">
+                    <Button
+                        variant={showSubZones ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setShowSubZones(!showSubZones)}
+                        className="flex items-center gap-2 shadow-md"
+                    >
+                        <Layers className="h-4 w-4" />
+                        Subzonas
+                    </Button>
                 </div>
-            </div>
+            )
+        }
+
+            <Map
+                id="mymap"
+                initialViewState={{
+                    longitude: MapCenter.lng,
+                    latitude: MapCenter.lat,
+                    zoom: 11.5
+                }}
+                maxBounds={MapBounds}
+                style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}
+                mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+            >
+                {/* Capa de Zonas */}
+                {zonesGeoJSON.features.length > 0 && (
+                    <Source id="zones-source" type="geojson" data={zonesGeoJSON}>
+                        <Layer
+                            id="zones-fill"
+                            type="fill"
+                            paint={{
+                                "fill-color": ["get", "color"],
+                                "fill-opacity": 0.2
+                            }}
+                        />
+                        <Layer
+                            id="zones-line"
+                            type="line"
+                            paint={{
+                                "line-color": ["get", "color"],
+                                "line-width": 2
+                            }}
+                        />
+                        <Layer
+                            id="zones-label"
+                            type="symbol"
+                            layout={{
+                                "text-field": ["get", "name"],
+                                "text-size": 14,
+                                "text-anchor": "center"
+                            }}
+                            paint={{
+                                "text-color": ["get", "color"]
+                            }}
+                        />
+                    </Source>
+                )}
+
+                {/* Capa de Subzonas */}
+                {showSubZones && subZonesGeoJSON.features.length > 0 && (
+                    <Source id="subzones-source" type="geojson" data={subZonesGeoJSON}>
+                        <Layer
+                            id="subzones-fill"
+                            type="fill"
+                            paint={{
+                                "fill-color": ["get", "parentColor"],
+                                "fill-opacity": 0.1
+                            }}
+                        />
+                        <Layer
+                            id="subzones-line"
+                            type="line"
+                            paint={{
+                                "line-color": ["get", "parentColor"],
+                                "line-width": 1
+                            }}
+                        />
+                        <Layer
+                            id="subzones-label"
+                            type="symbol"
+                            layout={{
+                                "text-field": ["get", "name"],
+                                "text-size": 12,
+                                "text-anchor": "center"
+                            }}
+                            paint={{
+                                "text-color": ["get", "parentColor"]
+                            }}
+                        />
+                    </Source>
+                )}
+            </Map>
         </div>
     );
+}
 
+function getZones(filteredZones: ZoneDtoWithSubZones[]): { type: string; properties: { name: string; color: string; }; geometry: { type: string; coordinates: number[][][]; }; }[] {
+    return filteredZones.map(zone => ({
+        type: "Feature",
+        properties: {
+            name: zone.zoneName,
+            color: zone.zoneColor
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[...zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
+        }
+    }));
+}
 
-
-
+function getSubZones(filteredZones: ZoneDtoWithSubZones[]): { type: string; properties: { name: string; parentColor: string; }; geometry: { type: string; coordinates: number[][][]; }; }[] {
+    return filteredZones.flatMap(zone => zone.SubZonas.map(subZone => ({
+        type: "Feature",
+        properties: {
+            name: subZone.zoneName,
+            parentColor: zone.zoneColor
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[...subZone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
+        }
+    }))
+    );
 }

@@ -9,4 +9,7 @@ export default interface SearchParamsInstrumentos {
     ordenNumber?: string;
     juzgado?: string;
     instrumentType?: string;
+    urgencia?: string;
+    estado?: string;
+    zona?: string;
 }

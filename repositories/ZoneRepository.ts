@@ -1,20 +1,33 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import { Zone } from "@prisma/client";
+import {   Zone } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
-import { ZoneDto } from "@/types/ZoneTypes";
+import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
+import { createSubZones } from "@/lib/locationUtils/subZoneUtils";
 
 export default class ZoneRepository extends BaseRepository<Zone> {
     constructor() {
         super(prisma.zone);
     }
 
-    async getAll() {
-        return this.modelClient.findMany({
+    _select = {
+        id: true,
+        zoneName: true,
+        zoneColor: true,
+        geometry: {
+            select: {
+                coordinates: {
+                    select: {
+                        latitude: true,
+                        longitude: true
+                    }
+                }
+            }
+        },
+        SubZonas: {
             select: {
                 id: true,
                 zoneName: true,
-                zoneColor: true,
                 geometry: {
                     select: {
                         coordinates: {
@@ -26,10 +39,16 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                     }
                 }
             }
+        }
+    };
+
+    async getAll() {
+        return this.modelClient.findMany({
+            select: this._select
         });
     }
 
-    async getAllWithAgents():Promise<ZoneDto[]> {
+    async getAllWithAgents():Promise<ZoneDtoWithSubZones[]> {
         return this.modelClient.findMany({
             select: {
                 id: true,
@@ -44,6 +63,32 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                         }
                     }
                 },
+                geometry: {
+                    select: {
+                        coordinates: {
+                            select: {
+                                latitude: true,
+                                longitude: true
+                            }
+                        }
+                    }
+                },
+                SubZonas: {
+                    select: {
+                        id: true,
+                        zoneName: true,
+                        geometry: {
+                            select: {
+                                coordinates: {
+                                    select: {
+                                        latitude: true,
+                                        longitude: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
             }
         });
@@ -100,6 +145,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
     }
 
     async create(zone: CustomFeature) {
+        const subzones = await createSubZones(zone);
         return this.modelClient.create({
             data: {
                 id: zone.id,
@@ -116,6 +162,25 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                             }))
                         }
                     }
+                },
+                SubZonas: {
+                    create: subzones.map(subzone => ({
+                        zoneName: subzone.name,
+                        type: subzone.polygon?.type ?? "Polygon",
+                        geometry: {
+                            create: {
+                                type: subzone.polygon?.geometry.type ?? "Polygon",
+                                coordinates: {
+                                    create: (subzone.polygon?.geometry.coordinates as Position[][])[0].map(([lat, lon]) => ({
+                                        latitude: lat,
+                                        longitude: lon
+                                    }))
+                                }
+                            }
+                        },
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    }))
                 },
                 createdAt: new Date(),
                 updatedAt: new Date()
@@ -142,6 +207,8 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                     longitude: lon
                 }));
 
+                const subZones = await createSubZones(data);
+
                 return trx.zone.update({
                     where: { id },
                     data: {
@@ -152,6 +219,26 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                             update: {
                                 coordinates: { create: newCoordinates }
                             }
+                        },
+                        SubZonas: {
+                            deleteMany: {},
+                            create: subZones.map(subzone => ({
+                                zoneName: subzone.name,
+                                type: subzone.polygon?.type ?? "Polygon",
+                                geometry: {
+                                    create: {
+                                        type: subzone.polygon?.geometry.type ?? "Polygon",
+                                        coordinates: {
+                                            create: (subzone.polygon?.geometry.coordinates as Position[][])[0].map(([lat, lon]) => ({
+                                                latitude: lat,
+                                                longitude: lon
+                                            }))
+                                        }
+                                    }
+                                },
+                                createdAt: new Date(),
+                                updatedAt: new Date()
+                            }))
                         },
                         updatedAt: new Date()
                     }
@@ -192,4 +279,29 @@ export default class ZoneRepository extends BaseRepository<Zone> {
             return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
         }
     }
+
+    async getTotalZones(): Promise<number> {
+        return await prisma.zone.count();
+    }
+
+    async getZoneById(id: string): Promise<ExtendedZone> {
+        return this.modelClient.findUnique({
+            where: { id },
+            select: this._select
+        });
+    }
+
+    async getZonesByAgent(agentId: number): Promise<ExtendedZone[]> {
+        return this.modelClient.findMany({
+            where: {
+                Agentes: {
+                    some: {
+                        id: agentId
+                    }
+                }
+            },
+            select: this._select
+        });
+    }
+
 }

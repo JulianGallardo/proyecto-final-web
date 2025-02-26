@@ -1,4 +1,6 @@
-export interface EntregaInstrumentosDto{
+import { EstadoEntrega, TipoCarga } from "@prisma/client";
+
+export interface EntregaInstrumentosDto {
     id: number;
     instrumento: {
         caratula: string;
@@ -6,6 +8,8 @@ export interface EntregaInstrumentosDto{
         instrumentoType: {
             name: string;
         };
+        codigoInstrumento: string;
+        cargaInstrumento: TipoCarga;
         orden: {
             ordenNumber: string;
             juzgado: {
@@ -14,6 +18,19 @@ export interface EntregaInstrumentosDto{
         };
         instrumentoId: number;
     };
-    createdAt: Date;
+    fecha_entrega: Date;
+    estado: EstadoEntrega;
+    observaciones: string;
     updatedAt: Date;
+}
+
+export interface EntregaInstrumentoUpdateDto {
+    id: number;
+    instrumento: {
+
+        codigoInstrumento: string;
+
+    };
+    estado: EstadoEntrega;
+    observaciones: string|null;
 }

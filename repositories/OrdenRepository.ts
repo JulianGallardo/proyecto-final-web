@@ -49,4 +49,14 @@ export default class OrdenRepository extends BaseRepository<Orden> {
 
 
     }
+
+    async deleteOrden(ordenNumber: number, juzgadoIdentifier: string): Promise<Orden | null> {
+        return this.modelClient.delete({
+            where: {
+                ordenNumber, juzgado: {
+                    identifier: juzgadoIdentifier,
+                }
+            }
+        });
+    }
 }

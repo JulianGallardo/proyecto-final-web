@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import { AgenteExtendidoDto, UpdateAgenteDto } from "@/types/agenteTypes";
 import { FormularioEditarAgente } from "./form/editAgentForm";
-import { updateAgente } from "@/actions/agente-actions";
+import { updateAgente } from "@/actions/user-actions";
 import { toast } from "@/hooks/use-toast";
 
 interface AgenteInfoSectionProps {

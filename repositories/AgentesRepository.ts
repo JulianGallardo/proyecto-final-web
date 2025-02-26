@@ -22,13 +22,13 @@ export default class AgenteRepository extends BaseRepository<Agente> {
                 lastname: data.lastName,
                 telefono: data.telefono,
             });
-            
+
             const agente = await tx.agente.create({
                 data: {
                     userId: user.id,
                 },
             });
-            
+
             return agente;
         });
     }
@@ -63,9 +63,25 @@ export default class AgenteRepository extends BaseRepository<Agente> {
     }
 
     async delete(id: number) {
-        return this.modelClient.delete({
-            where: { id },
+        return prisma.$transaction(async (tx) => {
+            
+            const agente = await this.modelClient.findUnique({
+                where: { id },
+                include: { user: true },
+            });
+
+            if (!agente) {
+                throw new Error("Agente no encontrado");
+            }
+
+            await tx.agente.delete({ where: { id } });
+
+            await tx.user.delete({ where: { id: agente.userId } });
+
+            return agente;
         });
+
+
     }
 
 
@@ -98,4 +114,39 @@ export default class AgenteRepository extends BaseRepository<Agente> {
         });
         return Math.ceil(total / 10);
     }
+
+
+    async findByMail(mail: string) {
+        const result = this.modelClient.findFirst({
+            where: {
+                user: {
+                    email: mail,
+                },
+            },
+            include: { user: true, zonas: true, EntregaInstrumentos: true },
+        });
+        return result;
+    }
+
+    async getAgentGrowth(): Promise<{ total: number; growth: number }> {
+        const totalAgents = await prisma.agente.count();
+
+        const lastMonth = new Date();
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+        const lastMonthAgents = await prisma.agente.count({
+            where: {
+                createdAt: {
+                    lt: lastMonth,
+                },
+            },
+        });
+
+        const growth = totalAgents - lastMonthAgents;
+
+        return { total: totalAgents, growth };
+    }
+
+
 }
+

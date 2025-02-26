@@ -1,12 +1,29 @@
 import type React from "react"
-import { differenceInWeeks } from "date-fns"
+import { differenceInWeeks, differenceInDays } from "date-fns"
+import { UrgenciaInstrumento } from "@prisma/client"
 
 interface IndicadorFechaProps {
     fecha: Date
+    urgencia: UrgenciaInstrumento
 }
 
-const IndicadorFecha: React.FC<IndicadorFechaProps> = ({ fecha }) => {
+const IndicadorFecha: React.FC<IndicadorFechaProps> = ({ fecha, urgencia }) => {
     const diferenciaEnSemanas = differenceInWeeks(new Date(), fecha)
+    const diferenciaEnDias = differenceInDays(new Date(), fecha)
+    if (urgencia === UrgenciaInstrumento.URGENTE) {
+        return (
+            <div className="flex items-center justify-center">
+                <div 
+                    className="w-8 h-8 rounded-full border-2 border-red-500 flex items-center justify-center"
+                    title={`${diferenciaEnDias} días de retraso`}
+                >
+                    <span className="text-red-500 text-sm font-semibold">
+                        {diferenciaEnDias}
+                    </span>
+                </div>
+            </div>
+        )
+    }
 
     let color = ""
     if (diferenciaEnSemanas <= 1) {
@@ -18,13 +35,13 @@ const IndicadorFecha: React.FC<IndicadorFechaProps> = ({ fecha }) => {
     }
 
     return (
-
         <div className="flex items-center justify-center">
-            <div className={`w-5 h-5 rounded-full items-center justify-center ${color}`} title={`${diferenciaEnSemanas} semanas de diferencia`}></div>
+            <div 
+                className={`w-8 h-8 rounded-full items-center justify-center ${color}`} 
+                title={`${diferenciaEnSemanas} semanas de diferencia`}
+            />
         </div>
     )
-
 }
 
 export default IndicadorFecha
-

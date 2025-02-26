@@ -17,9 +17,10 @@ import {
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import {  useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
+import Link from "next/link";
 
 export default function LoginForm() {
     const [error, setError] = useState<string | null>(null);
@@ -59,7 +60,7 @@ export default function LoginForm() {
                     {/* Imagen */}
                     <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-gray-100">
                         <Image
-                            src="/login.svg"
+                            src="/login.jpg"
                             alt="Login visual"
                             layout="fill"
                             objectFit="fit"
@@ -148,20 +149,23 @@ export default function LoginForm() {
                                         />
                                         : "Iniciar sesión"}
                                 </Button>
+
+                                <div className="text-center mt-4">
+                                    <Link href="/reset-password">
+                                        <Button
+                                            type="button"
+                                            variant="link"
+                                            className="text-blue-600 hover:text-blue-800"
+                                            
+                                        >
+                                            ¿Olvidaste tu contraseña?
+                                        </Button>
+                                    </Link>
+                                </div>
                             </form>
                         </Form>
 
-                        {/* Link de recuperación */}
-                        <p className="mt-4 text-sm text-center text-gray-600">
-                            ¿Olvidaste tu contraseña?{" "}
-                            <button
-                                type="button"
-                                className="text-blue-600 hover:underline"
-                                onClick={() => alert('Recuperación de contraseña no implementada')}
-                            >
-                                Recupérala
-                            </button>
-                        </p>
+
                     </div>
                 </div>
             </Card>

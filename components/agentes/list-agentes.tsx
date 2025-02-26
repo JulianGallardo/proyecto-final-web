@@ -3,15 +3,18 @@ import { AgenteExtendidoDto, CreateAgenteDTO } from "@/types/agenteTypes";
 import SearchInput from "../shared/search";
 import { AgenteCard } from "./agenteCard";
 import { Button } from "../ui/button";
-import { Plus } from "@mynaui/icons-react";
+import { Plus, SadCircle } from "@mynaui/icons-react";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import CustomDialog from "../instrumentos/Dialogs/dialog";
 import { FormularioNuevoAgente } from "./Forms/addNewAgenteForm";
-import { createAgente } from "@/actions/agente-actions";
+import { createAgente, deleteAgente } from "@/actions/user-actions";
 import { toast } from "@/hooks/use-toast";
 import PaginationInstruments from "../instrumentos/Tabla/Pagination";
 import { Map } from "lucide-react";
 import Link from "next/link";
+import CustomAlert from "../instrumentos/Dialogs/alert";
+import { useCustomAlert } from "@/hooks/useCustomAlert";
+import { useState } from "react";
 
 interface AgenteListProps {
     agentes: AgenteExtendidoDto[]
@@ -22,6 +25,10 @@ interface AgenteListProps {
 export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteListProps>) {
 
     const { setIsOpen } = useCustomDialog();
+    const { setIsOpenAlert } = useCustomAlert();
+
+    const [agenteToDelete, setAgenteToDelete] = useState<AgenteExtendidoDto | null>(null);
+
 
     const handleNewAgente = () => {
         setIsOpen(true);
@@ -52,6 +59,40 @@ export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteList
     }
 
 
+    const handleOpenDeleteAlert = (agente: AgenteExtendidoDto) => {
+        setAgenteToDelete(agente);
+        setIsOpenAlert(true);
+    }
+
+    const handleDeleteAgente = async () => {
+        if (!agenteToDelete) return;
+        try {
+            const agente = await deleteAgente(agenteToDelete.id);
+            if (agente) {
+                toast({
+                    title: "Agente eliminado",
+                    description: "El agente se ha eliminado con éxito.",
+                    className: "bg-green-500 text-white",
+                    duration: 3000,
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Error",
+                description: error instanceof Error ? error.message : "Ha ocurrido un error al eliminar el agente.",
+                className: "bg-red-500 text-white",
+                duration: 3000,
+            });
+        }
+        setAgenteToDelete(null);
+        setIsOpenAlert(false);
+    }
+
+
+
+
+
 
 
     return (
@@ -61,6 +102,16 @@ export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteList
                 dialogDescription="Registrar un nuevo agente al equipo."
                 propDialogContent={
                     <FormularioNuevoAgente onSubmit={handleCreateNewAgente} />
+                }
+            />
+            <CustomAlert
+                AlertTitle="Eliminar agente"
+                AlertDescription="¿Está seguro que desea eliminar este agente?"
+                propAlertDialogContent={
+                    <div className="flex justify-end gap-4">
+                        <Button className="bg-red-500 text-white" onClick={() => handleDeleteAgente()}>Eliminar</Button>
+                        <Button className="bg-gray-500 text-white" onClick={() => setIsOpenAlert(false)}>Cancelar</Button>
+                    </div>
                 }
             />
             <div className="flex flex-col gap-2 md:flex-row md:justify-between">
@@ -80,12 +131,23 @@ export default function ListAgentes({ agentes, totalPages }: Readonly<AgenteList
                     <Plus />
                 </Button>
             </div>
+            {
+                agentes.length === 0 && (
+                    <div className="flex flex-col items-center justify-center w-full h-full p-4 bg-gray-100 rounded-lg">
+                        <SadCircle className="w-12 h-12 text-gray-500" />
+                        <span className="text-gray-500">No se han encontrado agentes registrados.</span>
+                    </div>
+                )
+            }
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {agentes.map((agente) => (
-                    <AgenteCard key={agente.id} agente={agente} onDelete={() => console.log("Eliminando agente")} />
+                    <AgenteCard key={agente.id} agente={agente} onDelete={() => handleOpenDeleteAlert(agente)} />
                 ))}
+
             </div>
-            <PaginationInstruments totalPages={totalPages} />
+            {
+                agentes.length !== 0 && <PaginationInstruments totalPages={totalPages} />
+            }
         </div>
     );
 }

@@ -15,6 +15,7 @@ import { useZones } from "@/hooks/useZones";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
 import { handleFinish } from "@/lib/mapUtils/terraDrawUtils";
 import { addZoneHelper, discardChangesHelper, discardZoneEditsHelper, editZoneHelper, saveChangesHelper, saveEditsHelper, setRenderModeHelper } from "@/lib/mapUtils/panelControlUtils";
+import { useMap } from "@vis.gl/react-maplibre";
 
 interface MapControlPanelProps {
     draw: MaplibreTerradrawControl;
@@ -45,43 +46,51 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
         addNewZoneToMap
     } = useZones(draw, colorCache);
 
+    const { mymap } = useMap();
+
 
     useEffect(() => {
         const localStorageZones = getZoneInfoFromLocalStorage();
-        if (localStorageZones !== null)
-            deleteZone(localStorageZones);
+        if (localStorageZones !== null) deleteZone(localStorageZones);
 
-        fetchZones().then(() => {
-            setLoading(false);
-        }).catch((error) => {
-            throw new Error(error);
-        });
-
+        fetchZones()
+            .then(() => setLoading(false))
+            .catch((error) => {
+                throw new Error(error);
+            });
 
         const terraDrawInstance = draw.getTerraDrawInstance();
         const callback = (id: FeatureId, context: OnFinishContext) => {
             const parseId = id as string;
-            handleFinish(
-                parseId,
-                context,
-                draw,
-                addNewZoneToMap,
-                setMode,
-                setZones
-            );
-            if (isMobile) {
-                setOpenMobile(true);
-            }
-        }
+            handleFinish(parseId, context, draw, addNewZoneToMap, setMode, setZones);
+            if (isMobile) setOpenMobile(true);
+        };
 
         draw.getTerraDrawInstance().on("finish", callback);
+
+
 
         return () => {
             terraDrawInstance.off("finish", callback);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [draw]);
 
+    useEffect(() => {
+        if (mymap) {
+            const mapInstance = mymap.getMap();
+
+
+
+            mapInstance.getSource("zone-labels")?.setData({
+                type: "FeatureCollection",
+                features: zones
+            });
+
+
+
+        }
+       
+    }, [zones, mymap]);
 
 
     function changeEditingState(state: boolean) {
@@ -243,7 +252,7 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
                     <Sidebar title="Panel de control" description="Panel de control de áreas de reparto." >
 
 
-                        
+
                         <SidebarHeader>
                             <PanelHeader onEdit={editZone} addZone={addZone} mode={mode} saveZoneEdits={saveEdits} discardZoneEdits={discardZoneEdits} saveChanges={saveChanges} discardChanges={discardChanges} editing={editingZonesInfo} setRenderMode={setRenderMode} setEditing={changeEditingState} />
                             <AddZoneDialog open={newZoneDialogOpen} setOpen={changeNewZoneDialogState} onDialogSubmit={onNewZoneDialogSubmit} />

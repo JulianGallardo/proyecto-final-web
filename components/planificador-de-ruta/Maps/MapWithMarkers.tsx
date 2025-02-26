@@ -61,19 +61,7 @@ export default function MapWithPopUps({ selectedInstruments, zones }: Readonly<M
         if (!zones) return null;
         return {
             type: 'FeatureCollection',
-            features: zones.flatMap(zone =>
-                zone.SubZonas.map(subZone => ({
-                    type: 'Feature',
-                    properties: {
-                        name: subZone.zoneName,
-                        parentColor: zone.zoneColor // Usar una variación del color de la zona padre
-                    },
-                    geometry: {
-                        type: 'Polygon',
-                        coordinates: [[...subZone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
-                    }
-                }))
-            )
+            features: getSubZones(zones)
         };
     }, [zones]);
 
@@ -233,5 +221,24 @@ export default function MapWithPopUps({ selectedInstruments, zones }: Readonly<M
                 )}
             </Map>
         </div>
+    );
+}
+
+function getSubZones(zones: ExtendedZone[]): {
+    type: string; properties: {
+        name: string; parentColor: string; // Usar una variación del color de la zona padre
+    }; geometry: { type: string; coordinates: number[][][]; };
+}[] {
+    return zones.flatMap(zone => zone.SubZonas.map(subZone => ({
+        type: 'Feature',
+        properties: {
+            name: subZone.zoneName,
+            parentColor: zone.zoneColor // Usar una variación del color de la zona padre
+        },
+        geometry: {
+            type: 'Polygon',
+            coordinates: [[...subZone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
+        }
+    }))
     );
 }

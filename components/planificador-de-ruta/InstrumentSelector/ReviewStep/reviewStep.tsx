@@ -5,14 +5,12 @@ import InstrumentReviewItem from "./reviewItems";
 
 interface ReviewStepProps {
     selectedInstruments: InstrumentoExtendido[];
-    handleToggleInstrument: (instrument: InstrumentoExtendido) => void;
     handleDistribute: () => void;
     setStep: (value: "select" | "review") => void;
 }
 
 export default function ReviewStep({ 
     selectedInstruments, 
-    handleToggleInstrument, 
     handleDistribute, 
     setStep 
 }: Readonly<ReviewStepProps>) {
@@ -36,7 +34,6 @@ export default function ReviewStep({
                             <InstrumentReviewItem
                                 key={instrument.codigoInstrumento}
                                 instrument={instrument}
-                                handleToggleInstrument={handleToggleInstrument}
                             />
                         ))}
                     </div>

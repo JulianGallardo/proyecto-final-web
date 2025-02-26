@@ -107,7 +107,6 @@ export default function InstrumentSelector({
                                 ) : (
                                     <ReviewStep
                                         selectedInstruments={selectedInstruments}
-                                        handleToggleInstrument={handleToggleInstrument}
                                         handleDistribute={handleDistribute}
                                         setStep={setStep}
 
@@ -142,7 +141,6 @@ export default function InstrumentSelector({
                         ) : (
                             <ReviewStep
                                 selectedInstruments={selectedInstruments}
-                                handleToggleInstrument={handleToggleInstrument}
                                 handleDistribute={handleDistribute}
                                 setStep={setStep}
                             />

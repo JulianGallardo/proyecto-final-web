@@ -188,7 +188,6 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
             {filtrosConfig.map((filtro) => (
               <Filtro
                 key={filtro.param}
-                param={filtro.param}
                 displayName={filtro.displayName}
                 isActive={activeFilters[filtro.param]}
                 onToggle={() => toggleFilter(filtro.param)}

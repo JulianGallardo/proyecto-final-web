@@ -22,8 +22,12 @@ export const safeRandomColor = () => {
 };
 
 export const parseDate = (date: string) => {
-  const dateParsed = DateTime.fromISO(date).setZone("America/Argentina/Buenos_Aires");
-  const dateInArgentina = dateParsed.toLocaleString(DateTime.DATE_FULL);
+  // Asegúrate de que la fecha de entrada sea clara en su zona horaria
+  const dateParsed = DateTime.fromISO(date)
+    .setZone("America/Argentina/Buenos_Aires");
+  
+  // Especifica el locale para forzar el formato en español
+  const dateInArgentina = dateParsed.setLocale('es').toLocaleString(DateTime.DATE_FULL);
   return dateInArgentina;
 }
 

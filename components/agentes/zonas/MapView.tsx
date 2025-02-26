@@ -26,35 +26,13 @@ export default function MapView({ zonasBDD, agente }: Readonly<ZonesAgenteProps>
     // Convertir las zonas al formato GeoJSON
     const zonesGeoJSON = useMemo(() => ({
         type: "FeatureCollection",
-        features: filteredZones.map(zone => ({
-            type: "Feature",
-            properties: {
-                name: zone.zoneName,
-                color: zone.zoneColor
-            },
-            geometry: {
-                type: "Polygon",
-                coordinates: [[...zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
-            }
-        }))
+        features: getZones(filteredZones)
     }), [filteredZones]);
 
     // Convertir las subzonas al formato GeoJSON
     const subZonesGeoJSON = useMemo(() => ({
         type: "FeatureCollection",
-        features: filteredZones.flatMap(zone =>
-            zone.SubZonas.map(subZone => ({
-                type: "Feature",
-                properties: {
-                    name: subZone.zoneName,
-                    parentColor: zone.zoneColor
-                },
-                geometry: {
-                    type: "Polygon",
-                    coordinates: [[...subZone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
-                }
-            }))
-        )
+        features: getSubZones(filteredZones)
     }), [filteredZones]);
 
     return (
@@ -155,5 +133,34 @@ export default function MapView({ zonasBDD, agente }: Readonly<ZonesAgenteProps>
                 )}
             </Map>
         </div>
+    );
+}
+
+function getZones(filteredZones: ZoneDtoWithSubZones[]): { type: string; properties: { name: string; color: string; }; geometry: { type: string; coordinates: number[][][]; }; }[] {
+    return filteredZones.map(zone => ({
+        type: "Feature",
+        properties: {
+            name: zone.zoneName,
+            color: zone.zoneColor
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[...zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
+        }
+    }));
+}
+
+function getSubZones(filteredZones: ZoneDtoWithSubZones[]): { type: string; properties: { name: string; parentColor: string; }; geometry: { type: string; coordinates: number[][][]; }; }[] {
+    return filteredZones.flatMap(zone => zone.SubZonas.map(subZone => ({
+        type: "Feature",
+        properties: {
+            name: subZone.zoneName,
+            parentColor: zone.zoneColor
+        },
+        geometry: {
+            type: "Polygon",
+            coordinates: [[...subZone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
+        }
+    }))
     );
 }

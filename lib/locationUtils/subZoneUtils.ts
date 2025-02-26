@@ -1,5 +1,5 @@
 "use server";
-import { bbox, bboxPolygon, centroid, intersect, polygon, area, point, featureCollection } from "@turf/turf";
+import { bbox, bboxPolygon, centroid, intersect, polygon, area, feature,  featureCollection } from "@turf/turf";
 import { SubZona } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
 
@@ -10,6 +10,7 @@ interface ValidatedSubzone {
   error?: string;
   wasFixed?: boolean;
 }
+
 
 function validateAndFixPolygonCoordinates(coordinates: Position[]): {
   coordinates: Position[];
@@ -33,7 +34,7 @@ function validateAndFixPolygonCoordinates(coordinates: Position[]): {
 
 async function validateAndFixSubZones(subzones: { name: SubZona; polygon: any }[]): Promise<ValidatedSubzone[]> {
   return subzones.map(subzone => {
-    if (!subzone.polygon || !subzone.polygon.geometry || !subzone.polygon.geometry.coordinates) {
+    if (!subzone.polygon?.geometry?.coordinates) {
       return {
         ...subzone,
         isValid: false,

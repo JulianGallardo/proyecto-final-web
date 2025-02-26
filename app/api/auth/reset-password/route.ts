@@ -2,7 +2,6 @@ import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { randomBytes } from "crypto";
-import { stat } from "fs";
 
 export const POST = async (req: NextRequest) => {
     try {
@@ -57,7 +56,7 @@ export const POST = async (req: NextRequest) => {
         const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
         <h1 style="color: #333; text-align: center;">Restablecimiento de Contraseña</h1>
-        <p>Hola ${user.name || user.email},</p>
+        <p>Hola ${user.name ?? user.email},</p>
         <p>Hemos recibido una solicitud para restablecer tu contraseña. Haz clic en el botón a continuación para crear una nueva contraseña:</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetLink}" style="background-color: #4a69bd; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">Restablecer Contraseña</a>

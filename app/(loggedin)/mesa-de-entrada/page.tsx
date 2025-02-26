@@ -1,6 +1,5 @@
 import { getAllUsersByRole, getTotalPagesByRole } from "@/actions/user-actions"
 import { auth } from "@/auth"
-import ListAgentes from "@/components/agentes/list-agentes"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 import ListaMesaEntrada from "@/components/mesa-de-entrada/list-mesa-entrada"
 import { Role } from "@prisma/client"

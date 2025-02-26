@@ -63,6 +63,7 @@ export default function EnviarMailResetPassword() {
                 
             } catch (err) {
                 setError("Hubo un error al enviar el correo. Por favor intenta de nuevo.");
+                console.error(err);
             }
         });
     }

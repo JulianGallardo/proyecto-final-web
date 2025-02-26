@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useEffect, useState, useTransition } from "react";
+import {  useState, useTransition } from "react";
 import { ClipLoader } from "react-spinners";
 import { changePassword } from "@/actions/auth-actions";
 import { Session } from "next-auth";
@@ -82,6 +82,7 @@ export default function ClientCambiarContraseña({ session }: Readonly<{ session
                 }
             } catch (err) {
                 setError("Ha ocurrido un error al cambiar la contraseña");
+                console.error(err);
             }
         });
     };

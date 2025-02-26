@@ -1,23 +1,21 @@
 
 import Overview from "../../overview";
 import InstrumentosPorEstado from "../../estadisticasEntregas";
-import SelectAgente from "./selectAgente";
 import TotalInstrumentos from "../TabGeneral/TotalInstrumentos";
 import TotalInsturmentosActivos from "../TabGeneral/TotalInstrumentosActivos";
 import { getTotalInstrumentos, getInstrumentosActivos, getInstrumentosEntregadosUltimosSeisMeses, getInstrumentosPorEstado } from "@/actions/estadisticas-actions";
-import { AgenteExtendidoDto } from "@/types/agenteTypes";
+
 
 
 interface TabGeneralProps {
     searchParams?: {
         agenteId?: string;
         zoneName?: string;
-    },
-    agentes: AgenteExtendidoDto[];
+    }
 }
 
 
-export default async function TabAgente({ searchParams, agentes }: Readonly<TabGeneralProps>) {
+export default async function TabAgente({ searchParams }: Readonly<TabGeneralProps>) {
 
 
 

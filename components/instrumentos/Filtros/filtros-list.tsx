@@ -261,14 +261,13 @@ export function FilterTag({ label, onRemove, value }: Readonly<FilterTagProps>) 
 }
 
 interface FiltroProps {
-  param: string;
   displayName: string;
   children: React.ReactNode;
   isActive: boolean;
   onToggle: () => void;
 }
 
-function Filtro({ param, displayName, children, isActive, onToggle }: Readonly<FiltroProps>) {
+function Filtro({  displayName, children, isActive, onToggle }: Readonly<FiltroProps>) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">

@@ -1,12 +1,12 @@
 import EnviarMailResetPassword from "@/components/reset-password/enviarMail";
 import RestablecerContraseña from "@/components/reset-password/restablecerContrasena";
 
-interface searchParams {
+interface SearchParams {
     token: string;
 }
 
 export default function Page(
-    { searchParams }: Readonly<{ searchParams: searchParams }>
+    { searchParams }: Readonly<{ searchParams: SearchParams }>
 ) {
     if(!searchParams.token) {
         return <EnviarMailResetPassword />

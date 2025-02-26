@@ -7,10 +7,9 @@ import IndicadorFecha from "@/components/instrumentos/Tabla/indicador-fecha";
 
 interface InstrumentReviewItemProps {
     instrument: InstrumentoExtendido;
-    handleToggleInstrument: (instrument: InstrumentoExtendido) => void;
 }
 
-export default function InstrumentReviewItem({ instrument, handleToggleInstrument }: Readonly<InstrumentReviewItemProps>) {
+export default function InstrumentReviewItem({ instrument }: Readonly<InstrumentReviewItemProps>) {
     return (
         <Card className={`
             transition-all duration-200 ease-in-out

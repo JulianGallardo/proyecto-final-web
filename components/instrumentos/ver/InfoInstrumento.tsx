@@ -30,7 +30,7 @@ export default function InfoInstrumento() {
         startTransition(async () => {
             if (!codigoInstrumento) return;
             setIsLoading(true);
-            const instrumento = await getInstrumentoByCode(codigoInstrumento);
+            const instrumento = await getInstrumentoByCode(codigoInstrumento) as InstrumentoExtendidoConEntregas;
             setInstrumento(instrumento);
             setIsLoading(false);
         });
@@ -73,6 +73,7 @@ export default function InfoInstrumento() {
                 title: "Error",
                 description: "Ocurrió un error al solicitar correcciones",
             })
+            console.error(e);
         }
     };
 

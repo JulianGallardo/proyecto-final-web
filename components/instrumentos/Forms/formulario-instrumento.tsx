@@ -82,7 +82,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
   }
 
 
-
+  const buttonText = instrumento ? "Actualizar" : "Crear"
   return (
     Juzgados.length === 0 || instrumentoTypes.length === 0 ? <div>Cargando...</div> :
       <Form {...form}>
@@ -300,7 +300,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
               {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
-                `${instrumento ? "Actualizar" : "Crear"} Instrumento`
+                `${buttonText} Instrumento`
               )}
             </Button>
           </div>

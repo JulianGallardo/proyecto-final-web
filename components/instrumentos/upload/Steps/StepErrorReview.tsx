@@ -6,7 +6,7 @@ import CustomDialog from "../../Dialogs/dialog";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
 import { useEffect, useState } from "react";
 import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
-import { EstadoEntrega, EstadoInstrumento, InstrumentoType, Juzgado } from "@prisma/client";
+import { EstadoInstrumento, InstrumentoType, Juzgado } from "@prisma/client";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../../Dialogs/alert";
 import { Delete, Edit } from "@mynaui/icons-react";

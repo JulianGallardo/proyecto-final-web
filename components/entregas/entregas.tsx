@@ -104,7 +104,7 @@ export default function EntregasRepartidor({ agenteId }: Readonly<EntregasRepart
                             {selectedDate && !isPending && (
                                 <div className="flex flex-col items-center space-y-2">
                                     <p className="text-sm text-gray-400 font-semibold">
-                                        Entregas para el {parseDate(new Date(selectedDate).toISOString())}
+                                        Entregas para el {parseDate(selectedDate)}
                                     </p>
                                     {entregas.length > 0 ? (
                                         <div className="flex flex-col space-y-4 w-full">

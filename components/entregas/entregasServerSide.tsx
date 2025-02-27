@@ -107,7 +107,7 @@ function NoEntregasMessage({ date }: Readonly<{ date: string }>) {
         <div className="flex flex-col items-center space-y-2">
             <SearchX className="w-12 h-12 text-gray-400 mx-auto" />
             <p className="text-sm text-gray-400 font-semibold">
-                No hay entregas para la fecha {parseDate(new Date(date).toISOString())}.
+                No hay entregas para la fecha {parseDate(date)}.
             </p>
         </div>
     );
@@ -116,7 +116,7 @@ function NoEntregasMessage({ date }: Readonly<{ date: string }>) {
 function DateDisplay({ date }: Readonly<{ date: string }>) {
     return (
         <p className="text-sm text-gray-400 font-semibold">
-            Entregas para el {parseDate(new Date(date).toISOString())}
+            Entregas para el {parseDate(date)}
         </p>
     );
 }

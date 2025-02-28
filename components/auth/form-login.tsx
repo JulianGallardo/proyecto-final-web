@@ -57,15 +57,22 @@ export default function LoginForm() {
         <div className="flex min-h-screen items-center justify-center bg-gradient-to-tr from-blue-50 via-blue-100 to-blue-400 p-2 overflow-hidden">
             <Card className="w-full max-w-3xl shadow-lg rounded-2xl overflow-hidden bg-white">
                 <div className="flex flex-col md:flex-row">
-                    {/* Imagen */}
-                    <div className="relative w-full md:w-1/2 h-64 md:h-auto bg-gray-100">
-                        <Image
-                            src="/login.jpg"
-                            alt="Login visual"
-                            layout="fill"
-                            objectFit="fit"
-                            className="absolute inset-0"
-                        />
+                    {/* Imagen - Fixed position container */}
+                    <div className="relative w-full md:w-1/2 h-64 md:h-auto overflow-hidden">
+                        {/* Fixed size container with absolute positioning */}
+                        <div className="absolute inset-0 w-full h-full">
+                            <div className="relative w-full h-full">
+                                <Image
+                                    src="/login.jpg"
+                                    alt="Login visual"
+                                    className="object-cover"
+                                    style={{ objectPosition: 'center center' }}
+                                    fill
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    priority
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Formulario de inicio de sesión */}
@@ -143,9 +150,6 @@ export default function LoginForm() {
                                             color="#fff"
                                             loading={isPending}
                                             size={20}
-
-
-
                                         />
                                         : "Iniciar sesión"}
                                 </Button>
@@ -156,7 +160,6 @@ export default function LoginForm() {
                                             type="button"
                                             variant="link"
                                             className="text-blue-600 hover:text-blue-800"
-                                            
                                         >
                                             ¿Olvidaste tu contraseña?
                                         </Button>
@@ -164,8 +167,6 @@ export default function LoginForm() {
                                 </div>
                             </form>
                         </Form>
-
-
                     </div>
                 </div>
             </Card>

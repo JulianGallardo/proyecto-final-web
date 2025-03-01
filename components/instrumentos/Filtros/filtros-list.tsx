@@ -77,12 +77,12 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
           { value: "NOTIFICADO_ROJO", label: "Notificado Rojo" },
         ],
       },
-        {
-            param: "zona",
-            displayName: "Zona",
-            type: "select",
-            options: Zonas.map((z) => ({ value: z, label: z })),
-        },
+      {
+        param: "zona",
+        displayName: "Zona",
+        type: "select",
+        options: Zonas.map((z) => ({ value: z, label: z })),
+      },
     ],
     [Juzgados, InstrumentTypes]
   );
@@ -107,7 +107,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
 
   const customInputs = useCallback((param: string) => {
     if (param === "exitDate") {
-      return <ExitDateFilter param={param}  />;
+      return <ExitDateFilter param={param} />;
     }
     return (
       <Input
@@ -161,11 +161,9 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
       ...prev,
       [param]: !prev[param],
     }));
-    if (!activeFilters[param]) {
-      handleSearch(param, ""); // Initialize with empty value for inputs
-    } else {
+    if (activeFilters[param])
       clearFilter(param);
-    }
+
   }, [activeFilters, handleSearch, clearFilter]);
 
   return (
@@ -221,22 +219,22 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
       {Array.from(searchParams.keys())
         .filter((key) => key !== "page")
         .length > 0 && (
-        <div className="flex flex-col gap-2 mt-4">
-          <span className="text-sm text-gray-800 font-medium">Filtros aplicados:</span>
-          <div className="flex flex-wrap gap-2">
-            {Array.from(searchParams.keys())
-              .filter((key) => key !== "page")
-              .map((key) => (
-                <FilterTag
-                  key={filtrosConfig.find((f) => f.param === key)?.displayName || key}
-                  label={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
-                  value={calculateFilterTagValue(key)}
-                  onRemove={() => clearFilter(key)}
-                />
-              ))}
+          <div className="flex flex-col gap-2 mt-4">
+            <span className="text-sm text-gray-800 font-medium">Filtros aplicados:</span>
+            <div className="flex flex-wrap gap-2">
+              {Array.from(searchParams.keys())
+                .filter((key) => key !== "page")
+                .map((key) => (
+                  <FilterTag
+                    key={filtrosConfig.find((f) => f.param === key)?.displayName || key}
+                    label={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
+                    value={calculateFilterTagValue(key)}
+                    onRemove={() => clearFilter(key)}
+                  />
+                ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }
@@ -266,7 +264,7 @@ interface FiltroProps {
   onToggle: () => void;
 }
 
-function Filtro({  displayName, children, isActive, onToggle }: Readonly<FiltroProps>) {
+function Filtro({ displayName, children, isActive, onToggle }: Readonly<FiltroProps>) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-3">

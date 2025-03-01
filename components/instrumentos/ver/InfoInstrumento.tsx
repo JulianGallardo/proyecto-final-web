@@ -16,6 +16,7 @@ import { EstadoInstrumento } from "@prisma/client";
 import { toast } from "@/hooks/use-toast";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../Dialogs/alert";
+import InstrumentDetailSkeleton from "./InfoInstrumentoSkeleton";
 
 export default function InfoInstrumento() {
     const pathname = usePathname();
@@ -85,16 +86,7 @@ export default function InfoInstrumento() {
 
     if (isLoading || isPending) {
         return (
-            <Card className="w-full mx-auto mt-8">
-                <CardHeader>
-                    <CardTitle>Cargando información del instrumento...</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                        <Skeleton key={i} className="h-8 w-full" />
-                    ))}
-                </CardContent>
-            </Card>
+            <InstrumentDetailSkeleton />
         );
     }
 

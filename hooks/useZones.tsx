@@ -35,12 +35,12 @@ export function useZones(
             },
         } as GeoJSONStoreFeatures;
 
-
+        console.log(newZone);
 
         if (!isUpdate) {
             colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
         }
-        terraDrawInstance.addFeatures([newZone]);
+        console.log(terraDrawInstance.addFeatures([newZone]));
 
     }
 

@@ -89,7 +89,7 @@ export default function MapControlPanel({ draw, colorCache }: Readonly<MapContro
 
 
         }
-       
+
     }, [zones, mymap]);
 
 

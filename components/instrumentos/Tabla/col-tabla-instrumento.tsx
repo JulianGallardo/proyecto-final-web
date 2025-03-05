@@ -4,6 +4,7 @@ import AccionesList from "./acciones-list";
 import { Button } from "../../ui/button";
 import IndicadorFecha from "./indicador-fecha";
 import { UrgenciaInstrumento } from "@prisma/client";
+import { Check } from "lucide-react";
 interface ColumnsProps {
     onEdit: (instrumento: InstrumentoExtendido) => void;
     onDelete: (instrumento: InstrumentoExtendido) => void;
@@ -14,9 +15,13 @@ const DemoraCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fechaEntrada: Date = row.getValue("fecha_de_ingreso");
     const fechaSalida: Date = row.getValue("fecha_de_salida");
     const urgencia: UrgenciaInstrumento = row.getValue("urgencia");
-    
+
     if (!fechaSalida) return <IndicadorFecha fecha={fechaEntrada} urgencia={urgencia} />
-    else return <span>Ya entregada</span>
+    else return (
+        <div className="flex items-center justify-center" title="Notificado">
+            <Check size={24} className="text-green-500" />
+        </div>
+    );
 };
 
 
@@ -88,7 +93,7 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
         },
         {
             accessorKey: "fecha_de_ingreso",
-            
+
         },
         {
             accessorKey: "fecha_de_salida",
@@ -121,7 +126,7 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
                     </Button>
                 );
             },
-            
+
         },
         {
             accessorKey: "estado",
@@ -137,7 +142,7 @@ export const columns = ({ onEdit, onDelete }: Readonly<ColumnsProps>): ColumnDef
             },
             cell: ({ row }) => {
                 const estado = row.original.estado;
-                return <span>{estado.replace("_"," ")}</span>;
+                return <span>{estado.replace("_", " ")}</span>;
             }
         },
         {

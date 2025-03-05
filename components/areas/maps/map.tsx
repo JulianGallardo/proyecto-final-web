@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import * as React from "react";
-import { Layer, Map, Source } from "@vis.gl/react-maplibre";
+import { Layer, Map, Source, FullscreenControl, NavigationControl } from "@vis.gl/react-maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ClipLoader } from "react-spinners";
 import TerraDrawHandler from "../terraDrawHandler/terraDrawHandler";
@@ -29,6 +29,8 @@ export default function Areas() {
                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
 
             >   
+                <FullscreenControl style={{ position: 'absolute', top: 0, left: 0 }} />
+                <NavigationControl  style={{ position: 'absolute', top: 35, left: 0 }} />
                 <Source
                     id="zone-labels"
                     type="geojson"

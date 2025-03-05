@@ -18,12 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { X } from "@mynaui/icons-react";
 import { parseDate } from "@/lib/utils";
 import ExitDateFilter from "./exit-date-filter";
+import FilterTag from "./filter-tag";
+import Filtro from "./filtro";
 
 interface FiltroListProps {
   Juzgados: Juzgado[];
@@ -77,12 +75,12 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
           { value: "NOTIFICADO_ROJO", label: "Notificado Rojo" },
         ],
       },
-        {
-            param: "zona",
-            displayName: "Zona",
-            type: "select",
-            options: Zonas.map((z) => ({ value: z, label: z })),
-        },
+      {
+        param: "zona",
+        displayName: "Zona",
+        type: "select",
+        options: Zonas.map((z) => ({ value: z, label: z })),
+      },
     ],
     [Juzgados, InstrumentTypes]
   );
@@ -107,7 +105,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
 
   const customInputs = useCallback((param: string) => {
     if (param === "exitDate") {
-      return <ExitDateFilter param={param}  />;
+      return <ExitDateFilter param={param} />;
     }
     return (
       <Input
@@ -161,11 +159,9 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
       ...prev,
       [param]: !prev[param],
     }));
-    if (!activeFilters[param]) {
-      handleSearch(param, ""); // Initialize with empty value for inputs
-    } else {
+    if (activeFilters[param])
       clearFilter(param);
-    }
+
   }, [activeFilters, handleSearch, clearFilter]);
 
   return (
@@ -219,65 +215,25 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
         </AccordionItem>
       </Accordion>
       {Array.from(searchParams.keys())
-        .filter((key) => key !== "page")
+        .filter((key) => key !== "page") 
         .length > 0 && (
-        <div className="flex flex-col gap-2 mt-4">
-          <span className="text-sm text-gray-800 font-medium">Filtros aplicados:</span>
-          <div className="flex flex-wrap gap-2">
-            {Array.from(searchParams.keys())
-              .filter((key) => key !== "page")
-              .map((key) => (
-                <FilterTag
-                  key={filtrosConfig.find((f) => f.param === key)?.displayName || key}
-                  label={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
-                  value={calculateFilterTagValue(key)}
-                  onRemove={() => clearFilter(key)}
-                />
-              ))}
+          <div className="flex flex-col gap-2 mt-4">
+            <span className="text-sm text-gray-800 font-medium">Filtros aplicados:</span>
+            <div className="flex flex-wrap gap-2">
+              {Array.from(searchParams.keys())
+                .filter((key) => key !== "page")
+                .map((key) => (
+                  <FilterTag
+                    key={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
+                    label={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
+                    value={calculateFilterTagValue(key)}
+                    onRemove={() => clearFilter(key)}
+                  />
+                ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
     </div>
   );
 }
 
-interface FilterTagProps {
-  label: string;
-  value: string;
-  onRemove: () => void;
-}
-
-export function FilterTag({ label, onRemove, value }: Readonly<FilterTagProps>) {
-  return (
-    <Badge variant="secondary" className="flex items-center gap-1 px-3 py-1 bg-zinc-700 text-white hover:bg-zinc-800">
-      {label}: {value}
-      <Button variant="ghost" size="sm" className="h-auto p-0 hover:bg-transparent" onClick={onRemove}>
-        <X className="h-3 w-3 text-white/70 hover:text-white" />
-        <span className="sr-only">Eliminar Filtro</span>
-      </Button>
-    </Badge>
-  );
-}
-
-interface FiltroProps {
-  displayName: string;
-  children: React.ReactNode;
-  isActive: boolean;
-  onToggle: () => void;
-}
-
-function Filtro({  displayName, children, isActive, onToggle }: Readonly<FiltroProps>) {
-  return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-3">
-        <Checkbox
-          checked={isActive}
-          onClick={onToggle}
-          className={`w-5 h-5 border-2 rounded-md ${isActive ? "bg-blue-500 border-blue-500" : "border-gray-400"}`}
-        />
-        <span className="text-sm text-gray-800 font-medium">{displayName}</span>
-      </div>
-      {isActive && <div className="mt-2">{children}</div>}
-    </div>
-  );
-}

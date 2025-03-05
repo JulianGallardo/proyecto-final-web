@@ -6,7 +6,6 @@ import { InstrumentoDTO, InstrumentoExtendidoConEntregas } from "@/types/instrum
 import { usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { ScrollText, Calendar, User, Scale, FileText, AlertCircle, Info, MapIcon } from "lucide-react";
 import { FatCornerUpLeft, SadCircle } from "@mynaui/icons-react";
@@ -16,6 +15,8 @@ import { EstadoInstrumento } from "@prisma/client";
 import { toast } from "@/hooks/use-toast";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../Dialogs/alert";
+import InstrumentDetailSkeleton from "./InfoInstrumentoSkeleton";
+import InfoInstrumentoNoEncontrado from "./InfoInstrumentoNoEncontrado";
 
 export default function InfoInstrumento() {
     const pathname = usePathname();
@@ -85,42 +86,13 @@ export default function InfoInstrumento() {
 
     if (isLoading || isPending) {
         return (
-            <Card className="w-full mx-auto mt-8">
-                <CardHeader>
-                    <CardTitle>Cargando información del instrumento...</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                        <Skeleton key={i} className="h-8 w-full" />
-                    ))}
-                </CardContent>
-            </Card>
+            <InstrumentDetailSkeleton />
         );
     }
 
     if (!instrumento && !isLoading && !isPending) {
         return (
-            <Card className="w-full max-w-3xl mx-auto mt-8">
-                <CardContent className="flex flex-col items-center justify-center  py-6">
-                    <SadCircle className="h-12 w-12 text-muted-foreground mx-auto" />
-                    <h2 className="text-xl font-bold text-center text-muted-foreground">Instrumento no encontrado</h2>
-                    <p className="text-sm text-muted-foreground text-center ">
-                        No se ha encontrado un instrumento con el código {codigoInstrumento}
-                    </p>
-                    <Link href={`/instrumentos`}>
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            className="mt-4"
-
-                        >
-                            <span className="">Volver al listado</span>
-                            <FatCornerUpLeft className="w-6 h-6" />
-
-                        </Button>
-                    </Link>
-                </CardContent>
-            </Card>
+            <InfoInstrumentoNoEncontrado codigoInstrumento={codigoInstrumento} />
         );
     }
 

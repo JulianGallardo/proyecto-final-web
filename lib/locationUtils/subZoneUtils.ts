@@ -10,9 +10,7 @@ import {
   Polygon, 
   MultiPolygon, 
   Feature, 
-  FeatureCollection, 
-  BBox, 
-  GeoJsonProperties 
+  BBox,  
 } from "geojson";
 
 interface ValidatedSubzone {

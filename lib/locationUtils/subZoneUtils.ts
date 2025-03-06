@@ -6,13 +6,32 @@ import {
 } from "@turf/turf";
 import { SubZona } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
+import { 
+  Polygon, 
+  MultiPolygon, 
+  Feature, 
+  FeatureCollection, 
+  BBox, 
+  GeoJsonProperties 
+} from "geojson";
 
 interface ValidatedSubzone {
   name: SubZona;
-  polygon: any;
+  polygon: Feature<Polygon | MultiPolygon>;
   isValid: boolean;
   error?: string;
   wasFixed?: boolean;
+}
+
+interface SubzoneData {
+  name: SubZona;
+  polygon: Feature<Polygon | MultiPolygon>;
+}
+
+interface PolygonDivision {
+  part1: Feature<Polygon>;
+  part2: Feature<Polygon>;
+  divisionRatio: number;
 }
 
 function validateAndFixPolygonCoordinates(coordinates: Position[]): {
@@ -36,7 +55,7 @@ function validateAndFixPolygonCoordinates(coordinates: Position[]): {
 }
 
 // Función para verificar si es un multipolígono
-function isMultiPolygon(geom: any): boolean {
+function isMultiPolygon(geom: Feature<Polygon | MultiPolygon>): boolean {
   return geom?.geometry?.type === 'MultiPolygon' || 
          (geom?.geometry?.coordinates && geom.geometry.coordinates.length > 1 && 
          Array.isArray(geom.geometry.coordinates[0]) && 
@@ -44,7 +63,7 @@ function isMultiPolygon(geom: any): boolean {
 }
 
 // Función para fusionar multipolígonos con la subzona más cercana
-function mergeMultiPolygonsWithNearestZone(subzones: { name: SubZona; polygon: any }[]): { name: SubZona; polygon: any }[] {
+function mergeMultiPolygonsWithNearestZone(subzones: SubzoneData[]): SubzoneData[] {
   // Primero identificamos subzonas con multipolígonos y subzonas con polígonos simples
   const multiPolygonSubzones = subzones.filter(sz => isMultiPolygon(sz.polygon));
   const singlePolygonSubzones = subzones.filter(sz => !isMultiPolygon(sz.polygon));
@@ -60,7 +79,7 @@ function mergeMultiPolygonsWithNearestZone(subzones: { name: SubZona; polygon: a
       const multiCentroid = centroid(multiSz.polygon);
       
       // Encontrar la subzona más cercana
-      let closestSubzone = null;
+      let closestSubzone: SubzoneData | null = null;
       let minDistance = Infinity;
       
       for (const singleSz of singlePolygonSubzones) {
@@ -75,7 +94,8 @@ function mergeMultiPolygonsWithNearestZone(subzones: { name: SubZona; polygon: a
       
       // Fusionar el multipolígono con la subzona más cercana
       if (closestSubzone) {
-        closestSubzone.polygon = union(featureCollection([closestSubzone.polygon, multiSz.polygon]));
+        const unionResult = union(featureCollection([closestSubzone.polygon, multiSz.polygon])) as Feature<Polygon | MultiPolygon>;
+        closestSubzone.polygon = unionResult;
       }
     }
   }
@@ -85,7 +105,7 @@ function mergeMultiPolygonsWithNearestZone(subzones: { name: SubZona; polygon: a
 }
 
 // Función para asignar nombres secuenciales a las subzonas (A, B, C, D)
-function assignSequentialNames(subzones: { name: SubZona; polygon: any }[]): { name: SubZona; polygon: any }[] {
+function assignSequentialNames(subzones: SubzoneData[]): SubzoneData[] {
   const subzonaNames = [SubZona.A, SubZona.B, SubZona.C, SubZona.D];
   
   return subzones.map((subzone, index) => {
@@ -99,7 +119,7 @@ function assignSequentialNames(subzones: { name: SubZona; polygon: any }[]): { n
   });
 }
 
-async function validateAndFixSubZones(subzones: { name: SubZona; polygon: any }[]): Promise<ValidatedSubzone[]> {
+async function validateAndFixSubZones(subzones: SubzoneData[]): Promise<ValidatedSubzone[]> {
   // Primero fusionamos los multipolígonos con las subzonas cercanas
   const mergedSubzones = mergeMultiPolygonsWithNearestZone(subzones);
   
@@ -117,7 +137,7 @@ async function validateAndFixSubZones(subzones: { name: SubZona; polygon: any }[
 
     // Para polígonos normales
     if (subzone.polygon.geometry.type === 'Polygon') {
-      const coordinates = subzone.polygon.geometry.coordinates[0];
+      const coordinates: Position[] = subzone.polygon.geometry.coordinates[0] as Position[];
       const { coordinates: fixedCoordinates, wasFixed } = validateAndFixPolygonCoordinates(coordinates);
 
       // Si se hizo una corrección, actualizamos la geometría del polígono
@@ -142,8 +162,9 @@ async function validateAndFixSubZones(subzones: { name: SubZona; polygon: any }[
 }
 
 // Función para encontrar la orientación principal del polígono
-function findPolygonOrientation(turfPolygon: any): number {
-  const [minX, minY, maxX, maxY] = bbox(turfPolygon);
+function findPolygonOrientation(turfPolygon: Feature<Polygon>): number {
+  const boundingBox: BBox = bbox(turfPolygon);
+  const [minX, minY, maxX, maxY] = boundingBox;
   const width = maxX - minX;
   const height = maxY - minY;
   
@@ -153,20 +174,22 @@ function findPolygonOrientation(turfPolygon: any): number {
 }
 
 // Función para dividir en dos partes iguales según una orientación
-function dividePolygonInTwo(turfPolygon: any, orientation: number = 0): any[] {
-  const [minX, minY, maxX, maxY] = bbox(turfPolygon);
+function dividePolygonInTwo(turfPolygon: Feature<Polygon>, orientation: number = 0): Feature<Polygon>[] {
+  const boundingBox: BBox = bbox(turfPolygon);
+  const [minX, minY, maxX, maxY] = boundingBox;
   const totalPoints = 50; // Número de puntos a probar para encontrar la división óptima
   
   // Determinar el eje de división basado en la orientación
   const isHorizontal = orientation % 180 === 0;
   
-  let bestDivision = null;
+  let bestDivision: PolygonDivision | null = null;
   let bestAreaDifference = Infinity;
   
   // Probar diferentes puntos de división a lo largo del eje
   for (let i = 1; i < totalPoints; i++) {
     const ratio = i / totalPoints;
-    let box1, box2;
+    let box1: Feature<Polygon>;
+    let box2: Feature<Polygon>;
     
     if (isHorizontal) {
       // División horizontal
@@ -181,8 +204,11 @@ function dividePolygonInTwo(turfPolygon: any, orientation: number = 0): any[] {
     }
     
     // Crear las intersecciones
-    const part1 = intersect(featureCollection([turfPolygon, box1]));
-    const part2 = intersect(featureCollection([turfPolygon, box2]));
+    const fc1 = featureCollection([turfPolygon, box1]);
+    const fc2= featureCollection([turfPolygon, box2]);
+    
+    const part1 = intersect(fc1) as Feature<Polygon> | null;
+    const part2 = intersect(fc2) as Feature<Polygon> | null;
     
     if (part1 && part2) {
       const area1 = area(part1);
@@ -227,7 +253,7 @@ async function createSubZones(zone: CustomFeature): Promise<ValidatedSubzone[]> 
       { name: SubZona.B, polygon: part1Division[1] || part1Division[0] },
       { name: SubZona.C, polygon: part2Division[0] },
       { name: SubZona.D, polygon: part2Division[1] || part2Division[0] }
-    ].filter(subzone => subzone.polygon);
+    ].filter(subzone => subzone.polygon !== undefined) as SubzoneData[];
     
     // Validar y corregir las subzonas antes de devolverlas
     // El proceso de validación también incluye el nombrado secuencial
@@ -241,13 +267,14 @@ async function createSubZones(zone: CustomFeature): Promise<ValidatedSubzone[]> 
 }
 
 // Método de respaldo más simple que utiliza un enfoque de cuadrantes
-async function createSubZonesSimple(turfPolygon: any): Promise<ValidatedSubzone[]> {
-  const [minX, minY, maxX, maxY] = bbox(turfPolygon);
+async function createSubZonesSimple(turfPolygon: Feature<Polygon>): Promise<ValidatedSubzone[]> {
+  const boundingBox: BBox = bbox(turfPolygon);
+  const [minX, minY, maxX, maxY] = boundingBox;
   const midX = (minX + maxX) / 2;
   const midY = (minY + maxY) / 2;
   
   // Crear los cuatro cuadrantes
-  const boxes = [
+  const boxes: Feature<Polygon>[] = [
     bboxPolygon([minX, midY, midX, maxY]), // Superior izquierda
     bboxPolygon([midX, midY, maxX, maxY]), // Superior derecha
     bboxPolygon([minX, minY, midX, midY]), // Inferior izquierda
@@ -260,7 +287,7 @@ async function createSubZonesSimple(turfPolygon: any): Promise<ValidatedSubzone[
     { name: SubZona.B, polygon: intersect(featureCollection([turfPolygon, boxes[1]])) },
     { name: SubZona.C, polygon: intersect(featureCollection([turfPolygon, boxes[2]])) },
     { name: SubZona.D, polygon: intersect(featureCollection([turfPolygon, boxes[3]])) }
-  ].filter(subzone => subzone.polygon);
+  ].filter(subzone => subzone.polygon !== undefined) as SubzoneData[];
   
   // Validar y corregir las subzonas
   // El proceso de validación también incluye el nombrado secuencial

@@ -34,6 +34,7 @@
     "@tanstack/react-table": "^8.20.6",
     "@turf/turf": "^7.2.0",
     "@types/bcrypt": "^5.0.2",
+    "@types/geojson": "^7946.0.16",
     "@types/leaflet": "^1.9.16",
     "@types/recharts": "^1.8.29",
     "@use-gesture/react": "^10.3.1",

@@ -19,7 +19,6 @@ export enum DrawingModes {
 
 export interface CustomFeature extends GeoJSONStoreFeatures {
     properties: {
-        number: any;
         color: HexColorStyling;
         name: string;
     };

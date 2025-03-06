@@ -103,6 +103,7 @@ export function useZones(
         if (!isUpdate) {
             colorCache.saveDataToColorCache(`"${zone.id}"`, zone.properties.color);
         }
+        terraDrawInstance.addFeatures([newZone]);
     }
 
     function deleteZone(featureToDelete: CustomFeature) {

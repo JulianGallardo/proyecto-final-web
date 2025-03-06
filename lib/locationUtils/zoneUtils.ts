@@ -52,7 +52,6 @@ async function getSubzoneInCoords(lat: number, long: number, zoneId: string) {
     } catch (e) {
         console.log(e);
         return null;
-
     }
 }
 

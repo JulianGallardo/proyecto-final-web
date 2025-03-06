@@ -8,8 +8,6 @@ export const MapBounds = [ //reestringidas a 100 km a la redonda de la ciudad de
     [-61.103265, -37.817354] // Northeast coordinates
 ];
 
-
-
 export type HexColorStyling = HexColor;
 export type FeatureId = string | number;
 export type Position = [number, number];
@@ -21,6 +19,7 @@ export enum DrawingModes {
 
 export interface CustomFeature extends GeoJSONStoreFeatures {
     properties: {
+        number: any;
         color: HexColorStyling;
         name: string;
     };

@@ -2,7 +2,7 @@
 
 import { 
   bbox, bboxPolygon, polygon, area, intersect, featureCollection,
-  distance, centroid, multiPolygon, union
+  distance, centroid, union
 } from "@turf/turf";
 import { SubZona } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
@@ -84,11 +84,29 @@ function mergeMultiPolygonsWithNearestZone(subzones: { name: SubZona; polygon: a
   return singlePolygonSubzones;
 }
 
+// Función para asignar nombres secuenciales a las subzonas (A, B, C, D)
+function assignSequentialNames(subzones: { name: SubZona; polygon: any }[]): { name: SubZona; polygon: any }[] {
+  const subzonaNames = [SubZona.A, SubZona.B, SubZona.C, SubZona.D];
+  
+  return subzones.map((subzone, index) => {
+    if (index < subzonaNames.length) {
+      return {
+        ...subzone,
+        name: subzonaNames[index]
+      };
+    }
+    return subzone;
+  });
+}
+
 async function validateAndFixSubZones(subzones: { name: SubZona; polygon: any }[]): Promise<ValidatedSubzone[]> {
   // Primero fusionamos los multipolígonos con las subzonas cercanas
   const mergedSubzones = mergeMultiPolygonsWithNearestZone(subzones);
   
-  return mergedSubzones.map(subzone => {
+  // Asignamos nombres secuenciales
+  const renamedSubzones = assignSequentialNames(mergedSubzones);
+  
+  return renamedSubzones.map(subzone => {
     if (!subzone.polygon?.geometry?.coordinates) {
       return {
         ...subzone,
@@ -203,7 +221,7 @@ async function createSubZones(zone: CustomFeature): Promise<ValidatedSubzone[]> 
     const part1Division = dividePolygonInTwo(firstDivision[0], secondaryOrientation);
     const part2Division = dividePolygonInTwo(firstDivision[1], secondaryOrientation);
     
-    // Crear las cuatro subzonas
+    // Crear las subzonas (sin nombres todavía)
     const subzones = [
       { name: SubZona.A, polygon: part1Division[0] },
       { name: SubZona.B, polygon: part1Division[1] || part1Division[0] },
@@ -212,6 +230,7 @@ async function createSubZones(zone: CustomFeature): Promise<ValidatedSubzone[]> 
     ].filter(subzone => subzone.polygon);
     
     // Validar y corregir las subzonas antes de devolverlas
+    // El proceso de validación también incluye el nombrado secuencial
     const validatedSubzones = await validateAndFixSubZones(subzones);
     return validatedSubzones;
   } catch (error) {
@@ -235,7 +254,7 @@ async function createSubZonesSimple(turfPolygon: any): Promise<ValidatedSubzone[
     bboxPolygon([midX, minY, maxX, midY])  // Inferior derecha
   ];
   
-  // Crear las subzonas mediante intersección
+  // Crear las subzonas mediante intersección (sin nombres todavía)
   const subzones = [
     { name: SubZona.A, polygon: intersect(featureCollection([turfPolygon, boxes[0]])) },
     { name: SubZona.B, polygon: intersect(featureCollection([turfPolygon, boxes[1]])) },
@@ -244,6 +263,7 @@ async function createSubZonesSimple(turfPolygon: any): Promise<ValidatedSubzone[
   ].filter(subzone => subzone.polygon);
   
   // Validar y corregir las subzonas
+  // El proceso de validación también incluye el nombrado secuencial
   return await validateAndFixSubZones(subzones);
 }
 

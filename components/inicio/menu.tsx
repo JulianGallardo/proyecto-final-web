@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { Truck, Map, Package, ChartGraph } from "@mynaui/icons-react";
+import { Truck, Map, Package, ChartGraph,Book } from "@mynaui/icons-react";
 import CustomCard from "@/components/inicio/card";
 import { useRouter } from "next/navigation";
 import { canView } from "@/permissions/hasPermissions";
@@ -24,7 +24,8 @@ export default function Menu() {
     { resource: Resource.CONTROL, title: "Control", description: "Revisa los datos y genera reportes detallados.", icon: ChartGraph, path: "/control" },
     { resource: Resource.PLANIFICADOR, title: "Planificador", description: "Planifica la ruta de reparto.", icon: Map, path: "/planificador-de-ruta" },
     { resource: Resource.CONTROL_AGENTE, title: "Estadísticas", description: "Visualiza tus estadísticas de entrega.", icon: ChartGraph, path: "/control-agente" },
-    { resource: Resource.MESA_ENTRADA, title: "Mesa de Entrada", description: "Gestiona el personal de mesa de entrada", icon: Table, path: "/mesa-de-entrada" }
+    { resource: Resource.MESA_ENTRADA, title: "Mesa de Entrada", description: "Gestiona el personal de mesa de entrada.", icon: Table, path: "/mesa-de-entrada" },
+    { resource: Resource.INSTRUMENTOS_AGENTE, title: "Mi Carpeta", description: "Visualiza tus instrumentos asignados.", icon: Book, path: "/instrumentos-agente" },
   ];
 
   // Filter items based on user permissions

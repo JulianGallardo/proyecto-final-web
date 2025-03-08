@@ -42,6 +42,7 @@ const navItems = [
   { href: "/planificador-de-ruta", label: "Planificador", icon: Location, resource: Resource.PLANIFICADOR },
   { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
   { href: "/control-agente", label: "Estadísticas", icon: ChartGraph, resource: Resource.CONTROL_AGENTE },
+  { href: "/instrumentos-agente", label: "Mi Carpeta", icon: Package, resource: Resource.INSTRUMENTOS_AGENTE },
 ];
 
 const personalItems = [

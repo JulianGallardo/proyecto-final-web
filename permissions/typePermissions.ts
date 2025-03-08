@@ -11,6 +11,7 @@ export enum Resource {
     ENTREGAS = "Entregas",
     CONTROL_AGENTE="Control de Agente",
     MESA_ENTRADA = "Mesa de Entrada",
+    INSTRUMENTOS_AGENTE = "Instrumentos de Agente",
 }
 
 export enum Operation {

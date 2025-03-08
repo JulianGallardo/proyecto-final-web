@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { InstrumentoType, Juzgado } from "@prisma/client";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Select,
   SelectContent,
@@ -22,6 +22,7 @@ import { parseDate } from "@/lib/utils";
 import ExitDateFilter from "./exit-date-filter";
 import FilterTag from "./filter-tag";
 import Filtro from "./filtro";
+import { useFilters, FilterConfig } from "@/contexts/filtersContext";
 
 interface FiltroListProps {
   Juzgados: Juzgado[];
@@ -31,11 +32,20 @@ interface FiltroListProps {
 
 export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readonly<FiltroListProps>) {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const { replace } = useRouter();
+  const {
+    filters,
+    filterConfigs,
+    setFilterConfigs,
+    applyFilter,
+    clearFilter,
+    isFilterActive
+  } = useFilters();
+
+
+
 
   // Configuration of filters
-  const filtrosConfig = useMemo(
+  const filtrosConfig: FilterConfig[] = useMemo(
     () => [
       { param: "desde", displayName: "Desde", type: "date" },
       { param: "hasta", displayName: "Hasta", type: "date" },
@@ -82,52 +92,49 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
         options: Zonas.map((z) => ({ value: z, label: z })),
       },
     ],
-    [Juzgados, InstrumentTypes]
+    [Juzgados, InstrumentTypes, Zonas]
   );
 
-  // Memoize filter handling to prevent unnecessary re-renders
-  const handleSearch = useCallback((param: string, value: string | null) => {
-    const params = new URLSearchParams(searchParams);
-    if (value) {
-      params.set(param, value);
-    } else {
-      params.delete(param);
-    }
-    params.set("page", "1");
-    replace(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, replace]);
 
-  const clearFilter = useCallback((param: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.delete(param);
-    replace(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, replace]);
+
+
+  // Modifica esta parte del efecto que actualiza filterConfigs en el contexto
+  useEffect(() => {
+    // Solo actualizar la configuración cuando no hay filtros activos o cuando
+    // es la primera vez que se monta el componente
+    if (Object.keys(filters).length === 0 || filterConfigs.length === 0) {
+      setFilterConfigs(filtrosConfig);
+    }
+  }, [filtrosConfig, setFilterConfigs, filterConfigs.length, filters]);
+
 
   const customInputs = useCallback((param: string) => {
     if (param === "exitDate") {
       return <ExitDateFilter param={param} />;
     }
+
+    const config = filtrosConfig.find((f) => f.param === param);
     return (
       <Input
-        type={filtrosConfig.find((f) => f.param === param)?.type}
-        placeholder={filtrosConfig.find((f) => f.param === param)?.displayName}
+        type={config?.type}
+        placeholder={config?.displayName}
         className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring focus:ring-blue-500 focus:outline-none"
         onChange={(e) => {
           if (param === "ordenNumber") {
             if (Number(e.target.value) < 0 || isNaN(Number(e.target.value))) {
               e.target.value = "0";
             } else {
-              handleSearch(param, e.target.value);
+              applyFilter(param, e.target.value);
             }
           } else {
-            handleSearch(param, e.target.value);
+            applyFilter(param, e.target.value);
           }
         }}
         defaultValue={searchParams.get(param) ?? ""}
         value={searchParams.get(param) ?? ""} // Controlled input to sync with searchParams
       />
     );
-  }, [filtrosConfig, handleSearch, searchParams]);
+  }, [filtrosConfig, applyFilter, searchParams]);
 
   const calculateFilterTagValue = useCallback((key: string) => {
     if (key === "desde" || key === "hasta") {
@@ -140,37 +147,36 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
     return searchParams.get(key) || "";
   }, [searchParams]);
 
-  // State for active filters, synced with searchParams
-  const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>(
-    Object.fromEntries(filtrosConfig.map((f) => [f.param, !!searchParams.get(f.param)]))
-  );
+  // State for active filters, using isFilterActive from context
+  const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({});
 
-  // Sync activeFilters with searchParams on mount and changes
+  // Sync activeFilters with search params
   useEffect(() => {
     const newActiveFilters = Object.fromEntries(
-      filtrosConfig.map((f) => [f.param, !!searchParams.get(f.param)])
+      filtrosConfig.map((f) => [f.param, isFilterActive(f.param)])
     );
     setActiveFilters(newActiveFilters);
-  }, [searchParams, filtrosConfig]);
+  }, [searchParams, filtrosConfig, isFilterActive]);
 
-  // Handle filter toggle with debouncing to prevent race conditions
+  // Handle filter toggle
   const toggleFilter = useCallback((param: string) => {
     setActiveFilters((prev) => ({
       ...prev,
       [param]: !prev[param],
     }));
-    if (activeFilters[param])
-      clearFilter(param);
 
-  }, [activeFilters, handleSearch, clearFilter]);
+    if (activeFilters[param]) {
+      clearFilter(param);
+    }
+  }, [activeFilters, clearFilter]);
 
   return (
-    <div className="w-full  mx-auto">
+    <div className="w-full mx-auto">
       <Accordion
         type="single"
         collapsible
         className="border border-gray-300 rounded-lg shadow-md overflow-hidden"
-        defaultValue="filtros" // Default open to prevent unexpected closure
+        defaultValue="filtros"
       >
         <AccordionItem value="filtros">
           <AccordionTrigger
@@ -191,7 +197,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
                 {filtro.type === "select" ? (
                   <Select
                     value={searchParams.get(filtro.param) ?? ""}
-                    onValueChange={(value) => handleSearch(filtro.param, value)}
+                    onValueChange={(value) => applyFilter(filtro.param, value)}
                   >
                     <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm bg-white px-3 py-2 hover:ring hover:ring-blue-500 focus:ring focus:ring-blue-500 focus:outline-none">
                       <SelectValue placeholder={`Seleccione ${filtro.displayName}`} className="text-sm text-gray-700" />
@@ -215,25 +221,27 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
         </AccordionItem>
       </Accordion>
       {Array.from(searchParams.keys())
-        .filter((key) => key !== "page") 
+        .filter((key) => key !== "page")
         .length > 0 && (
           <div className="flex flex-col gap-2 mt-4">
             <span className="text-sm text-gray-800 font-medium">Filtros aplicados:</span>
             <div className="flex flex-wrap gap-2">
               {Array.from(searchParams.keys())
                 .filter((key) => key !== "page")
-                .map((key) => (
-                  <FilterTag
-                    key={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
-                    label={filtrosConfig.find((f) => f.param === key)?.displayName ?? key}
-                    value={calculateFilterTagValue(key)}
-                    onRemove={() => clearFilter(key)}
-                  />
-                ))}
+                .map((key) => {
+                  const config = filtrosConfig.find((f) => f.param === key);
+                  return (
+                    <FilterTag
+                      key={config?.displayName ?? key}
+                      label={config?.displayName ?? key}
+                      value={calculateFilterTagValue(key)}
+                      onRemove={() => clearFilter(key)}
+                    />
+                  );
+                })}
             </div>
           </div>
         )}
     </div>
   );
 }
-

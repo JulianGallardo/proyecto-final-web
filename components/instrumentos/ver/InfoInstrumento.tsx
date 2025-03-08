@@ -18,14 +18,47 @@ import CustomAlert from "../Dialogs/alert";
 import InstrumentDetailSkeleton from "./InfoInstrumentoSkeleton";
 import InfoInstrumentoNoEncontrado from "./InfoInstrumentoNoEncontrado";
 
+// Helper function to get section path from the current URL
+function getSectionPath(path: string): string {
+    const firstSegment = path.split('/').filter(Boolean)[0];
+    return firstSegment ? `/${firstSegment}` : path;
+}
+
 export default function InfoInstrumento() {
     const pathname = usePathname();
     const codigoInstrumento = pathname.split("/").pop();
     const [instrumento, setInstrumento] = useState<InstrumentoExtendidoConEntregas | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
-
-    const {setIsOpenAlert} = useCustomAlert();
+    const { setIsOpenAlert } = useCustomAlert();
+    
+    // Recuperar los filtros guardados para construir la URL de retorno
+    const sectionPath = getSectionPath(pathname);
+    const [backToListURL, setBackToListURL] = useState("/instrumentos");
+    
+    useEffect(() => {
+        try {
+            // Recuperar los filtros guardados para la sección de instrumentos
+            const savedFilters = localStorage.getItem(`app-filters-/instrumentos`);
+            
+            if (savedFilters) {
+                const parsedFilters = JSON.parse(savedFilters);
+                const params = new URLSearchParams();
+                
+                // Construir los parámetros de búsqueda
+                Object.entries(parsedFilters).forEach(([key, value]) => {
+                    if (value) params.set(key, value as string);
+                });
+                
+                // Crear la URL con los filtros
+                const filterParams = params.toString();
+                const url = filterParams ? `/instrumentos?${filterParams}` : "/instrumentos";
+                setBackToListURL(url);
+            }
+        } catch (error) {
+            console.error("Error obteniendo filtros guardados:", error);
+        }
+    }, [pathname]);
 
     useEffect(() => {
         startTransition(async () => {
@@ -36,9 +69,6 @@ export default function InfoInstrumento() {
             setIsLoading(false);
         });
     }, [codigoInstrumento]);
-
-
-
 
     const handleSolicitarCorrecciones = async () => {
         if(!instrumento) return;
@@ -79,10 +109,6 @@ export default function InfoInstrumento() {
             console.error(e);
         }
     };
-
-
-
-
 
     if (isLoading || isPending) {
         return (
@@ -127,7 +153,7 @@ export default function InfoInstrumento() {
                         <CardTitle className="text-2xl font-bold">
                             Información del Instrumento
                         </CardTitle>
-                        <Link href={`/instrumentos`}>
+                        <Link href={backToListURL} passHref>
                             <Button
                                 variant="secondary"
                                 size="sm"

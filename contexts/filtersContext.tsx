@@ -127,6 +127,8 @@ export function FilterProvider({ children }: Readonly<{ children: ReactNode }>) 
     const params = new URLSearchParams(searchParams.toString());
     params.delete(param);
     replace(`${pathname}?${params}`);
+    localStorage.setItem(`app-filters-${sectionPath}`, JSON.stringify(params));
+    
   };
 
   const clearAllFilters = () => {

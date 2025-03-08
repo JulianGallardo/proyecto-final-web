@@ -47,10 +47,6 @@ export function FilterProvider({ children }: Readonly<{ children: ReactNode }>) 
   const sectionPath = getSectionPath(pathname);
 
 
-  useEffect(() => {
-    console.log("Filters updated:", filters);
-  }
-  , [filters]);
 
   // Efecto para cargar filtros guardados
   useEffect(() => {

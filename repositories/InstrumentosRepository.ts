@@ -110,7 +110,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             instrumentType: (value) => ({ instrumentoType: { name: { equals: this.parseString(value), mode: "insensitive" } } }),
             estado: (value) => ({ estado: { equals: value as EstadoInstrumento } }),
             urgencia: (value) => ({ urgencia: { equals: value } }),
-            zona: (value) => ({ zoneName: { equals: this.parseString(value) }
+            zona: (value) => ({
+                zoneName: { equals: this.parseString(value) }
             }),
         };
 
@@ -176,6 +177,52 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 { fecha_de_ingreso: "asc" },
             ],
         });
+    }
+
+    async getInstrumentosByAgentPaginated(agentId: number, searchParams: SearchParamsInstrumentos, page: number): Promise<InstrumentoExtendido[]> {
+        const where = this.buildWhereClause(searchParams);
+
+        // Get the agent's zones
+        const agentZones = await prisma.agente.findUnique({
+            where: { id: agentId },
+            select: { zonas: { select: { zoneName: true } } },
+        });
+
+        // Filter by either histogram entries matching the agent OR by the agent's zones
+        where['OR'] = [
+            { HistorialEntregas: { some: { agenteId: agentId } } },
+            agentZones?.zonas?.length ? { zoneName: { in: agentZones.zonas.map(z => z.zoneName) } } : {}
+        ];
+
+        return this.modelClient.findMany({
+            where,
+            skip: (page - 1) * this.itemsPerPage,
+            take: this.itemsPerPage,
+            select: selectOptions,
+            orderBy: [
+                { fecha_de_salida: { sort: "asc", nulls: "first" } },
+                { fecha_de_ingreso: "asc" },
+            ],
+        });
+    }
+
+    async getTotalPagesInstrumentosByAgentPaginated(agentId: number, searchParams: SearchParamsInstrumentos): Promise<number> {
+        const where = this.buildWhereClause(searchParams);
+
+        // Get the agent's zones
+        const agentZones = await prisma.agente.findUnique({
+            where: { id: agentId },
+            select: { zonas: { select: { zoneName: true } } },
+        });
+
+        // Filter by either histogram entries matching the agent OR by the agent's zones
+        where['OR'] = [
+            { HistorialEntregas: { some: { agenteId: agentId } } },
+            agentZones?.zonas?.length ? { zoneName: { in: agentZones.zonas.map(z => z.zoneName) } } : {}
+        ];
+
+        const count = await this.modelClient.count({ where });
+        return Math.ceil(count / this.itemsPerPage);
     }
 
     async getInstrumentos(): Promise<InstrumentoExtendido[]> {
@@ -303,73 +350,73 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async createInstrumentos(instrumentos: InstrumentoDTO[]): Promise<InstrumentoExtendido[]> {
         if (!instrumentos.length) return [];
         const createdInstruments: InstrumentoExtendido[] = [];
-      
+
         // Group instruments by juzgadoIdentifier
         const groupedByJuzgado = instrumentos.reduce((acc, instrumento) => {
-          const juzgado = instrumento.juzgadoIdentifier;
-          acc[juzgado] = acc[juzgado] || [];
-          acc[juzgado].push(instrumento);
-          return acc;
+            const juzgado = instrumento.juzgadoIdentifier;
+            acc[juzgado] = acc[juzgado] || [];
+            acc[juzgado].push(instrumento);
+            return acc;
         }, {} as Record<string, InstrumentoDTO[]>);
-      
+
         return prisma.$transaction(async (prisma) => {
-          // Process groups for different juzgados in parallel
-          const results = await Promise.all(
-            Object.entries(groupedByJuzgado).map(async ([juzgadoIdentifier, instruments]) => {
-              const instrumentsForJuzgado: InstrumentoExtendido[] = [];
-      
-              // Process instruments within the same juzgado sequentially to avoid race conditions
-              for (const instrumento of instruments) {
-                try {
-                  // Create or get a unique order for this instrument and juzgado
-                  const orden = await this.ordenRepository.createOrden(juzgadoIdentifier);
-                  if (!orden) throw new Error(`No se pudo crear la orden para el instrumento en el juzgado ${juzgadoIdentifier}`);
-      
-                  if (instrumento.tipoDeCarga === TipoCarga.MAN) {
-                    instrumento.codigo = (await this.calculateManualCode()).toString();
-                  }
-      
-                  const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(instrumento);
-      
-                  // Create the instrument with its unique order
-                  const createdInstrument = await this.modelClient.create({
-                    data: {
-                      codigoInstrumento: instrumento.codigo,
-                      cargaInstrumento: instrumento.tipoDeCarga,
-                      fecha_de_ingreso: instrumento.fecha_de_ingreso,
-                      fecha_de_salida: instrumento.fecha_de_salida || undefined,
-                      caratula: instrumento.caratula,
-                      urgencia: instrumento.urgencia,
-                      domicilio_denunciado: instrumento.domicilio_denunciado,
-                      estado: instrumento.estado,
-                      ordenId: orden.id,
-                      instrumentoTypeId: (await prisma.instrumentoType.findUnique({
-                        where: { identifier: instrumento.instrumentoTypeIdentifier },
-                      }))?.id ?? undefined,
-                      latitude: punto ? punto[1] : undefined,
-                      longitude: punto ? punto[0] : undefined,
-                      observaciones: instrumento.observaciones,
-                      subZona: nuevaSubZona,
-                      zoneName: nuevaZona ? nuevaZona.zoneName : undefined,
-                    },
-                    select: selectOptions,
-                  });
-      
-                  instrumentsForJuzgado.push(createdInstrument);
-                } catch (error) {
-                  console.error("Error creating instrument:", error);
-                  throw new Error(`No se pudo crear el instrumento para el juzgado ${juzgadoIdentifier}`);
-                }
-              }
-      
-              return instrumentsForJuzgado;
-            })
-          );
-      
-          // Flatten the results from all juzgados
-          return results.flat();
+            // Process groups for different juzgados in parallel
+            const results = await Promise.all(
+                Object.entries(groupedByJuzgado).map(async ([juzgadoIdentifier, instruments]) => {
+                    const instrumentsForJuzgado: InstrumentoExtendido[] = [];
+
+                    // Process instruments within the same juzgado sequentially to avoid race conditions
+                    for (const instrumento of instruments) {
+                        try {
+                            // Create or get a unique order for this instrument and juzgado
+                            const orden = await this.ordenRepository.createOrden(juzgadoIdentifier);
+                            if (!orden) throw new Error(`No se pudo crear la orden para el instrumento en el juzgado ${juzgadoIdentifier}`);
+
+                            if (instrumento.tipoDeCarga === TipoCarga.MAN) {
+                                instrumento.codigo = (await this.calculateManualCode()).toString();
+                            }
+
+                            const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(instrumento);
+
+                            // Create the instrument with its unique order
+                            const createdInstrument = await this.modelClient.create({
+                                data: {
+                                    codigoInstrumento: instrumento.codigo,
+                                    cargaInstrumento: instrumento.tipoDeCarga,
+                                    fecha_de_ingreso: instrumento.fecha_de_ingreso,
+                                    fecha_de_salida: instrumento.fecha_de_salida || undefined,
+                                    caratula: instrumento.caratula,
+                                    urgencia: instrumento.urgencia,
+                                    domicilio_denunciado: instrumento.domicilio_denunciado,
+                                    estado: instrumento.estado,
+                                    ordenId: orden.id,
+                                    instrumentoTypeId: (await prisma.instrumentoType.findUnique({
+                                        where: { identifier: instrumento.instrumentoTypeIdentifier },
+                                    }))?.id ?? undefined,
+                                    latitude: punto ? punto[1] : undefined,
+                                    longitude: punto ? punto[0] : undefined,
+                                    observaciones: instrumento.observaciones,
+                                    subZona: nuevaSubZona,
+                                    zoneName: nuevaZona ? nuevaZona.zoneName : undefined,
+                                },
+                                select: selectOptions,
+                            });
+
+                            instrumentsForJuzgado.push(createdInstrument);
+                        } catch (error) {
+                            console.error("Error creating instrument:", error);
+                            throw new Error(`No se pudo crear el instrumento para el juzgado ${juzgadoIdentifier}`);
+                        }
+                    }
+
+                    return instrumentsForJuzgado;
+                })
+            );
+
+            // Flatten the results from all juzgados
+            return results.flat();
         });
-      }
+    }
     private async getZoneAndAgentConditions(zona?: string, agente?: number): Promise<Record<string, any>> {
         const whereConditions: Record<string, any> = {};
 

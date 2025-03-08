@@ -159,8 +159,17 @@ export default class InstrumentoService {
         const instrumentos = await Promise.all(promises);
 
         return instrumentos.flat();
+    }
 
 
+    async getInstrumentosPaginatedByAgent(searchParams: SearchParamsInstrumentos, page: number, agentId: number) {
+        const instrumentos = await this.instrumentoRepository.getInstrumentosByAgentPaginated(agentId, searchParams, page);
+        return instrumentos;
+    }
+
+    async getTotalPagesInstrumentosPaginatedByAgent(searchParams: SearchParamsInstrumentos, agentId: number) {
+        const totalPages = await this.instrumentoRepository.getTotalPagesInstrumentosByAgentPaginated(agentId, searchParams);
+        return totalPages;
     }
 
 

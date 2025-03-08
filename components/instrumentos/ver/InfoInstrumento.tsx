@@ -17,6 +17,7 @@ import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../Dialogs/alert";
 import InstrumentDetailSkeleton from "./InfoInstrumentoSkeleton";
 import InfoInstrumentoNoEncontrado from "./InfoInstrumentoNoEncontrado";
+import { Session } from "next-auth";
 
 // Helper function to get section path from the current URL
 function getSectionPath(path: string): string {
@@ -31,25 +32,57 @@ export default function InfoInstrumento() {
     const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
     const { setIsOpenAlert } = useCustomAlert();
-    
+    const [user, setUser] = useState<Session|null>(null);
+
     // Recuperar los filtros guardados para construir la URL de retorno
     const sectionPath = getSectionPath(pathname);
+
+    // Use a client-side API fetch instead of direct auth() call
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await fetch('/api/auth/session');
+                if (response.ok) {
+                    const data = await response.json();
+                    return data;
+                }
+                return null;
+            } catch (error) {
+                console.error('Error fetching user session:', error);
+                return null;
+            }
+        };
+
+        fetchUser().then((session) => setUser(session));
+    }, []);
+
+
     const [backToListURL, setBackToListURL] = useState("/instrumentos");
     
+    // Update URL when user changes
+    useEffect(() => {
+        if (user?.user.role === "agente") {
+            setBackToListURL("/instrumentos-agente");
+        } else {
+            setBackToListURL("/instrumentos");
+        }
+        console.log("User role:", user?.user.role);
+    }, [user]);
+
     useEffect(() => {
         try {
             // Recuperar los filtros guardados para la sección de instrumentos
-            const savedFilters = localStorage.getItem(`app-filters-/instrumentos`);
-            
+            const savedFilters = localStorage.getItem(`app-filters-/${backToListURL}`);
+
             if (savedFilters) {
                 const parsedFilters = JSON.parse(savedFilters);
                 const params = new URLSearchParams();
-                
+
                 // Construir los parámetros de búsqueda
                 Object.entries(parsedFilters).forEach(([key, value]) => {
                     if (value) params.set(key, value as string);
                 });
-                
+
                 // Crear la URL con los filtros
                 const filterParams = params.toString();
                 const url = filterParams ? `/instrumentos?${filterParams}` : "/instrumentos";
@@ -71,13 +104,13 @@ export default function InfoInstrumento() {
     }, [codigoInstrumento]);
 
     const handleSolicitarCorrecciones = async () => {
-        if(!instrumento) return;
-        try{
+        if (!instrumento) return;
+        try {
             const instrumentoAActualizar = instrumento;
             if (instrumentoAActualizar) {
                 instrumentoAActualizar.estado = EstadoInstrumento.CORRECCIONES_SOLICITADAS;
             }
-            const instrumentoDTO:InstrumentoDTO = {
+            const instrumentoDTO: InstrumentoDTO = {
                 juzgadoIdentifier: instrumentoAActualizar.orden.juzgado.identifier,
                 instrumentoTypeIdentifier: instrumentoAActualizar.instrumentoType.identifier,
                 caratula: instrumentoAActualizar.caratula,
@@ -99,9 +132,9 @@ export default function InfoInstrumento() {
                 });
             }
 
-            
 
-        }catch(e){
+
+        } catch (e) {
             toast({
                 title: "Error",
                 description: "Ocurrió un error al solicitar correcciones",
@@ -126,7 +159,7 @@ export default function InfoInstrumento() {
         return (
             <Card className="w-full mx-auto mt-8">
                 <CustomAlert
-                
+
                     AlertTitle="Solicitar Correcciones"
                     AlertDescription="¿Estás seguro que deseas solicitar correcciones para este instrumento?"
                     propAlertDialogContent={
@@ -266,7 +299,7 @@ export default function InfoInstrumento() {
 
                             <div className="flex items-center space-x-2">
                                 <Info className="h-5 w-5 text-muted-foreground" />
-                                
+
                                 <div>
                                     <p className="text-sm text-muted-foreground">Correcciones</p>
                                     <Button

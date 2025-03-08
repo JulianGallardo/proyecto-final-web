@@ -1,11 +1,11 @@
 import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
-import { getAgenteById } from "@/actions/user-actions";
-import { getAllZones, getZonesByAgent } from "@/actions/zone-actions";
+import { getAgenteById, getAgenteByMail } from "@/actions/user-actions";
+import {  getZonesByAgent } from "@/actions/zone-actions";
 import { auth } from "@/auth"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
+import ServerSideTableAgent from "@/components/instrumentos-agente/server-side-agente-table";
 import FiltrosList from "@/components/instrumentos/Filtros/filtros-list";
 import { TableSkeleton } from "@/components/instrumentos/Skeletons/list-skeleton";
-import ServerSideTable from "@/components/instrumentos/Tabla/server-side-table";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { Suspense } from "react";
 
@@ -18,12 +18,12 @@ export default async function InsturmentosPage(props: Readonly<{
   const session = await auth()
   const searchParams = await props.searchParams;
 
-  if (!session) {
+  if (!session?.user?.email) {
     return <div><NoAutenticado /></div>
   }
 
 
-  const agente = await getAgenteById(Number(session.user.id));
+  const agente = await getAgenteByMail(session.user.email);
 
   const instrumentTypesData = getInstrumentTypes();
   const juzgadosData = getJuzgados();
@@ -38,7 +38,7 @@ export default async function InsturmentosPage(props: Readonly<{
         (zona) => (zona.zoneName)
       )} />
       <Suspense fallback={<TableSkeleton />}>
-        Tabla
+        <ServerSideTableAgent searchParams={searchParams || {}} currentPage={1} agente={agente} />
       </Suspense>
 
 

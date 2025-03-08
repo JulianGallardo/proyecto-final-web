@@ -110,6 +110,8 @@ export async function getInstrumentosPaginated(searchParams: SearchParamsInstrum
     return instrumentos;
 }
 
+
+
 export async function getTotalPagesInstrumentosPaginated(searchParams: SearchParamsInstrumentos) {
     const totalPages = await instrumentoService.getTotalPagesInstrumentosPaginated(searchParams);
     return totalPages;
@@ -150,3 +152,13 @@ export async function createInstrumentos(instrumentos: InstrumentoDTO[]) {
 export async function deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {
     return await instrumentoService.deleteDuplicatePdfEntries(instrumentos);
 }
+
+export async function getInstrumentosPaginatedByAgent(searchParams: SearchParamsInstrumentos, page: number, agentId: number) {
+    return await instrumentoService.getInstrumentosPaginatedByAgent(searchParams, page, agentId);
+}
+
+export async function getTotalPagesInstrumentosPaginatedByAgent(searchParams: SearchParamsInstrumentos, agentId: number) {
+    return await instrumentoService.getTotalPagesInstrumentosPaginatedByAgent(searchParams, agentId);
+}
+
+

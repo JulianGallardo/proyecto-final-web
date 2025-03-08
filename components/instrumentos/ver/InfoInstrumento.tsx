@@ -72,8 +72,9 @@ export default function InfoInstrumento() {
     useEffect(() => {
         try {
             // Recuperar los filtros guardados para la sección de instrumentos
-            const savedFilters = localStorage.getItem(`app-filters-/${backToListURL}`);
+            const savedFilters = localStorage.getItem(`app-filters-${sectionPath}`);
 
+            
             if (savedFilters) {
                 const parsedFilters = JSON.parse(savedFilters);
                 const params = new URLSearchParams();
@@ -82,16 +83,18 @@ export default function InfoInstrumento() {
                 Object.entries(parsedFilters).forEach(([key, value]) => {
                     if (value) params.set(key, value as string);
                 });
-
                 // Crear la URL con los filtros
                 const filterParams = params.toString();
-                const url = filterParams ? `/instrumentos?${filterParams}` : "/instrumentos";
+                const url = filterParams ? `${sectionPath}?${filterParams}` : `${sectionPath}`;
+
+                console.log("Back to list URL:", url);
                 setBackToListURL(url);
             }
+
         } catch (error) {
             console.error("Error obteniendo filtros guardados:", error);
         }
-    }, [pathname]);
+    }, [pathname,user]);
 
     useEffect(() => {
         startTransition(async () => {

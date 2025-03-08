@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 // Helper function to get section path (extrae la sección principal de la URL)
@@ -140,18 +140,18 @@ export function FilterProvider({ children }: Readonly<{ children: ReactNode }>) 
     return searchParams.has(param);
   };
 
+  const contextValue = useMemo(() => ({
+    filters,
+    filterConfigs,
+    setFilterConfigs,
+    applyFilter,
+    clearFilter,
+    clearAllFilters,
+    isFilterActive,
+  }), [filters, filterConfigs, setFilterConfigs, applyFilter, clearFilter, clearAllFilters, isFilterActive]);
+
   return (
-    <FilterContext.Provider
-      value={{
-        filters,
-        filterConfigs,
-        setFilterConfigs,
-        applyFilter,
-        clearFilter,
-        clearAllFilters,
-        isFilterActive,
-      }}
-    >
+    <FilterContext.Provider value={contextValue}>
       {children}
     </FilterContext.Provider>
   );

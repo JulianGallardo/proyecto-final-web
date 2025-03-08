@@ -144,7 +144,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
       const value = searchParams.get(key)?.replace(/\+/g, " ");
       return value === "No registrada" ? "No registrada" : parseDate(value as string) || "";
     }
-    return searchParams.get(key) || "";
+    return searchParams.get(key) ?? "";
   }, [searchParams]);
 
   // State for active filters, using isFilterActive from context

@@ -1,5 +1,5 @@
 import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
-import { getAgenteById, getAgenteByMail } from "@/actions/user-actions";
+import {  getAgenteByMail } from "@/actions/user-actions";
 import {  getZonesByAgent } from "@/actions/zone-actions";
 import { auth } from "@/auth"
 import NoAutenticado from "@/components/error/errorNoAutenticado"

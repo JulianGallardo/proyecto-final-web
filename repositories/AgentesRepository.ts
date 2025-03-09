@@ -33,7 +33,7 @@ export default class AgenteRepository extends BaseRepository<Agente> {
         });
     }
 
-    async findById(id: number) {
+    async findById(id: number): Promise<AgenteExtendidoDto> {
         return this.modelClient.findUnique({
             where: { id },
             include: { user: true, zonas: true, EntregaInstrumentos: true },

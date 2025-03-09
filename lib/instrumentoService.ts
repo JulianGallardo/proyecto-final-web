@@ -172,5 +172,10 @@ export default class InstrumentoService {
         return totalPages;
     }
 
+    async getInstrumentosByAgent(searchParams: SearchParamsInstrumentos,agentId: number) { 
+        return this.instrumentoRepository.getInstrumentosByAgent(agentId, searchParams);
+    }
+
+
 
 }

@@ -161,4 +161,7 @@ export async function getTotalPagesInstrumentosPaginatedByAgent(searchParams: Se
     return await instrumentoService.getTotalPagesInstrumentosPaginatedByAgent(searchParams, agentId);
 }
 
+export async function getInstrumentosByAgent(searchParams: SearchParamsInstrumentos, agentId: number) {
+    return await instrumentoService.getInstrumentosByAgent(searchParams, agentId);
+}
 

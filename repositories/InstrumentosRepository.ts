@@ -532,4 +532,25 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             select: selectOptions,
         });
     }
+
+    async getInstrumentosByAgent(agentId: number, searchParams: SearchParamsInstrumentos): Promise<InstrumentoExtendido[]> {
+        const where = this.buildWhereClause(searchParams);
+
+        // Get the agent's zones
+        const agentZones = await prisma.agente.findUnique({
+            where: { id: agentId },
+            select: { zonas: { select: { zoneName: true } } },
+        });
+
+        // Filter by either histogram entries matching the agent OR by the agent's zones
+        where['OR'] = [
+            { HistorialEntregas: { some: { agenteId: agentId } } },
+            agentZones?.zonas?.length ? { zoneName: { in: agentZones.zonas.map(z => z.zoneName) } } : {}
+        ];
+
+        return this.modelClient.findMany({
+            where,
+            select: selectOptions,
+        });
+    }
 }

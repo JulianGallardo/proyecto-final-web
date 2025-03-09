@@ -6,7 +6,6 @@ import { Check } from "lucide-react";
 import IndicadorFecha from "../instrumentos/Tabla/indicador-fecha";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Eye } from "@mynaui/icons-react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 

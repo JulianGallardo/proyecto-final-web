@@ -7,6 +7,7 @@ import IndicadorFecha from "../instrumentos/Tabla/indicador-fecha";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Eye } from "@mynaui/icons-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 
 
@@ -27,7 +28,7 @@ const DemoraCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
 
 
 export const columnsAgentes = (): ColumnDef<InstrumentoExtendido>[] =>
-    
+
     [
 
         {
@@ -173,18 +174,17 @@ export const columnsAgentes = (): ColumnDef<InstrumentoExtendido>[] =>
             },
             cell: ({ row }) => {
                 const instrumento = row.original;
-                const router = useRouter();
                 return (
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button
-                                className="bg-green-500 hover:bg-green-600"
-                                onClick={() =>
-                                    router.push(`/instrumentos-agente/ver/${instrumento.codigoInstrumento}`)
-                                }
-                            >
-                                <Eye className="h-4 w-4 text-white" />
-                            </Button>
+                            <Link href={`/instrumentos-agente/ver/${instrumento.codigoInstrumento}`} passHref>
+                                <Button
+                                    className="bg-green-500 hover:bg-green-600"
+
+                                >
+                                    <Eye className="h-4 w-4 text-white" />
+                                </Button>
+                            </Link>
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>Ver mas</p>

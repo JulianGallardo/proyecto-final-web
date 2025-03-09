@@ -11,7 +11,17 @@ interface DescargarExcelButtonProps {
 export default function DescargarExcelButton({ searchParams, agenteId }: Readonly<DescargarExcelButtonProps>) {
   const handleDownload = async () => {
     try {
-      const url = new URLSearchParams({ ...searchParams as any, agenteId: agenteId.toString() }).toString();
+      // Create a record of string keys to string values for URLSearchParams
+      const queryParams: Record<string, string> = Object.entries(searchParams)
+        .reduce((acc, [key, value]) => {
+          if (value !== undefined && value !== null) {
+        acc[key] = String(value);
+          }
+          return acc;
+        }, {} as Record<string, string>);
+      
+      // Add the agenteId parameter
+      const url = new URLSearchParams({...queryParams, agenteId: agenteId.toString()}).toString();
       const response = await fetch(`/api/excel-instrumentos-agente?${url}`);
       
       if (!response.ok) {

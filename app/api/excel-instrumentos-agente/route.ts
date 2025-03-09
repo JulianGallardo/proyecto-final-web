@@ -5,20 +5,17 @@ import { getAgenteById } from "@/actions/user-actions";
 
 export async function GET(request: NextRequest) {
     try {
-
         const searchParams = Object.fromEntries(request.nextUrl.searchParams);
         const agenteId = Number(searchParams.agenteId);
         const fechaDesde = searchParams.desde;
         const fechaHasta = searchParams.hasta;
         delete searchParams.agenteId;
-        delete searchParams.fechaDesde;
-        delete searchParams.fechaHasta;
+        delete searchParams.desde;
+        delete searchParams.hasta;
 
         // Get all instruments for the agent (not paginated)
         const instrumentos = await getInstrumentosByAgent(searchParams, agenteId);
         const agente = await getAgenteById(agenteId);
-        
-        
 
         // Format dates for better display
         const formatDate = (dateInput: Date | string | null | undefined) => {
@@ -85,8 +82,8 @@ export async function GET(request: NextRequest) {
             ['']  // Fila vacía como separador
         ], { origin: 'A1' });
         
-        // Agregar los datos a partir de la fila 5
-        XLSX.utils.sheet_add_json(worksheet, worksheetData, { origin: 'A6', skipHeader: false });
+        // Agregar los datos a partir de la fila 7
+        XLSX.utils.sheet_add_json(worksheet, worksheetData, { origin: 'A7', skipHeader: false });
         
         // Actualizar el rango de referencia
         const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
@@ -95,7 +92,7 @@ export async function GET(request: NextRequest) {
             e: { r: range.e.r, c: range.e.c }
         });
         
-        // Estilo base para todas las celdas (bordes negros en negrita y texto centrado)
+        // Estilo base mejorado para todas las celdas (BORDES NEGROS Y GRUESOS)
         const baseStyle = {
             font: { sz: 11 },
             border: {
@@ -110,12 +107,13 @@ export async function GET(request: NextRequest) {
         // Estilo para título y total (más grande y en negrita)
         const titleStyle = {
             font: { bold: true, sz: 14 },
-            alignment: { horizontal: 'center', vertical: 'center' }
-        };
-        
-        const totalStyle = {
-            font: { bold: true, sz: 12 },
-            alignment: { horizontal: 'center', vertical: 'center' }
+            alignment: { horizontal: 'center', vertical: 'center' },
+            border: {
+                top: { style: 'medium', color: { rgb: "000000" } },
+                bottom: { style: 'medium', color: { rgb: "000000" } },
+                left: { style: 'medium', color: { rgb: "000000" } },
+                right: { style: 'medium', color: { rgb: "000000" } }
+            }
         };
         
         const headerStyle = {
@@ -136,14 +134,18 @@ export async function GET(request: NextRequest) {
         
         // Aplicar estilo al total
         const totalCellA2 = XLSX.utils.encode_cell({ r: 1, c: 0 });
-        worksheet[totalCellA2].s = totalStyle;
+        worksheet[totalCellA2].s = titleStyle;
+        
+        // Aplicar estilo al agente
+        const agenteCellA3 = XLSX.utils.encode_cell({ r: 2, c: 0 });
+        worksheet[agenteCellA3].s = baseStyle;
         
         // Aplicar estilo a la fecha de generación
-        const dateCellA3 = XLSX.utils.encode_cell({ r: 2, c: 0 });
-        worksheet[dateCellA3].s = { ...baseStyle, alignment: { horizontal: 'center' } };
+        const dateCellA5 = XLSX.utils.encode_cell({ r: 4, c: 0 });
+        worksheet[dateCellA5].s = baseStyle;
         
-        // Aplicar estilo a los encabezados de las columnas (fila 5)
-        const headerRow = 4; // La fila 5 en base 0
+        // Aplicar estilo a los encabezados de las columnas
+        const headerRow = 6; // Fila de encabezados
         for (let C = 0; C <= range.e.c; ++C) {
             const address = XLSX.utils.encode_cell({ r: headerRow, c: C });
             if (worksheet[address]) {
@@ -151,7 +153,7 @@ export async function GET(request: NextRequest) {
             }
         }
         
-        // Aplicar estilo a todas las celdas de datos
+        // Aplicar estilo a todas las celdas de datos con bordes negros gruesos
         for (let R = headerRow + 1; R <= range.e.r; ++R) {
             for (let C = 0; C <= range.e.c; ++C) {
                 const address = XLSX.utils.encode_cell({ r: R, c: C });
@@ -165,7 +167,8 @@ export async function GET(request: NextRequest) {
         worksheet['!merges'] = [
             { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // Título en toda la anchura
             { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }, // Total en toda la anchura
-            { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }, // Fecha en toda la anchura
+            { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }, // Agente en toda la anchura
+            { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } }, // Fecha en toda la anchura
         ];
         
         // Agregar hoja al libro

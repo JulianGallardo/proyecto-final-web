@@ -1,5 +1,6 @@
 "use client";
 
+import { Download } from "lucide-react";
 import { Button } from "../ui/button";
 import SearchParamsInstrumentos from "@/types/searchParams";
 
@@ -53,7 +54,9 @@ export default function DescargarExcelButton({ searchParams, agenteId }: Readonl
       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit"
       onClick={handleDownload}
     >
-      Descargar Excel
+      <Download size={16} className="mr-2" />
+      Descargar Listado
+
     </Button>
   );
 }

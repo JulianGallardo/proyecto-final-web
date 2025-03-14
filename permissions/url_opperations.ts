@@ -71,6 +71,8 @@ const routeList:{path: string, handler: Permission}[] = [
 
     {path: "/instrumentos-agente", handler: {resource: Resource.INSTRUMENTOS_AGENTE, operation: Operation.LIST }},
     {path: "/instrumentos-agente/ver/:id", handler: {resource: Resource.INSTRUMENTOS_AGENTE, operation: Operation.READ }},
+
+    {path: "/subzonas", handler: {resource: Resource.SUB_ZONAS, operation: Operation.LIST }},
    
 ]
 routeList.forEach(route => recognizer.add([route]));

@@ -43,6 +43,7 @@ const navItems = [
   { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
   { href: "/control-agente", label: "Estadísticas", icon: ChartGraph, resource: Resource.CONTROL_AGENTE },
   { href: "/instrumentos-agente", label: "Mi Carpeta", icon: Package, resource: Resource.INSTRUMENTOS_AGENTE },
+  { href: "/subzonas", label: "Subzonas", icon: Map, resource: Resource.SUB_ZONAS },
 ];
 
 const personalItems = [

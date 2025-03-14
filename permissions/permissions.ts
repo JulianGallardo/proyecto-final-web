@@ -6,6 +6,9 @@ const agentePrivileges: PermissionList[] = [
     { resource: Resource.ENTREGAS, operations: [Operation.CREATE, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.LIST] },
     { resource: Resource.INSTRUMENTOS_AGENTE, operations: [Operation.LIST, Operation.READ, Operation.UPDATE] },
     { resource: Resource.CONTROL_AGENTE, operations: [Operation.READ] },
+    {
+        resource: Resource.SUB_ZONAS, operations: [Operation.CREATE, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.LIST]
+    }
 
 ];
 

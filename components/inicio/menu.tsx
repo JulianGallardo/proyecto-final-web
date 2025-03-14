@@ -26,6 +26,7 @@ export default function Menu() {
     { resource: Resource.CONTROL_AGENTE, title: "Estadísticas", description: "Visualiza tus estadísticas de entrega.", icon: ChartGraph, path: "/control-agente" },
     { resource: Resource.MESA_ENTRADA, title: "Mesa de Entrada", description: "Gestiona el personal de mesa de entrada.", icon: Table, path: "/mesa-de-entrada" },
     { resource: Resource.INSTRUMENTOS_AGENTE, title: "Mi Carpeta", description: "Visualiza tus instrumentos asignados.", icon: Book, path: "/instrumentos-agente" },
+    { resource: Resource.SUB_ZONAS, title: "Subzonas", description: "Administra las subzonas del sistema.", icon: Map, path: "/subzonas" },
   ];
 
   // Filter items based on user permissions

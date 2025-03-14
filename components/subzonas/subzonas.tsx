@@ -3,10 +3,9 @@ import { useMemo, useState } from "react";
 import { Map, Source, Layer } from "@vis.gl/react-maplibre";
 import { MapBounds, MapCenter } from "@/types/MapTypes";
 import { ZoneDtoWithSubZones } from "@/types/ZoneTypes";
-import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
-import { Layers } from "lucide-react";
+import { Layers, Edit, X } from "lucide-react";
 
 interface ZonesAgenteProps {
     zonasBDD: ZoneDtoWithSubZones[];
@@ -14,7 +13,8 @@ interface ZonesAgenteProps {
 
 export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const [showSubZones, setShowSubZones] = useState(false);
-
+    const [selectedZone, setSelectedZone] = useState<ZoneDtoWithSubZones | null>(null);
+    const [editMode, setEditMode] = useState(false);
 
     // Convertir las zonas al formato GeoJSON
     const zonesGeoJSON = useMemo(() => ({
@@ -25,13 +25,39 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     // Convertir las subzonas al formato GeoJSON
     const subZonesGeoJSON = useMemo(() => ({
         type: "FeatureCollection",
-        features: getSubZones(zonasBDD)
-    }), [zonasBDD]);
+        features: getSubZones(selectedZone ? [selectedZone] : showSubZones ? zonasBDD : [])
+    }), [zonasBDD, selectedZone, showSubZones]);
+
+    // Función para manejar el clic en una zona
+    const handleZoneClick = (event: any) => {
+        const features = event.target.queryRenderedFeatures(event.point, { layers: ['zones-fill'] });
+        
+        if (features.length > 0) {
+            const clickedZoneName = features[0].properties.name;
+            const zone = zonasBDD.find(z => z.zoneName === clickedZoneName);
+            
+            if (zone) {
+                setSelectedZone(zone);
+                setShowSubZones(true);
+            }
+        }
+    };
+
+    // Función para salir del modo de edición y deseleccionar la zona
+    const handleExitEdit = () => {
+        setSelectedZone(null);
+        setEditMode(false);
+    };
+
+    // Función para activar el modo de edición de subzonas
+    const toggleEditMode = () => {
+        setEditMode(!editMode);
+    };
 
     return (
         <div className="relative flex flex-col w-full h-full">
-        {
-            zonasBDD && zonasBDD.length > 0 && (
+            {/* Botón para mostrar/ocultar todas las subzonas */}
+            {zonasBDD && zonasBDD.length > 0 && !selectedZone && (
                 <div className="absolute top-3 left-3 z-10">
                     <Button
                         variant={showSubZones ? "default" : "outline"}
@@ -43,8 +69,51 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                         Subzonas
                     </Button>
                 </div>
-            )
-        }
+            )}
+
+            {/* Panel de edición de zona seleccionada */}
+            {selectedZone && (
+                <div className="absolute top-3 left-3 z-10 bg-white p-3 rounded-md shadow-lg min-w-64">
+                    <div className="flex justify-between items-center mb-2">
+                        <h3 className="font-bold">Zona: {selectedZone.zoneName}</h3>
+                        <Button variant="ghost" size="sm" onClick={handleExitEdit}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
+                        <Button
+                            variant={editMode ? "default" : "outline"}
+                            size="sm"
+                            onClick={toggleEditMode}
+                            className="flex items-center gap-2"
+                        >
+                            <Edit className="h-4 w-4" />
+                            {editMode ? "Guardando cambios..." : "Editar subzonas"}
+                        </Button>
+                        
+                        {editMode && (
+                            <div className="mt-2">
+                                <p className="text-sm text-gray-500 mb-2">
+                                    Subzonas disponibles: {selectedZone.SubZonas.length}
+                                </p>
+                                <div className="max-h-64 overflow-y-auto">
+                                    {selectedZone.SubZonas.map((subzone, index) => (
+                                        <div key={index} className="py-1 border-b border-gray-100 text-sm">
+                                            {subzone.zoneName}
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                {/* Aquí irían los controles para editar las subzonas */}
+                                <div className="mt-3 text-xs text-gray-500">
+                                    En un caso real, aquí estarían las herramientas de dibujo y edición para las subzonas
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <Map
                 id="mymap"
@@ -56,6 +125,9 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 maxBounds={MapBounds}
                 style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}
                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+                onClick={handleZoneClick}
+                interactiveLayerIds={['zones-fill']}
+                cursor={editMode ? 'crosshair' : 'pointer'}
             >
                 {/* Capa de Zonas */}
                 {zonesGeoJSON.features.length > 0 && (
@@ -65,7 +137,8 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                             type="fill"
                             paint={{
                                 "fill-color": ["get", "color"],
-                                "fill-opacity": 0.2
+                                "fill-opacity": selectedZone ? 
+                                  ["case", ["==", ["get", "name"], selectedZone.zoneName], 0.4, 0.1] : 0.2
                             }}
                         />
                         <Layer
@@ -73,7 +146,8 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                             type="line"
                             paint={{
                                 "line-color": ["get", "color"],
-                                "line-width": 2
+                                "line-width": selectedZone ? 
+                                  ["case", ["==", ["get", "name"], selectedZone.zoneName], 3, 1] : 2
                             }}
                         />
                         <Layer
@@ -92,14 +166,14 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 )}
 
                 {/* Capa de Subzonas */}
-                {showSubZones && subZonesGeoJSON.features.length > 0 && (
+                {subZonesGeoJSON.features.length > 0 && (
                     <Source id="subzones-source" type="geojson" data={subZonesGeoJSON}>
                         <Layer
                             id="subzones-fill"
                             type="fill"
                             paint={{
                                 "fill-color": ["get", "parentColor"],
-                                "fill-opacity": 0.1
+                                "fill-opacity": editMode ? 0.3 : 0.1
                             }}
                         />
                         <Layer
@@ -107,7 +181,8 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                             type="line"
                             paint={{
                                 "line-color": ["get", "parentColor"],
-                                "line-width": 1
+                                "line-width": editMode ? 2 : 1,
+                                "line-dasharray": editMode ? [2, 1] : [1, 0]
                             }}
                         />
                         <Layer

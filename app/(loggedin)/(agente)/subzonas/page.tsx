@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
-import Areas from "@/components/areas/maps/map"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
+import SubzonasMap from "@/components/subzonas/subzonas"
 
 export default async function SubZonas() {
   const session = await auth()
@@ -11,7 +11,7 @@ export default async function SubZonas() {
 
   return (
     <div className="flex h-full w-full  ">
-      <Areas />
+      <SubzonasMap />
     </div>
 
   )

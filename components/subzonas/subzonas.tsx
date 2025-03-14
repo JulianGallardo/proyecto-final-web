@@ -6,8 +6,9 @@ import { Layer, Map, Source, FullscreenControl, NavigationControl } from "@vis.g
 import "maplibre-gl/dist/maplibre-gl.css";
 import { ClipLoader } from "react-spinners";
 import { MapCenter, MapBounds } from "@/types/MapTypes";
+import TerraDrawHandlerSubZonas from "./terraDrawHandlerSubZonas";
 
-export default function Subzonas() {
+export default function SubzonasMap() {
 
 
     return (
@@ -55,6 +56,8 @@ export default function Subzonas() {
                 />
                 
             </Map>
+            <TerraDrawHandlerSubZonas />
+
 
         </div>
     );

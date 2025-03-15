@@ -2,18 +2,22 @@
 import { useMemo, useState } from "react";
 import { Map, Source, Layer } from "@vis.gl/react-maplibre";
 import { MapBounds, MapCenter } from "@/types/MapTypes";
-import { ZoneDtoWithSubZones } from "@/types/ZoneTypes";
+import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
-import { Layers, Edit, X } from "lucide-react";
+import { Layers} from "lucide-react";
+import EditSidePanelSubzones from "./editSidePanel";
+import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 
 interface ZonesAgenteProps {
-    zonasBDD: ZoneDtoWithSubZones[];
+    zonasBDD: ExtendedZone[];
+    terraDraw:MaplibreTerradrawControl;
+    
 }
 
-export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
+export default function SubZonesEdit({ zonasBDD,terraDraw }: Readonly<ZonesAgenteProps>) {
     const [showSubZones, setShowSubZones] = useState(false);
-    const [selectedZone, setSelectedZone] = useState<ZoneDtoWithSubZones | null>(null);
+    const [selectedZone, setSelectedZone] = useState<ExtendedZone | null>(null);
     const [editMode, setEditMode] = useState(false);
 
     // Convertir las zonas al formato GeoJSON
@@ -31,11 +35,11 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     // Función para manejar el clic en una zona
     const handleZoneClick = (event: any) => {
         const features = event.target.queryRenderedFeatures(event.point, { layers: ['zones-fill'] });
-        
+
         if (features.length > 0) {
             const clickedZoneName = features[0].properties.name;
             const zone = zonasBDD.find(z => z.zoneName === clickedZoneName);
-            
+
             if (zone) {
                 setSelectedZone(zone);
                 setShowSubZones(true);
@@ -73,45 +77,8 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
 
             {/* Panel de edición de zona seleccionada */}
             {selectedZone && (
-                <div className="absolute top-3 left-3 z-10 bg-white p-3 rounded-md shadow-lg min-w-64">
-                    <div className="flex justify-between items-center mb-2">
-                        <h3 className="font-bold">Zona: {selectedZone.zoneName}</h3>
-                        <Button variant="ghost" size="sm" onClick={handleExitEdit}>
-                            <X className="h-4 w-4" />
-                        </Button>
-                    </div>
-                    
-                    <div className="flex flex-col gap-2">
-                        <Button
-                            variant={editMode ? "default" : "outline"}
-                            size="sm"
-                            onClick={toggleEditMode}
-                            className="flex items-center gap-2"
-                        >
-                            <Edit className="h-4 w-4" />
-                            {editMode ? "Guardando cambios..." : "Editar subzonas"}
-                        </Button>
-                        
-                        {editMode && (
-                            <div className="mt-2">
-                                <p className="text-sm text-gray-500 mb-2">
-                                    Subzonas disponibles: {selectedZone.SubZonas.length}
-                                </p>
-                                <div className="max-h-64 overflow-y-auto">
-                                    {selectedZone.SubZonas.map((subzone, index) => (
-                                        <div key={index} className="py-1 border-b border-gray-100 text-sm">
-                                            {subzone.zoneName}
-                                        </div>
-                                    ))}
-                                </div>
-                                
-                                {/* Aquí irían los controles para editar las subzonas */}
-                                <div className="mt-3 text-xs text-gray-500">
-                                    En un caso real, aquí estarían las herramientas de dibujo y edición para las subzonas
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                <div className="absolute z-10 h-full w-full">
+                    <EditSidePanelSubzones zone={selectedZone} draw={terraDraw} />
                 </div>
             )}
 
@@ -137,8 +104,8 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                             type="fill"
                             paint={{
                                 "fill-color": ["get", "color"],
-                                "fill-opacity": selectedZone ? 
-                                  ["case", ["==", ["get", "name"], selectedZone.zoneName], 0.4, 0.1] : 0.2
+                                "fill-opacity": selectedZone ?
+                                    ["case", ["==", ["get", "name"], selectedZone.zoneName], 0.4, 0.1] : 0.2
                             }}
                         />
                         <Layer
@@ -146,8 +113,8 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                             type="line"
                             paint={{
                                 "line-color": ["get", "color"],
-                                "line-width": selectedZone ? 
-                                  ["case", ["==", ["get", "name"], selectedZone.zoneName], 3, 1] : 2
+                                "line-width": selectedZone ?
+                                    ["case", ["==", ["get", "name"], selectedZone.zoneName], 3, 1] : 2
                             }}
                         />
                         <Layer

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoadSkeleton } from "../areas/maps/map";
 import { Separator } from "../ui/separator";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger } from "../ui/sidebar";
@@ -10,6 +10,9 @@ import { Card } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import { Edit2 } from "lucide-react";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
+import { DrawingModes, FeatureId, OnFinishContext } from "@/types/MapTypes";
+import { useSubZones } from "@/hooks/useSubZones";
+import { handleFinish } from "@/lib/mapUtils/terraDrawUtils";
 
 interface EditSidePanelSubzonesProps {
     zone: ExtendedZone;
@@ -18,17 +21,57 @@ interface EditSidePanelSubzonesProps {
 }
 
 export default function EditSidePanelSubzones(
-    { zone,
+    {
+        zone,
         draw,
         exitEditMode
     }: Readonly<EditSidePanelSubzonesProps>
 ) {
+
+    const [mode, setMode] = useState<DrawingModes>(DrawingModes.SinSeleccionar);
     const [transactionLoading, setTransactionLoading] = useState(false);
     const [selectedSubzone, setSelectedSubzone] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const {
+        subZones,
+        setSubZones,
+        fetchSubZones,
+        addNewSubZoneToMap,
+
+    } = useSubZones(draw, zone);
+
+
+
+
+    useEffect(() => {
+
+        fetchSubZones()
+            .then(() => setLoading(false))
+            .catch((error) => {
+                throw new Error(error);
+            });
+
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        const callback = (id: FeatureId, context: OnFinishContext) => {
+            const parseId = id as string;
+            handleFinish(parseId, context, draw, addNewSubZoneToMap, setMode, setSubZones);
+            
+        };
+        draw.getTerraDrawInstance().on("finish", callback);
+        return () => {
+            terraDrawInstance.off("finish", callback);
+        };
+    }, [draw]);
+
 
     const handleAddSubzone = () => {
-        // Implement add subzone logic
-        console.log("Add subzone");
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        setMode(DrawingModes.CreandoZonas);
+        terraDrawInstance.setMode(DrawingModes.CreandoZonas);
+
+        
+
     };
 
     const handleEditSubzone = (id: string) => {
@@ -88,8 +131,8 @@ export default function EditSidePanelSubzones(
                                         <Card
                                             key={subzona.id}
                                             className={`p-3 cursor-pointer border transition-all ${selectedSubzone === subzona.id
-                                                    ? "border-primary shadow-sm"
-                                                    : "hover:bg-gray-50"
+                                                ? "border-primary shadow-sm"
+                                                : "hover:bg-gray-50"
                                                 }`}
                                             onClick={() => handleSubzoneClick(subzona.id)}
                                         >

@@ -7,7 +7,7 @@ import ZoneList from "../ZoneList/ZoneList";
 import { GeoJSONStoreFeatures } from "terra-draw";
 import PanelHeader from "./PanelHeader";
 import { AddZoneDialog } from "../Dialogs/NewZoneDialog";
-import { CustomFeature, DrawingModes, FeatureId } from "@/types/MapTypes";
+import { CustomFeature, DrawingModes, FeatureId, OnFinishContext } from "@/types/MapTypes";
 import { EditZoneDialog } from "../Dialogs/EditZoneDialog";
 import { LoadSkeleton } from "@/components/areas/maps/map";
 import { writeZoneInfoToLocalStorage, getZoneInfoFromLocalStorage } from "@/lib/mapUtils/localStorageUtils";
@@ -22,9 +22,7 @@ interface MapControlPanelProps {
     colorCache: ColorCache;
 }
 
-interface OnFinishContext {
-    action: string, mode: string
-}
+
 
 export default function MapControlPanel({ draw, colorCache }: Readonly<MapControlPanelProps>) {
     const { isMobile, setOpenMobile } = useSidebar();

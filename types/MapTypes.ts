@@ -30,3 +30,7 @@ export interface Subzone {
 
 }
 
+export interface OnFinishContext {
+    action: string, mode: string
+}
+

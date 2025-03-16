@@ -3,8 +3,6 @@ import { getZonesByAgent } from "@/actions/zone-actions"
 import { auth } from "@/auth"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 import SubzonasMap from "@/components/subzonas/subzonas"
-import TerraDrawHandlerSubZonas from "@/components/subzonas/terraDrawHandlerSubZonas"
-
 export default async function SubZonas() {
   const session = await auth()
 

@@ -53,11 +53,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         setEditMode(false);
     };
 
-    // Función para activar el modo de edición de subzonas
-    const toggleEditMode = () => {
-        setEditMode(!editMode);
-    };
-
     return (
         <div className="relative flex flex-col w-full h-full">
             {/* Botón para mostrar/ocultar todas las subzonas */}

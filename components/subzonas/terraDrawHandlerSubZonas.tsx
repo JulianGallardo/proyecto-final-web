@@ -5,13 +5,13 @@ import { MaplibreTerradrawControl, TerradrawControlOptions } from "@watergis/map
 import { useEffect, useMemo, useState } from "react";
 import { generateTerraDrawOptions } from "@/lib/mapUtils/terraDrawOptions";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
-import SubZonesEdit from "./subzonas";
 import { ExtendedZone } from "@/types/ZoneTypes";
+import EditSidePanelSubzones from "./editSidePanel";
 
 export default function TerraDrawHandlerSubZonas(
-    { zonasBDD }: Readonly<{ zonasBDD: ExtendedZone[] }>
+    { selectedZone }: Readonly<{ selectedZone: ExtendedZone }>
 ) {
-    
+
     const { mymap } = useMap(); // Hook para obtener el mapa
     const [draw, setDraw] = useState<MaplibreTerradrawControl | null>(null); // Estado para el controlador
     const colorCache = useMemo(() => new ColorCache(), []);
@@ -35,7 +35,10 @@ export default function TerraDrawHandlerSubZonas(
 
     return (
         <div>
-            <SubZonesEdit zonasBDD={zonasBDD} terraDraw={draw} />
+            <EditSidePanelSubzones
+                zone={selectedZone}
+                draw={draw}
+            />
         </div>
     )
 

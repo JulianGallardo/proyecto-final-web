@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Layers} from "lucide-react";
 import EditSidePanelSubzones from "./editSidePanel";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
+import TerraDrawHandlerSubZonas from "./terraDrawHandlerSubZonas";
 
 interface ZonesAgenteProps {
     zonasBDD: ExtendedZone[];
-    terraDraw:MaplibreTerradrawControl;
     
 }
 
-export default function SubZonesEdit({ zonasBDD,terraDraw }: Readonly<ZonesAgenteProps>) {
+export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const [showSubZones, setShowSubZones] = useState(false);
     const [selectedZone, setSelectedZone] = useState<ExtendedZone | null>(null);
     const [editMode, setEditMode] = useState(false);
@@ -78,7 +78,7 @@ export default function SubZonesEdit({ zonasBDD,terraDraw }: Readonly<ZonesAgent
             {/* Panel de edición de zona seleccionada */}
             {selectedZone && (
                 <div className="absolute z-10 h-full w-full">
-                    <EditSidePanelSubzones zone={selectedZone} draw={terraDraw} />
+                    <TerraDrawHandlerSubZonas selectedZone={selectedZone} />
                 </div>
             )}
 

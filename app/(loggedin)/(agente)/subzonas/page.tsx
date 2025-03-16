@@ -25,7 +25,8 @@ export default async function SubZonas() {
 
   return (
     <div className="flex h-full w-full  ">
-      <TerraDrawHandlerSubZonas zonasBDD={zonasBDD} />
+      <SubzonasMap zonasBDD={zonasBDD}  />
+
     </div>
 
   )

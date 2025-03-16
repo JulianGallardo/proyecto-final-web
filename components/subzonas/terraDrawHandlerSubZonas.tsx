@@ -8,8 +8,16 @@ import { ColorCache } from "@/lib/mapUtils/colorCache";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import EditSidePanelSubzones from "./editSidePanel";
 
+
+interface TerraDrawHandlerSubZonasProps {
+    selectedZone: ExtendedZone;
+    exitEditMode: () => void;
+
+}
+
+
 export default function TerraDrawHandlerSubZonas(
-    { selectedZone }: Readonly<{ selectedZone: ExtendedZone }>
+    { selectedZone,exitEditMode }: Readonly<TerraDrawHandlerSubZonasProps>
 ) {
 
     const { mymap } = useMap(); // Hook para obtener el mapa
@@ -28,16 +36,21 @@ export default function TerraDrawHandlerSubZonas(
         const mapControl = document.getElementsByClassName("maplibregl-ctrl maplibregl-ctrl-group")[0];
         mapControl.setAttribute("style", "visibility: hidden;");
 
+        return () => {
+            mymap.removeControl(newDraw);
+        };
+
     }, [mymap, colorCache]);
 
     if (!draw) return null;
 
 
     return (
-        <div>
+        <div className="flex flex-row w-full h-full">
             <EditSidePanelSubzones
                 zone={selectedZone}
                 draw={draw}
+                exitEditMode={exitEditMode}
             />
         </div>
     )

@@ -78,7 +78,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
             {/* Panel de edición de zona seleccionada */}
             {selectedZone && (
                 <div className="absolute z-10 h-full w-full">
-                    <TerraDrawHandlerSubZonas selectedZone={selectedZone} />
+                    <TerraDrawHandlerSubZonas exitEditMode={handleExitEdit} selectedZone={selectedZone} />
                 </div>
             )}
 

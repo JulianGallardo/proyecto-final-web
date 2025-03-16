@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LoadSkeleton } from "../areas/maps/map";
 import { Separator } from "../ui/separator";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger } from "../ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger } from "../ui/sidebar";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { SadCircle, Plus, Trash } from "@mynaui/icons-react";
 import { Button } from "../ui/button";
@@ -14,10 +14,14 @@ import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 interface EditSidePanelSubzonesProps {
     zone: ExtendedZone;
     draw: MaplibreTerradrawControl;
+    exitEditMode: () => void;
 }
 
 export default function EditSidePanelSubzones(
-    { zone }: Readonly<EditSidePanelSubzonesProps>
+    { zone,
+        draw,
+        exitEditMode
+    }: Readonly<EditSidePanelSubzonesProps>
 ) {
     const [transactionLoading, setTransactionLoading] = useState(false);
     const [selectedSubzone, setSelectedSubzone] = useState<string | null>(null);
@@ -45,7 +49,7 @@ export default function EditSidePanelSubzones(
         <div className="flex flex-row w-full h-full">
             <div className="w-full h-full flex flex-row">
                 {transactionLoading && <LoadSkeleton />}
-                
+
                 <Sidebar title="Panel de control" description="Panel de control de las subzonas en un área." className="">
                     <SidebarHeader>
                         <div className="flex flex-col items-start w-full p-2">
@@ -66,9 +70,9 @@ export default function EditSidePanelSubzones(
                     <SidebarContent className="flex flex-col gap-4 w-full p-2">
                         <div className="flex justify-between items-center mb-2">
                             <h2 className="text-sm font-semibold text-gray-700">Todas las subzonas</h2>
-                            <Button 
-                                size="sm" 
-                                variant="outline" 
+                            <Button
+                                size="sm"
+                                variant="outline"
                                 className="flex items-center gap-1"
                                 onClick={handleAddSubzone}
                             >
@@ -81,27 +85,26 @@ export default function EditSidePanelSubzones(
                             {zone.SubZonas.length > 0 ? (
                                 <div className="flex flex-col gap-2">
                                     {zone.SubZonas.map((subzona) => (
-                                        <Card 
-                                            key={subzona.id} 
-                                            className={`p-3 cursor-pointer border transition-all ${
-                                                selectedSubzone === subzona.id 
-                                                    ? "border-primary shadow-sm" 
+                                        <Card
+                                            key={subzona.id}
+                                            className={`p-3 cursor-pointer border transition-all ${selectedSubzone === subzona.id
+                                                    ? "border-primary shadow-sm"
                                                     : "hover:bg-gray-50"
-                                            }`}
+                                                }`}
                                             onClick={() => handleSubzoneClick(subzona.id)}
                                         >
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-2">
-                                                    <div 
-                                                        className="w-3 h-3 rounded-full" 
+                                                    <div
+                                                        className="w-3 h-3 rounded-full"
                                                         style={{ backgroundColor: zone.zoneColor }}
                                                     />
                                                     <p className="font-medium">{subzona.zoneName}</p>
                                                 </div>
                                                 <div className="flex items-center gap-1">
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="sm" 
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
                                                         className="h-7 w-7 p-0"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -110,9 +113,9 @@ export default function EditSidePanelSubzones(
                                                     >
                                                         <Edit2 className="w-4 h-4 text-gray-500" />
                                                     </Button>
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="sm" 
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
                                                         className="h-7 w-7 p-0"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -123,7 +126,7 @@ export default function EditSidePanelSubzones(
                                                     </Button>
                                                 </div>
                                             </div>
-                                            
+
                                             {selectedSubzone === subzona.id && (
                                                 <div className="mt-2 pt-2 border-t text-sm text-gray-500">
                                                     <p className="mb-1">ID: <span className="font-mono text-xs">{subzona.id}</span></p>
@@ -137,8 +140,8 @@ export default function EditSidePanelSubzones(
                                 <div className="flex flex-col items-center justify-center py-10 text-center">
                                     <SadCircle className="w-10 h-10 text-gray-400 mb-3" />
                                     <p className="text-gray-500 mb-2">No hay subzonas en esta área</p>
-                                    <Button 
-                                        size="sm" 
+                                    <Button
+                                        size="sm"
                                         onClick={handleAddSubzone}
                                         className="mt-2"
                                     >
@@ -148,6 +151,16 @@ export default function EditSidePanelSubzones(
                             )}
                         </ScrollArea>
                     </SidebarContent>
+                    <SidebarFooter>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="w-full"
+                            onClick={() => exitEditMode()}
+                        >
+                            Cerrar
+                        </Button>
+                    </SidebarFooter>
                 </Sidebar>
 
                 <SidebarTrigger className="flex items-center justify-center h-full bg-white" />

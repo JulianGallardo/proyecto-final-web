@@ -72,7 +72,10 @@ export default function EditSidePanelSubzones(
         const terraDrawInstance = draw.getTerraDrawInstance();
         const callback = (id: FeatureId, context: OnFinishContext) => {
             const parseId = id as string;
-            handleFinish(parseId, context, draw, addNewSubZoneToMap, setMode, setSubZones);
+
+
+
+            handleFinish(parseId, context, draw, addNewSubZoneToMap, setMode, setSubZones, zone);
         };
         draw.getTerraDrawInstance().on("finish", callback);
         return () => {

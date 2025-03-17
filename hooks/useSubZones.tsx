@@ -120,6 +120,7 @@ export function useSubZones(
         }
 
         const newZone = {
+            id: subZone.id,
             type: "Feature",
             geometry: {
                 type: "Polygon",

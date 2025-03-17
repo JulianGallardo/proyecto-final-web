@@ -109,6 +109,9 @@ function handleCreateSubArea(
 
     if (newFeature?.id === undefined) return;
 
+
+    console.log("newFeature", newFeature.id);
+
     if (isSelfIntersectingPolygon(newFeature)) {
         toast({
             title: "Error",
@@ -125,6 +128,7 @@ function handleCreateSubArea(
 
     const newSubZoneDelimited = adjustSubzoneToZoneBoundaries(newFeature, zone);
 
+    
 
     if (newSubZoneDelimited !== null) {
         intersectsWithZone = true;
@@ -139,11 +143,10 @@ function handleCreateSubArea(
         return;
     }
 
-    console.log("nueva zona pre cortes", newSubZoneDelimited);
+    console.log("newFeature", newSubZoneDelimited.id);
 
     const intersectsWith = isIntersectingWithMapPolygon(newSubZoneDelimited, features);
 
-    console.log("intersecciones", intersectsWith);
     try {
 
         if (intersectsWith.length > 0) {
@@ -154,7 +157,6 @@ function handleCreateSubArea(
             }
         }
         else {
-            console.log("no intersecta con nada");
             newFeature.geometry.coordinates = newSubZoneDelimited.geometry.coordinates as Position[][];
         }
 
@@ -175,7 +177,6 @@ function handleCreateSubArea(
 
     }
 
-    console.log("nueva zona post cortes", newFeature);
 
 
     const newZoneInfo = JSON.parse(localStorage.getItem("newSubZone") as string);
@@ -194,7 +195,7 @@ function handleCreateSubArea(
 
     setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
 
-
+    console.log("newFeature", newFeature.id);
     terraDrawInstance.setMode("render");
     setMode(DrawingModes.SinSeleccionar);
 }
@@ -218,8 +219,6 @@ function adjustSubzoneToZoneBoundaries(
             subzone.geometry.coordinates as Position[][]
         );
 
-        console.log(subzonePolygon);
-
 
         const zoneCoords = zone.geometry.coordinates.map((coords) => [
             coords.latitude,
@@ -234,8 +233,6 @@ function adjustSubzoneToZoneBoundaries(
         const isWithin = turf.booleanWithin(subzonePolygon, zonePolygon);
 
 
-        console.log('asdasda', isWithin);
-
         if (isWithin) {
             // Si ya está dentro, retornar la subzona sin cambios
             return subzone as CustomFeature;
@@ -243,8 +240,6 @@ function adjustSubzoneToZoneBoundaries(
 
         // Calcular la intersección entre la subzona y la zona
         const intersection = turf.intersect(turf.featureCollection([subzonePolygon, zonePolygon]));
-
-        console.log("intersection", intersection);
 
 
         // Si no hay intersección (están completamente separados)

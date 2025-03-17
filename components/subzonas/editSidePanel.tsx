@@ -56,13 +56,13 @@ export default function EditSidePanelSubzones(
     } = useSubZones(draw, colorCache, zone);
 
     function calculateNewSubzoneName() {
-        console.log(subZones);
         const lastSubzone = subZones[subZones.length - 1];
-        console.log(lastSubzone);
         if (!lastSubzone) return `A`;
         const lastLetter = lastSubzone.properties.name.charCodeAt(0);
         return String.fromCharCode(lastLetter + 1);
     }
+
+
 
     useEffect(() => {
         fetchSubZones()
@@ -123,6 +123,8 @@ export default function EditSidePanelSubzones(
     };
 
     const confirmDeleteSubzone = (id: string) => {
+        console.log("confirmDeleteSubzone -> id", id);
+        console.log(draw.getFeatures());
         setSubzoneToDelete(id);
         setOpenDelete(true);
     };

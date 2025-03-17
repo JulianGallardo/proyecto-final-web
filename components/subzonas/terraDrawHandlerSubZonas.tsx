@@ -42,6 +42,11 @@ export default function TerraDrawHandlerSubZonas(
 
     }, [mymap, colorCache]);
 
+    useEffect(() => {
+        console.log(colorCache);
+    }
+        , [colorCache])
+
     if (!draw) return null;
 
 

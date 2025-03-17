@@ -133,7 +133,7 @@ export function useSubZones(
             },
         } as GeoJSONStoreFeatures;
 
-        colorCache.saveDataToColorCache(`"${zone.id}"`, subZone.properties.color);
+        colorCache.saveDataToColorCache(`"${newZone.id}"`, subZone.properties.color);
         terraDrawInstance.addFeatures([newZone]);
     }
 
@@ -144,7 +144,7 @@ export function useSubZones(
 
             if (featureToDelete.id) {
                 terraDrawInstance.removeFeatures([featureToDelete.id]);
-                colorCache.deleteDataInColorCache(`"${zone.id}"`);
+                colorCache.deleteDataInColorCache(`"${featureToDelete.id}"`);
             }
         } catch (error) {
             if (error instanceof Error) {

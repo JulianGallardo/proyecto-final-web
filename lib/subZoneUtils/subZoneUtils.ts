@@ -147,7 +147,6 @@ function handleCreateSubArea(
     const newZoneInfo =  JSON.parse(localStorage.getItem("newSubZone") as string) ;
     console.log(localStorage.getItem("newSubZone"));
     localStorage.removeItem("newSubZone")
-    console.log(newZoneInfo)
     
 
     newFeature.properties.color = newZoneInfo.color;

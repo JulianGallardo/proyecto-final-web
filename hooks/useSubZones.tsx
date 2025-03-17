@@ -4,9 +4,11 @@ import { useState } from "react";
 import { GeoJSONStoreFeatures } from "terra-draw";
 import { toast } from "./use-toast";
 import { ExtendedZone } from "@/types/ZoneTypes";
+import { ColorCache } from "@/lib/mapUtils/colorCache";
 
 export function useSubZones(
     terraDrawControl: MaplibreTerradrawControl,
+    colorCache: ColorCache,
     zone: ExtendedZone
 ) {
     const [subZones, setSubZones] = useState<CustomFeature[]>([]); // Estado de zonas
@@ -130,9 +132,8 @@ export function useSubZones(
             },
         } as GeoJSONStoreFeatures;
 
-        console.log(newZone);
-
-        console.log(terraDrawInstance.addFeatures([newZone]));
+        colorCache.saveDataToColorCache(`"${zone.id}"`, subZone.properties.color);
+        terraDrawInstance.addFeatures([newZone]);
     }
 
     function deleteSubZone(featureToDelete: CustomFeature) {
@@ -142,7 +143,7 @@ export function useSubZones(
 
             if (featureToDelete.id) {
                 terraDrawInstance.removeFeatures([featureToDelete.id]);
-
+                colorCache.deleteDataInColorCache(`"${zone.id}"`);
             }
         } catch (error) {
             if (error instanceof Error) {

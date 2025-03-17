@@ -49,6 +49,7 @@ export default function TerraDrawHandlerSubZonas(
         <div className="flex flex-row w-full h-full">
             <EditSidePanelSubzones
                 zone={selectedZone}
+                colorCache={colorCache}
                 draw={draw}
                 exitEditMode={exitEditMode}
             />

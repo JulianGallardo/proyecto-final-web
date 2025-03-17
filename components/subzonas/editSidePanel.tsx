@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { LoadSkeleton } from "../areas/maps/map";
 import { Separator } from "../ui/separator";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger } from "../ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger, useSidebar } from "../ui/sidebar";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { SadCircle, Plus, Trash } from "@mynaui/icons-react";
 import { Button } from "../ui/button";
@@ -20,9 +20,12 @@ import {
     TooltipTrigger,
 } from "../ui/tooltip";
 import { ConfirmDelete } from "../areas/ui/Dialogs/ConfirmDelete";
+import { ColorCache } from "@/lib/mapUtils/colorCache";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EditSidePanelSubzonesProps {
     zone: ExtendedZone;
+    colorCache: ColorCache;
     draw: MaplibreTerradrawControl;
     exitEditMode: () => void;
 }
@@ -31,6 +34,7 @@ export default function EditSidePanelSubzones(
     {
         zone,
         draw,
+        colorCache,
         exitEditMode
     }: Readonly<EditSidePanelSubzonesProps>
 ) {
@@ -41,13 +45,15 @@ export default function EditSidePanelSubzones(
     const [loading, setLoading] = useState(true);
     const [openDelete, setOpenDelete] = useState(false);
     const [subzoneToDelete, setSubzoneToDelete] = useState<string | null>(null);
+    const {setOpen} = useSidebar();
+    const isMobile = useIsMobile();
 
     const {
         subZones,
         setSubZones,
         fetchSubZones,
         addNewSubZoneToMap,
-    } = useSubZones(draw, zone);
+    } = useSubZones(draw, colorCache, zone);
 
     function calculateNewSubzoneName() {
         const lastSubzone = zone.SubZonas[zone.SubZonas.length - 1];
@@ -81,10 +87,11 @@ export default function EditSidePanelSubzones(
         localStorage.setItem("newSubZone", JSON.stringify(
             {
                 color: zone.zoneColor,
-                zoneName: calculateNewSubzoneName(),
+                name: calculateNewSubzoneName(),
             }));
 
         terraDrawInstance.setMode("polygon");
+        if(isMobile) setOpen(false);
     };
 
     const handleEditSubzone = (id: string) => {
@@ -93,13 +100,17 @@ export default function EditSidePanelSubzones(
         const terraDrawInstance = draw.getTerraDrawInstance();
         setMode(DrawingModes.EditandoZonas);
         terraDrawInstance.selectFeature(id);
+        if(isMobile) setOpen(false);
     };
 
     const handleDeleteSubzone = (id: string) => {
         const subzone = subZones.find((subzona) => subzona.id === id);
         if (!subzone) return;
-        console.log("Deleting subzone", subzone);
-        // Aquí iría la lógica real de eliminación
+        
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        terraDrawInstance.setMode("render");
+        terraDrawInstance.removeFeatures([id]);
+        setSubZones(subZones.filter((subzona) => subzona.id !== id));
     };
 
     const handleSubzoneClick = (id: string) => {
@@ -123,7 +134,7 @@ export default function EditSidePanelSubzones(
             <div className="w-full h-full flex flex-row">
                 {transactionLoading && <LoadSkeleton />}
 
-                <Sidebar title="Panel de control" description="Panel de control de las subzonas en un área." className="">
+                <Sidebar title="Panel de control" description="Panel de control de las subzonas en un área." >
                     <SidebarHeader>
                         <div className="flex flex-col items-start w-full p-2">
                             <div className="flex items-center justify-between w-full">
@@ -163,78 +174,83 @@ export default function EditSidePanelSubzones(
                         </div>
 
                         <ScrollArea className="h-[calc(100vh-220px)] pr-2">
-                            {zone.SubZonas.length > 0 ? (
+                            {subZones.length > 0 ? (
                                 <div className="flex flex-col gap-2">
-                                    {zone.SubZonas.map((subzona) => (
-                                        <Card
-                                            key={subzona.id}
-                                            className={`p-3 cursor-pointer border transition-all ${selectedSubzone === subzona.id
-                                                ? "border-primary shadow-sm"
-                                                : "hover:bg-gray-50"
-                                                } flex flex-col gap-3 shadow-lg border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow`}
-                                            onClick={() => handleSubzoneClick(subzona.id)}
-                                        >
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex items-center gap-2">
-                                                    <div
-                                                        className="w-6 h-6 rounded-full border border-gray-300"
-                                                        style={{ backgroundColor: zone.zoneColor }}
-                                                    />
-                                                    <p className="font-bold text-sm md:text-md truncate">{subzona.zoneName}</p>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <TooltipProvider>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    className="h-8 w-8 p-0 bg-yellow-500 hover:bg-yellow-800 text-white"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleEditSubzone(subzona.id);
-                                                                    }}
-                                                                >
-                                                                    <Edit2 className="w-4 h-4" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent side="top">
-                                                                <p>Editar subzona</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </TooltipProvider>
+                                    {subZones.filter(subzona => subzona.id !== undefined).map((subzona) => {
+                                        // Asegurarnos de que id no es undefined ni null
+                                        const subzonaId = String(subzona.id || '');
+                                        
+                                        return subzonaId && (
+                                            <Card
+                                                key={subzonaId}
+                                                className={`p-3 cursor-pointer border transition-all ${selectedSubzone === subzonaId
+                                                    ? "border-primary shadow-sm"
+                                                    : "hover:bg-gray-50"
+                                                    } flex flex-col gap-3 shadow-lg border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow`}
+                                                onClick={() => handleSubzoneClick(subzonaId)}
+                                            >
+                                                <div className="flex justify-between items-center">
+                                                    <div className="flex items-center gap-2">
+                                                        <div
+                                                            className="w-6 h-6 rounded-full border border-gray-300"
+                                                            style={{ backgroundColor: zone.zoneColor }}
+                                                        />
+                                                        <p className="font-bold text-sm md:text-md truncate">{subzona.properties.name}</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <TooltipProvider>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-8 w-8 p-0 bg-yellow-500 hover:bg-yellow-800 text-white"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleEditSubzone(subzonaId);
+                                                                        }}
+                                                                    >
+                                                                        <Edit2 className="w-4 h-4" />
+                                                                    </Button>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side="top">
+                                                                    <p>Editar subzona</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
 
-                                                    <TooltipProvider>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    className="h-8 w-8 p-0 bg-red-500 hover:bg-red-800 text-white"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        confirmDeleteSubzone(subzona.id);
-                                                                    }}
-                                                                >
-                                                                    <Trash className="w-4 h-4" />
-                                                                </Button>
-                                                            </TooltipTrigger>
-                                                            <TooltipContent side="top">
-                                                                <p>Eliminar subzona</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </TooltipProvider>
+                                                        <TooltipProvider>
+                                                            <Tooltip>
+                                                                <TooltipTrigger asChild>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-8 w-8 p-0 bg-red-500 hover:bg-red-800 text-white"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            confirmDeleteSubzone(subzonaId);
+                                                                        }}
+                                                                    >
+                                                                        <Trash className="w-4 h-4" />
+                                                                    </Button>
+                                                                </TooltipTrigger>
+                                                                <TooltipContent side="top">
+                                                                    <p>Eliminar subzona</p>
+                                                                </TooltipContent>
+                                                            </Tooltip>
+                                                        </TooltipProvider>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {selectedSubzone === subzona.id && (
-                                                <div className="mt-2 pt-2 border-t text-sm text-gray-500">
-                                                    <p className="mb-1">ID: <span className="font-mono text-xs">{subzona.id}</span></p>
-                                                    <p>Área: {subzona.zoneName || "No especificada"} m²</p>
-                                                </div>
-                                            )}
-                                        </Card>
-                                    ))}
+                                                {selectedSubzone === subzonaId && (
+                                                    <div className="mt-2 pt-2 border-t text-sm text-gray-500">
+                                                        <p className="mb-1">ID: <span className="font-mono text-xs">{subzonaId}</span></p>
+                                                        <p>Área: {subzona.properties.name || "No especificada"} m²</p>
+                                                    </div>
+                                                )}
+                                            </Card>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -264,18 +280,17 @@ export default function EditSidePanelSubzones(
                     <SidebarFooter>
                         <Button
                             size="sm"
-                            className="w-full bg-blue-500 hover:bg-blue-800 text-white" 
+                            className="w-full bg-blue-500 hover:bg-blue-800 text-white"
                             onClick={() => exitEditMode()}
                         >
                             Salir
-                            
                         </Button>
                     </SidebarFooter>
                 </Sidebar>
 
                 <SidebarTrigger className="flex items-center justify-center h-full bg-white" />
             </div>
-            
+
             <ConfirmDelete
                 title={`¿Estás seguro de borrar esta subzona?`}
                 description="Esta acción no se puede deshacer."

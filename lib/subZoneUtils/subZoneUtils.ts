@@ -120,6 +120,7 @@ function handleCreateSubArea(
             duration: 3000,
         });
         terraDrawInstance.removeFeatures([newFeature.id]);
+        
         return;
     }
 

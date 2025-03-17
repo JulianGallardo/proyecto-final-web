@@ -1,22 +1,29 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { Map, Source, Layer } from "@vis.gl/react-maplibre";
 import { MapBounds, MapCenter } from "@/types/MapTypes";
 import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
-import { Layers} from "lucide-react";
+import { Layers } from "lucide-react";
 import TerraDrawHandlerSubZonas from "./terraDrawHandlerSubZonas";
 
 interface ZonesAgenteProps {
     zonasBDD: ExtendedZone[];
-    
 }
 
 export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const [showSubZones, setShowSubZones] = useState(false);
     const [selectedZone, setSelectedZone] = useState<ExtendedZone | null>(null);
     const [editMode, setEditMode] = useState(false);
+    // Agregar una referencia al mapa
+    const mapRef = useRef(null);
+    // Guardar la vista inicial para volver a ella
+    const [initialViewState, setInitialViewState] = useState({
+        longitude: MapCenter.lng,
+        latitude: MapCenter.lat,
+        zoom: 11.5
+    });
 
     // Convertir las zonas al formato GeoJSON
     const zonesGeoJSON = useMemo(() => ({
@@ -30,6 +37,62 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         features: getSubZones(selectedZone ? [selectedZone] : showSubZones ? zonasBDD : [])
     }), [zonasBDD, selectedZone, showSubZones]);
 
+    // Crear el GeoJSON para el sombreado (el inverso de la zona seleccionada)
+    const maskGeoJSON = useMemo(() => {
+        if (!selectedZone) return null;
+        
+        // Obtener las coordenadas de la zona seleccionada
+        const selectedZoneCoordinates = selectedZone.geometry.coordinates.map(
+            coord => [coord.latitude, coord.longitude]
+        );
+        
+        // Crear un polígono que cubra todo el mapa y tenga un "agujero" en forma de la zona seleccionada
+        return {
+            type: "FeatureCollection",
+            features: [{
+                type: "Feature",
+                properties: {},
+                geometry: {
+                    type: "Polygon",
+                    // Primer array son las coordenadas externas (un rectángulo grande que cubre el mapa)
+                    // Segundo array son las coordenadas de la zona seleccionada (agujero)
+                    coordinates: [
+                        // Un rectángulo grande que cubre el mapa (usar los límites máximos)
+                        [
+                            [MapBounds[0][0], MapBounds[0][1]],  // esquina suroeste
+                            [MapBounds[0][0], MapBounds[1][1]],  // esquina noroeste
+                            [MapBounds[1][0], MapBounds[1][1]],  // esquina noreste
+                            [MapBounds[1][0], MapBounds[0][1]],  // esquina sureste
+                            [MapBounds[0][0], MapBounds[0][1]],  // cerrar el polígono
+                        ],
+                        // El "agujero" con la forma de la zona seleccionada
+                        selectedZoneCoordinates
+                    ]
+                }
+            }]
+        };
+    }, [selectedZone]);
+
+    // Función para calcular los límites de un polígono
+    const calculateBounds = (coordinates: any[]) => {
+        let minLat = Infinity;
+        let maxLat = -Infinity;
+        let minLng = Infinity;
+        let maxLng = -Infinity;
+
+        coordinates.forEach(coord => {
+            minLat = Math.min(minLat, coord[0]);
+            maxLat = Math.max(maxLat, coord[0]);
+            minLng = Math.min(minLng, coord[1]);
+            maxLng = Math.max(maxLng, coord[1]);
+        });
+
+        return [
+            [minLat, minLng], // suroeste
+            [maxLat, maxLng]  // noreste
+        ];
+    };
+
     // Función para manejar el clic en una zona
     const handleZoneClick = (event: any) => {
         const features = event.target.queryRenderedFeatures(event.point, { layers: ['zones-fill'] });
@@ -39,8 +102,30 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
             const zone = zonasBDD.find(z => z.zoneName === clickedZoneName);
 
             if (zone) {
+                // Guardar la vista actual antes de cambiarla
+                if (!selectedZone) {
+                    const map = event.target;
+                    setInitialViewState({
+                        longitude: map.getCenter().lng,
+                        latitude: map.getCenter().lat,
+                        zoom: map.getZoom()
+                    });
+                }
+                
                 setSelectedZone(zone);
                 setShowSubZones(true);
+
+                // Calcular límites de la zona seleccionada
+                const coordinates = zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude]);
+                const bounds = calculateBounds(coordinates);
+                
+                // Ajustar la vista con un pequeño padding
+                const map = event.target;
+                map.fitBounds(bounds, {
+                    padding: 50, // padding alrededor del área
+                    maxZoom: 16,  // evitar zoom excesivo
+                    duration: 1000 // duración de la animación en ms
+                });
             }
         }
     };
@@ -49,6 +134,16 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const handleExitEdit = () => {
         setSelectedZone(null);
         setEditMode(false);
+        
+        // Hacer zoom out a la vista inicial
+        if (mapRef.current) {
+            const map = mapRef.current;
+            map.flyTo({
+                center: [initialViewState.longitude, initialViewState.latitude],
+                zoom: initialViewState.zoom,
+                duration: 1000 // duración de la animación en ms
+            });
+        }
     };
 
     return (
@@ -77,6 +172,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
 
             <Map
                 id="mymap"
+                ref={mapRef}
                 initialViewState={{
                     longitude: MapCenter.lng,
                     latitude: MapCenter.lat,
@@ -89,6 +185,20 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 interactiveLayerIds={['zones-fill']}
                 cursor={editMode ? 'crosshair' : 'pointer'}
             >
+                {/* Capa de sombreado para áreas fuera de la zona seleccionada */}
+                {selectedZone && maskGeoJSON && (
+                    <Source id="mask-source" type="geojson" data={maskGeoJSON}>
+                        <Layer
+                            id="mask-fill"
+                            type="fill"
+                            paint={{
+                                "fill-color": "#888888",
+                                "fill-opacity": 0.5
+                            }}
+                        />
+                    </Source>
+                )}
+
                 {/* Capa de Zonas */}
                 {zonesGeoJSON.features.length > 0 && (
                     <Source id="zones-source" type="geojson" data={zonesGeoJSON}>

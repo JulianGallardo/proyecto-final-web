@@ -6,8 +6,6 @@ import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
 import { Layers} from "lucide-react";
-import EditSidePanelSubzones from "./editSidePanel";
-import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import TerraDrawHandlerSubZonas from "./terraDrawHandlerSubZonas";
 
 interface ZonesAgenteProps {
@@ -72,7 +70,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
 
             {/* Panel de edición de zona seleccionada */}
             {selectedZone && (
-                <div className="absolute z-10 h-full w-full">
+                <div className="absolute z-10 h-full ">
                     <TerraDrawHandlerSubZonas exitEditMode={handleExitEdit} selectedZone={selectedZone} />
                 </div>
             )}

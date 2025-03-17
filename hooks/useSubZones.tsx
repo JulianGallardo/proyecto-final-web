@@ -42,8 +42,8 @@ export function useSubZones(
         const subZonesCustomFeatures: CustomFeature[] = subZones.map((subZone) => {
             // Crear un array de coordenadas redondeadas a 9 decimales
             const roundedCoordinates = subZone.geometry.coordinates.map(coord => [
-                parseFloat(coord.longitude.toFixed(9)),
-                parseFloat(coord.latitude.toFixed(9))
+                parseFloat(coord.latitude.toFixed(9)),
+                parseFloat(coord.longitude.toFixed(9))
             ]);
     
             const zoneToCustomFeature = {
@@ -74,9 +74,9 @@ export function useSubZones(
         return subZonesCustomFeatures;
     }
 
-    function addNewSubZoneToMap(zone: CustomFeature) {
+    function addNewSubZoneToMap(subZone: CustomFeature) {
         // Check if the polygon is already closed
-        const coordinates = zone.geometry.coordinates;
+        const coordinates = subZone.geometry.coordinates;
 
 
 
@@ -125,8 +125,8 @@ export function useSubZones(
             },
             properties: {
                 mode: "polygon",
-                color: zone.properties.color,
-                name: zone.properties.name
+                color: subZone.properties.color,
+                name: subZone.properties.name
             },
         } as GeoJSONStoreFeatures;
 

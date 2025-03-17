@@ -56,9 +56,11 @@ export default function EditSidePanelSubzones(
     } = useSubZones(draw, colorCache, zone);
 
     function calculateNewSubzoneName() {
-        const lastSubzone = zone.SubZonas[zone.SubZonas.length - 1];
+        console.log(subZones);
+        const lastSubzone = subZones[subZones.length - 1];
+        console.log(lastSubzone);
         if (!lastSubzone) return `A`;
-        const lastLetter = lastSubzone.zoneName.charCodeAt(0);
+        const lastLetter = lastSubzone.properties.name.charCodeAt(0);
         return String.fromCharCode(lastLetter + 1);
     }
 

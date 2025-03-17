@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState, useRef, useEffect } from "react";
-import { Map, Source, Layer } from "@vis.gl/react-maplibre";
+import { Map, Source, Layer, useMap } from "@vis.gl/react-maplibre";
 import { MapBounds, MapCenter } from "@/types/MapTypes";
 import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -17,7 +17,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const [selectedZone, setSelectedZone] = useState<ExtendedZone | null>(null);
     const [editMode, setEditMode] = useState(false);
     // Agregar una referencia al mapa
-    const mapRef = useRef(null);
+    const {mymap} = useMap();
     // Guardar la vista inicial para volver a ella
     const [initialViewState, setInitialViewState] = useState({
         longitude: MapCenter.lng,
@@ -136,9 +136,9 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         setEditMode(false);
         
         // Hacer zoom out a la vista inicial
-        if (mapRef.current) {
-            const map = mapRef.current;
-            map.flyTo({
+        if (mymap) {
+            
+            mymap.flyTo({
                 center: [initialViewState.longitude, initialViewState.latitude],
                 zoom: initialViewState.zoom,
                 duration: 1000 // duración de la animación en ms
@@ -172,7 +172,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
 
             <Map
                 id="mymap"
-                ref={mapRef}
                 initialViewState={{
                     longitude: MapCenter.lng,
                     latitude: MapCenter.lat,

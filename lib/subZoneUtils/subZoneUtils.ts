@@ -4,7 +4,6 @@ import * as turf from "@turf/turf";
 import { GeoJSONStoreFeatures, TerraDraw } from "terra-draw";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import React from "react";
-import { Feature, GeoJsonProperties, Polygon } from "geojson";
 import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon, reDrawPolygonWithNoIntersection } from "../mapUtils/terraDrawUtils";
 import { ExtendedZone } from "@/types/ZoneTypes";
 
@@ -13,7 +12,7 @@ function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
     return draw.getFeatures()?.features?.find((feature: GeoJSON.Feature) => feature.id === id);
 }
 
-function handleFinish(
+function handleFinishSubzones(
     id: FeatureId,
     context: { action: string, mode: string },
     draw: MaplibreTerradrawControl,
@@ -34,24 +33,57 @@ function handleFinish(
     }
 
     if (action === "dragCoordinate" && newFeature?.id) {
-        handleEditIntersections(draw, newFeature, terraDrawInstance, addNewZoneToMap);
+        handleEditIntersections(draw, newFeature,zone, terraDrawInstance, addNewZoneToMap);
     }
 }
 
-function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
+function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures,zone:ExtendedZone, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
+
+    let intersectsWithZonePolygon = false;
+    if(newFeature?.id === undefined) return;
+
+
+
+    const newSubZoneDelimited = adjustSubzoneToZoneBoundaries(newFeature, zone);
+
+    if(newSubZoneDelimited !== null){
+        intersectsWithZonePolygon = true;
+    }
+
+
+    if(newSubZoneDelimited === null){
+        toast({
+            title: "Error",
+            description: "No se puede hacer la diferencia entre los poligonos ya que genera un área partida",
+            className: "bg-red-500 text-white",
+            duration: 3000,
+        });
+        terraDrawInstance.removeFeatures([newFeature.id]);
+        return;
+    }
+
+
     const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
-    const intersectsWith = isIntersectingWithMapPolygon(newFeature, features);
+    const intersectsWith = isIntersectingWithMapPolygon(newSubZoneDelimited, features);
     if (intersectsWith.length <= 0)
         return;
 
     intersectsWith.forEach(featureIntersected => {
-        const newIntersectedFeatured = reDrawPolygonEditWithNoIntersection(featureIntersected, [newFeature]);
+        const newIntersectedFeatured = reDrawPolygonEditWithNoIntersection(featureIntersected, [newSubZoneDelimited]);
         if (featureIntersected?.id) {
             featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
             terraDrawInstance.removeFeatures([featureIntersected.id]);
             addNewZoneToMap(featureIntersected as CustomFeature, true);
         }
     });
+
+    if(intersectsWithZonePolygon){
+        terraDrawInstance.deselectFeature(newFeature.id as FeatureId);
+        terraDrawInstance.removeFeatures([newFeature.id]);
+        addNewZoneToMap(newSubZoneDelimited as CustomFeature, true);
+        terraDrawInstance.selectFeature(newSubZoneDelimited.id as FeatureId);
+    }
+
 
 
 }
@@ -110,7 +142,6 @@ function handleCreateSubArea(
     if (newFeature?.id === undefined) return;
 
 
-    console.log("newFeature", newFeature.id);
 
     if (isSelfIntersectingPolygon(newFeature)) {
         toast({
@@ -120,7 +151,7 @@ function handleCreateSubArea(
             duration: 3000,
         });
         terraDrawInstance.removeFeatures([newFeature.id]);
-        
+
         return;
     }
 
@@ -129,7 +160,7 @@ function handleCreateSubArea(
 
     const newSubZoneDelimited = adjustSubzoneToZoneBoundaries(newFeature, zone);
 
-    
+
 
     if (newSubZoneDelimited !== null) {
         intersectsWithZone = true;
@@ -196,7 +227,6 @@ function handleCreateSubArea(
 
     setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
 
-    console.log("newFeature", newFeature.id);
     terraDrawInstance.setMode("render");
     setMode(DrawingModes.SinSeleccionar);
 }
@@ -332,4 +362,4 @@ function adjustSubzoneToZoneBoundaries(
 
 
 
-export { handleFinish };
+export { handleFinishSubzones };

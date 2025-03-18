@@ -12,7 +12,7 @@ import { Edit2 } from "lucide-react";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import { DrawingModes, FeatureId, OnFinishContext } from "@/types/MapTypes";
 import { useSubZones } from "@/hooks/useSubZones";
-import { handleFinish } from "@/lib/subZoneUtils/subZoneUtils";
+import {  handleFinishSubzones } from "@/lib/subZoneUtils/subZoneUtils";
 import {
     Tooltip,
     TooltipContent,
@@ -79,7 +79,7 @@ export default function EditSidePanelSubzones(
 
 
 
-            handleFinish(parseId, context, draw, addNewSubZoneToMap, setMode, setSubZones, zone);
+            handleFinishSubzones(parseId, context, draw, addNewSubZoneToMap, setMode, setSubZones, zone);
         };
         draw.getTerraDrawInstance().on("finish", callback);
 

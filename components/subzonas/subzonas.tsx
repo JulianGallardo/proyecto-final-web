@@ -17,7 +17,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const [selectedZone, setSelectedZone] = useState<ExtendedZone | null>(null);
     const [editMode, setEditMode] = useState(false);
     // Agregar una referencia al mapa
-    const {mymap} = useMap();
+    const { mymap } = useMap();
     // Guardar la vista inicial para volver a ella
     const [initialViewState, setInitialViewState] = useState({
         longitude: MapCenter.lng,
@@ -40,12 +40,12 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     // Crear el GeoJSON para el sombreado (el inverso de la zona seleccionada)
     const maskGeoJSON = useMemo(() => {
         if (!selectedZone) return null;
-        
+
         // Obtener las coordenadas de la zona seleccionada
         const selectedZoneCoordinates = selectedZone.geometry.coordinates.map(
             coord => [coord.latitude, coord.longitude]
         );
-        
+
         // Crear un polígono que cubra todo el mapa y tenga un "agujero" en forma de la zona seleccionada
         return {
             type: "FeatureCollection",
@@ -111,14 +111,14 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                         zoom: map.getZoom()
                     });
                 }
-                
+
                 setSelectedZone(zone);
                 setShowSubZones(true);
 
                 // Calcular límites de la zona seleccionada
                 const coordinates = zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude]);
                 const bounds = calculateBounds(coordinates);
-                
+
                 // Ajustar la vista con un pequeño padding
                 const map = event.target;
                 map.fitBounds(bounds, {
@@ -134,10 +134,10 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const handleExitEdit = () => {
         setSelectedZone(null);
         setEditMode(false);
-        
+
         // Hacer zoom out a la vista inicial
         if (mymap) {
-            
+
             mymap.flyTo({
                 center: [initialViewState.longitude, initialViewState.latitude],
                 zoom: initialViewState.zoom,
@@ -266,8 +266,26 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                                 "text-color": ["get", "parentColor"]
                             }}
                         />
+
                     </Source>
+
                 )}
+
+                <Source id="subzones-edit-source" type="geojson" data={[]}>
+                    
+                    <Layer
+                        id="subzones-edit-label"
+                        type="symbol"
+                        layout={{
+                            "text-field": ["get", "name"],
+                            "text-size": 12,
+                            "text-anchor": "center"
+                        }}
+                        paint={{
+                            "text-color": ["get", "parentColor"]
+                        }}
+                    />
+                </Source>
             </Map>
         </div>
     );

@@ -22,6 +22,7 @@ import {
 import { ConfirmDelete } from "../areas/ui/Dialogs/ConfirmDelete";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMap } from "@vis.gl/react-maplibre";
 
 interface EditSidePanelSubzonesProps {
     zone: ExtendedZone;
@@ -45,8 +46,9 @@ export default function EditSidePanelSubzones(
     const [loading, setLoading] = useState(true);
     const [openDelete, setOpenDelete] = useState(false);
     const [subzoneToDelete, setSubzoneToDelete] = useState<string | null>(null);
-    const {setOpen} = useSidebar();
+    const { setOpen } = useSidebar();
     const isMobile = useIsMobile();
+    const { mymap } = useMap();
 
     const {
         subZones,
@@ -80,10 +82,32 @@ export default function EditSidePanelSubzones(
             handleFinish(parseId, context, draw, addNewSubZoneToMap, setMode, setSubZones, zone);
         };
         draw.getTerraDrawInstance().on("finish", callback);
+
+
+
         return () => {
             terraDrawInstance.off("finish", callback);
         };
     }, [draw]);
+
+    useEffect(() => {
+        if (mymap) {
+            const mapInstance = mymap.getMap();
+
+
+
+            mapInstance.getSource("subzones-edit-source")?.setData({
+                type: "FeatureCollection",
+                features: subZones
+            });
+
+
+
+        }
+
+    }, [subZones, mymap]);
+
+
 
     const handleAddSubzone = () => {
         const terraDrawInstance = draw.getTerraDrawInstance();
@@ -96,7 +120,7 @@ export default function EditSidePanelSubzones(
             }));
 
         terraDrawInstance.setMode("polygon");
-        if(isMobile) setOpen(false);
+        if (isMobile) setOpen(false);
     };
 
     const handleEditSubzone = (id: string) => {
@@ -105,13 +129,13 @@ export default function EditSidePanelSubzones(
         const terraDrawInstance = draw.getTerraDrawInstance();
         setMode(DrawingModes.EditandoZonas);
         terraDrawInstance.selectFeature(id);
-        if(isMobile) setOpen(false);
+        if (isMobile) setOpen(false);
     };
 
     const handleDeleteSubzone = (id: string) => {
         const subzone = subZones.find((subzona) => subzona.id === id);
         if (!subzone) return;
-        
+
         const terraDrawInstance = draw.getTerraDrawInstance();
         terraDrawInstance.setMode("render");
         terraDrawInstance.removeFeatures([id]);
@@ -186,7 +210,7 @@ export default function EditSidePanelSubzones(
                                     {subZones.filter(subzona => subzona.id !== undefined).map((subzona) => {
                                         // Asegurarnos de que id no es undefined ni null
                                         const subzonaId = String(subzona.id || '');
-                                        
+
                                         return subzonaId && (
                                             <Card
                                                 key={subzonaId}

@@ -1,5 +1,5 @@
 import { toast } from "@/hooks/use-toast";
-import { CustomFeature, DrawingModes, FeatureId, Position } from "@/types/MapTypes";
+import { CustomFeature,  DrawingModesSubZonas, FeatureId, Position } from "@/types/MapTypes";
 import * as turf from "@turf/turf";
 import { GeoJSONStoreFeatures, TerraDraw } from "terra-draw";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
@@ -17,7 +17,7 @@ function handleFinishSubzones(
     context: { action: string, mode: string },
     draw: MaplibreTerradrawControl,
     addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void,
-    setMode: (mode: DrawingModes) => void,
+    setMode: (mode: DrawingModesSubZonas) => void,
     setZones: React.Dispatch<React.SetStateAction<CustomFeature[]>>,
     zone: ExtendedZone
 
@@ -132,7 +132,7 @@ function handleCreateSubArea(
     zone: ExtendedZone,
     terraDrawInstance: TerraDraw,
     draw: MaplibreTerradrawControl,
-    setMode: (mode: DrawingModes) => void,
+    setMode: (mode: DrawingModesSubZonas) => void,
     setZones: React.Dispatch<React.SetStateAction<CustomFeature[]>>,
     addNewZoneToMap: (zone: CustomFeature) => void
 ) {
@@ -228,7 +228,7 @@ function handleCreateSubArea(
     setZones((prevZones) => [...prevZones, newFeature as CustomFeature]);
 
     terraDrawInstance.setMode("render");
-    setMode(DrawingModes.SinSeleccionar);
+    setMode(DrawingModesSubZonas.SinSeleccionar);
 }
 
 /**

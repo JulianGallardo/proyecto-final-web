@@ -13,6 +13,7 @@ interface ZonesAgenteProps {
 }
 
 export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
+    const [zoneBounds, setZoneBounds] = useState<number[][] | null>(null);
     const [showSubZones, setShowSubZones] = useState(false);
     const [selectedZone, setSelectedZone] = useState<ExtendedZone | null>(null);
     const [editMode, setEditMode] = useState(false);
@@ -119,12 +120,14 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 const coordinates = zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude]);
                 const bounds = calculateBounds(coordinates);
 
-                // Ajustar la vista con un pequeño padding
-                const map = event.target;
-                map.fitBounds(bounds, {
-                    padding: 50, // padding alrededor del área
-                    maxZoom: 16,  // evitar zoom excesivo
-                    duration: 1000 // duración de la animación en ms
+                // Guardar los límites calculados
+                setZoneBounds(bounds);
+
+                
+                mymap?.fitBounds(bounds, {
+                    padding: 50,
+                    maxZoom: 16,
+                    duration: 1000
                 });
             }
         }
@@ -134,17 +137,23 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const handleExitEdit = () => {
         setSelectedZone(null);
         setEditMode(false);
+        setZoneBounds(null); // Restaurar los límites originales
 
         // Hacer zoom out a la vista inicial
         if (mymap) {
-
             mymap.flyTo({
                 center: [initialViewState.longitude, initialViewState.latitude],
                 zoom: initialViewState.zoom,
-                duration: 1000 // duración de la animación en ms
+                duration: 1000
             });
         }
     };
+
+
+    useEffect(() => {
+        console.log(zoneBounds);
+    }, [zoneBounds]);
+
 
     return (
         <div className="relative flex flex-col w-full h-full">
@@ -177,12 +186,14 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                     latitude: MapCenter.lat,
                     zoom: 11.5
                 }}
-                maxBounds={MapBounds}
-                style={{ width: "100%", height: "100%", borderRadius: "0.5rem" }}
+                maxBounds={ MapBounds} // Usa zoneBounds si existe, o MapBounds por defecto
+                style={{ width: "100%", height: "100%" }}
                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
                 onClick={handleZoneClick}
                 interactiveLayerIds={['zones-fill']}
                 cursor={editMode ? 'crosshair' : 'pointer'}
+               
+                
             >
                 {/* Capa de sombreado para áreas fuera de la zona seleccionada */}
                 {selectedZone && maskGeoJSON && (
@@ -272,7 +283,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 )}
 
                 <Source id="subzones-edit-source" type="geojson" data={[]}>
-                    
+
                     <Layer
                         id="subzones-edit-label"
                         type="symbol"

@@ -244,6 +244,7 @@ export default function EditSidePanelSubzones(
                             editing={editing}
                             setEditing={setEditing}
                             onEdit={handleEditSubZones}
+                            exitSubZoneView={exitEditMode}
 
 
                             discardChanges={handleDiscardChanges}

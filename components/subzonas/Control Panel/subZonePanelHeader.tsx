@@ -19,6 +19,7 @@ interface SubZonePanelHeaderProps {
     subZones: any[];
     zone: ExtendedZone;
     mode: DrawingModesSubZonas;
+    exitSubZoneView: () => void;
 }
 
 
@@ -35,7 +36,8 @@ export default function SubZonePanelHeader(
         onEdit,
         subZones,
         zone,
-        mode
+        mode,
+        exitSubZoneView
     }: Readonly<SubZonePanelHeaderProps>
 ) {
 
@@ -69,7 +71,7 @@ export default function SubZonePanelHeader(
                     setRenderMode={setRenderMode}
                 />
                     :
-                    <SubZoneViewPanel setEditing={setEditing} />
+                    <SubZoneViewPanel setEditing={setEditing} exitSubZoneView={exitSubZoneView} />
             }
 
         </div>

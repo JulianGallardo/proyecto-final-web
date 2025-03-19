@@ -72,7 +72,6 @@ export default async function Navbar() {
         <Link href="/inicio" className="">
           <Button variant="ghost" className="text-gray-200 hover:text-blue-400">
             <Home className="w-6 h-6" />
-            <span className="text-sm hidden md:flex">Inicio</span>
           </Button>
         </Link>
 

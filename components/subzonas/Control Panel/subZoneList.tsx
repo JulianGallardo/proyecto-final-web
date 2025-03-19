@@ -1,16 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ExtendedZone } from "@/types/ZoneTypes";
-import { Plus, SadCircle, Trash } from "@mynaui/icons-react";
+import { SadCircle, Trash } from "@mynaui/icons-react";
 import { Edit2 } from "lucide-react";
 
 interface SubZoneListProps {
     selectedSubzone: string | null;
-    handleSubzoneClick: (subzoneId: string) => void;
     handleEditSubzone: (subzoneId: string) => void;
     confirmDeleteSubzone: (subzoneId: string) => void;
-    handleAddSubzone: () => void;
     subZones: any[];
     zone: ExtendedZone;
 }
@@ -18,10 +16,8 @@ interface SubZoneListProps {
 export default function SubZoneList(
     {
         selectedSubzone,
-        handleSubzoneClick,
         handleEditSubzone,
         confirmDeleteSubzone,
-        handleAddSubzone,
         subZones,
         zone
     }: Readonly<SubZoneListProps>
@@ -31,7 +27,7 @@ export default function SubZoneList(
             {subZones.length > 0 ? (
                 <div className="flex flex-col gap-2">
                     {subZones.filter(subzona => subzona.id !== undefined).map((subzona) => {
-                        // Asegurarnos de que id no es undefined ni null
+                        
                         const subzonaId = String(subzona.id || '');
 
                         return subzonaId && (
@@ -41,7 +37,7 @@ export default function SubZoneList(
                                     ? "border-primary shadow-sm"
                                     : "hover:bg-gray-50"
                                     } flex flex-col gap-3 shadow-lg border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow`}
-                                onClick={() => handleSubzoneClick(subzonaId)}
+                               
                             >
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-2">
@@ -52,7 +48,6 @@ export default function SubZoneList(
                                         <p className="font-bold text-sm md:text-md truncate">{subzona.properties.name}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button
@@ -71,9 +66,6 @@ export default function SubZoneList(
                                                     <p>Editar subzona</p>
                                                 </TooltipContent>
                                             </Tooltip>
-                                        </TooltipProvider>
-
-                                        <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button
@@ -92,16 +84,10 @@ export default function SubZoneList(
                                                     <p>Eliminar subzona</p>
                                                 </TooltipContent>
                                             </Tooltip>
-                                        </TooltipProvider>
                                     </div>
                                 </div>
 
-                                {selectedSubzone === subzonaId && (
-                                    <div className="mt-2 pt-2 border-t text-sm text-gray-500">
-                                        <p className="mb-1">ID: <span className="font-mono text-xs">{subzonaId}</span></p>
-                                        <p>Área: {subzona.properties.name || "No especificada"} m²</p>
-                                    </div>
-                                )}
+                                
                             </Card>
                         );
                     })}

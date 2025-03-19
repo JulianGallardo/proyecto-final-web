@@ -14,7 +14,8 @@ interface SubZonePanelHeaderProps {
     saveSubZoneEdits: () => void;
     setRenderMode: () => void;
     onEdit: () => void;
-
+    editing: boolean;
+    setEditing: (editing: boolean) => void;
     subZones: any[];
     zone: ExtendedZone;
     mode: DrawingModesSubZonas;
@@ -23,6 +24,8 @@ interface SubZonePanelHeaderProps {
 
 export default function SubZonePanelHeader(
     {
+        editing,
+        setEditing,
         addSubZone,
         discardChanges,
         discardSubZoneEdits,
@@ -37,9 +40,8 @@ export default function SubZonePanelHeader(
 ) {
 
 
-    const [ editing, setEditing ] = useState(false);
 
-    
+
 
     return (
         <div>
@@ -54,7 +56,7 @@ export default function SubZonePanelHeader(
                     Gestionando zona <span className="font-medium">{zone.zoneName}</span>
                 </p>
             </div>
-            
+
             {
                 editing ? <SubZoneEditingPanel
                     addSubZone={addSubZone}

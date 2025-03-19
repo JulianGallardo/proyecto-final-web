@@ -25,6 +25,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useMap } from "@vis.gl/react-maplibre";
 import SubZoneList from "./Control Panel/subZoneList";
 import SubZonePanelHeader from "./Control Panel/subZonePanelHeader";
+import { GeoJSONStoreFeatures } from "terra-draw";
 
 interface EditSidePanelSubzonesProps {
     zone: ExtendedZone;
@@ -42,6 +43,7 @@ export default function EditSidePanelSubzones(
     }: Readonly<EditSidePanelSubzonesProps>
 ) {
 
+    const [editing, setEditing] = useState(false);
     const [mode, setMode] = useState<DrawingModesSubZonas>(DrawingModesSubZonas.SinSeleccionar);
     const [transactionLoading, setTransactionLoading] = useState(false);
     const [selectedSubzone, setSelectedSubzone] = useState<string | null>(null);
@@ -51,7 +53,7 @@ export default function EditSidePanelSubzones(
     const { setOpen } = useSidebar();
     const isMobile = useIsMobile();
     const { mymap } = useMap();
-    
+
 
     const {
         subZones,
@@ -135,6 +137,13 @@ export default function EditSidePanelSubzones(
         if (isMobile) setOpen(false);
     };
 
+    const handleEditSubZones = () => {
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        setMode(DrawingModesSubZonas.EditandoSubZonas);
+        terraDrawInstance.setMode("select");
+        if (isMobile) setOpen(false);
+    };
+
     const handleDeleteSubzone = (id: string) => {
         const subzone = subZones.find((subzona) => subzona.id === id);
         if (!subzone) return;
@@ -145,9 +154,68 @@ export default function EditSidePanelSubzones(
         setSubZones(subZones.filter((subzona) => subzona.id !== id));
     };
 
-    const handleSubzoneClick = (id: string) => {
-        setSelectedSubzone(id === selectedSubzone ? null : id);
-    };
+
+    const handleSaveSubZoneEdits = () => {
+        setTransactionLoading(true);
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        terraDrawInstance.setMode("render");
+        setMode(DrawingModesSubZonas.SinSeleccionar);
+        setTransactionLoading(false);
+    }
+
+    const handleDiscardSubZoneEdits = () => {
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        subZones.forEach((subzona) => {
+            if (subzona.id) {
+                terraDrawInstance.removeFeatures([subzona.id]);
+            }
+        });
+        subZones.forEach((subzona) => {
+            addNewSubZoneToMap(subzona);
+        });
+        terraDrawInstance.setMode("render");
+        setMode(DrawingModesSubZonas.SinSeleccionar);
+    }
+
+    const handleDiscardChanges = () => {
+        setTransactionLoading(true);
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        subZones.forEach((subzona) => {
+            if (subzona.id) {
+                terraDrawInstance.removeFeatures([subzona.id]);
+            }
+        });
+        subZones.forEach((subzona) => {
+            addNewSubZoneToMap(subzona);
+        });
+        terraDrawInstance.setMode("render");
+        setMode(DrawingModesSubZonas.SinSeleccionar);
+        setTransactionLoading(false);
+    }
+
+    const handleSaveChanges = () => {
+        setTransactionLoading(true);
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        terraDrawInstance.setMode("render");
+        draw.getFeatures()?.features.forEach((feature: GeoJSONStoreFeatures) => {
+            const subzone = subZones.find((subzona) => subzona.id === feature.id);
+            if (subzone) {
+                subzone.geometry.coordinates = feature.geometry.coordinates;
+            }
+            setSubZones([...subZones]);
+        });
+        setMode(DrawingModesSubZonas.SinSeleccionar);
+        setEditing(false);
+        setTransactionLoading(false);
+
+    }
+
+    const setRenderMode = () => {
+        const terraDrawInstance = draw.getTerraDrawInstance();
+        terraDrawInstance.setMode("render");
+        setMode(DrawingModesSubZonas.SinSeleccionar);
+    }
+
 
     const confirmDeleteSubzone = (id: string) => {
         console.log("confirmDeleteSubzone -> id", id);
@@ -170,18 +238,20 @@ export default function EditSidePanelSubzones(
 
                 <Sidebar title="Panel de control" description="Panel de control de las subzonas en un área." >
                     <SidebarHeader>
-                       
+
                         <SubZonePanelHeader
                             addSubZone={handleAddSubzone}
+                            editing={editing}
+                            setEditing={setEditing}
+                            onEdit={handleEditSubZones}
 
-                            onEdit={}
 
+                            discardChanges={handleDiscardChanges}
+                            saveChanges={handleSaveChanges}
+                            saveSubZoneEdits={handleSaveSubZoneEdits}
+                            discardSubZoneEdits={handleDiscardSubZoneEdits}
+                            setRenderMode={setRenderMode}
 
-                            discardChanges={() => setMode(DrawingModesSubZonas.SinSeleccionar)}
-                            discardSubZoneEdits={() => setMode(DrawingModesSubZonas.SinSeleccionar)}
-                            saveChanges={() => setMode(DrawingModesSubZonas.SinSeleccionar)}
-                            saveSubZoneEdits={() => setMode(DrawingModesSubZonas.SinSeleccionar)}
-                            setRenderMode={() => setMode(DrawingModesSubZonas.SinSeleccionar)}
 
 
 
@@ -197,21 +267,19 @@ export default function EditSidePanelSubzones(
                     <Separator className="my-4" />
 
                     <SidebarContent className="flex flex-col gap-4 w-full p-4">
-                        
+
 
                         <ScrollArea className="h-[calc(100vh-220px)]">
                             <SubZoneList
                                 confirmDeleteSubzone={confirmDeleteSubzone}
-                                handleAddSubzone={handleAddSubzone}
                                 handleEditSubzone={handleEditSubzone}
-                                handleSubzoneClick={handleSubzoneClick}
                                 selectedSubzone={selectedSubzone}
                                 subZones={subZones}
                                 zone={zone}
                             />
                         </ScrollArea>
                     </SidebarContent>
-                    
+
                 </Sidebar>
 
                 <SidebarTrigger className="flex items-center justify-center h-full bg-white rounded-l-none" />

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { canEdit } from "@/permissions/hasPermissions";
 import { Resource } from "@/permissions/typePermissions";
-import { Edit } from "@mynaui/icons-react";
+import { Edit, FatCornerUpLeft } from "@mynaui/icons-react";
 import { useSession } from "next-auth/react";
 
 interface ViewPanelProps {
@@ -18,12 +18,18 @@ export default function SubZoneViewPanel({ setEditing }: Readonly<ViewPanelProps
             {
                 canEdit(userData?.role, Resource.SUB_ZONAS) && (
                     <Button onClick={() => setEditing(true)} className="bg-green-500 hover:bg-green-800 w-full">
-                        Editar Sub Zonas
+                        Editar SubZonas
                         <Edit />
                     </Button>
+
                 )
 
+
             }
+            <Button className="bg-blue-500 hover:bg-blue-800 w-full">
+                Deseleccionar Zona
+                <FatCornerUpLeft className="w-6 h-6" />
+            </Button>
 
         </div>
     );

@@ -183,11 +183,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         }
     };
 
-    useEffect(() => {
-        if (mymap && !zoneBounds) {
-            mymap.getMap().setMaxBounds(MapBounds as LngLatBoundsLike);
-        }
-    }, [mymap]);
+   
 
 
     return (
@@ -221,6 +217,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                     latitude: MapCenter.lat,
                     zoom: 11.5
                 }}
+                maxBounds={MapBounds}
                 style={{ width: "100%", height: "100%" }}
                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
                 onClick={handleZoneClick}

@@ -112,39 +112,54 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     // Función para manejar el clic en una zona
     const handleZoneClick = (event: any) => {
         const features = event.target.queryRenderedFeatures(event.point, { layers: ['zones-fill'] });
-
+    
         if (features.length > 0) {
             const clickedZoneName = features[0].properties.name;
             const zone = zonasBDD.find(z => z.zoneName === clickedZoneName);
-
+    
             if (zone && !selectedZone) {
                 // Guardar la vista actual antes de cambiarla
-
                 const map = event.target;
                 setInitialViewState({
                     longitude: map.getCenter().lng,
                     latitude: map.getCenter().lat,
                     zoom: map.getZoom()
                 });
-
-
+    
                 setSelectedZone(zone);
                 setShowSubZones(true);
-
+    
                 // Calcular límites de la zona seleccionada
                 const coordinates = zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude]);
                 const bounds = calculateBounds(coordinates);
-
+    
                 // Guardar los límites calculados
                 setZoneBounds(bounds);
-
-                // Hacer zoom in a la zona seleccionada
-                if (mymap) {
-                    mymap.getMap().setMaxBounds(bounds as LngLatBoundsLike);
+    
+                // Registrar un evento para cuando el movimiento termine
+                const mapInstance = mymap?.getMap();
+                
+                if (mapInstance) {
+                    // Primero removemos cualquier listener previo para evitar duplicados
+                    
+                    
+                    // Función que se ejecutará cuando termine el movimiento
+                    const setMaxBoundsAfterFit = () => {
+                        mapInstance.setMaxBounds(bounds as LngLatBoundsLike);
+                        // Removemos el listener después de usarlo
+                        mapInstance.off('moveend', setMaxBoundsAfterFit);
+                    };
+                    mapInstance.off('moveend', setMaxBoundsAfterFit);
+                    // Añadimos el listener
+                    mapInstance.on('moveend', setMaxBoundsAfterFit);
+                    
+                    // Hacemos el fitBounds que disparará el evento moveend cuando termine
+                    mapInstance.fitBounds(bounds as LngLatBoundsLike, { 
+                        padding: 50, 
+                        zoom: 14.2, 
+                        duration: 1000 
+                    });
                 }
-
-
-
             }
         }
     };

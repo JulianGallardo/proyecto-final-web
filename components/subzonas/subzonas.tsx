@@ -88,7 +88,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
             maxLng = Math.max(maxLng, coord[1]);
         });
 
-        const paddingFactor = 0.5;
+        const paddingFactor = 0.7;
         const latRange = maxLat - minLat;
         const lngRange = maxLng - minLng;
 
@@ -140,15 +140,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
 
                 // Hacer zoom in a la zona seleccionada
                 if (mymap) {
-                    mymap?.fitBounds(bounds, {
-                        padding: 50,
-                        zoom: 14,
-                        duration: 1000,
-                    });
-                    setTimeout(() => {
-                        mymap.getMap().setMaxBounds(bounds as LngLatBoundsLike);
-                        mymap.getMap().setMinZoom(14);
-                    }, 1000);
+                    mymap.getMap().setMaxBounds(bounds as LngLatBoundsLike);
                 }
 
 
@@ -177,7 +169,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     };
 
     useEffect(() => {
-        if (mymap) {
+        if (mymap && !zoneBounds) {
             mymap.getMap().setMaxBounds(MapBounds as LngLatBoundsLike);
         }
     }, [mymap]);

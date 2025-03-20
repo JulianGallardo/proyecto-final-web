@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState, useRef, useEffect } from "react";
-import { Map, Source, Layer, useMap } from "@vis.gl/react-maplibre";
+import { Map, Source, Layer, useMap, LngLatBoundsLike } from "@vis.gl/react-maplibre";
 import { MapBounds, MapCenter } from "@/types/MapTypes";
 import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -47,7 +47,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
             coord => [coord.latitude, coord.longitude]
         );
 
-        // Crear un polígono que cubra todo el mapa y tenga un "agujero" en forma de la zona seleccionada
+
         return {
             type: "FeatureCollection",
             features: [{
@@ -88,6 +88,21 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
             maxLng = Math.max(maxLng, coord[1]);
         });
 
+        const paddingFactor = 0.5;
+        const latRange = maxLat - minLat;
+        const lngRange = maxLng - minLng;
+
+        minLat = minLat - latRange * paddingFactor;
+        maxLat = maxLat + latRange * paddingFactor;
+        minLng = minLng - lngRange * paddingFactor;
+        maxLng = maxLng + lngRange * paddingFactor;
+
+        // Format to 6 decimal places
+        minLat = parseFloat(minLat.toFixed(6));
+        maxLat = parseFloat(maxLat.toFixed(6));
+        minLng = parseFloat(minLng.toFixed(6));
+        maxLng = parseFloat(maxLng.toFixed(6));
+
         return [
             [minLat, minLng], // suroeste
             [maxLat, maxLng]  // noreste
@@ -102,16 +117,16 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
             const clickedZoneName = features[0].properties.name;
             const zone = zonasBDD.find(z => z.zoneName === clickedZoneName);
 
-            if (zone) {
+            if (zone && !selectedZone) {
                 // Guardar la vista actual antes de cambiarla
-                if (!selectedZone) {
-                    const map = event.target;
-                    setInitialViewState({
-                        longitude: map.getCenter().lng,
-                        latitude: map.getCenter().lat,
-                        zoom: map.getZoom()
-                    });
-                }
+
+                const map = event.target;
+                setInitialViewState({
+                    longitude: map.getCenter().lng,
+                    latitude: map.getCenter().lat,
+                    zoom: map.getZoom()
+                });
+
 
                 setSelectedZone(zone);
                 setShowSubZones(true);
@@ -123,12 +138,21 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 // Guardar los límites calculados
                 setZoneBounds(bounds);
 
-                
-                mymap?.fitBounds(bounds, {
-                    padding: 50,
-                    maxZoom: 16,
-                    duration: 1000
-                });
+                // Hacer zoom in a la zona seleccionada
+                if (mymap) {
+                    mymap?.fitBounds(bounds, {
+                        padding: 50,
+                        zoom: 14,
+                        duration: 1000,
+                    });
+                    setTimeout(() => {
+                        mymap.getMap().setMaxBounds(bounds as LngLatBoundsLike);
+                        mymap.getMap().setMinZoom(14);
+                    }, 1000);
+                }
+
+
+
             }
         }
     };
@@ -141,18 +165,22 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
 
         // Hacer zoom out a la vista inicial
         if (mymap) {
+            mymap.getMap().setMaxBounds(MapBounds as LngLatBoundsLike);
+            mymap.getMap().setMinZoom(null);
             mymap.flyTo({
                 center: [initialViewState.longitude, initialViewState.latitude],
                 zoom: initialViewState.zoom,
                 duration: 1000
             });
+
         }
     };
 
-
     useEffect(() => {
-        console.log(zoneBounds);
-    }, [zoneBounds]);
+        if (mymap) {
+            mymap.getMap().setMaxBounds(MapBounds as LngLatBoundsLike);
+        }
+    }, [mymap]);
 
 
     return (
@@ -186,14 +214,13 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                     latitude: MapCenter.lat,
                     zoom: 11.5
                 }}
-                maxBounds={ MapBounds} // Usa zoneBounds si existe, o MapBounds por defecto
                 style={{ width: "100%", height: "100%" }}
                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
                 onClick={handleZoneClick}
                 interactiveLayerIds={['zones-fill']}
                 cursor={editMode ? 'crosshair' : 'pointer'}
-               
-                
+
+
             >
                 {/* Capa de sombreado para áreas fuera de la zona seleccionada */}
                 {selectedZone && maskGeoJSON && (

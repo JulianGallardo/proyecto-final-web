@@ -62,7 +62,7 @@ function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: Geo
         return;
     }
 
-    console.log("newFeature aa", newSubZoneDelimited.id);
+   
 
     const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
     const intersectsWith = isIntersectingWithMapPolygon(newSubZoneDelimited, features);
@@ -179,7 +179,7 @@ function handleCreateSubArea(
         return;
     }
 
-    console.log("newFeature", newSubZoneDelimited.id);
+    
 
     const intersectsWith = isIntersectingWithMapPolygon(newSubZoneDelimited, features);
 

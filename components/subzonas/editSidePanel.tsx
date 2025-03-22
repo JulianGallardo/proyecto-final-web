@@ -218,8 +218,7 @@ export default function EditSidePanelSubzones(
 
 
     const confirmDeleteSubzone = (id: string) => {
-        console.log("confirmDeleteSubzone -> id", id);
-        console.log(draw.getFeatures());
+        
         setSubzoneToDelete(id);
         setOpenDelete(true);
     };

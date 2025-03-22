@@ -1,5 +1,5 @@
 import { toast } from "@/hooks/use-toast";
-import { CustomFeature,  DrawingModesSubZonas, FeatureId, Position } from "@/types/MapTypes";
+import { CustomFeature, DrawingModesSubZonas, FeatureId, Position } from "@/types/MapTypes";
 import * as turf from "@turf/turf";
 import { GeoJSONStoreFeatures, TerraDraw } from "terra-draw";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
@@ -33,25 +33,26 @@ function handleFinishSubzones(
     }
 
     if (action === "dragCoordinate" && newFeature?.id) {
-        handleEditIntersections(draw, newFeature,zone, terraDrawInstance, addNewZoneToMap);
+        console.log("dragCoordinate", newFeature.id);
+        handleEditIntersections(draw, newFeature, zone, terraDrawInstance, addNewZoneToMap);
     }
 }
 
-function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures,zone:ExtendedZone, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
+function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, zone: ExtendedZone, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
 
     let intersectsWithZonePolygon = false;
-    if(newFeature?.id === undefined) return;
+    if (newFeature?.id === undefined) return;
 
 
 
     const newSubZoneDelimited = adjustSubzoneToZoneBoundaries(newFeature, zone);
 
-    if(newSubZoneDelimited !== null){
+    if (newSubZoneDelimited !== null) {
         intersectsWithZonePolygon = true;
     }
 
 
-    if(newSubZoneDelimited === null){
+    if (newSubZoneDelimited === null) {
         toast({
             title: "Error",
             description: "No se puede hacer la diferencia entre los poligonos ya que genera un área partida",
@@ -62,22 +63,25 @@ function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: Geo
         return;
     }
 
+    console.log("newFeature aa", newSubZoneDelimited.id);
 
     const features = draw.getFeatures()?.features.filter((feature) => feature.id !== newFeature?.id);
     const intersectsWith = isIntersectingWithMapPolygon(newSubZoneDelimited, features);
-    if (intersectsWith.length <= 0)
-        return;
+    if (intersectsWith.length > 0) {
 
-    intersectsWith.forEach(featureIntersected => {
-        const newIntersectedFeatured = reDrawPolygonEditWithNoIntersection(featureIntersected, [newSubZoneDelimited]);
-        if (featureIntersected?.id) {
-            featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
-            terraDrawInstance.removeFeatures([featureIntersected.id]);
-            addNewZoneToMap(featureIntersected as CustomFeature, true);
-        }
-    });
 
-    if(intersectsWithZonePolygon){
+        intersectsWith.forEach(featureIntersected => {
+            const newIntersectedFeatured = reDrawPolygonEditWithNoIntersection(featureIntersected, [newSubZoneDelimited]);
+            if (featureIntersected?.id) {
+                featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
+                terraDrawInstance.removeFeatures([featureIntersected.id]);
+                addNewZoneToMap(featureIntersected as CustomFeature, true);
+            }
+        });
+    }
+
+
+    if (intersectsWithZonePolygon) {
         terraDrawInstance.deselectFeature(newFeature.id as FeatureId);
         terraDrawInstance.removeFeatures([newFeature.id]);
         addNewZoneToMap(newSubZoneDelimited as CustomFeature, true);

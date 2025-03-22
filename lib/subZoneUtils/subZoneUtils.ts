@@ -6,6 +6,7 @@ import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import React from "react";
 import { isIntersectingWithMapPolygon, isSelfIntersectingPolygon, reDrawPolygonWithNoIntersection } from "../mapUtils/terraDrawUtils";
 import { ExtendedZone } from "@/types/ZoneTypes";
+import { Feature, GeoJsonProperties, MultiPolygon, Polygon } from "geojson";
 
 
 function getFeatureById(draw: MaplibreTerradrawControl, id: string) {
@@ -235,13 +236,7 @@ function handleCreateSubArea(
     setMode(DrawingModesSubZonas.SinSeleccionar);
 }
 
-/**
- * Ajusta una subzona para que quede completamente dentro de los límites de una zona
- * 
- * @param subzone - Feature GeoJSON de la subzona que se quiere ajustar
- * @param zone - Feature GeoJSON de la zona principal que limita a la subzona
- * @returns CustomFeature con la geometría de la subzona ajustada o null si no es posible ajustarla
- */
+
 function adjustSubzoneToZoneBoundaries(
     subzone: GeoJSONStoreFeatures,
     zone: ExtendedZone
@@ -259,107 +254,97 @@ function adjustSubzoneToZoneBoundaries(
             coords.latitude,
             coords.longitude
         ]);
-
-
         const zonePolygon = turf.polygon([zoneCoords]);
 
-
-        // Verificar si la subzona ya está completamente dentro de la zona
         const isWithin = turf.booleanWithin(subzonePolygon, zonePolygon);
-
-
         if (isWithin) {
-            // Si ya está dentro, retornar la subzona sin cambios
             return subzone as CustomFeature;
         }
 
-        // Calcular la intersección entre la subzona y la zona
         const intersection = turf.intersect(turf.featureCollection([subzonePolygon, zonePolygon]));
 
-
-        // Si no hay intersección (están completamente separados)
         if (!intersection) {
-            // Si están completamente separados, podemos centrar la subzona dentro de la zona
-            // y ajustar su tamaño para que quepa
-
-            // Obtener el centro de la zona
-            const zoneCenter = turf.centroid(zonePolygon);
-
-            // Calcular un nuevo polígono centrado en la zona con un tamaño que sea
-            // aproximadamente el 80% del tamaño de la zona para asegurar que quepa
-            const zoneBBox = turf.bbox(zonePolygon);
-            const zoneWidth = zoneBBox[2] - zoneBBox[0];
-            const zoneHeight = zoneBBox[3] - zoneBBox[1];
-
-            // Crear un círculo que representa la nueva subzona (podría reemplazarse por otra forma)
-            const newSubzone = turf.circle(
-                zoneCenter,
-                Math.min(zoneWidth, zoneHeight) * 0.4, // Radio de 40% del ancho/alto mínimo
-                { steps: 24 } // Más pasos para un círculo más suave
-            );
-
-            // Copiar propiedades de la subzona original a la nueva
-            if (subzone.properties) {
-                newSubzone.properties = { ...subzone.properties };
-            }
-
-            if (subzone.id) {
-                newSubzone.id = subzone.id;
-            }
-
-
-            return newSubzone as CustomFeature;
+            return subzoneNotIntersects(zonePolygon);
         }
-
-        // Si hay una intersección, usar esa intersección como la nueva subzona
-        // Asegurar que el resultado es un polígono simple
         if (intersection.geometry.type === "Polygon") {
-            // Copiar propiedades y ID de la subzona original
-            if (subzone.properties) {
-                intersection.properties = { ...subzone.properties };
-            }
-
-            if (subzone.id) {
-                intersection.id = subzone.id;
-            }
-
-            const newSubZone = turf.truncate(intersection, { precision: 9 }) as CustomFeature;
-
-            return newSubZone;
+            return subzoneIntersectsAndGeneratesPolygon(intersection);
         } else if (intersection.geometry.type === "MultiPolygon") {
-            // Si la intersección genera un multipolígono, tomamos el polígono más grande
-            const areas = intersection.geometry.coordinates.map(coords => {
-                const poly = turf.polygon(coords as Position[][]);
-                return {
-                    coords,
-                    area: turf.area(poly)
-                };
-            });
-
-            // Ordenar por área de mayor a menor
-            areas.sort((a, b) => b.area - a.area);
-
-            // Crear un polígono con la parte más grande
-            const largestPart = turf.polygon(areas[0].coords as Position[][]);
-
-            // Copiar propiedades e ID
-            if (subzone.properties) {
-                largestPart.properties = { ...subzone.properties };
-            }
-
-            if (subzone.id) {
-                largestPart.id = subzone.id;
-            }
-
-            return turf.truncate(largestPart, { precision: 9 }) as CustomFeature;
+            return subzoneIntersectsAndGeneratesMultipolygon(intersection);
         }
 
-        // Si llegamos aquí, no pudimos ajustar la subzona correctamente
         return null;
 
     } catch (error) {
         console.error("Error al ajustar la subzona a los límites de la zona:", error);
         return null;
+    }
+
+    function subzoneIntersectsAndGeneratesMultipolygon(intersection:Feature<Polygon | MultiPolygon, GeoJsonProperties>) {
+        const areas = intersection.geometry.coordinates.map(coords => {
+            const poly = turf.polygon(coords as Position[][]);
+            return {
+                coords,
+                area: turf.area(poly)
+            };
+        });
+
+        // Ordenar por área de mayor a menor
+        areas.sort((a, b) => b.area - a.area);
+
+        // Crear un polígono con la parte más grande
+        const largestPart = turf.polygon(areas[0].coords as Position[][]);
+
+        // Copiar propiedades e ID
+        if (subzone.properties) {
+            largestPart.properties = { ...subzone.properties };
+        }
+
+        if (subzone.id) {
+            largestPart.id = subzone.id;
+        }
+
+        return turf.truncate(largestPart, { precision: 9 }) as CustomFeature;
+    }
+
+    function subzoneIntersectsAndGeneratesPolygon(intersection:Feature<Polygon | MultiPolygon, GeoJsonProperties>) {
+        if (subzone.properties) {
+            intersection.properties = { ...subzone.properties };
+        }
+
+        if (subzone.id) {
+            intersection.id = subzone.id;
+        }
+
+        const newSubZone = turf.truncate(intersection, { precision: 9 }) as CustomFeature;
+
+        return newSubZone;
+    }
+
+    function subzoneNotIntersects(zonePolygon: Feature<Polygon, GeoJsonProperties>): CustomFeature {
+        const zoneCenter = turf.centroid(zonePolygon);
+
+        const zoneBBox = turf.bbox(zonePolygon);
+        const zoneWidth = zoneBBox[2] - zoneBBox[0];
+        const zoneHeight = zoneBBox[3] - zoneBBox[1];
+
+     
+        const newSubzone = turf.circle(
+            zoneCenter,
+            Math.min(zoneWidth, zoneHeight) * 0.4, 
+            { steps: 24 } 
+        );
+
+       
+        if (subzone.properties) {
+            newSubzone.properties = { ...subzone.properties };
+        }
+
+        if (subzone.id) {
+            newSubzone.id = subzone.id;
+        }
+
+
+        return newSubzone as CustomFeature;
     }
 }
 

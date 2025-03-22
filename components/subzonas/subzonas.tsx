@@ -30,8 +30,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         features: getZones(zonasBDD)
     }), [zonasBDD]);
 
-
-
     const zonesToShow = () => {
         if (selectedZone) {
             return [selectedZone];
@@ -99,7 +97,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         minLng = minLng - lngRange * paddingFactor;
         maxLng = maxLng + lngRange * paddingFactor;
 
-        // Format to 6 decimal places
         minLat = parseFloat(minLat.toFixed(6));
         maxLat = parseFloat(maxLat.toFixed(6));
         minLng = parseFloat(minLng.toFixed(6));
@@ -119,7 +116,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         return 0.2;
     };
 
-    // Function to get zone line width
     const getZoneLineWidth = () => {
         if (selectedZone) {
             return ["case", ["==", ["get", "name"], selectedZone.zoneName], 3, 1];
@@ -127,7 +123,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         return 2;
     };
 
-    // Función para manejar el clic en una zona
     const handleZoneClick = (event: MapLayerMouseEvent) => {
         if(selectedZone) return;
 

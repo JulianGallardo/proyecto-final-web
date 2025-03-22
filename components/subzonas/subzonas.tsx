@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Map, Source, Layer, useMap, LngLatBoundsLike } from "@vis.gl/react-maplibre";
+import { Map, Source, Layer, useMap, LngLatBoundsLike, MapLayerMouseEvent } from "@vis.gl/react-maplibre";
 import { MapBounds, MapCenter } from "@/types/MapTypes";
 import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -25,15 +25,24 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     });
     const [loading, setLoading] = useState(false);
 
-
     const zonesGeoJSON = useMemo(() => ({
         type: "FeatureCollection",
         features: getZones(zonasBDD)
     }), [zonasBDD]);
 
+
+
+    const zonesToShow = () => {
+        if (selectedZone) {
+            return [selectedZone];
+        } else {
+            return showSubZones ? zonasBDD : [];
+        }
+    };
+
     const subZonesGeoJSON = useMemo(() => ({
         type: "FeatureCollection",
-        features: getSubZones(selectedZone ? [selectedZone] : showSubZones ? zonasBDD : [])
+        features: getSubZones(zonesToShow())
     }), [zonasBDD, selectedZone, showSubZones]);
 
     const maskGeoJSON = useMemo(() => {
@@ -43,7 +52,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         const selectedZoneCoordinates = selectedZone.geometry.coordinates.map(
             coord => [coord.latitude, coord.longitude]
         );
-
 
         return {
             type: "FeatureCollection",
@@ -103,10 +111,25 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         ];
     };
 
-    // Función para manejar el clic en una zona
-    const handleZoneClick = (event: any) => {
-        if(selectedZone) return;
+    // Function to get zone fill opacity
+    const getZoneFillOpacity = () => {
+        if (selectedZone) {
+            return ["case", ["==", ["get", "name"], selectedZone.zoneName], 0.4, 0.1];
+        }
+        return 0.2;
+    };
 
+    // Function to get zone line width
+    const getZoneLineWidth = () => {
+        if (selectedZone) {
+            return ["case", ["==", ["get", "name"], selectedZone.zoneName], 3, 1];
+        }
+        return 2;
+    };
+
+    // Función para manejar el clic en una zona
+    const handleZoneClick = (event: MapLayerMouseEvent) => {
+        if(selectedZone) return;
 
         const features = event.target.queryRenderedFeatures(event.point, { layers: ['zones-fill'] });
 
@@ -128,13 +151,9 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 const coordinates = zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude]);
                 const bounds = calculateBounds(coordinates);
 
-
-
                 const mapInstance = mymap?.getMap();
 
                 if (mapInstance) {
-
-
                     const setMaxBoundsAfterFit = () => {
                         mapInstance.setMaxBounds(bounds as LngLatBoundsLike);
                         mapInstance.off('moveend', setMaxBoundsAfterFit);
@@ -168,17 +187,11 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 zoom: initialViewState.zoom,
                 duration: 1000
             });
-
         }
     };
 
-
-
-
     return (
         <div className="relative flex flex-col w-full h-full">
-
-
             {
                 loading && <LoadSkeleton />
             }
@@ -218,8 +231,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 onClick={handleZoneClick}
                 interactiveLayerIds={['zones-fill']}
                 cursor={editMode ? 'crosshair' : 'pointer'}
-
-
             >
                 {/* Capa de sombreado para áreas fuera de la zona seleccionada */}
                 {selectedZone && maskGeoJSON && (
@@ -243,8 +254,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                             type="fill"
                             paint={{
                                 "fill-color": ["get", "color"],
-                                "fill-opacity": selectedZone ?
-                                    ["case", ["==", ["get", "name"], selectedZone.zoneName], 0.4, 0.1] : 0.2
+                                "fill-opacity": getZoneFillOpacity()
                             }}
                         />
                         <Layer
@@ -252,8 +262,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                             type="line"
                             paint={{
                                 "line-color": ["get", "color"],
-                                "line-width": selectedZone ?
-                                    ["case", ["==", ["get", "name"], selectedZone.zoneName], 3, 1] : 2
+                                "line-width": getZoneLineWidth()
                             }}
                         />
                         <Layer
@@ -272,7 +281,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 )}
 
                 {/* Capa de Subzonas */}
-                {subZonesGeoJSON.features.length > 0 && !selectedZone && (
+                {subZonesGeoJSON.features.length > -0 && !selectedZone && (
                     <Source id="subzones-source" type="geojson" data={subZonesGeoJSON}>
                         <Layer
                             id="subzones-fill"
@@ -303,9 +312,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                                 "text-color": ["get", "parentColor"]
                             }}
                         />
-
                     </Source>
-
                 )}
 
                 <Source
@@ -361,6 +368,5 @@ function getSubZones(filteredZones: ZoneDtoWithSubZones[]): { type: string; prop
             type: "Polygon",
             coordinates: [[...subZone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude])]]
         }
-    }))
-    );
+    })));
 }

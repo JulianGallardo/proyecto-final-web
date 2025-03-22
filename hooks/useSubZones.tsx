@@ -19,14 +19,14 @@ export function useSubZones(
             // Check if both names start with numbers
             const aIsNumeric = /^\d/.test(a.zoneName);
             const bIsNumeric = /^\d/.test(b.zoneName);
-    
+
             // If one starts with a number and the other doesn't
             if (aIsNumeric && !bIsNumeric) {
                 return -1; // Numbers come before letters
             } else if (!aIsNumeric && bIsNumeric) {
                 return 1; // Letters come after numbers
             }
-    
+
             // If both start with numbers, sort numerically in descending order
             if (aIsNumeric && bIsNumeric) {
                 // Extract the numeric parts
@@ -36,18 +36,18 @@ export function useSubZones(
                 const bNum = bMatch ? parseInt(bMatch[0]) : 0;
                 return bNum - aNum; // Descending order for numbers
             }
-    
+
             // If both are alphabetic, sort alphabetically
             return a.zoneName.localeCompare(b.zoneName);
         });
-    
+
         const subZonesCustomFeatures: CustomFeature[] = subZones.map((subZone) => {
             // Crear un array de coordenadas redondeadas a 9 decimales
             const roundedCoordinates = subZone.geometry.coordinates.map(coord => [
                 parseFloat(coord.latitude.toFixed(9)),
                 parseFloat(coord.longitude.toFixed(9))
             ]);
-    
+
             const zoneToCustomFeature = {
                 id: subZone.id,
                 type: "Feature",
@@ -61,22 +61,22 @@ export function useSubZones(
                     name: subZone.zoneName,
                 },
             } as CustomFeature;
-    
+
             return zoneToCustomFeature;
         });
 
         subZonesCustomFeatures.forEach((zone) => {
             addNewSubZoneToMap(zone);
         });
-        
+
         setSubZones(subZonesCustomFeatures);
 
 
-        
+
         return subZonesCustomFeatures;
     }
 
-    function addNewSubZoneToMap(subZone: CustomFeature) {
+    function addNewSubZoneToMap(subZone: CustomFeature, isUpdated?: boolean) {
         // Check if the polygon is already closed
         const coordinates = subZone.geometry.coordinates;
 
@@ -133,7 +133,10 @@ export function useSubZones(
             },
         } as GeoJSONStoreFeatures;
 
-        colorCache.saveDataToColorCache(`"${newZone.id}"`, subZone.properties.color);
+
+        if (!isUpdated) {
+            colorCache.saveDataToColorCache(`"${newZone.id}"`, subZone.properties.color);
+        }
         terraDrawInstance.addFeatures([newZone]);
     }
 

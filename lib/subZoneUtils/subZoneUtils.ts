@@ -33,12 +33,11 @@ function handleFinishSubzones(
     }
 
     if (action === "dragCoordinate" && newFeature?.id) {
-        console.log("dragCoordinate", newFeature.id);
         handleEditIntersections(draw, newFeature, zone, terraDrawInstance, addNewZoneToMap);
     }
 }
 
-function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, zone: ExtendedZone, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature, isUpdated?: boolean) => void) {
+function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: GeoJSONStoreFeatures, zone: ExtendedZone, terraDrawInstance: TerraDraw, addNewZoneToMap: (zone: CustomFeature,isUpdated?:boolean) => void) {
 
     let intersectsWithZonePolygon = false;
     if (newFeature?.id === undefined) return;
@@ -74,8 +73,9 @@ function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: Geo
             const newIntersectedFeatured = reDrawPolygonEditWithNoIntersection(featureIntersected, [newSubZoneDelimited]);
             if (featureIntersected?.id) {
                 featureIntersected.geometry.coordinates = newIntersectedFeatured.geometry.coordinates as Position[][];
+                
                 terraDrawInstance.removeFeatures([featureIntersected.id]);
-                addNewZoneToMap(featureIntersected as CustomFeature, true);
+                addNewZoneToMap(featureIntersected as CustomFeature,true);
             }
         });
     }
@@ -84,7 +84,7 @@ function handleEditIntersections(draw: MaplibreTerradrawControl, newFeature: Geo
     if (intersectsWithZonePolygon) {
         terraDrawInstance.deselectFeature(newFeature.id as FeatureId);
         terraDrawInstance.removeFeatures([newFeature.id]);
-        addNewZoneToMap(newSubZoneDelimited as CustomFeature, true);
+        addNewZoneToMap(newSubZoneDelimited as CustomFeature);
         terraDrawInstance.selectFeature(newSubZoneDelimited.id as FeatureId);
     }
 

@@ -69,7 +69,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     }, [selectedZone]);
 
     // Función para calcular los límites de un polígono
-    const calculateBounds = (coordinates: any[]) => {
+    const calculateBounds = (coordinates: number[][]) => {
         let minLat = Infinity;
         let maxLat = -Infinity;
         let minLng = Infinity;

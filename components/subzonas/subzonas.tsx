@@ -25,19 +25,17 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     });
     const [loading, setLoading] = useState(false);
 
-   
+
     const zonesGeoJSON = useMemo(() => ({
         type: "FeatureCollection",
         features: getZones(zonasBDD)
     }), [zonasBDD]);
 
-    // Convertir las subzonas al formato GeoJSON
     const subZonesGeoJSON = useMemo(() => ({
         type: "FeatureCollection",
         features: getSubZones(selectedZone ? [selectedZone] : showSubZones ? zonasBDD : [])
     }), [zonasBDD, selectedZone, showSubZones]);
 
-    // Crear el GeoJSON para el sombreado (el inverso de la zona seleccionada)
     const maskGeoJSON = useMemo(() => {
         if (!selectedZone) return null;
 
@@ -132,7 +130,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 const coordinates = zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude]);
                 const bounds = calculateBounds(coordinates);
 
-                
+
 
                 // Registrar un evento para cuando el movimiento termine
                 const mapInstance = mymap?.getMap();
@@ -167,8 +165,13 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         setSelectedZone(null);
         setEditMode(false);
 
+
         // Hacer zoom out a la vista inicial
         if (mymap) {
+            mymap.getSource("subzones-edit-source")?.setData({
+                type: "FeatureCollection",
+                features: []
+            });
             mymap.getMap().setMaxBounds(MapBounds as LngLatBoundsLike);
             mymap.getMap().setMinZoom(null);
             mymap.flyTo({
@@ -244,7 +247,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 )}
 
                 {/* Capa de Zonas */}
-                {zonesGeoJSON.features.length > 0  &&  (
+                {zonesGeoJSON.features.length > 0 && (
                     <Source id="zones-source" type="geojson" data={zonesGeoJSON}>
                         <Layer
                             id="zones-fill"
@@ -280,7 +283,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 )}
 
                 {/* Capa de Subzonas */}
-                {subZonesGeoJSON.features.length > 0 && !selectedZone &&  (
+                {subZonesGeoJSON.features.length > 0 && !selectedZone && (
                     <Source id="subzones-source" type="geojson" data={subZonesGeoJSON}>
                         <Layer
                             id="subzones-fill"

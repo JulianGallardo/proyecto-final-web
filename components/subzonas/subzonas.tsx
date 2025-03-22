@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Map, Source, Layer, useMap, LngLatBoundsLike } from "@vis.gl/react-maplibre";
 import { MapBounds, MapCenter } from "@/types/MapTypes";
 import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";

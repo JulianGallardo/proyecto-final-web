@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { CustomFeature } from "@/types/MapTypes";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { SadCircle, Trash } from "@mynaui/icons-react";
 import { Edit2 } from "lucide-react";
@@ -9,7 +10,7 @@ interface SubZoneListProps {
     editing: boolean;
     handleEditSubzone: (subzoneId: string) => void;
     confirmDeleteSubzone: (subzoneId: string) => void;
-    subZones: any[];
+    subZones: CustomFeature[];
     zone: ExtendedZone;
 }
 

@@ -302,7 +302,6 @@ export default function EditSidePanelSubzones(
                                 editing={editing}
                                 confirmDeleteSubzone={confirmDeleteSubzone}
                                 handleEditSubzone={handleEditSubzone}
-
                                 subZones={subZones}
                                 zone={zone}
                             />

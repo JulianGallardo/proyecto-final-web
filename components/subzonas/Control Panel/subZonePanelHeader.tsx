@@ -1,9 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { ExtendedZone } from "@/types/ZoneTypes";
-import { useState } from "react";
 import SubZoneEditingPanel from "./subZoneEditingPanel";
 import SubZoneViewPanel from "./subZoneViewPanel";
-import { DrawingModesSubZonas } from "@/types/MapTypes";
+import { CustomFeature, DrawingModesSubZonas } from "@/types/MapTypes";
 
 
 interface SubZonePanelHeaderProps {
@@ -16,7 +15,7 @@ interface SubZonePanelHeaderProps {
     onEdit: () => void;
     editing: boolean;
     setEditing: (editing: boolean) => void;
-    subZones: any[];
+    subZones: CustomFeature[];
     zone: ExtendedZone;
     mode: DrawingModesSubZonas;
     exitSubZoneView: () => void;

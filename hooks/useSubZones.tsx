@@ -76,7 +76,7 @@ export function useSubZones(
         return subZonesCustomFeatures;
     }
 
-    function addNewSubZoneToMap(subZone: CustomFeature, isUpdated?: boolean) {
+    function addNewSubZoneToMap(subZone: CustomFeature, isUpdated: boolean = false) {
         // Check if the polygon is already closed
         const coordinates = subZone.geometry.coordinates;
 
@@ -135,7 +135,7 @@ export function useSubZones(
 
 
         if (!isUpdated) {
-            colorCache.saveDataToColorCache(`"${newZone.id}"`, subZone.properties.color);
+            colorCache.saveDataToColorCache(`"${subZone.id}"`, subZone.properties.color);
         }
         terraDrawInstance.addFeatures([newZone]);
     }

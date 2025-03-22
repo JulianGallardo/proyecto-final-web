@@ -1,24 +1,14 @@
 import { useEffect, useState } from "react";
 import { LoadSkeleton } from "../areas/maps/map";
 import { Separator } from "../ui/separator";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarTrigger, useSidebar } from "../ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger, useSidebar } from "../ui/sidebar";
 import { ExtendedZone } from "@/types/ZoneTypes";
-import { SadCircle, Plus, Trash } from "@mynaui/icons-react";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Card } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
-import { Edit2 } from "lucide-react";
 import { MaplibreTerradrawControl } from "@watergis/maplibre-gl-terradraw";
 import { DrawingModesSubZonas, FeatureId, OnFinishContext } from "@/types/MapTypes";
 import { useSubZones } from "@/hooks/useSubZones";
 import { handleFinishSubzones } from "@/lib/subZoneUtils/subZoneUtils";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "../ui/tooltip";
+
 import { ConfirmDelete } from "../areas/ui/Dialogs/ConfirmDelete";
 import { ColorCache } from "@/lib/mapUtils/colorCache";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,6 +16,8 @@ import { useMap } from "@vis.gl/react-maplibre";
 import SubZoneList from "./Control Panel/subZoneList";
 import SubZonePanelHeader from "./Control Panel/subZonePanelHeader";
 import { GeoJSONStoreFeatures } from "terra-draw";
+import { createSubZones } from "@/actions/zone-actions";
+import { toast } from "@/hooks/use-toast";
 
 interface EditSidePanelSubzonesProps {
     zone: ExtendedZone;
@@ -83,8 +75,17 @@ export default function EditSidePanelSubzones(
             const parseId = id as string;
 
 
+            try {
 
-            handleFinishSubzones(parseId, context, draw, addNewSubZoneToMap, setMode, setSubZones, zone);
+                handleFinishSubzones(parseId, context, draw, addNewSubZoneToMap, setMode, setSubZones, zone);
+            } catch (error) {
+                toast({
+                    title: "Error",
+                    description: error instanceof Error ? error.message : "Ha ocurrido un error al finalizar la subzona",
+                    className: "bg-red-500 text-white",
+                    duration: 2000,
+                });
+            }
         };
         draw.getTerraDrawInstance().on("finish", callback);
 
@@ -98,18 +99,11 @@ export default function EditSidePanelSubzones(
     useEffect(() => {
         if (mymap) {
             const mapInstance = mymap.getMap();
-
-
-
             mapInstance.getSource("subzones-edit-source")?.setData({
                 type: "FeatureCollection",
                 features: subZones
             });
-
-
-
         }
-
     }, [subZones, mymap]);
 
 
@@ -159,12 +153,20 @@ export default function EditSidePanelSubzones(
         setTransactionLoading(true);
         const terraDrawInstance = draw.getTerraDrawInstance();
         terraDrawInstance.setMode("render");
+        draw.getFeatures()?.features.forEach((feature: GeoJSONStoreFeatures) => {
+            const zone = subZones.find((zone) => zone.id === feature.id);
+            if (zone) {
+                zone.geometry.coordinates = feature.geometry.coordinates;
+            }
+            setSubZones([...subZones]);
+        });
         setMode(DrawingModesSubZonas.SinSeleccionar);
         setTransactionLoading(false);
     }
 
     const handleDiscardSubZoneEdits = () => {
         const terraDrawInstance = draw.getTerraDrawInstance();
+
         subZones.forEach((subzona) => {
             if (subzona.id) {
                 terraDrawInstance.removeFeatures([subzona.id]);
@@ -177,7 +179,7 @@ export default function EditSidePanelSubzones(
         setMode(DrawingModesSubZonas.SinSeleccionar);
     }
 
-    const handleDiscardChanges = () => {
+    const handleDiscardChanges = async () => {
         setTransactionLoading(true);
         const terraDrawInstance = draw.getTerraDrawInstance();
         subZones.forEach((subzona) => {
@@ -185,28 +187,58 @@ export default function EditSidePanelSubzones(
                 terraDrawInstance.removeFeatures([subzona.id]);
             }
         });
-        subZones.forEach((subzona) => {
-            addNewSubZoneToMap(subzona);
-        });
+        await fetchSubZones();
         terraDrawInstance.setMode("render");
         setMode(DrawingModesSubZonas.SinSeleccionar);
         setTransactionLoading(false);
     }
 
-    const handleSaveChanges = () => {
+    const handleSaveChanges = async () => {
         setTransactionLoading(true);
         const terraDrawInstance = draw.getTerraDrawInstance();
         terraDrawInstance.setMode("render");
-        draw.getFeatures()?.features.forEach((feature: GeoJSONStoreFeatures) => {
-            const subzone = subZones.find((subzona) => subzona.id === feature.id);
-            if (subzone) {
-                subzone.geometry.coordinates = feature.geometry.coordinates;
+
+
+
+        try {
+            const response = await createSubZones(zone.id, subZones);
+
+
+            if (response.success) {
+                toast({
+                    title: "Zonas guardadas",
+                    description: "Las zonas han sido guardadas exitosamente",
+                    className: "bg-green-500 text-white",
+                    duration: 2000,
+                });
+            } else {
+                toast({
+                    title: "Error",
+                    description: response.message || "Ha ocurrido un error al guardar las zonas",
+                    className: "bg-red-500 text-white",
+                    duration: 2000,
+                });
             }
-            setSubZones([...subZones]);
-        });
+        } catch (error) {
+
+
+            const errorMessage =
+                error instanceof Error
+                    ? `Ha ocurrido un error al guardar las zonas: ${error.message}`
+                    : "Ha ocurrido un error desconocido al guardar las zonas";
+
+            toast({
+                title: "Error",
+                description: errorMessage,
+                className: "bg-red-500 text-white",
+                duration: 2000,
+            });
+        }
+
         setMode(DrawingModesSubZonas.SinSeleccionar);
         setEditing(false);
         setTransactionLoading(false);
+
 
     }
 
@@ -218,7 +250,6 @@ export default function EditSidePanelSubzones(
 
 
     const confirmDeleteSubzone = (id: string) => {
-        
         setSubzoneToDelete(id);
         setOpenDelete(true);
     };
@@ -271,9 +302,10 @@ export default function EditSidePanelSubzones(
 
                         <ScrollArea className="h-[calc(100vh-220px)]">
                             <SubZoneList
+                                editing={editing}
                                 confirmDeleteSubzone={confirmDeleteSubzone}
                                 handleEditSubzone={handleEditSubzone}
-                                selectedSubzone={selectedSubzone}
+
                                 subZones={subZones}
                                 zone={zone}
                             />

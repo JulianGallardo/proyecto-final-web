@@ -120,3 +120,10 @@ export async function updateZonesAgents(zonesIdToAddAgent:string[],zonesIdToDele
         return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
     }
 }
+
+export async function createSubZones(zoneId: string, subZones: CustomFeature[]){
+    const response= zoneRepo.createSubZones(zoneId, subZones);
+    revalidatePath("/zonas");
+    revalidatePath("/subZonas");
+    return response;
+}

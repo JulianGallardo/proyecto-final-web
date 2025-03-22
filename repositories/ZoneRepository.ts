@@ -1,9 +1,10 @@
 import prisma from "@/lib/db";
 import BaseRepository from "./BaseRepository";
-import {   Zone } from "@prisma/client";
+import { Zone, SubZone, Prisma } from "@prisma/client";
 import { CustomFeature, Position } from "@/types/MapTypes";
 import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
 import { createSubZones } from "@/lib/locationUtils/subZoneUtils";
+
 
 export default class ZoneRepository extends BaseRepository<Zone> {
     constructor() {
@@ -48,7 +49,7 @@ export default class ZoneRepository extends BaseRepository<Zone> {
         });
     }
 
-    async getAllWithAgents():Promise<ZoneDtoWithSubZones[]> {
+    async getAllWithAgents(): Promise<ZoneDtoWithSubZones[]> {
         return this.modelClient.findMany({
             select: {
                 id: true,
@@ -207,7 +208,6 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                     longitude: lon
                 }));
 
-                const subZones = await createSubZones(data);
 
                 return trx.zone.update({
                     where: { id },
@@ -219,26 +219,6 @@ export default class ZoneRepository extends BaseRepository<Zone> {
                             update: {
                                 coordinates: { create: newCoordinates }
                             }
-                        },
-                        SubZonas: {
-                            deleteMany: {},
-                            create: subZones.map(subzone => ({
-                                zoneName: subzone.name,
-                                type: subzone.polygon?.type ?? "Polygon",
-                                geometry: {
-                                    create: {
-                                        type: subzone.polygon?.geometry.type ?? "Polygon",
-                                        coordinates: {
-                                            create: (subzone.polygon?.geometry.coordinates as Position[][])[0].map(([lat, lon]) => ({
-                                                latitude: lat,
-                                                longitude: lon
-                                            }))
-                                        }
-                                    }
-                                },
-                                createdAt: new Date(),
-                                updatedAt: new Date()
-                            }))
                         },
                         updatedAt: new Date()
                     }
@@ -276,6 +256,58 @@ export default class ZoneRepository extends BaseRepository<Zone> {
             return { success: true, message: "Zone deleted successfully" };
         } catch (error) {
             console.error("Error deleting zone:", error);
+            return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
+        }
+    }
+
+    async createSubZones(zoneId: string, subZones: CustomFeature[]): Promise<{ success: boolean; message: string }> {
+        try {
+            await prisma.$transaction(async (trx) => {
+                const zone = await trx.zone.findUnique({
+                    where: { id: zoneId },
+                    select: { id: true }
+                });
+    
+                if (!zone) throw new Error("Zone not found");
+    
+                // Delete existing subzones
+                await trx.subZone.deleteMany({
+                    where: { zonaId: zoneId }
+                });
+    
+                // Create subzones one by one to handle the nested relationship
+                for (const subzone of subZones) {
+                    // First create the geometry
+                    const geometry = await trx.geometry.create({
+                        data: {
+                            type: subzone.geometry.type,
+                            coordinates: {
+                                create: (subzone.geometry.coordinates as Position[][])[0].map(([lat, lon]) => ({
+                                    latitude: lat,
+                                    longitude: lon
+                                }))
+                            }
+                        }
+                    });
+    
+                    // Then create the subzone with the geometry ID
+                    await trx.subZone.create({
+                        data: {
+                            id: typeof subzone.id === 'number' ? String(subzone.id) : subzone.id,
+                            zonaId: zoneId,
+                            zoneName: subzone.properties.name,
+                            type: subzone.type,
+                            geometryId: geometry.id, // Use the created geometry's ID
+                            createdAt: new Date(),
+                            updatedAt: new Date()
+                        }
+                    });
+                }
+            });
+    
+            return { success: true, message: "Subzones updated successfully" };
+        } catch (error) {
+            console.error("Error updating subzones:", error);
             return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
         }
     }

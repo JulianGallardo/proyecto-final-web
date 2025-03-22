@@ -6,7 +6,7 @@ import { SadCircle, Trash } from "@mynaui/icons-react";
 import { Edit2 } from "lucide-react";
 
 interface SubZoneListProps {
-    selectedSubzone: string | null;
+    editing: boolean;
     handleEditSubzone: (subzoneId: string) => void;
     confirmDeleteSubzone: (subzoneId: string) => void;
     subZones: any[];
@@ -15,7 +15,7 @@ interface SubZoneListProps {
 
 export default function SubZoneList(
     {
-        selectedSubzone,
+        editing,
         handleEditSubzone,
         confirmDeleteSubzone,
         subZones,
@@ -27,17 +27,14 @@ export default function SubZoneList(
             {subZones.length > 0 ? (
                 <div className="flex flex-col gap-2">
                     {subZones.filter(subzona => subzona.id !== undefined).map((subzona) => {
-                        
+
                         const subzonaId = String(subzona.id || '');
 
                         return subzonaId && (
                             <Card
                                 key={subzonaId}
-                                className={`p-3 cursor-pointer border transition-all ${selectedSubzone === subzonaId
-                                    ? "border-primary shadow-sm"
-                                    : "hover:bg-gray-50"
-                                    } flex flex-col gap-3 shadow-lg border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow`}
-                               
+                                className={`p-3 cursor-pointer borderhover:bg-gray-50 flex flex-col gap-3 shadow-lg border-gray-200 rounded-lg bg-gradient-to-r from-white to-gray-50 hover:shadow-xl transition-shadow`}
+
                             >
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center gap-2">
@@ -47,7 +44,10 @@ export default function SubZoneList(
                                         />
                                         <p className="font-bold text-sm md:text-md truncate">{subzona.properties.name}</p>
                                     </div>
-                                    <div className="flex items-center gap-2">
+
+
+                                    {   editing &&
+                                        <div className="flex items-center gap-2">
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
                                                     <Button
@@ -84,10 +84,12 @@ export default function SubZoneList(
                                                     <p>Eliminar subzona</p>
                                                 </TooltipContent>
                                             </Tooltip>
-                                    </div>
+                                        </div>
+                                    }
+
                                 </div>
 
-                                
+
                             </Card>
                         );
                     })}

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { LoadSkeleton } from "../areas/maps/map";
 import { Separator } from "../ui/separator";
 import { Sidebar, SidebarContent, SidebarHeader, SidebarTrigger, useSidebar } from "../ui/sidebar";
 import { ExtendedZone } from "@/types/ZoneTypes";
@@ -87,9 +86,7 @@ export default function EditSidePanelSubzones(
             }
         };
         draw.getTerraDrawInstance().on("finish", callback);
-
-
-
+        
         return () => {
             terraDrawInstance.off("finish", callback);
         };

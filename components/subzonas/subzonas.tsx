@@ -52,10 +52,8 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 properties: {},
                 geometry: {
                     type: "Polygon",
-                    // Primer array son las coordenadas externas (un rectángulo grande que cubre el mapa)
-                    // Segundo array son las coordenadas de la zona seleccionada (agujero)
+                    
                     coordinates: [
-                        // Un rectángulo grande que cubre el mapa (usar los límites máximos)
                         [
                             [MapBounds[0][0], MapBounds[0][1]],  // esquina suroeste
                             [MapBounds[0][0], MapBounds[1][1]],  // esquina noroeste
@@ -63,7 +61,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                             [MapBounds[1][0], MapBounds[0][1]],  // esquina sureste
                             [MapBounds[0][0], MapBounds[0][1]],  // cerrar el polígono
                         ],
-                        // El "agujero" con la forma de la zona seleccionada
                         selectedZoneCoordinates
                     ]
                 }
@@ -108,14 +105,17 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
 
     // Función para manejar el clic en una zona
     const handleZoneClick = (event: any) => {
+        if(selectedZone) return;
+
+
         const features = event.target.queryRenderedFeatures(event.point, { layers: ['zones-fill'] });
 
-        if (features.length > 0) {
+        if (features.length > 0 ) {
+            console.log("click en zona", features[0].properties.name);
             const clickedZoneName = features[0].properties.name;
             const zone = zonasBDD.find(z => z.zoneName === clickedZoneName);
 
-            if (zone && !selectedZone) {
-                // Guardar la vista actual antes de cambiarla
+            if (zone ) {
                 const map = event.target;
                 setInitialViewState({
                     longitude: map.getCenter().lng,
@@ -124,32 +124,25 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 });
 
                 setSelectedZone(zone);
-                setShowSubZones(true);
 
-                // Calcular límites de la zona seleccionada
                 const coordinates = zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude]);
                 const bounds = calculateBounds(coordinates);
 
 
 
-                // Registrar un evento para cuando el movimiento termine
                 const mapInstance = mymap?.getMap();
 
                 if (mapInstance) {
-                    // Primero removemos cualquier listener previo para evitar duplicados
 
 
-                    // Función que se ejecutará cuando termine el movimiento
                     const setMaxBoundsAfterFit = () => {
                         mapInstance.setMaxBounds(bounds as LngLatBoundsLike);
-                        // Removemos el listener después de usarlo
                         mapInstance.off('moveend', setMaxBoundsAfterFit);
                     };
                     mapInstance.off('moveend', setMaxBoundsAfterFit);
-                    // Añadimos el listener
+                  
                     mapInstance.on('moveend', setMaxBoundsAfterFit);
 
-                    // Hacemos el fitBounds que disparará el evento moveend cuando termine
                     mapInstance.fitBounds(bounds as LngLatBoundsLike, {
                         padding: 50,
                         zoom: 14.2,
@@ -160,13 +153,9 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         }
     };
 
-    // Función para salir del modo de edición y deseleccionar la zona
     const handleExitEdit = () => {
         setSelectedZone(null);
         setEditMode(false);
-
-
-        // Hacer zoom out a la vista inicial
         if (mymap) {
             mymap.getSource("subzones-edit-source")?.setData({
                 type: "FeatureCollection",

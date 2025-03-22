@@ -190,6 +190,7 @@ export default function EditSidePanelSubzones(
         await fetchSubZones();
         terraDrawInstance.setMode("render");
         setMode(DrawingModesSubZonas.SinSeleccionar);
+        setEditing(false);
         setTransactionLoading(false);
     }
 

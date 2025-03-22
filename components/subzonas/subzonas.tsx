@@ -241,7 +241,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 )}
 
                 {/* Capa de Zonas */}
-                {zonesGeoJSON.features.length > 0 && (
+                {zonesGeoJSON.features.length > 0  &&  (
                     <Source id="zones-source" type="geojson" data={zonesGeoJSON}>
                         <Layer
                             id="zones-fill"
@@ -277,7 +277,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 )}
 
                 {/* Capa de Subzonas */}
-                {subZonesGeoJSON.features.length > 0 && (
+                {subZonesGeoJSON.features.length > 0 && !selectedZone &&  (
                     <Source id="subzones-source" type="geojson" data={subZonesGeoJSON}>
                         <Layer
                             id="subzones-fill"

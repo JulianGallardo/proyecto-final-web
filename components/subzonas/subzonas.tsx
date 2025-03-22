@@ -7,26 +7,25 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
 import { Layers } from "lucide-react";
 import TerraDrawHandlerSubZonas from "./terraDrawHandlerSubZonas";
+import { LoadSkeleton } from "../areas/maps/map";
 
 interface ZonesAgenteProps {
     zonasBDD: ExtendedZone[];
 }
 
 export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
-    const [zoneBounds, setZoneBounds] = useState<number[][] | null>(null);
     const [showSubZones, setShowSubZones] = useState(false);
     const [selectedZone, setSelectedZone] = useState<ExtendedZone | null>(null);
     const [editMode, setEditMode] = useState(false);
-    // Agregar una referencia al mapa
     const { mymap } = useMap();
-    // Guardar la vista inicial para volver a ella
     const [initialViewState, setInitialViewState] = useState({
         longitude: MapCenter.lng,
         latitude: MapCenter.lat,
         zoom: 11.5
     });
+    const [loading, setLoading] = useState(false);
 
-    // Convertir las zonas al formato GeoJSON
+   
     const zonesGeoJSON = useMemo(() => ({
         type: "FeatureCollection",
         features: getZones(zonasBDD)
@@ -133,8 +132,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 const coordinates = zone.geometry.coordinates.map(coord => [coord.latitude, coord.longitude]);
                 const bounds = calculateBounds(coordinates);
 
-                // Guardar los límites calculados
-                setZoneBounds(bounds);
+                
 
                 // Registrar un evento para cuando el movimiento termine
                 const mapInstance = mymap?.getMap();
@@ -168,7 +166,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     const handleExitEdit = () => {
         setSelectedZone(null);
         setEditMode(false);
-        setZoneBounds(null); // Restaurar los límites originales
 
         // Hacer zoom out a la vista inicial
         if (mymap) {
@@ -188,6 +185,12 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
 
     return (
         <div className="relative flex flex-col w-full h-full">
+
+
+            {
+                loading && <LoadSkeleton />
+            }
+
             {/* Botón para mostrar/ocultar todas las subzonas */}
             {zonasBDD && zonasBDD.length > 0 && !selectedZone && (
                 <div className="absolute top-3 left-3 z-10">
@@ -206,7 +209,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
             {/* Panel de edición de zona seleccionada */}
             {selectedZone && (
                 <div className="absolute z-10 h-full ">
-                    <TerraDrawHandlerSubZonas exitEditMode={handleExitEdit} selectedZone={selectedZone} />
+                    <TerraDrawHandlerSubZonas exitEditMode={handleExitEdit} selectedZone={selectedZone} setLoading={setLoading} />
                 </div>
             )}
 

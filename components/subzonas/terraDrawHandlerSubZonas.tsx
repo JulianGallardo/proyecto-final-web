@@ -12,12 +12,14 @@ import EditSidePanelSubzones from "./editSidePanel";
 interface TerraDrawHandlerSubZonasProps {
     selectedZone: ExtendedZone;
     exitEditMode: () => void;
+    setLoading: (loading: boolean) => void;
+
 
 }
 
 
 export default function TerraDrawHandlerSubZonas(
-    { selectedZone,exitEditMode }: Readonly<TerraDrawHandlerSubZonasProps>
+    { selectedZone,exitEditMode,setLoading }: Readonly<TerraDrawHandlerSubZonasProps>
 ) {
 
     const { mymap } = useMap(); // Hook para obtener el mapa
@@ -49,7 +51,7 @@ export default function TerraDrawHandlerSubZonas(
     return (
         <div className="flex flex-row w-full h-full">
             <EditSidePanelSubzones
-            
+                setLoading={setLoading}
                 zone={selectedZone}
                 colorCache={colorCache}
                 draw={draw}

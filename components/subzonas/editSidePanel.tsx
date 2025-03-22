@@ -24,6 +24,7 @@ interface EditSidePanelSubzonesProps {
     colorCache: ColorCache;
     draw: MaplibreTerradrawControl;
     exitEditMode: () => void;
+    setLoading: (loading: boolean) => void;
 }
 
 export default function EditSidePanelSubzones(
@@ -31,15 +32,13 @@ export default function EditSidePanelSubzones(
         zone,
         draw,
         colorCache,
-        exitEditMode
+        exitEditMode,
+        setLoading
     }: Readonly<EditSidePanelSubzonesProps>
 ) {
 
     const [editing, setEditing] = useState(false);
     const [mode, setMode] = useState<DrawingModesSubZonas>(DrawingModesSubZonas.SinSeleccionar);
-    const [transactionLoading, setTransactionLoading] = useState(false);
-    const [selectedSubzone, setSelectedSubzone] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
     const [openDelete, setOpenDelete] = useState(false);
     const [subzoneToDelete, setSubzoneToDelete] = useState<string | null>(null);
     const { setOpen } = useSidebar();
@@ -150,7 +149,7 @@ export default function EditSidePanelSubzones(
 
 
     const handleSaveSubZoneEdits = () => {
-        setTransactionLoading(true);
+        setLoading(true);
         const terraDrawInstance = draw.getTerraDrawInstance();
         terraDrawInstance.setMode("render");
         draw.getFeatures()?.features.forEach((feature: GeoJSONStoreFeatures) => {
@@ -161,7 +160,7 @@ export default function EditSidePanelSubzones(
             setSubZones([...subZones]);
         });
         setMode(DrawingModesSubZonas.SinSeleccionar);
-        setTransactionLoading(false);
+        setLoading(false);
     }
 
     const handleDiscardSubZoneEdits = () => {
@@ -180,7 +179,7 @@ export default function EditSidePanelSubzones(
     }
 
     const handleDiscardChanges = async () => {
-        setTransactionLoading(true);
+        setLoading(true);
         const terraDrawInstance = draw.getTerraDrawInstance();
         subZones.forEach((subzona) => {
             if (subzona.id) {
@@ -191,11 +190,11 @@ export default function EditSidePanelSubzones(
         terraDrawInstance.setMode("render");
         setMode(DrawingModesSubZonas.SinSeleccionar);
         setEditing(false);
-        setTransactionLoading(false);
+        setLoading(false);
     }
 
     const handleSaveChanges = async () => {
-        setTransactionLoading(true);
+        setLoading(true);
         const terraDrawInstance = draw.getTerraDrawInstance();
         terraDrawInstance.setMode("render");
 
@@ -238,7 +237,7 @@ export default function EditSidePanelSubzones(
 
         setMode(DrawingModesSubZonas.SinSeleccionar);
         setEditing(false);
-        setTransactionLoading(false);
+        setLoading(false);
 
 
     }
@@ -265,7 +264,7 @@ export default function EditSidePanelSubzones(
     return (
         <div className="flex flex-row w-full h-full">
             <div className="w-full h-full flex flex-row">
-                {transactionLoading && <LoadSkeleton />}
+               
 
                 <Sidebar title="Panel de control" description="Panel de control de las subzonas en un área." >
                     <SidebarHeader>

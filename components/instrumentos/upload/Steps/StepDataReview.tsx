@@ -131,6 +131,7 @@ export default function StepDataReview({
                         Juzgados={juzgados}
                         onSubmit={handleEditar}
                         instrumento={instrumentoEditando}
+                        
                     />
                 }
                 customClose={true}

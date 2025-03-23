@@ -14,7 +14,7 @@ interface UbicacionProps {
     form: UseFormReturn<z.infer<typeof instrumentSchema>>,
     isOpen: boolean,
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>,
-    zonas: ExtendedZone[],
+    zonas?: ExtendedZone[],
     selectedZona: ExtendedZone | null,
     setSelectedZona: React.Dispatch<React.SetStateAction<ExtendedZone | null>>
 }
@@ -49,137 +49,90 @@ export default function Ubicacion(
                     </FormItem>
                 )}
             />
+            {
+                zonas &&
 
-            <Collapsible
-                open={isOpen}
-                onOpenChange={setIsOpen}
-                className="col-span-full"
-            >
-                <CollapsibleTrigger asChild>
-                    <div className="flex items-center justify-between py-2 px-1 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 rounded">
-                        <span>Coordenadas</span>
-                        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "transform rotate-180" : ""}`} />
-                    </div>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="transition-all">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
-                        <FormField
-                            control={form.control}
-                            name="lat"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-sm font-medium text-gray-700">Latitud</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            value={field.value ?? ""}
-                                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
-                                            type="number"
-                                            className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2"
-                                        />
-                                    </FormControl>
-                                    <FormMessage className="text-sm text-red-500 mt-1" />
-                                </FormItem>
-                            )}
-                        />
 
-                        <FormField
-                            control={form.control}
-                            name="long"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel className="text-sm font-medium text-gray-700">Longitud</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            value={field.value ?? ""}
-                                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
-                                            type="number"
-                                            className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2"
-                                        />
-                                    </FormControl>
-                                    <FormMessage className="text-sm text-red-500 mt-1" />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                </CollapsibleContent>
-            </Collapsible>
-
-            <FormField
-                control={form.control}
-                name="zona"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">Zona</FormLabel>
-                        <FormControl>
-                            <Select
-                                value={field.value ?? ""}
-                                onValueChange={(value) => {
-                                    field.onChange(value);
-                                    setSelectedZona(zonas.find(zona => zona.zoneName === value) ?? null);
-                                    form.setValue("subZona", "");
-                                }}
-                                defaultValue={field.value ?? "automatica"}
-                            >
-                                <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
-                                    <SelectValue placeholder="Seleccione una zona" className="text-sm" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
-                                    <SelectGroup>
-                                        <SelectItem value="automatica" className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                                            Zona automática
-                                        </SelectItem>
-                                        {zonas.map((zona) => (
-                                            <SelectItem key={zona.id} value={zona.zoneName} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                                                {zona.zoneName}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
-                        <FormMessage className="text-sm text-red-500 mt-1" />
-                    </FormItem>
-                )}
-            />
-
-            <FormField
-                control={form.control}
-                name="subZona"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel className="text-sm font-medium text-gray-700">Subzona</FormLabel>
-                        <FormControl>
-                            <Select
-                                value={field.value ?? ""}
-                                onValueChange={field.onChange}
-                                defaultValue={field.value ?? "automatica"}
-                                disabled={!selectedZona}
-                            >
-                                <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
-                                    <SelectValue placeholder={selectedZona ? "Seleccione una subzona" : "Primero seleccione una zona"} className="text-sm" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
-                                    <SelectGroup>
-                                        {selectedZona && (
-                                            <>
+                <div className="md:col-span-2">
+                    <FormField
+                        control={form.control}
+                        name="zona"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-sm font-medium text-gray-700">Zona</FormLabel>
+                                <FormControl>
+                                    <Select
+                                        value={field.value ?? ""}
+                                        onValueChange={(value) => {
+                                            field.onChange(value);
+                                            setSelectedZona(zonas.find(zona => zona.zoneName === value) ?? null);
+                                            form.setValue("subZona", "");
+                                        }}
+                                        defaultValue={field.value ?? "automatica"}
+                                    >
+                                        <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                                            <SelectValue placeholder="Seleccione una zona" className="text-sm" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                                            <SelectGroup>
                                                 <SelectItem value="automatica" className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                                                    Subzona automática
+                                                    Zona automática
                                                 </SelectItem>
-                                                {selectedZona && selectedZona.SubZonas.map((zona) => (
+                                                {zonas.map((zona) => (
                                                     <SelectItem key={zona.id} value={zona.zoneName} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
                                                         {zona.zoneName}
                                                     </SelectItem>
                                                 ))}
-                                            </>
-                                        )}
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
-                        <FormMessage className="text-sm text-red-500 mt-1" />
-                    </FormItem>
-                )}
-            />
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                                <FormMessage className="text-sm text-red-500 mt-1" />
+                            </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="subZona"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="text-sm font-medium text-gray-700">Subzona</FormLabel>
+                                <FormControl>
+                                    <Select
+                                        value={field.value ?? ""}
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value ?? "automatica"}
+                                        disabled={!selectedZona}
+                                    >
+                                        <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                                            <SelectValue placeholder={selectedZona ? "Seleccione una subzona" : "Primero seleccione una zona"} className="text-sm" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                                            <SelectGroup>
+                                                {selectedZona && (
+                                                    <>
+                                                        <SelectItem value="automatica" className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                                                            Subzona automática
+                                                        </SelectItem>
+                                                        {selectedZona && selectedZona.SubZonas.map((zona) => (
+                                                            <SelectItem key={zona.id} value={zona.zoneName} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                                                                {zona.zoneName}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </>
+                                                )}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                </FormControl>
+                                <FormMessage className="text-sm text-red-500 mt-1" />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            }
+
         </div>
     );
 }

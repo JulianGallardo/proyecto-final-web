@@ -25,7 +25,7 @@ interface FormularioInstrumentoProps {
   onSubmit: (data: InstrumentoDTO) => Promise<void>,
   Juzgados: Juzgado[],
   instrumentoTypes: InstrumentoType[]
-  zonas: ExtendedZone[]
+  zonas?: ExtendedZone[]
 }
 
 
@@ -88,7 +88,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
         observaciones: values?.observaciones ?? "",
         estado: values.estado,
         punto: (latParsed !== null && longParsed !== null) ? [longParsed, latParsed] as [number, number] : null,
-        zona: (zonas.find
+        zona: (zonas?.find
           (zona => zona.zoneName === values.zona)
         ) || null,
         subZona: values.subZona || null

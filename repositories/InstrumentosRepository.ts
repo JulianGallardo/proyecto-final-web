@@ -244,9 +244,9 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
     private async getNewZoneAndCoordinates(data: Partial<InstrumentoDTO>) {
-        let punto: [number, number] | null = null;
+        let punto = data.punto;
 
-        if (data.domicilio_denunciado && data.domicilio_denunciado !== "") {
+        if (data.domicilio_denunciado && data.domicilio_denunciado !== "" && data.punto === null) {
             punto = await getCoordinates(data.domicilio_denunciado);
         }
 

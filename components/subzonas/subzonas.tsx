@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Map, Source, Layer, useMap, LngLatBoundsLike, MapLayerMouseEvent } from "@vis.gl/react-maplibre";
 import { MapBounds, MapCenter } from "@/types/MapTypes";
 import { ExtendedZone, ZoneDtoWithSubZones } from "@/types/ZoneTypes";
@@ -123,6 +123,21 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
         return 2;
     };
 
+    useEffect(() => {
+        if(selectedZone === null){
+            setEditMode(false);
+            mymap?.getMap().setMaxBounds(MapBounds as LngLatBoundsLike);
+            mymap?.getMap().setMinZoom(null);
+            mymap?.flyTo({
+                center: [initialViewState.longitude, initialViewState.latitude],
+                zoom: initialViewState.zoom,
+                duration: 1000
+            });
+        }
+    }, [selectedZone]);
+
+    
+
     const handleZoneClick = (event: MapLayerMouseEvent) => {
         if(selectedZone) return;
 
@@ -168,7 +183,6 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
     };
 
     const handleExitEdit = () => {
-        setSelectedZone(null);
         setEditMode(false);
         if (mymap) {
             mymap.getSource("subzones-edit-source")?.setData({
@@ -183,6 +197,7 @@ export default function SubZonesEdit({ zonasBDD }: Readonly<ZonesAgenteProps>) {
                 duration: 1000
             });
         }
+        setSelectedZone(null);
     };
 
     return (

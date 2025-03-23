@@ -1,7 +1,4 @@
 "use client"
-
-import * as React from "react"
-
 import { InstrumentoDTO, InstrumentoExtendido, } from "@/types/instrumentoTypes"
 import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
@@ -16,6 +13,7 @@ import CustomAlert from "./Dialogs/alert"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 
 interface CrudInstrumentosProps {
@@ -25,14 +23,14 @@ interface CrudInstrumentosProps {
 }
 
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: Readonly<CrudInstrumentosProps>) {
-    const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | undefined>(undefined)
-    const [instrumentoEliminando, setInstrumentoEliminando] = React.useState<InstrumentoExtendido | undefined>(undefined)
+    const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
+    const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
     const { setJuzgados, setInstrumentoTypes } = useInfoInstrumentos()
 
-    React.useEffect(() => {
+    useEffect(() => {
         setJuzgados(Juzgados)
         setInstrumentoTypes(instrumentoTypes)
     }, [Juzgados, instrumentoTypes])

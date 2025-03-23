@@ -42,7 +42,8 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       instrumentType: instrumentoTypes.find(instrumentType => instrumentType.identifier === instrumento?.instrumentoTypeIdentifier)?.identifier ?? "",
       observaciones: instrumento?.observaciones ?? "",
       estado: instrumento?.estado as "CORRECCIONES_SOLICITADAS" | "PENDIENTE_DE_NOTIFICAR" | undefined ?? "PENDIENTE_DE_NOTIFICAR",
-     
+      lat: instrumento?.punto ? instrumento.punto[0] : null,
+      long: instrumento?.punto ? instrumento.punto[1] : null
     },
   })
 
@@ -73,7 +74,8 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
         codigo: instrumento?.codigo ?? "9999999999",
         tipoDeCarga: instrumento?.tipoDeCarga ?? TipoCarga.MAN,
         observaciones: values?.observaciones ?? "",
-        estado: values.estado
+        estado: values.estado,
+        punto: null
       })
     } finally {
       setIsSubmitting(false)
@@ -199,30 +201,65 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
 
 
 
+          <div className="flex flex-col gap-2">
 
-
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Domicilio</FormLabel>
-                <FormControl>
-                  <AddressAutocomplete onChange={
-                    (address) => {
-                      form.setValue("address", address)
+            <FormField
+              control={form.control}
+              name="address"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Domicilio</FormLabel>
+                  <FormControl>
+                    <AddressAutocomplete onChange={
+                      (address) => {
+                        form.setValue("address", address)
+                      }
                     }
-                  }
 
-                    defaultValue={field.value}
-                    miUbicacion={false}
-                  />
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
+                      defaultValue={field.value}
+                      miUbicacion={false}
+                    />
 
-            )}
-          />
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="lat"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">Latitud</FormLabel>
+                    <FormControl>
+                      <Input defaultValue={field.value ?? ""} value={field.value ?? ""} onChange={field.onChange} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                    </FormControl>
+                    <FormMessage className="text-sm text-red-500 mt-1" />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="long"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-gray-700">Longitud</FormLabel>
+                    <FormControl>
+                      <Input defaultValue={field.value ?? ""} value={field.value ?? ""} onChange={field.onChange} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                    </FormControl>
+                    <FormMessage className="text-sm text-red-500 mt-1" />
+                  </FormItem>
+                )}
+              />
+
+            </div>
+
+          </div>
+
           <FormField
             control={form.control}
             name="juzgado"
@@ -298,7 +335,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
               className="bg-blue-500 hover:bg-blue-600 w-full"
             >
               {isSubmitting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 `${buttonText} Instrumento`
               )}

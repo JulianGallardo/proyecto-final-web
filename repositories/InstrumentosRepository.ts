@@ -270,6 +270,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             data.codigo = (await this.calculateManualCode()).toString();
         }
 
+        
+
         const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
         try {

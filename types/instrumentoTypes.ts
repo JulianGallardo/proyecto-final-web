@@ -25,6 +25,7 @@ export interface InstrumentoDTO {
   codigo: string;
   urgencia: UrgenciaInstrumento;
   estado: EstadoInstrumento;
+  punto: [number, number] | null;
 
   observaciones:string;
 }

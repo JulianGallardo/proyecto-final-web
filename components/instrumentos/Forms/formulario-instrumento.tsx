@@ -25,19 +25,22 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { ExtendedZone } from "@/types/ZoneTypes"
 
 interface FormularioInstrumentoProps {
   instrumento?: InstrumentoDTO,
   onSubmit: (data: InstrumentoDTO) => Promise<void>,
   Juzgados: Juzgado[],
   instrumentoTypes: InstrumentoType[]
+  zonas: ExtendedZone[]
 }
 
-export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes }: Readonly<FormularioInstrumentoProps>) {
+export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes, zonas }: Readonly<FormularioInstrumentoProps>) {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isOpen, setIsOpen] = React.useState(false)
-  
+  const [selectedZona, setSelectedZona] = React.useState<ExtendedZone | null>(instrumento?.zona || null)
+
   const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(instrumentSchema),
     defaultValues: {
@@ -50,10 +53,13 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       observaciones: instrumento?.observaciones ?? "",
       estado: instrumento?.estado as "CORRECCIONES_SOLICITADAS" | "PENDIENTE_DE_NOTIFICAR" | undefined ?? "PENDIENTE_DE_NOTIFICAR",
       lat: instrumento?.punto ? instrumento.punto[1] : null,
-      long: instrumento?.punto ? instrumento.punto[0] : null
+      long: instrumento?.punto ? instrumento.punto[0] : null,
+      zona: instrumento?.zona?.zoneName || "",
+      subZona: instrumento?.subZona || "",
     },
   })
 
+  
 
   async function handleSubmit(values: z.infer<typeof instrumentSchema>) {
     setIsSubmitting(true)
@@ -86,7 +92,11 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
         tipoDeCarga: instrumento?.tipoDeCarga ?? TipoCarga.MAN,
         observaciones: values?.observaciones ?? "",
         estado: values.estado,
-        punto: (latParsed !== null && longParsed !== null) ? [longParsed, latParsed] as [number, number] : null
+        punto: (latParsed !== null && longParsed !== null) ? [longParsed, latParsed] as [number, number] : null,
+        zona: (zonas.find
+          (zona => zona.zoneName === values.zona)
+        ) || null,
+        subZona: values.subZona || null
       })
     } finally {
       setIsSubmitting(false)
@@ -99,154 +109,84 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
   return (
     Juzgados.length === 0 || instrumentoTypes.length === 0 ? <div>Cargando...</div> :
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full h-full  bg-white rounded-lg ">
-          <FormField
-            control={form.control}
-            name="entryDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Fecha de Entrada</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
-            )}
-          />
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full h-full bg-white rounded-lg">
+          {/* Información básica */}
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 border-b pb-6">
+            <h3 className="col-span-full text-lg font-medium text-gray-800 mb-2">Información básica</h3>
+            <FormField
+              control={form.control}
+              name="caratula"
+              render={({ field }) => (
+                <FormItem className="md:col-span-2">
+                  <FormLabel className="text-sm font-medium text-gray-700">Carátula</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="entryDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Fecha de Entrada</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="exitDate"
-            defaultValue={instrumento?.fecha_de_salida?.toISOString().split("T")[0] ?? ""}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Fecha de Salida</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="caratula"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Carátula</FormLabel>
-                <FormControl>
-                  <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="urgencia"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Urgencia</FormLabel>
-                <FormControl>
-                  <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value} >
-                    <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
-                      <SelectValue placeholder="Seleccione una Urgencia" className="text-sm" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
-                      <SelectGroup>
-                        <SelectItem value={UrgenciaInstrumento.NORMAL} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                          Normal
-                        </SelectItem>
-                        <SelectItem value={UrgenciaInstrumento.URGENTE} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                          Urgente
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="exitDate"
+              defaultValue={instrumento?.fecha_de_salida?.toISOString().split("T")[0] ?? ""}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Fecha de Salida</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
+          </div>
 
-          <FormField
-            control={form.control}
-            name="estado"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Estado</FormLabel>
-                <FormControl>
-                  <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value} >
-                    <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
-                      <SelectValue placeholder="Seleccione una Urgencia" className="text-sm" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
-                      <SelectGroup>
-                        <SelectItem value={EstadoInstrumento.CORRECCIONES_SOLICITADAS} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                          Correcciones Solicitadas
-                        </SelectItem>
-                        <SelectItem value={EstadoInstrumento.PENDIENTE_DE_NOTIFICAR} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                          Listo para notificar
-                        </SelectItem>
-                        <SelectItem value={EstadoInstrumento.PENDIENTE_DE_PROCESAR_NOTIFICACION} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                          Pendiente de Procesar Notificación
-                        </SelectItem>
-                        <SelectItem value={EstadoInstrumento.NOTIFICADO_VERDE} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                          Notificado Verde
-                        </SelectItem>
-                        <SelectItem value={EstadoInstrumento.NOTIFICADO_AMARILLO} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                          Notificado Amarillo
-                        </SelectItem>
-                        <SelectItem value={EstadoInstrumento.NOTIFICADO_ROJO} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                          Notificado Rojo
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
-            )}
-          />
-
-
-
-
-          <div className="flex flex-col gap-2">
-
+          {/* Ubicación */}
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 border-b pb-6">
+            <h3 className="col-span-full text-lg font-medium text-gray-800 mb-2">Ubicación</h3>
             <FormField
               control={form.control}
               name="address"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="md:col-span-2">
                   <FormLabel className="text-sm font-medium text-gray-700">Domicilio</FormLabel>
                   <FormControl>
-                    <AddressAutocomplete onChange={
-                      (address) => {
+                    <AddressAutocomplete 
+                      onChange={(address) => {
                         form.setValue("address", address)
-                      }
-                    }
-
+                      }}
                       setCoords={(lat, long) => {
                         form.setValue("lat", lat !== null ? Number(lat) : null);
                         form.setValue("long", long !== null ? Number(long) : null);
                       }}
-
                       defaultValue={field.value}
                       miUbicacion={false}
                     />
-
                   </FormControl>
                   <FormMessage className="text-sm text-red-500 mt-1" />
                 </FormItem>
-
               )}
             />
 
             <Collapsible
               open={isOpen}
               onOpenChange={setIsOpen}
-              className="w-full"
+              className="col-span-full"
             >
               <CollapsibleTrigger asChild>
                 <div className="flex items-center justify-between py-2 px-1 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 rounded">
@@ -255,7 +195,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="transition-all">
-                <div className="grid grid-cols-2 gap-6 pt-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
                   <FormField
                     control={form.control}
                     name="lat"
@@ -297,78 +237,230 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
               </CollapsibleContent>
             </Collapsible>
 
+            <FormField
+              control={form.control}
+              name="zona"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Zona</FormLabel>
+                  <FormControl>
+                    <Select 
+                      value={field.value ?? ""} 
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        setSelectedZona(zonas.find(zona => zona.zoneName === value) ?? null);
+                        
+                        form.setValue("subZona", "");
+                      }} 
+                      defaultValue={field.value ?? "automatica"}
+                    >
+                      <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                        <SelectValue placeholder="Seleccione una zona" className="text-sm" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                        <SelectGroup>
+                          <SelectItem value="automatica" className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Zona automática
+                          </SelectItem>
+                          {zonas.map((zona) => (
+                            <SelectItem key={zona.id} value={zona.zoneName} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                              {zona.zoneName}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="subZona"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Subzona</FormLabel>
+                  <FormControl>
+                    <Select 
+                      value={field.value ?? ""} 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value ?? "automatica"}
+                      disabled={!selectedZona}
+                    >
+                      <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                        <SelectValue placeholder={selectedZona ? "Seleccione una subzona" : "Primero seleccione una zona"} className="text-sm" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                        <SelectGroup>
+                          {selectedZona && (
+                            <>
+                              <SelectItem value="automatica" className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                                Subzona automática
+                              </SelectItem>
+                              {selectedZona && selectedZona.SubZonas.map((zona) => (
+                                <SelectItem key={zona.id} value={zona.zoneName} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                                  {zona.zoneName}
+                                </SelectItem>
+                              ))}
+                            </>
+                          )}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <FormField
-            control={form.control}
-            name="juzgado"
-
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-medium text-gray-700">Identificador de Juzgado</FormLabel>
-                <FormControl  >
-                  <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value} >
-                    <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
-                      <SelectValue placeholder="Seleccione un Juzgado" className="text-sm" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
-                      <SelectGroup>
-                        {Juzgados.map((juzgado) => (
-                          <SelectItem key={juzgado.id} value={juzgado.identifier} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                            {juzgado.identifier}
+          {/* Información administrativa */}
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 border-b pb-6">
+            <h3 className="col-span-full text-lg font-medium text-gray-800 mb-2">Información administrativa</h3>
+            <FormField
+              control={form.control}
+              name="juzgado"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Identificador de Juzgado</FormLabel>
+                  <FormControl>
+                    <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                        <SelectValue placeholder="Seleccione un Juzgado" className="text-sm" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                        <SelectGroup>
+                          {Juzgados.map((juzgado) => (
+                            <SelectItem key={juzgado.id} value={juzgado.identifier} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                              {juzgado.identifier}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="instrumentType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Tipo de Instrumento</FormLabel>
+                  <FormControl className="w-full h-full">
+                    <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                        <SelectValue placeholder="Seleccione un tipo de instrumento" className="text-sm w-full" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                        <SelectGroup>
+                          {instrumentoTypes.map((instrumentoType) => (
+                            <SelectItem key={instrumentoType.id} value={instrumentoType.identifier} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                              {instrumentoType.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="urgencia"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Urgencia</FormLabel>
+                  <FormControl>
+                    <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                        <SelectValue placeholder="Seleccione una Urgencia" className="text-sm" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                        <SelectGroup>
+                          <SelectItem value={UrgenciaInstrumento.NORMAL} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Normal
                           </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="instrumentType"
-
-            render={({ field }) => (
-              <FormItem >
-                <FormLabel className="text-sm font-medium text-gray-700">Tipo de Instrumento</FormLabel>
-                <FormControl className="w-full h-full ">
-                  <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value}  >
-                    <SelectTrigger className="w-full  border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
-                      <SelectValue placeholder="Seleccione un tipo de instrumento" className="text-sm w-full" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1" >
-
-                      <SelectGroup >
-                        {instrumentoTypes.map((instrumentoType) => (
-                          <SelectItem key={instrumentoType.id} value={instrumentoType.identifier} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
-                            {instrumentoType.name}
+                          <SelectItem value={UrgenciaInstrumento.URGENTE} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Urgente
                           </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
-            )}
-          />
-          <FormField
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
 
-            control={form.control}
-            name="observaciones"
-            render={({ field }) => (
-              <FormItem className="col-span-full">
-                <FormLabel className="text-sm font-medium text-gray-700">Observaciones</FormLabel>
-                <FormControl>
-                  <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
-                </FormControl>
-                <FormMessage className="text-sm text-red-500 mt-1" />
-              </FormItem>
-            )}
-          />
-          <div className="col-span-full ">
+            <FormField
+              control={form.control}
+              name="estado"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-medium text-gray-700">Estado</FormLabel>
+                  <FormControl>
+                    <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm hover:ring focus:ring focus:ring-blue-500 focus:outline-none bg-white px-3 py-2">
+                        <SelectValue placeholder="Seleccione un estado" className="text-sm" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border border-gray-200 rounded-md shadow-md mt-1">
+                        <SelectGroup>
+                          <SelectItem value={EstadoInstrumento.CORRECCIONES_SOLICITADAS} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Correcciones Solicitadas
+                          </SelectItem>
+                          <SelectItem value={EstadoInstrumento.PENDIENTE_DE_NOTIFICAR} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Listo para notificar
+                          </SelectItem>
+                          <SelectItem value={EstadoInstrumento.PENDIENTE_DE_PROCESAR_NOTIFICACION} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Pendiente de Procesar Notificación
+                          </SelectItem>
+                          <SelectItem value={EstadoInstrumento.NOTIFICADO_VERDE} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Notificado Verde
+                          </SelectItem>
+                          <SelectItem value={EstadoInstrumento.NOTIFICADO_AMARILLO} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Notificado Amarillo
+                          </SelectItem>
+                          <SelectItem value={EstadoInstrumento.NOTIFICADO_ROJO} className="flex items-center px-3 py-2 hover:bg-gray-100 focus:bg-gray-200 text-gray-700 cursor-pointer">
+                            Notificado Rojo
+                          </SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Observaciones */}
+          <div className="md:col-span-2 border-b pb-6">
+            <FormField
+              control={form.control}
+              name="observaciones"
+              render={({ field }) => (
+                <FormItem className="col-span-full">
+                  <FormLabel className="text-sm font-medium text-gray-700">Observaciones</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
+                  </FormControl>
+                  <FormMessage className="text-sm text-red-500 mt-1" />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Botón de acción */}
+          <div className="col-span-full mt-4">
             <Button
               type="submit"
               disabled={isSubmitting}

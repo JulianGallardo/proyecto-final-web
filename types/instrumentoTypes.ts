@@ -1,4 +1,5 @@
 import { EstadoEntrega, EstadoInstrumento, Instrumento, TipoCarga, UrgenciaInstrumento } from "@prisma/client";
+import { ExtendedZone } from "./ZoneTypes";
 
 export interface InstrumentPDFDTO {
     organismo: string;
@@ -26,6 +27,8 @@ export interface InstrumentoDTO {
   urgencia: UrgenciaInstrumento;
   estado: EstadoInstrumento;
   punto: [number, number] | null;
+  zona: ExtendedZone | null;
+  subZona: string | null;
 
   observaciones:string;
 }

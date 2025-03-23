@@ -33,6 +33,8 @@ export const instrumentSchema = object({
   estado: z.enum([EstadoInstrumento.CORRECCIONES_SOLICITADAS, EstadoInstrumento.PENDIENTE_DE_NOTIFICAR, EstadoInstrumento.PENDIENTE_DE_PROCESAR_NOTIFICACION, EstadoInstrumento.NOTIFICADO_VERDE,EstadoInstrumento.NOTIFICADO_AMARILLO,EstadoInstrumento.NOTIFICADO_ROJO]),	
   lat: z.number().optional().or(z.null()).default(null),
   long: z.number().optional().or(z.null()).default(null),
+  zona: string().optional().or(z.null()).default(null),
+  subZona: string().optional().or(z.null()).default(null),
   observaciones: string()
 })
 

@@ -94,6 +94,10 @@ export async function getAllZones(): Promise<CustomFeature[]> {
 
 }
 
+export async function getAll(): Promise<ExtendedZone[]> {
+    return zoneRepo.getAll();
+}
+
 export async function getAllZonesWithAgents(): Promise<ZoneDtoWithSubZones[]> {
     return zoneRepo.getAllWithAgents();
 }

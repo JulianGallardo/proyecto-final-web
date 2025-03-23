@@ -12,6 +12,7 @@ interface AddressAutocompleteProps {
   onChange: (value: string) => void;
   miUbicacion?: boolean;
   defaultValue?: string;
+  setCoords?: (lat: number, lon: number) => void;
 }
 
 interface Place {
@@ -37,6 +38,7 @@ export default function AddressAutocomplete({
   placeHolder = "",
   Icon,
   onChange,
+  setCoords,
   defaultValue = "",
   miUbicacion = true,
 }: Readonly<AddressAutocompleteProps>) {
@@ -91,6 +93,7 @@ export default function AddressAutocomplete({
     setResults([]);
     setSelected(true);
     onChange(place.name);
+    if (setCoords) setCoords(parseFloat(place.lat), parseFloat(place.lon));
   };
 
   const getCurrentLocation = () => {

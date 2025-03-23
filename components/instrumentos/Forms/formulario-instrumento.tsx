@@ -75,7 +75,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
         tipoDeCarga: instrumento?.tipoDeCarga ?? TipoCarga.MAN,
         observaciones: values?.observaciones ?? "",
         estado: values.estado,
-        punto: null
+        punto: values.lat && values.long ? [values.lat, values.long] : null
       })
     } finally {
       setIsSubmitting(false)
@@ -215,6 +215,11 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
                         form.setValue("address", address)
                       }
                     }
+
+                      setCoords={(lat, long) => {
+                        form.setValue("lat", lat)
+                        form.setValue("long", long)
+                      }}
 
                       defaultValue={field.value}
                       miUbicacion={false}

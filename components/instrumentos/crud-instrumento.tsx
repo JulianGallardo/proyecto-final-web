@@ -174,7 +174,9 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
             codigo: instrumento.codigoInstrumento,
             tipoDeCarga: instrumento.cargaInstrumento,
             observaciones: instrumento.observaciones ?? "",
-            estado: instrumento.estado
+            estado: instrumento.estado,
+            punto: (instrumento.latitude && instrumento.longitude) ? [instrumento.latitude, instrumento.longitude] : null
+            
         }
 
         return instrumentoDto

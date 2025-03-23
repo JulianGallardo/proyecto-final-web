@@ -19,7 +19,12 @@ import { instrumentSchema } from "@/lib/zod"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { EstadoInstrumento, InstrumentoType, Juzgado, TipoCarga, UrgenciaInstrumento } from "@prisma/client"
 import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete"
-import { Loader2 } from "lucide-react"
+import { Loader2, ChevronDown } from "lucide-react"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 
 interface FormularioInstrumentoProps {
   instrumento?: InstrumentoDTO,
@@ -31,6 +36,8 @@ interface FormularioInstrumentoProps {
 export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes }: Readonly<FormularioInstrumentoProps>) {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(false)
+  
   const form = useForm<z.infer<typeof instrumentSchema>>({
     resolver: zodResolver(instrumentSchema),
     defaultValues: {
@@ -42,8 +49,8 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       instrumentType: instrumentoTypes.find(instrumentType => instrumentType.identifier === instrumento?.instrumentoTypeIdentifier)?.identifier ?? "",
       observaciones: instrumento?.observaciones ?? "",
       estado: instrumento?.estado as "CORRECCIONES_SOLICITADAS" | "PENDIENTE_DE_NOTIFICAR" | undefined ?? "PENDIENTE_DE_NOTIFICAR",
-      lat: instrumento?.punto ? instrumento.punto[0] : null,
-      long: instrumento?.punto ? instrumento.punto[1] : null
+      lat: instrumento?.punto ? instrumento.punto[1] : null,
+      long: instrumento?.punto ? instrumento.punto[0] : null
     },
   })
 
@@ -62,6 +69,10 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
     const fecha_de_ingreso_parsed = parseDate(values.entryDate)
     const fecha_de_salida_parsed = values.exitDate ? parseDate(values.exitDate) : null
 
+
+    const latParsed = values.lat ? Number(values.lat) : null;
+    const longParsed = values.long ? Number(values.long) : null;
+
     try {
       await onSubmit({
         fecha_de_ingreso: fecha_de_ingreso_parsed,
@@ -75,7 +86,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
         tipoDeCarga: instrumento?.tipoDeCarga ?? TipoCarga.MAN,
         observaciones: values?.observaciones ?? "",
         estado: values.estado,
-        punto: values.lat && values.long ? [values.lat, values.long] : null
+        punto: (latParsed !== null && longParsed !== null) ? [longParsed, latParsed] as [number, number] : null
       })
     } finally {
       setIsSubmitting(false)
@@ -217,8 +228,8 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
                     }
 
                       setCoords={(lat, long) => {
-                        form.setValue("lat", lat)
-                        form.setValue("long", long)
+                        form.setValue("lat", lat !== null ? Number(lat) : null);
+                        form.setValue("long", long !== null ? Number(long) : null);
                       }}
 
                       defaultValue={field.value}
@@ -232,36 +243,59 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
               )}
             />
 
-            <div className="grid grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="lat"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">Latitud</FormLabel>
-                    <FormControl>
-                      <Input defaultValue={field.value ?? ""} value={field.value ?? ""} onChange={field.onChange} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
-                    </FormControl>
-                    <FormMessage className="text-sm text-red-500 mt-1" />
-                  </FormItem>
-                )}
-              />
+            <Collapsible
+              open={isOpen}
+              onOpenChange={setIsOpen}
+              className="w-full"
+            >
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between py-2 px-1 text-sm font-medium text-gray-700 cursor-pointer hover:bg-gray-50 rounded">
+                  <span>Coordenadas</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "transform rotate-180" : ""}`} />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="transition-all">
+                <div className="grid grid-cols-2 gap-6 pt-1">
+                  <FormField
+                    control={form.control}
+                    name="lat"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">Latitud</FormLabel>
+                        <FormControl>
+                          <Input
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                            type="number"
+                            className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-sm text-red-500 mt-1" />
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="long"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium text-gray-700">Longitud</FormLabel>
-                    <FormControl>
-                      <Input defaultValue={field.value ?? ""} value={field.value ?? ""} onChange={field.onChange} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
-                    </FormControl>
-                    <FormMessage className="text-sm text-red-500 mt-1" />
-                  </FormItem>
-                )}
-              />
-
-            </div>
+                  <FormField
+                    control={form.control}
+                    name="long"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm font-medium text-gray-700">Longitud</FormLabel>
+                        <FormControl>
+                          <Input
+                            value={field.value ?? ""}
+                            onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                            type="number"
+                            className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2"
+                          />
+                        </FormControl>
+                        <FormMessage className="text-sm text-red-500 mt-1" />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
           </div>
 
@@ -321,10 +355,11 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
             )}
           />
           <FormField
+
             control={form.control}
             name="observaciones"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-full">
                 <FormLabel className="text-sm font-medium text-gray-700">Observaciones</FormLabel>
                 <FormControl>
                   <Input {...field} className="w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500 focus:outline-none px-3 py-2" />
@@ -350,5 +385,3 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       </Form>
   )
 }
-
-

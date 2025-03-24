@@ -50,16 +50,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes , zo
 
 
     const handleCrear = async (nuevoInstrumento: InstrumentoDTO) => {
-
-
         try {
-
             const instrumentoCreado = await createInstrumento(nuevoInstrumento)
-
             if (!instrumentoCreado) return
-
         } catch (error) {
-
             toast({
                 title: "Error",
                 description: (error instanceof Error ? error.message : "Ha ocurrido un error al crear el instrumento"),
@@ -74,13 +68,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes , zo
             className: "bg-green-500 text-white",
             duration: 3000,
         });
-
-
-
-
         setIsOpen(false)
-
-
     }
 
 

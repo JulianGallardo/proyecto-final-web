@@ -52,8 +52,8 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       estado: instrumento?.estado as "CORRECCIONES_SOLICITADAS" | "PENDIENTE_DE_NOTIFICAR" | undefined ?? "PENDIENTE_DE_NOTIFICAR",
       lat: instrumento?.punto ? instrumento.punto[1] : null,
       long: instrumento?.punto ? instrumento.punto[0] : null,
-      zona: instrumento?.zona?.zoneName || "",
-      subZona: instrumento?.subZona || "",
+      zona: instrumento?.zona?.zoneName ?? "",
+      subZona: instrumento?.subZona ?? "",
       exitDate: instrumento?.fecha_de_salida?.toISOString().split("T")[0] ?? "",
     },
   })
@@ -74,25 +74,31 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
     const latParsed = values.lat ? Number(values.lat) : null;
     const longParsed = values.long ? Number(values.long) : null;
 
+    const instrumentoToSubmit: InstrumentoDTO = {
+      fecha_de_ingreso: fecha_de_ingreso_parsed,
+      fecha_de_salida: fecha_de_salida_parsed,
+      caratula: values.caratula,
+      urgencia: values.urgencia,
+      domicilio_denunciado: values.address,
+      juzgadoIdentifier: Juzgado?.identifier ?? "",
+      instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
+      codigo: instrumento?.codigo ?? "9999999999",
+      tipoDeCarga: instrumento?.tipoDeCarga ?? TipoCarga.MAN,
+      observaciones: values?.observaciones ?? "",
+      estado: values.estado,
+      punto: (latParsed !== null && longParsed !== null) ? [longParsed, latParsed] as [number, number] : null,
+      zona: (zonas?.find
+        (zona => zona.zoneName === values.zona)
+      ) || null,
+      subZona: values.subZona || null
+    }
+
+    console.log(instrumentoToSubmit)
+
     try {
-      await onSubmit({
-        fecha_de_ingreso: fecha_de_ingreso_parsed,
-        fecha_de_salida: fecha_de_salida_parsed,
-        caratula: values.caratula,
-        urgencia: values.urgencia,
-        domicilio_denunciado: values.address,
-        juzgadoIdentifier: Juzgado?.identifier ?? "",
-        instrumentoTypeIdentifier: instrumentoType?.identifier ?? "",
-        codigo: instrumento?.codigo ?? "9999999999",
-        tipoDeCarga: instrumento?.tipoDeCarga ?? TipoCarga.MAN,
-        observaciones: values?.observaciones ?? "",
-        estado: values.estado,
-        punto: (latParsed !== null && longParsed !== null) ? [longParsed, latParsed] as [number, number] : null,
-        zona: (zonas?.find
-          (zona => zona.zoneName === values.zona)
-        ) || null,
-        subZona: values.subZona || null
-      })
+      await onSubmit(
+        instrumentoToSubmit
+      )
     } finally {
       setIsSubmitting(false)
     }

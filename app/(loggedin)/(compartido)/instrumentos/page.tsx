@@ -32,7 +32,7 @@ export default async function InsturmentosPage(props: Readonly<{
   return (
     <div className="flex flex-col gap-4 p-4 ">
       <h2 className="text-2xl font-bold">Lista de Instrumentos</h2>
-      <FiltrosList Juzgados={juzgados} InstrumentTypes={instrumentTypes} Zonas={zonas.sort(
+      <FiltrosList Juzgados={juzgados} InstrumentTypes={instrumentTypes} Zonas={zonas.toSorted(
         (a, b) => a.zoneName.localeCompare(b.zoneName)
       ).map(
         (zona) => (zona.zoneName)

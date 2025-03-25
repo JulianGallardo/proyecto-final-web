@@ -97,22 +97,21 @@ export default function Controls({ volver, instrumentos, agente }: Readonly<Cont
                     <Button
                         onClick={calculateRoute}
                         className="w-full bg-green-500 hover:bg-green-600 mt-4"
-                        disabled={loading || selectedInstruments.length === 0}
+                        disabled={loading || selectedInstruments.length === 0 || !startPoint }
                     >
                         {loading ? <ClipLoader
                             loading
                             size={15}
                             speedMultiplier={1}
                             color="#ffffff"
-                        />
-                            : "Calcular recorrido"}
+                        /> : "Calcular recorrido"}
                     </Button>
 
                     <RouteControls vehicle={vehicle} setVehicle={setVehicle} routeChoice={routeChoice} setRouteChoice={setRouteChoice} />
                     <AddressInputs startPoint={startPoint} endPoint={endPoint} onStartPointChange={setStartPoint} onEndPointChange={setEndPoint} />
 
                     <h2 className="text-lg font-semibold mb-2">Instrumentos en ruta:</h2>
-                    <InstrumentList instruments={selectedInstruments} orderedAddresses={orderedAddresses} markAsVisited={markAsVisited} cancelVisit={cancelVisit}  />
+                    <InstrumentList instruments={selectedInstruments} orderedAddresses={orderedAddresses} markAsVisited={markAsVisited} cancelVisit={cancelVisit} />
 
                     <Button
                         disabled={!canFinish}

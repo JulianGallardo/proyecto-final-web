@@ -5,7 +5,6 @@ import { InstrumentoDTO, InstrumentoExtendido } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import OrdenRepository from "./OrdenRepository";
 import { getCoordinates, getSubzoneInCoords, getZoneInCoords } from "@/lib/locationUtils/zoneUtils";
-import { ExtendedZone } from "@/types/ZoneTypes";
 
 const selectOptions = {
     codigoInstrumento: true,

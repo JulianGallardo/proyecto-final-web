@@ -18,6 +18,7 @@ import CustomAlert from "../Dialogs/alert";
 import InstrumentDetailSkeleton from "./InfoInstrumentoSkeleton";
 import InfoInstrumentoNoEncontrado from "./InfoInstrumentoNoEncontrado";
 import { Session } from "next-auth";
+import { ExtendedZone } from "@/types/ZoneTypes";
 
 // Helper function to get section path from the current URL
 function getSectionPath(path: string): string {
@@ -25,14 +26,18 @@ function getSectionPath(path: string): string {
     return firstSegment ? `/${firstSegment}` : path;
 }
 
-export default function InfoInstrumento() {
+export default function InfoInstrumento(
+    {zonas }: Readonly<{
+        zonas: ExtendedZone[];
+    }>
+) {
     const pathname = usePathname();
     const codigoInstrumento = pathname.split("/").pop();
     const [instrumento, setInstrumento] = useState<InstrumentoExtendidoConEntregas | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isPending, startTransition] = useTransition();
     const { setIsOpenAlert } = useCustomAlert();
-    const [user, setUser] = useState<Session|null>(null);
+    const [user, setUser] = useState<Session | null>(null);
 
     // Recuperar los filtros guardados para construir la URL de retorno
     const sectionPath = getSectionPath(pathname);
@@ -58,7 +63,7 @@ export default function InfoInstrumento() {
 
 
     const [backToListURL, setBackToListURL] = useState("/instrumentos");
-    
+
     // Update URL when user changes
     useEffect(() => {
         if (user?.user.role === "agente") {
@@ -74,7 +79,7 @@ export default function InfoInstrumento() {
             // Recuperar los filtros guardados para la sección de instrumentos
             const savedFilters = localStorage.getItem(`app-filters-${sectionPath}`);
 
-            
+
             if (savedFilters) {
                 const parsedFilters = JSON.parse(savedFilters);
                 const params = new URLSearchParams();
@@ -94,7 +99,7 @@ export default function InfoInstrumento() {
         } catch (error) {
             console.error("Error obteniendo filtros guardados:", error);
         }
-    }, [pathname,user]);
+    }, [pathname, user]);
 
     useEffect(() => {
         startTransition(async () => {
@@ -108,6 +113,8 @@ export default function InfoInstrumento() {
 
     const handleSolicitarCorrecciones = async () => {
         if (!instrumento) return;
+
+
         try {
             const instrumentoAActualizar = instrumento;
             if (instrumentoAActualizar) {
@@ -124,7 +131,10 @@ export default function InfoInstrumento() {
                 estado: EstadoInstrumento.CORRECCIONES_SOLICITADAS,
                 fecha_de_ingreso: instrumentoAActualizar.fecha_de_ingreso,
                 fecha_de_salida: instrumentoAActualizar.fecha_de_salida,
-                tipoDeCarga: instrumentoAActualizar.cargaInstrumento
+                tipoDeCarga: instrumentoAActualizar.cargaInstrumento,
+                punto: (instrumentoAActualizar.latitude !== null && instrumento.longitude !== null) ? [instrumento.longitude, instrumentoAActualizar.latitude] as [number, number] : null,
+                zona: zonas.find(zona => zona.zoneName === instrumentoAActualizar.zoneName) || null,
+                subZona: instrumentoAActualizar.subZona,
             };
             const actualizado = await updateInstrumento(instrumentoDTO.juzgadoIdentifier, instrumentoAActualizar.orden.ordenNumber, instrumentoDTO);
             setInstrumento(instrumentoAActualizar);

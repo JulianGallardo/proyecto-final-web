@@ -2,7 +2,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { Input } from "../ui/input";
 import { useDebouncedCallback } from "use-debounce";
-import { LocateFixed, Loader2, Search } from "lucide-react";
+import { LocateFixed, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "@/lib/utils"; // Shadcn utility for className merging
 

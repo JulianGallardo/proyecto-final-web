@@ -1,5 +1,5 @@
 import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
-import { getAll, getAllZones } from "@/actions/zone-actions";
+import { getAll } from "@/actions/zone-actions";
 import { auth } from "@/auth"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 import FiltrosList from "@/components/instrumentos/Filtros/filtros-list";

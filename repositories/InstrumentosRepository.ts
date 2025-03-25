@@ -240,7 +240,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             _max: { codigoInstrumento: true },
             where: { cargaInstrumento: TipoCarga.MAN },
         });
-        return _max.codigoInstrumento ? parseInt(_max.codigoInstrumento, 10) : 0 + 1;
+        return (_max.codigoInstrumento ? parseInt(_max.codigoInstrumento, 10) : 0) + 1;
     }
 
     private async getNewZoneAndCoordinates(data: Partial<InstrumentoDTO>) {
@@ -300,7 +300,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
-
+        console.log(orden);
+        console.log(data);
 
         try {
             return await this.modelClient.create({

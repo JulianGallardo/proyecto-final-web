@@ -87,13 +87,11 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       observaciones: values?.observaciones ?? "",
       estado: values.estado,
       punto: (latParsed !== null && longParsed !== null) ? [longParsed, latParsed] as [number, number] : null,
-      zona: (zonas?.find
-        (zona => zona.zoneName === values.zona)
-      ) || null,
-      subZona: values.subZona || null
+      zona: (zonas?.find(zona => zona.zoneName === values.zona)) || null,
+      subZona: values.subZona ?? null
     }
 
-    console.log(instrumentoToSubmit)
+    
 
     try {
       await onSubmit(

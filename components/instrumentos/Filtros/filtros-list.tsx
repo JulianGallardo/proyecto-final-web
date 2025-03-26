@@ -98,10 +98,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
 
 
 
-  // Modifica esta parte del efecto que actualiza filterConfigs en el contexto
   useEffect(() => {
-    // Solo actualizar la configuración cuando no hay filtros activos o cuando
-    // es la primera vez que se monta el componente
     if (Object.keys(filters).length === 0 || filterConfigs.length === 0) {
       setFilterConfigs(filtrosConfig);
     }

@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { Truck, Map, Package, ChartGraph,Book } from "@mynaui/icons-react";
+import { Truck, Map, Package, ChartGraph, Book,FileText  } from "@mynaui/icons-react";
 import CustomCard from "@/components/inicio/card";
 import { useRouter } from "next/navigation";
 import { canView } from "@/permissions/hasPermissions";
@@ -27,6 +27,7 @@ export default function Menu() {
     { resource: Resource.MESA_ENTRADA, title: "Mesa de Entrada", description: "Gestiona el personal de mesa de entrada.", icon: Table, path: "/mesa-de-entrada" },
     { resource: Resource.INSTRUMENTOS_AGENTE, title: "Mi Carpeta", description: "Visualiza tus instrumentos asignados.", icon: Book, path: "/instrumentos-agente" },
     { resource: Resource.SUB_ZONAS, title: "Subzonas", description: "Administra las subzonas del sistema.", icon: Map, path: "/subzonas" },
+    { resource: Resource.GENERAR_INGRESO, title: "Generar Ingreso", description: "Genera la plantilla de ingresos", icon: FileText , path: "/generar-ingreso" }
   ];
 
   // Filter items based on user permissions

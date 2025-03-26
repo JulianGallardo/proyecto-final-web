@@ -14,6 +14,7 @@ import {
   Location,
   User,
   Table,
+  FileText 
 } from "@mynaui/icons-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +44,7 @@ const navItems = [
   { href: "/control-agente", label: "Estadísticas", icon: ChartGraph, resource: Resource.CONTROL_AGENTE },
   { href: "/instrumentos-agente", label: "Mi Carpeta", icon: Package, resource: Resource.INSTRUMENTOS_AGENTE },
   { href: "/subzonas", label: "Subzonas", icon: Map, resource: Resource.SUB_ZONAS },
+  { href: "/generar-ingreso", label: "Generar Ingreso", icon: FileText , resource: Resource.GENERAR_INGRESO },
 ];
 
 const personalItems = [

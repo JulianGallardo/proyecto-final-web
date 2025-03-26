@@ -2,7 +2,6 @@ import { getInstrumentosPaginatedByAgent, getTotalPagesInstrumentosPaginatedByAg
 import PaginationInstruments from "../instrumentos/Tabla/Pagination";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { TablaInstrumentosAgente } from "./tabla-instrumentos-agente";
-import DescargarExcelButton from "./descargar-excel-button";
 
 interface ServerSideTableProps {
   searchParams: SearchParamsInstrumentos;
@@ -23,7 +22,6 @@ export default async function ServerSideTableAgent({
 
   return (
     <div className="flex flex-col bg-white border-gray-200 gap-4">
-      <DescargarExcelButton searchParams={searchParams} agenteId={agente.id} />
 
       <TablaInstrumentosAgente data={instrumentos} />
       <PaginationInstruments totalPages={totalPages} />

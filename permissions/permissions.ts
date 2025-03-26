@@ -25,6 +25,8 @@ const jefaturaPrivileges: PermissionList[] = [
 const mesaDeEntradaPrivileges: PermissionList[] = [
     { resource: Resource.INSTRUMENTOS, operations: [Operation.LIST, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.CREATE] },
     { resource: Resource.ZONAS, operations: [Operation.LIST, Operation.READ] },
+    { resource: Resource.GENERAR_INGRESO, operations: [Operation.LIST, Operation.READ, Operation.UPDATE, Operation.DELETE, Operation.CREATE] },
+
 
 ];
 

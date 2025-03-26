@@ -22,11 +22,9 @@ export default function InfoInstrumentoNoEncontrado({ codigoInstrumento }: Reado
                         variant="secondary"
                         size="sm"
                         className="mt-4"
-
                     >
                         <span className="">Volver al listado</span>
                         <FatCornerUpLeft className="w-6 h-6" />
-
                     </Button>
                 </Link>
             </CardContent>

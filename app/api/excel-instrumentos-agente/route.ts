@@ -42,7 +42,6 @@ export async function GET(request: NextRequest) {
             "Tipo de instrumento": instrumento.instrumentoType.name,
             "Domicilio denunciado": instrumento.domicilio_denunciado,
             "Fecha de salida": formatDate(instrumento.fecha_de_salida),
-            "Estado": instrumento.estado || "Sin estado",
             "Observaciones": instrumento.observaciones ?? "",
         }));
 
@@ -66,9 +65,8 @@ export async function GET(request: NextRequest) {
         worksheet['!cols'] = cols;
 
         // Crear el título y metadatos en la parte superior
-        const desdeText = fechaDesde ? 'DESDE ' + formatDate(fechaDesde) : '';
-        const hastaText = fechaHasta ? 'HASTA ' + formatDate(fechaHasta) : '';
-        const titleText = `REPORTE DE INSTRUMENTOS ${desdeText} ${hastaText}`;
+        const desdeText = fechaDesde ?  formatDate(fechaDesde) : '';
+        const titleText = `REPORTE DE INGRESOS ${desdeText}`;
         const totalText = `Total de instrumentos: ${instrumentos.length}`;
         const agenteText = `Agente: ${agente.user.name} ${agente.user.lastname} (${agente.user.email})`;
         const dateGenerated = `Generado el: ${formatDate(new Date())}`;
@@ -183,10 +181,8 @@ export async function GET(request: NextRequest) {
         });
 
         // Generate filename with date range if available
-        let filename = `instrumentos-${new Date().toISOString().split('T')[0]}`;
-        if (fechaDesde && fechaHasta) {
-            filename = `instrumentos-${fechaDesde}-a-${fechaHasta}`;
-        }
+        let filename = `${agente.user.name} ${agente.user.lastname}-${fechaDesde}`;
+        
 
         // Devolver el archivo Excel
         return new NextResponse(excelBuffer, {

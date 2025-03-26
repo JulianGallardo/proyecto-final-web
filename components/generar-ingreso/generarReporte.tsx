@@ -43,54 +43,54 @@ export default function GenerarReporte(
 
     return (
         <div className="container mx-auto px-4 py-6">
-            <h1 className="text-2xl font-bold mb-6 text-gray-800">Generar carpeta ingreso diarios</h1>
-
-            <div className="bg-white shadow-md rounded-lg p-6">
-                <SeleccionarFechaAgente
-                    agentes={agentes}
-                    onAgentSelect={setAgenteSeleccionado}
-                    onDateSelect={setFechaSeleccionada}
-                />
+            <h1 className="text-2xl font-bold mb-6 text-gray-800">Generar Ingresos Diarios</h1>
 
 
-                <div className="flex flex-col mt-4 items-start justify-start gap-2">
-                    {
-                        !agenteSeleccionado || !fechaSeleccionada && (
-                            <div className="flex flex-col w-full justify-center items-center h-64 bg-gray-100 rounded-lg">
-                                <InfoCircle className="h-16 w-16 text-gray-400 mb-4" />
-                                <p className="text-gray-500 text-lg font-semibold">Seleccione un agente y una fecha</p>
-                                <p className="text-gray-400 text-sm">Para generar el reporte</p>
-                            </div>
-                        )
-                    }
+            <SeleccionarFechaAgente
+                agentes={agentes}
+                onAgentSelect={setAgenteSeleccionado}
+                onDateSelect={setFechaSeleccionada}
+            />
 
-                    {isLoading &&
+
+            <div className="flex flex-col mt-4 items-start justify-start gap-2">
+                {
+                    !agenteSeleccionado || !fechaSeleccionada && (
                         <div className="flex flex-col w-full justify-center items-center h-64 bg-gray-100 rounded-lg">
-                            <Loader2 className="h-16 w-16 text-gray-400 mb-4 animate-spin" />
-                            <p className="text-gray-500 text-lg font-semibold">Cargando...</p>
+                            <InfoCircle className="h-16 w-16 text-gray-400 mb-4" />
+                            <p className="text-gray-500 text-lg font-semibold">Seleccione un agente y una fecha</p>
+                            <p className="text-gray-400 text-sm">Para generar el reporte</p>
                         </div>
-                    }
-                    {
-                        agenteSeleccionado && fechaSeleccionada && !isLoading &&
-                        <>
-                            {instrumentos.length > 0 && (
-                                <div className="mt-4 flex justify-end">
-                                    <DescargarExcelButton
-                                        searchParams={{
-                                            desde: fechaSeleccionada.toISOString().split('T')[0],
-                                            hasta: fechaSeleccionada.toISOString().split('T')[0]
-                                        }}
-                                        agenteId={agenteSeleccionado.id}
-                                    />
-                                </div>
-                            )}
-                            <TablaInstrumentosReporte data={instrumentos} />
+                    )
+                }
+
+                {isLoading &&
+                    <div className="flex flex-col w-full justify-center items-center h-64 bg-gray-100 rounded-lg">
+                        <Loader2 className="h-16 w-16 text-gray-400 mb-4 animate-spin" />
+                        <p className="text-gray-500 text-lg font-semibold">Cargando...</p>
+                    </div>
+                }
+                {
+                    agenteSeleccionado && fechaSeleccionada && !isLoading &&
+                    <>
+                        {instrumentos.length > 0 && (
+                            <div className="mt-4 flex justify-end">
+                                <DescargarExcelButton
+                                    searchParams={{
+                                        desde: fechaSeleccionada.toISOString().split('T')[0],
+                                        hasta: fechaSeleccionada.toISOString().split('T')[0]
+                                    }}
+                                    agenteId={agenteSeleccionado.id}
+                                />
+                            </div>
+                        )}
+                        <TablaInstrumentosReporte data={instrumentos} />
 
 
-                        </>
-                    }
-                </div>
+                    </>
+                }
             </div>
-        </div >
+        </div>
+
     )
 }

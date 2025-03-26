@@ -28,9 +28,9 @@ export default function SeleccionarFechaAgente({
     };
 
     return (
-        <div className="flex flex-col space-y-4 w-full max-w-md">
+        <div className="flex flex-col md:flex-row w-full gap-2 ">
             
-            <div>
+            <div className='w-full'>
                 <label htmlFor="agent-select" className="block text-sm font-medium text-gray-700 mb-2">
                     Seleccionar Agente
                 </label>
@@ -48,7 +48,7 @@ export default function SeleccionarFechaAgente({
                 </Select>
             </div>
 
-            <div>
+            <div className='w-full'>
                 <label htmlFor="date-picker" className="block text-sm font-medium text-gray-700 mb-2">
                     Seleccionar Fecha
                 </label>

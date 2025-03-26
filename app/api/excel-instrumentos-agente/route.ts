@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import * as XLSX from 'xlsx';
+import XLSX from "xlsx-js-style"
 import { getInstrumentosByAgent } from "@/actions/instrumentos-actions";
 import { getAgenteById } from "@/actions/user-actions";
 
@@ -54,11 +54,10 @@ export async function GET(request: NextRequest) {
         const cols = [
             { wch: 15 },  // Número de orden
             { wch: 20 },  // Juzgado
-            { wch: 40 },  // Carátula
+            { wch: 100 },  // Carátula
             { wch: 20 },  // Tipo
             { wch: 30 },  // Domicilio
             { wch: 20 },  // Fecha de salida
-            { wch: 20 },  // Estado
             { wch: 30 },  // Observaciones
         ];
         worksheet['!cols'] = cols;
@@ -115,7 +114,10 @@ export async function GET(request: NextRequest) {
         
         const headerStyle = {
             font: { bold: true, sz: 11 },
-            fill: { fgColor: { rgb: "DDDDDD" } },
+            fill: { 
+                fgColor: { rgb: "DDDDDD" },  // Gris claro en formato hexadecimal
+                patternType: 'solid'  // Importante para que el color de fondo se muestre
+            },
             border: {
                 top: { style: 'medium', color: { rgb: "000000" } },
                 bottom: { style: 'medium', color: { rgb: "000000" } },
@@ -180,8 +182,7 @@ export async function GET(request: NextRequest) {
         });
 
         // Generate filename with date range if available
-        let filename = `${agente.user.name} ${agente.user.lastname}-${fechaDesde}`;
-        
+        let filename = `${agente.user.name} ${agente.user.lastname}-${fechaDesde || 'sinFecha'}`;
 
         // Devolver el archivo Excel
         return new NextResponse(excelBuffer, {

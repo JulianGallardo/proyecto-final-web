@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { getInstrumentosByAgent } from "@/actions/instrumentos-actions";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { TablaInstrumentosReporte } from "./tabla-instrumentos-reporte";
-import DescargarExcelButton from "../instrumentos-agente/descargar-excel-button";
+import DescargarExcelButton from "./descargar-excel-button";
 import { Loader2 } from "lucide-react";
 import { InfoCircle } from "@mynaui/icons-react";
 
@@ -55,7 +55,7 @@ export default function GenerarReporte(
 
             <div className="flex flex-col mt-4 items-start justify-start gap-2">
                 {
-                    !agenteSeleccionado || !fechaSeleccionada && (
+                    (!agenteSeleccionado || !fechaSeleccionada) && (
                         <div className="flex flex-col w-full justify-center items-center h-64 bg-gray-100 rounded-lg">
                             <InfoCircle className="h-16 w-16 text-gray-400 mb-4" />
                             <p className="text-gray-500 text-lg font-semibold">Seleccione un agente y una fecha</p>

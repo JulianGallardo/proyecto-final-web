@@ -36,7 +36,19 @@ export default function DescargarExcelButton({ searchParams, agenteId }: Readonl
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = `instrumentos-agente-${new Date().toISOString().split('T')[0]}.xlsx`;
+      // Get filename from Content-Disposition header or use a default name
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'instrumentos-agente.xlsx'; // Default filename
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      link.download = filename;
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

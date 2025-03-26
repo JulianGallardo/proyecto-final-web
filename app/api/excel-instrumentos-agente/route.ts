@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
         const searchParams = Object.fromEntries(request.nextUrl.searchParams);
         const agenteId = Number(searchParams.agenteId);
         const fechaDesde = searchParams.desde;
-        const fechaHasta = searchParams.hasta;
         delete searchParams.agenteId;
         delete searchParams.desde;
         delete searchParams.hasta;

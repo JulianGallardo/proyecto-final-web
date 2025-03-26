@@ -2,12 +2,7 @@
 
 import React, { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
-import { cn } from "@/lib/utils";
 import { Input } from '../ui/input';
 
 export default function SeleccionarFechaAgente({
@@ -19,19 +14,14 @@ export default function SeleccionarFechaAgente({
     onAgentSelect: (agente: AgenteExtendidoDto) => void;
     onDateSelect: (date: Date) => void;
 }>) {
-    const [selectedAgente, setSelectedAgente] = useState<AgenteExtendidoDto | null>(null);
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-
     const handleAgentChange = (agenteId: string) => {
         const agente = agentes.find(a => a.id === Number(agenteId));
         if (agente) {
-            setSelectedAgente(agente);
             onAgentSelect?.(agente);
         }
     };
 
     const handleDateChange = (date: Date | undefined) => {
-        setSelectedDate(date);
         if (date) {
             onDateSelect?.(date);
         }
@@ -39,7 +29,7 @@ export default function SeleccionarFechaAgente({
 
     return (
         <div className="flex flex-col space-y-4 w-full max-w-md">
-            {/* Agent Selection */}
+            
             <div>
                 <label htmlFor="agent-select" className="block text-sm font-medium text-gray-700 mb-2">
                     Seleccionar Agente
@@ -51,14 +41,13 @@ export default function SeleccionarFechaAgente({
                     <SelectContent>
                         {agentes.map((agente) => (
                             <SelectItem key={agente.id} value={agente.id.toString()}>
-                                {agente.name} {agente.user.lastname}
+                                {agente.user.name} {agente.user.lastname}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
             </div>
 
-            {/* Date Picker */}
             <div>
                 <label htmlFor="date-picker" className="block text-sm font-medium text-gray-700 mb-2">
                     Seleccionar Fecha

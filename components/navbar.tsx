@@ -35,28 +35,31 @@ import {
 import { canView } from "@/permissions/hasPermissions";
 import { Resource } from "@/permissions/typePermissions";
 
+// Sorted navigation items alphabetically by label
 const navItems = [
-  { href: "/zonas", label: "Zonas", icon: Map, resource: Resource.ZONAS },
-  { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
   { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
-  { href: "/planificador-de-ruta", label: "Planificador", icon: Location, resource: Resource.PLANIFICADOR },
-  { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
   { href: "/control-agente", label: "Estadísticas", icon: ChartGraph, resource: Resource.CONTROL_AGENTE },
-  { href: "/instrumentos-agente", label: "Mi Carpeta", icon: Package, resource: Resource.INSTRUMENTOS_AGENTE },
-  { href: "/subzonas", label: "Subzonas", icon: Map, resource: Resource.SUB_ZONAS },
+  { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
   { href: "/generar-ingreso", label: "Generar Ingreso", icon: FileText , resource: Resource.GENERAR_INGRESO },
-];
+  { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
+  { href: "/instrumentos-agente", label: "Mi Carpeta", icon: Package, resource: Resource.INSTRUMENTOS_AGENTE },
+  { href: "/planificador-de-ruta", label: "Planificador", icon: Location, resource: Resource.PLANIFICADOR },
+  { href: "/subzonas", label: "Subzonas", icon: Map, resource: Resource.SUB_ZONAS },
+  { href: "/zonas", label: "Zonas", icon: Map, resource: Resource.ZONAS },
+].sort((a, b) => a.label.localeCompare(b.label));
 
+// Sorted personal items alphabetically by label
 const personalItems = [
   { href: "/agentes", label: "Agentes", icon: Truck, resource: Resource.AGENTE },
   { href: "/mesa-de-entrada", label: "Mesa de Entrada", icon: Table, resource: Resource.AGENTE },
-];
+].sort((a, b) => a.label.localeCompare(b.label));
 
+// Sorted option items alphabetically by label
 const optionItems = [
+  { href: "/cambiar-contrasena", label: "Cambiar contraseña", icon: Config },
   { href: "/juzgados", label: "Juzgados", icon: LetterJSquare, resource: Resource.JUZGADOS },
   { href: "/instrumentos-tipo", label: "Tipo de instrumentos", icon: LetterISquare, resource: Resource.TIPOS_INSTRUMENTOS },
-  { href: "/cambiar-contrasena", label: "Cambiar contraseña", icon: Config },
-];
+].sort((a, b) => a.label.localeCompare(b.label));
 
 export default async function Navbar() {
   const session = await auth();

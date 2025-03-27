@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { Truck, Map, Package, ChartGraph, Book,FileText  } from "@mynaui/icons-react";
+import { Truck, Map, Package, ChartGraph, Book, FileText  } from "@mynaui/icons-react";
 import CustomCard from "@/components/inicio/card";
 import { useRouter } from "next/navigation";
 import { canView } from "@/permissions/hasPermissions";
@@ -15,20 +15,20 @@ export default function Menu() {
 
   const { name: userName, role } = session.user;
 
-  // Define menu items with their metadata
+  // Define menu items with their metadata, sorted alphabetically by title
   const menuItems = [
-    { resource: Resource.ZONAS, title: "Zonas", description: "Gestiona y visualiza las zonas disponibles en el sistema.", icon: Map, path: "/zonas" },
-    { resource: Resource.ENTREGAS, title: "Entregas", description: "Consulta y administra la información de tus entregas", icon: Package, path: "/entregas" },
     { resource: Resource.AGENTE, title: "Agentes", description: "Consulta y administra la información de los agentes.", icon: Truck, path: "/agentes" },
-    { resource: Resource.INSTRUMENTOS, title: "Instrumentos", description: "Gestiona y rastrea los instrumentos en tránsito.", icon: Package, path: "/instrumentos" },
     { resource: Resource.CONTROL, title: "Control", description: "Revisa los datos y genera reportes detallados.", icon: ChartGraph, path: "/control" },
-    { resource: Resource.PLANIFICADOR, title: "Planificador", description: "Planifica la ruta de reparto.", icon: Map, path: "/planificador-de-ruta" },
     { resource: Resource.CONTROL_AGENTE, title: "Estadísticas", description: "Visualiza tus estadísticas de entrega.", icon: ChartGraph, path: "/control-agente" },
-    { resource: Resource.MESA_ENTRADA, title: "Mesa de Entrada", description: "Gestiona el personal de mesa de entrada.", icon: Table, path: "/mesa-de-entrada" },
+    { resource: Resource.ENTREGAS, title: "Entregas", description: "Consulta y administra la información de tus entregas", icon: Package, path: "/entregas" },
+    { resource: Resource.GENERAR_INGRESO, title: "Generar Ingreso", description: "Genera la plantilla de ingresos", icon: FileText , path: "/generar-ingreso" },
+    { resource: Resource.INSTRUMENTOS, title: "Instrumentos", description: "Gestiona y rastrea los instrumentos en tránsito.", icon: Package, path: "/instrumentos" },
     { resource: Resource.INSTRUMENTOS_AGENTE, title: "Mi Carpeta", description: "Visualiza tus instrumentos asignados.", icon: Book, path: "/instrumentos-agente" },
+    { resource: Resource.MESA_ENTRADA, title: "Mesa de Entrada", description: "Gestiona el personal de mesa de entrada.", icon: Table, path: "/mesa-de-entrada" },
+    { resource: Resource.PLANIFICADOR, title: "Planificador", description: "Planifica la ruta de reparto.", icon: Map, path: "/planificador-de-ruta" },
     { resource: Resource.SUB_ZONAS, title: "Subzonas", description: "Administra las subzonas del sistema.", icon: Map, path: "/subzonas" },
-    { resource: Resource.GENERAR_INGRESO, title: "Generar Ingreso", description: "Genera la plantilla de ingresos", icon: FileText , path: "/generar-ingreso" }
-  ];
+    { resource: Resource.ZONAS, title: "Zonas", description: "Gestiona y visualiza las zonas disponibles en el sistema.", icon: Map, path: "/zonas" }
+  ].sort((a, b) => a.title.localeCompare(b.title));
 
   // Filter items based on user permissions
   const visibleItems = menuItems.filter(item => canView(role, item.resource));

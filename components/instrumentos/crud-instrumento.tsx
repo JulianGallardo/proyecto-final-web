@@ -1,7 +1,4 @@
 "use client"
-
-import * as React from "react"
-
 import { InstrumentoDTO, InstrumentoExtendido, } from "@/types/instrumentoTypes"
 import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
@@ -16,23 +13,26 @@ import CustomAlert from "./Dialogs/alert"
 import { useCustomAlert } from "@/hooks/useCustomAlert"
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { ExtendedZone } from "@/types/ZoneTypes"
 
 
 interface CrudInstrumentosProps {
     instrumentos: InstrumentoExtendido[]
     Juzgados: Juzgado[]
     instrumentoTypes: InstrumentoType[],
+    zonas: ExtendedZone[]
 }
 
-export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: Readonly<CrudInstrumentosProps>) {
-    const [instrumentoEditando, setInstrumentoEditando] = React.useState<InstrumentoExtendido | undefined>(undefined)
-    const [instrumentoEliminando, setInstrumentoEliminando] = React.useState<InstrumentoExtendido | undefined>(undefined)
+export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes , zonas}: Readonly<CrudInstrumentosProps>) {
+    const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
+    const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
     const { setJuzgados, setInstrumentoTypes } = useInfoInstrumentos()
 
-    React.useEffect(() => {
+    useEffect(() => {
         setJuzgados(Juzgados)
         setInstrumentoTypes(instrumentoTypes)
     }, [Juzgados, instrumentoTypes])
@@ -50,16 +50,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
 
 
     const handleCrear = async (nuevoInstrumento: InstrumentoDTO) => {
-
-
         try {
-
             const instrumentoCreado = await createInstrumento(nuevoInstrumento)
-
             if (!instrumentoCreado) return
-
         } catch (error) {
-
             toast({
                 title: "Error",
                 description: (error instanceof Error ? error.message : "Ha ocurrido un error al crear el instrumento"),
@@ -74,13 +68,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
             className: "bg-green-500 text-white",
             duration: 3000,
         });
-
-
-
-
         setIsOpen(false)
-
-
     }
 
 
@@ -176,7 +164,12 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
             codigo: instrumento.codigoInstrumento,
             tipoDeCarga: instrumento.cargaInstrumento,
             observaciones: instrumento.observaciones ?? "",
-            estado: instrumento.estado
+            estado: instrumento.estado,
+            punto: (instrumento.latitude && instrumento.longitude) ? [instrumento.latitude, instrumento.longitude] : null,
+            zona: zonas.find(
+                (zone) => zone.zoneName === instrumento.zoneName
+            ) ?? null,
+            subZona: instrumento.subZona ?? null
         }
 
         return instrumentoDto
@@ -196,6 +189,9 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes }: R
                         Juzgados={Juzgados}
                         onSubmit={instrumentoEditando ? handleEditar : handleCrear}
                         instrumento={convertToDto(instrumentoEditando)}
+                        zonas={
+                            zonas
+                        }
                     />
                 }
                 customClose={true}

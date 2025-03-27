@@ -15,7 +15,6 @@ interface RouteState {
     routeSegments: RouteSegment[];
     routeChoice: RouteChoiceType;
 
-    // Actions
 
     setOrderedAddresses: (addresses: Address[]) => void;
     setVehicle: (vehicle: VehicleType) => void;
@@ -102,7 +101,7 @@ export const useRouteStore = create<RouteState>((set, get) => ({
                 loc !== null && loc.coordinates !== undefined
             );
 
-            if (validLocations.length < 2) {
+            if (validLocations.length < 1) {
                 alert("No se encontraron coordenadas suficientes para calcular la ruta.");
                 return;
             }
@@ -113,6 +112,12 @@ export const useRouteStore = create<RouteState>((set, get) => ({
 
             if (startPoint) {
                 const coords = await routeService.getCoordinates(startPoint);
+
+                if(coords === null) {
+                    alert("No se encontraron coordenadas para el punto de inicio.");
+                    return;
+                }
+
                 if (coords) {
                     start = {
                         type: "start",
@@ -126,6 +131,11 @@ export const useRouteStore = create<RouteState>((set, get) => ({
 
             if (endPoint) {
                 const coords = await routeService.getCoordinates(endPoint);
+
+                if(coords === null) {
+                    alert("No se encontraron coordenadas para el punto final.");
+                    return;
+                }
                 if (coords) {
                     end = {
                         type: "end",

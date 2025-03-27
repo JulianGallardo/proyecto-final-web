@@ -1,4 +1,3 @@
-
 import { headers } from "next/headers";
 import Link from "next/link";
 import {
@@ -14,7 +13,8 @@ import {
   LetterISquare,
   Location,
   User,
-  Table, // Added User icon for Personal
+  Table,
+  FileText 
 } from "@mynaui/icons-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,26 +35,31 @@ import {
 import { canView } from "@/permissions/hasPermissions";
 import { Resource } from "@/permissions/typePermissions";
 
+// Sorted navigation items alphabetically by label
 const navItems = [
-  { href: "/zonas", label: "Zonas", icon: Map, resource: Resource.ZONAS },
-  { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
   { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
-  { href: "/planificador-de-ruta", label: "Planificador", icon: Location, resource: Resource.PLANIFICADOR },
-  { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
   { href: "/control-agente", label: "Estadísticas", icon: ChartGraph, resource: Resource.CONTROL_AGENTE },
+  { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
+  { href: "/generar-ingreso", label: "Generar Ingreso", icon: FileText , resource: Resource.GENERAR_INGRESO },
+  { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
   { href: "/instrumentos-agente", label: "Mi Carpeta", icon: Package, resource: Resource.INSTRUMENTOS_AGENTE },
-];
+  { href: "/planificador-de-ruta", label: "Planificador", icon: Location, resource: Resource.PLANIFICADOR },
+  { href: "/subzonas", label: "Subzonas", icon: Map, resource: Resource.SUB_ZONAS },
+  { href: "/zonas", label: "Zonas", icon: Map, resource: Resource.ZONAS },
+].sort((a, b) => a.label.localeCompare(b.label));
 
+// Sorted personal items alphabetically by label
 const personalItems = [
   { href: "/agentes", label: "Agentes", icon: Truck, resource: Resource.AGENTE },
-  { href: "/mesa-de-entrada", label: "Mesa de Entrada", icon: Table, resource: Resource.AGENTE }, // Assuming Mesa de Entrada uses the same resource; adjust as needed
-];
+  { href: "/mesa-de-entrada", label: "Mesa de Entrada", icon: Table, resource: Resource.AGENTE },
+].sort((a, b) => a.label.localeCompare(b.label));
 
+// Sorted option items alphabetically by label
 const optionItems = [
+  { href: "/cambiar-contrasena", label: "Cambiar contraseña", icon: Config },
   { href: "/juzgados", label: "Juzgados", icon: LetterJSquare, resource: Resource.JUZGADOS },
   { href: "/instrumentos-tipo", label: "Tipo de instrumentos", icon: LetterISquare, resource: Resource.TIPOS_INSTRUMENTOS },
-  { href: "/cambiar-contrasena", label: "Cambiar contraseña", icon: Config },
-];
+].sort((a, b) => a.label.localeCompare(b.label));
 
 export default async function Navbar() {
   const session = await auth();
@@ -72,40 +77,39 @@ export default async function Navbar() {
         <Link href="/inicio" className="">
           <Button variant="ghost" className="text-gray-200 hover:text-blue-400">
             <Home className="w-6 h-6" />
-            <span className="text-sm hidden md:flex">Inicio</span>
           </Button>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex space-x-4 items-center justify-center w-full">
+        {/* Adaptative Navigation - Desktop for large screens, auto-mobile for smaller */}
+        <div className="hidden md:flex space-x-2 items-center justify-center w-full overflow-x-auto">
           {navItems.map((item) => (
             pathname !== item.href && canView(session.user.role, item.resource) && (
-              <Link key={item.href} href={item.href}>
-                <Button variant="ghost" className="flex items-center text-gray-200 hover:text-blue-400">
-                  <item.icon className="w-5 h-5" />
-                  {item.label}
+              <Link key={item.href} href={item.href} className="shrink-0">
+                <Button variant="ghost" className="flex items-center text-gray-200 hover:text-blue-400 px-2 whitespace-nowrap">
+                  <item.icon className="w-5 h-5 mr-1" />
+                  <span className="text-sm">{item.label}</span>
                 </Button>
               </Link>
             )
           ))}
 
-          {/* Personal Dropdown (replacing Agentes button) */}
+          {/* Personal Dropdown */}
           {canView(session.user.role, Resource.AGENTE) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="flex items-center text-gray-200 hover:text-blue-400 outline-none"
+                  className="flex items-center text-gray-200 hover:text-blue-400 outline-none px-2 shrink-0 whitespace-nowrap"
                 >
-                  <User className="w-5 h-5 mr-2" /> {/* Using User icon for Personal */}
-                  <span className="">Personal</span>
+                  <User className="w-5 h-5 mr-1" />
+                  <span className="text-sm">Personal</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-48">
                 {personalItems.map((item) => (
                   canView(session.user.role, item.resource) && (
                     <DropdownMenuItem key={item.href}>
-                      <Link href={item.href}>
+                      <Link href={item.href} className="w-full">
                         <Button
                           variant="ghost"
                           className="flex flex-row items-center text-black hover:text-blue-400 w-full"
@@ -152,9 +156,9 @@ export default async function Navbar() {
                 )
               ))}
 
-              {
-                personalItems.map((item) => (
-                  canView(session.user.role, item.resource) && (
+              {personalItems.map((item) => (
+                canView(session.user.role, item.resource) && (
+                  <SheetTrigger asChild key={item.label}>
                     <Link
                       key={item.label}
                       href={item.href}
@@ -163,9 +167,9 @@ export default async function Navbar() {
                       <item.icon className="w-6 h-6 mr-4" />
                       <span className="text-lg">{item.label}</span>
                     </Link>
-                  )
-                ))
-              }
+                  </SheetTrigger>
+                )
+              ))}
 
               {optionItems.map((item) => (
                 item.resource
@@ -213,8 +217,7 @@ export default async function Navbar() {
                 variant="ghost"
                 className="flex items-center text-gray-200 hover:text-blue-400 outline-none"
               >
-                <span className="">Opciones</span>
-                <Config className="w-6 h-6" />
+                <Config className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-64">
@@ -222,7 +225,7 @@ export default async function Navbar() {
                 item.resource
                   ? pathname !== item.href && canView(session.user.role, item.resource) && (
                     <DropdownMenuItem key={item.href}>
-                      <Link href={item.href}>
+                      <Link href={item.href} className="w-full">
                         <Button
                           variant="ghost"
                           className="flex flex-row items-center text-black hover:text-blue-400 w-full"
@@ -235,7 +238,7 @@ export default async function Navbar() {
                   )
                   : (
                     <DropdownMenuItem key={item.href}>
-                      <Link href={item.href}>
+                      <Link href={item.href} className="w-full">
                         <Button
                           variant="ghost"
                           className="flex flex-row items-center text-black hover:text-blue-400 w-full"

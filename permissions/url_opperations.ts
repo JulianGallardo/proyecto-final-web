@@ -9,7 +9,7 @@ export const anonymousPages: string[] = [
     "/403",
     "/404",
     "/icon.ico",
-    "/login.jpg",
+    "/login.png",
     "/reset-password",
 ]
 
@@ -71,6 +71,10 @@ const routeList:{path: string, handler: Permission}[] = [
 
     {path: "/instrumentos-agente", handler: {resource: Resource.INSTRUMENTOS_AGENTE, operation: Operation.LIST }},
     {path: "/instrumentos-agente/ver/:id", handler: {resource: Resource.INSTRUMENTOS_AGENTE, operation: Operation.READ }},
+
+    {path: "/subzonas", handler: {resource: Resource.SUB_ZONAS, operation: Operation.LIST }},
+
+    {path: "/generar-ingreso", handler: {resource: Resource.GENERAR_INGRESO, operation: Operation.LIST }},
    
 ]
 routeList.forEach(route => recognizer.add([route]));

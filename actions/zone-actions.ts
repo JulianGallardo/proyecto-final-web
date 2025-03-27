@@ -94,6 +94,10 @@ export async function getAllZones(): Promise<CustomFeature[]> {
 
 }
 
+export async function getAll(): Promise<ExtendedZone[]> {
+    return zoneRepo.getAll();
+}
+
 export async function getAllZonesWithAgents(): Promise<ZoneDtoWithSubZones[]> {
     return zoneRepo.getAllWithAgents();
 }
@@ -119,4 +123,11 @@ export async function updateZonesAgents(zonesIdToAddAgent:string[],zonesIdToDele
         console.error("Error updating zones agents:", error);
         return { success: false, message: error instanceof Error ? error.message : "An unknown error occurred" };
     }
+}
+
+export async function createSubZones(zoneId: string, subZones: CustomFeature[]){
+    const response= zoneRepo.createSubZones(zoneId, subZones);
+    revalidatePath("/zonas");
+    revalidatePath("/subZonas");
+    return response;
 }

@@ -45,7 +45,10 @@ export default class InstrumentoService {
                 tipoDeCarga: TipoCarga.PDF,
                 codigo: instrumento.codigo,
                 estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
-                observaciones: ""
+                observaciones: "",
+                punto: null,
+                zona: null,
+                subZona: null
 
             };
         }
@@ -61,7 +64,10 @@ export default class InstrumentoService {
             tipoDeCarga: TipoCarga.PDF,
             estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
             codigo: instrumento.codigo,
-            observaciones: ""
+            observaciones: "",
+            punto: null,
+            zona: null,
+            subZona: null
         };
 
 

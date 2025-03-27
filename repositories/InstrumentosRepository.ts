@@ -244,21 +244,47 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     }
 
     private async getNewZoneAndCoordinates(data: Partial<InstrumentoDTO>) {
-        let punto: [number, number] | null = null;
+        let punto = data.punto;
+        let nuevaZona = undefined;
+        let nuevaSubZona: SubZona = SubZona.Sin_SubZona;
 
-        if (data.domicilio_denunciado && data.domicilio_denunciado !== "") {
+        // Obtener coordenadas si hay domicilio pero no punto
+        if (data.domicilio_denunciado && data.domicilio_denunciado !== "" && data.punto === null) {
             punto = await getCoordinates(data.domicilio_denunciado);
         }
 
-        let nuevaZona = undefined;
-        let nuevaSubZona: SubZona = SubZona.Sin_SubZona;
+        // Calcular zona y subzona automáticas si tenemos un punto
+        let zonaAutomatica = undefined;
+        let subZonaAutomatica: SubZona = SubZona.Sin_SubZona;
+
         if (punto) {
-            nuevaZona = await getZoneInCoords(punto[0], punto[1]);
-            if (nuevaZona) {
-                const subZonaResult = await getSubzoneInCoords(punto[0], punto[1], nuevaZona.id);
-                nuevaSubZona = subZonaResult as SubZona ?? SubZona.Sin_SubZona;
+            zonaAutomatica = await getZoneInCoords(punto[0], punto[1]);
+            if (zonaAutomatica) {
+                const subZonaResult = await getSubzoneInCoords(punto[0], punto[1], zonaAutomatica.id);
+                subZonaAutomatica = subZonaResult as SubZona ?? SubZona.Sin_SubZona;
             }
         }
+
+        console.log("Zona automática:", data.zona);
+
+        // Determinar si usamos zona manual o automática
+        if (data.zona === null) {
+            nuevaZona = zonaAutomatica;
+        } else {
+            // Usar la zona seleccionada manualmente
+            nuevaZona = data.zona;
+        }
+
+        // Determinar si usamos subzona manual o automática
+        if (!data.subZona) {
+            nuevaSubZona = subZonaAutomatica;
+        } else {
+            // Usar la subzona seleccionada manualmente
+            nuevaSubZona = data.subZona as SubZona;
+        }
+
+
+        console.log("Zona automática:", nuevaZona);
         return { punto, nuevaZona, nuevaSubZona };
     }
 
@@ -270,7 +296,11 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             data.codigo = (await this.calculateManualCode()).toString();
         }
 
+
+
         const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
+
+
 
         try {
             return await this.modelClient.create({
@@ -315,6 +345,17 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
+
+        // Preparar el objeto para actualizar la zona
+        let zonaUpdate;
+        if (nuevaZona) {
+            // Si hay zona, conectarla
+            zonaUpdate = { connect: { zoneName: nuevaZona.zoneName } };
+        } else {
+            // Si no hay zona, desconectarla
+            zonaUpdate = { disconnect: true };
+        }
+
         return this.modelClient.update({
             where: { ordenId: ordenActual.id },
             data: {
@@ -324,11 +365,13 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 urgencia: data.urgencia,
                 domicilio_denunciado: data.domicilio_denunciado,
                 orden: { connect: { id: newOrden.id } },
-                Zona: nuevaZona ? { connect: { zoneName: nuevaZona.zoneName } } : undefined,
+                Zona: zonaUpdate,
                 subZona: nuevaSubZona,
-                instrumentoType: data.instrumentoTypeIdentifier ? { connect: { identifier: data.instrumentoTypeIdentifier } } : undefined,
-                latitude: punto ? punto[1] : undefined,
-                longitude: punto ? punto[0] : undefined,
+                instrumentoType: data.instrumentoTypeIdentifier ?
+                    { connect: { identifier: data.instrumentoTypeIdentifier } } :
+                    undefined,
+                latitude: punto ? punto[1] : null,
+                longitude: punto ? punto[0] : null,
                 observaciones: data.observaciones,
                 estado: data.estado,
             },
@@ -551,6 +594,22 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         return this.modelClient.findMany({
             where,
             select: selectOptions,
+            orderBy: [
+                { fecha_de_salida: { sort: "asc", nulls: "first" } },
+                { fecha_de_ingreso: "asc" },
+                { 
+                    orden: {
+                        ordenNumber: "asc"
+                    }
+                },
+                { 
+                    orden: {
+                        juzgado: {
+                            identifier: "asc"
+                        }
+                    }
+                }
+            ],
         });
     }
 }

@@ -31,6 +31,10 @@ export const instrumentSchema = object({
   instrumentType: string({ required_error: "El tipo de instrumento es requerido." }).min(1, "El tipo de instrumento es requerido."),
   urgencia: z.enum([UrgenciaInstrumento.NORMAL, UrgenciaInstrumento.URGENTE]),
   estado: z.enum([EstadoInstrumento.CORRECCIONES_SOLICITADAS, EstadoInstrumento.PENDIENTE_DE_NOTIFICAR, EstadoInstrumento.PENDIENTE_DE_PROCESAR_NOTIFICACION, EstadoInstrumento.NOTIFICADO_VERDE,EstadoInstrumento.NOTIFICADO_AMARILLO,EstadoInstrumento.NOTIFICADO_ROJO]),	
+  lat: z.number().optional().or(z.null()).default(null),
+  long: z.number().optional().or(z.null()).default(null),
+  zona: string().optional().or(z.null()).default(null),
+  subZona: string().optional().or(z.null()).default(null),
   observaciones: string()
 })
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { Download, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import SearchParamsInstrumentos from "@/types/searchParams";
 
@@ -9,13 +11,18 @@ interface DescargarExcelButtonProps {
 }
 
 export default function DescargarExcelButton({ searchParams, agenteId }: Readonly<DescargarExcelButtonProps>) {
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const handleDownload = async () => {
     try {
+      // Disable button and show loading state
+      setIsDownloading(true);
+
       // Create a record of string keys to string values for URLSearchParams
       const queryParams: Record<string, string> = Object.entries(searchParams)
         .reduce((acc, [key, value]) => {
           if (value !== undefined && value !== null) {
-        acc[key] = String(value);
+            acc[key] = String(value);
           }
           return acc;
         }, {} as Record<string, string>);
@@ -35,7 +42,20 @@ export default function DescargarExcelButton({ searchParams, agenteId }: Readonl
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = `instrumentos-agente-${new Date().toISOString().split('T')[0]}.xlsx`;
+      
+      // Get filename from Content-Disposition header or use a default name
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'instrumentos-agente.xlsx'; // Default filename
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      link.download = filename;
+      
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -45,6 +65,9 @@ export default function DescargarExcelButton({ searchParams, agenteId }: Readonl
     } catch (error) {
       console.error('Error downloading Excel file:', error);
       alert('Error al descargar el archivo Excel');
+    } finally {
+      // Re-enable button
+      setIsDownloading(false);
     }
   };
 
@@ -52,8 +75,19 @@ export default function DescargarExcelButton({ searchParams, agenteId }: Readonl
     <Button 
       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-fit"
       onClick={handleDownload}
+      disabled={isDownloading}
     >
-      Descargar Excel
+      {isDownloading ? (
+        <>
+          <Loader2 size={16} className="mr-2 animate-spin" />
+          Descargando...
+        </>
+      ) : (
+        <>
+          <Download size={16} className="mr-2" />
+          Descargar Listado
+        </>
+      )}
     </Button>
   );
 }

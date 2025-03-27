@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Sistema de Gestión de Zonas y Expedientes",
+  title: "Sistema de Notificaciones - Bahía Blanca",
   description: "Proyecto final de carrera desarrollado por Julian Gallardo, para el Poder Judicial de Bahía Blanca",
 };
 

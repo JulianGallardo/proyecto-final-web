@@ -17,6 +17,12 @@ export enum DrawingModes {
     CreandoZonas = "Creando Zona",
 }
 
+export enum DrawingModesSubZonas {
+    SinSeleccionar = "Sin seleccionar",
+    EditandoSubZonas = "Editando Subzonas",
+    CreandoSubZonas = "Creando Subzona",
+}
+
 export interface CustomFeature extends GeoJSONStoreFeatures {
     properties: {
         color: HexColorStyling;
@@ -28,5 +34,9 @@ export interface Subzone {
     name: string;
     polygon: any;
 
+}
+
+export interface OnFinishContext {
+    action: string, mode: string
 }
 

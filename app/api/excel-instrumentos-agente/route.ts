@@ -2,6 +2,58 @@ import { NextRequest, NextResponse } from "next/server";
 import XLSX from "xlsx-js-style"
 import { getInstrumentosByAgent } from "@/actions/instrumentos-actions";
 import { getAgenteById } from "@/actions/user-actions";
+import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+
+// Define types for agent and user
+interface User {
+    name: string;
+    lastname: string;
+}
+
+interface Agent {
+    user: User;
+}
+
+// Define type for worksheet cell styles
+interface CellStyle {
+    font?: {
+        sz?: number;
+        bold?: boolean;
+    };
+    fill?: {
+        fgColor?: { rgb: string };
+        patternType?: string;
+    };
+    border?: {
+        top?: BorderStyle;
+        bottom?: BorderStyle;
+        left?: BorderStyle;
+        right?: BorderStyle;
+    };
+    alignment?: {
+        horizontal?: string;
+        vertical?: string;
+        wrapText?: boolean;
+    };
+}
+
+interface BorderStyle {
+    style: string;
+    color: { rgb: string };
+}
+
+// Define type for column width
+interface ColumnWidth {
+    wch?: number;
+}
+
+// Define type for worksheet with additional properties
+interface StyledWorksheet {
+    [key: string]: any;
+    '!cols'?: ColumnWidth[];
+    '!ref'?: string;
+    '!merges'?: any[];
+}
 
 export async function GET(request: NextRequest) {
     try {
@@ -22,7 +74,7 @@ export async function GET(request: NextRequest) {
 
         // Create workbook and worksheet
         const workbook = XLSX.utils.book_new();
-        const worksheet = XLSX.utils.json_to_sheet([]);
+        const worksheet: StyledWorksheet = XLSX.utils.json_to_sheet([]);
         
         // Configure column widths
         worksheet['!cols'] = configureColumnWidths();
@@ -92,7 +144,7 @@ function formatDate(dateInput: Date | string | null | undefined): string {
 }
 
 // Function to prepare worksheet data from instruments
-function prepareWorksheetData(instrumentos: any[]) {
+function prepareWorksheetData(instrumentos: InstrumentoExtendido[]) {
     return instrumentos.map(instrumento => ({
         "Número de orden": instrumento.orden.ordenNumber,
         "Juzgado": instrumento.orden.juzgado.identifier,
@@ -105,7 +157,7 @@ function prepareWorksheetData(instrumentos: any[]) {
 }
 
 // Function to configure column widths
-function configureColumnWidths() {
+function configureColumnWidths(): ColumnWidth[] {
     return [
         { wch: 15 },   // Número de orden
         { wch: 20 },   // Juzgado
@@ -119,9 +171,9 @@ function configureColumnWidths() {
 
 // Function to add header metadata to the worksheet
 function addHeaderMetadata(
-    worksheet: any, 
-    agente: any, 
-    instrumentos: any[], 
+    worksheet: StyledWorksheet, 
+    agente: Agent, 
+    instrumentos: InstrumentoExtendido[], 
     fechaDesde: string | undefined
 ) {
     const fechaText = fechaDesde ? formatDate(fechaDesde) : '';
@@ -160,8 +212,8 @@ function addHeaderMetadata(
 }
 
 // Function to create style objects
-function createStyleObjects() {
-    const baseStyle = {
+function createStyleObjects(): { baseStyle: CellStyle; headerStyle: CellStyle } {
+    const baseStyle: CellStyle = {
         font: { sz: 11 },
         border: {
             top: { style: 'medium', color: { rgb: "000000" } },
@@ -172,7 +224,7 @@ function createStyleObjects() {
         alignment: { horizontal: 'center', vertical: 'center', wrapText: true }
     };
     
-    const headerStyle = {
+    const headerStyle: CellStyle = {
         font: { bold: true, sz: 11 },
         fill: { 
             fgColor: { rgb: "DDDDDD" },
@@ -191,14 +243,14 @@ function createStyleObjects() {
 }
 
 // Function to apply styles to the worksheet
-function applyStyleToCell(worksheet: any, row: number, col: number, style: any) {
+function applyStyleToCell(worksheet: StyledWorksheet, row: number, col: number, style: CellStyle) {
     const cell = XLSX.utils.encode_cell({ r: row, c: col });
     if (worksheet[cell]) {
-        worksheet[cell].s = style;
+        (worksheet[cell] as any).s = style;
     }
 }
 
-function applyStyleToTitleRows(worksheet: any, baseStyle: any) {
+function applyStyleToTitleRows(worksheet: StyledWorksheet, baseStyle: CellStyle) {
     // Style for title rows in columns 1-2
     for (let i = 0; i < 5; i++) {
         for (let j = 1; j < 3; j++) {
@@ -214,14 +266,14 @@ function applyStyleToTitleRows(worksheet: any, baseStyle: any) {
     }
 }
 
-function applyStyleToHeaderRow(worksheet: any, range: any, headerStyle: any) {
+function applyStyleToHeaderRow(worksheet: StyledWorksheet, range: { s: { c: number }, e: { c: number } }, headerStyle: CellStyle) {
     const headerRow = 6;
     for (let col = 0; col <= range.e.c; col++) {
         applyStyleToCell(worksheet, headerRow, col, headerStyle);
     }
 }
 
-function applyStyleToDataRows(worksheet: any, range: any, baseStyle: any) {
+function applyStyleToDataRows(worksheet: StyledWorksheet, range: { s: { c: number }, e: { c: number, r: number } }, baseStyle: CellStyle) {
     const headerRow = 6;
     for (let row = headerRow + 1; row <= range.e.r; row++) {
         for (let col = 0; col <= range.e.c; col++) {
@@ -230,7 +282,7 @@ function applyStyleToDataRows(worksheet: any, range: any, baseStyle: any) {
     }
 }
 
-function applyWorksheetStyles(worksheet: any, range: any, headerStyle: any, baseStyle: any) {
+function applyWorksheetStyles(worksheet: StyledWorksheet, range: { s: { c: number }, e: { c: number, r: number } }, headerStyle: CellStyle, baseStyle: CellStyle) {
     // Apply title row styles
     applyStyleToTitleRows(worksheet, baseStyle);
 
@@ -240,4 +292,3 @@ function applyWorksheetStyles(worksheet: any, range: any, headerStyle: any, base
     // Apply data rows styles
     applyStyleToDataRows(worksheet, range, baseStyle);
 }
-

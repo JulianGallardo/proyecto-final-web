@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
             "Juzgado": instrumento.orden.juzgado.identifier,
             "Carátula": instrumento.caratula,
             "Tipo de instrumento": instrumento.instrumentoType.name,
-            "Domicilio denunciado": instrumento.domicilio_denunciado,
+            "Domicilio": instrumento.domicilio_denunciado,
             "Fecha de salida": formatDate(instrumento.fecha_de_salida),
             "Observaciones": instrumento.observaciones ?? "",
         }));
@@ -63,21 +63,41 @@ export async function GET(request: NextRequest) {
         worksheet['!cols'] = cols;
 
         // Crear el título y metadatos en la parte superior
-        const desdeText = fechaDesde ?  formatDate(fechaDesde) : '';
-        const titleText = `REPORTE DE INGRESOS ${desdeText}`;
-        const totalText = `Total de instrumentos: ${instrumentos.length}`;
-        const agenteText = `Agente: ${agente.user.name} ${agente.user.lastname} (${agente.user.email})`;
+        const fechaText = fechaDesde ?  formatDate(fechaDesde) : '';
+        const totalText = `${instrumentos.length}`;
+        const agenteText = `${agente.user.name} ${agente.user.lastname}`;
         const dateGenerated = `Generado el: ${formatDate(new Date())}`;
+        const placeText="BAHIA BLANCA"
         
         XLSX.utils.sheet_add_aoa(worksheet, [
-            [titleText],
-            [totalText],
-            [agenteText],
-            [''],
-            [dateGenerated],
-            ['']  // Fila vacía como separador
-        ], { origin: 'A1' });
+            ["OFICINA"],
+            ["OFICIAL"],
+            ["INGRESOS DEL DIA"],
+            ["FECHA"],
+            [dateGenerated]
+        ], { origin: 'B1' });
         
+        XLSX.utils.sheet_add_aoa(worksheet, [
+            [placeText],
+            [agenteText],
+            [totalText],
+            [fechaText]
+        ], { origin: 'C1' });
+
+        XLSX.utils.sheet_add_aoa(worksheet, [
+            ["TOTAL EN PODER"],
+            ["ENTREGADAS"],
+            ["FOLIO"],
+        ], { origin: 'F1' });
+
+        
+        XLSX.utils.sheet_add_aoa(worksheet, [
+            [""],
+            [""],
+            [""],
+        ], { origin: 'G1' });
+
+
         // Agregar los datos a partir de la fila 7
         XLSX.utils.sheet_add_json(worksheet, worksheetData, { origin: 'A7', skipHeader: false });
         
@@ -88,7 +108,7 @@ export async function GET(request: NextRequest) {
             e: { r: range.e.r, c: range.e.c }
         });
         
-        // Estilo base mejorado para todas las celdas (BORDES NEGROS Y GRUESOS)
+        
         const baseStyle = {
             font: { sz: 11 },
             border: {
@@ -98,18 +118,6 @@ export async function GET(request: NextRequest) {
                 right: { style: 'medium', color: { rgb: "000000" } }
             },
             alignment: { horizontal: 'center', vertical: 'center', wrapText: true }
-        };
-        
-        // Estilo para título y total (más grande y en negrita)
-        const titleStyle = {
-            font: { bold: true, sz: 14 },
-            alignment: { horizontal: 'center', vertical: 'center' },
-            border: {
-                top: { style: 'medium', color: { rgb: "000000" } },
-                bottom: { style: 'medium', color: { rgb: "000000" } },
-                left: { style: 'medium', color: { rgb: "000000" } },
-                right: { style: 'medium', color: { rgb: "000000" } }
-            }
         };
         
         const headerStyle = {
@@ -127,21 +135,27 @@ export async function GET(request: NextRequest) {
             alignment: { horizontal: 'center', vertical: 'center', wrapText: true }
         };
         
-        // Aplicar estilo al título
-        const titleCellA1 = XLSX.utils.encode_cell({ r: 0, c: 0 });
-        worksheet[titleCellA1].s = titleStyle;
         
-        // Aplicar estilo al total
-        const totalCellA2 = XLSX.utils.encode_cell({ r: 1, c: 0 });
-        worksheet[totalCellA2].s = titleStyle;
-        
-        // Aplicar estilo al agente
-        const agenteCellA3 = XLSX.utils.encode_cell({ r: 2, c: 0 });
-        worksheet[agenteCellA3].s = baseStyle;
-        
-        // Aplicar estilo a la fecha de generación
-        const dateCellA5 = XLSX.utils.encode_cell({ r: 4, c: 0 });
-        worksheet[dateCellA5].s = baseStyle;
+        const limitTitle = 5;
+
+        for(let i = 0; i < limitTitle; i++){
+            for(let j = 1; j < 3; j++){
+                const cell = XLSX.utils.encode_cell({ r: i, c: j });
+                if (worksheet[cell]) {
+                    worksheet[cell].s = baseStyle;
+                }
+            }
+        }
+
+        for(let i = 0; i < 3; i++){
+            for(let j = 5; j < 7 ; j++){
+                const cell = XLSX.utils.encode_cell({ r: i, c: j });
+                if (worksheet[cell]) {
+                    worksheet[cell].s = baseStyle;
+                }
+            }
+        }
+
         
         // Aplicar estilo a los encabezados de las columnas
         const headerRow = 6; // Fila de encabezados
@@ -162,13 +176,7 @@ export async function GET(request: NextRequest) {
             }
         }
         
-        // Fusionar celdas para el título, total y fecha
-        worksheet['!merges'] = [
-            { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }, // Título en toda la anchura
-            { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } }, // Total en toda la anchura
-            { s: { r: 2, c: 0 }, e: { r: 2, c: 7 } }, // Agente en toda la anchura
-            { s: { r: 4, c: 0 }, e: { r: 4, c: 7 } }, // Fecha en toda la anchura
-        ];
+        
         
         // Agregar hoja al libro
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Instrumentos');

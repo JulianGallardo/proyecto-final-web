@@ -52,8 +52,8 @@ interface ColumnWidth {
 }
 
 interface StyledWorksheet {
-    //@eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [key: string]: any;
+    
+    [key: string]: any; // eslint-disable-line
     
     '!cols'?: ColumnWidth[];
     '!ref'?: string;

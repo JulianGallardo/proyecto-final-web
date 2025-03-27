@@ -254,7 +254,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         }
 
         // Calcular zona y subzona automáticas si tenemos un punto
-        let zonaAutomatica =  undefined;
+        let zonaAutomatica = undefined;
         let subZonaAutomatica: SubZona = SubZona.Sin_SubZona;
 
         if (punto) {
@@ -332,20 +332,20 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async updateInstrumento(juzgadoIdentifier: string, ordenNumber: number, data: Partial<InstrumentoDTO>): Promise<InstrumentoExtendido | null> {
         const juzgado = await prisma.juzgado.findUnique({ where: { identifier: juzgadoIdentifier } });
         if (!juzgado) throw new Error("No se encontró el juzgado");
-    
+
         const ordenActual = await this.ordenRepository.getOrden(ordenNumber, juzgado.identifier);
         if (!ordenActual) throw new Error("No se encontró la orden");
-    
+
         let newOrden = ordenActual;
         if (data.juzgadoIdentifier && juzgado.identifier !== data.juzgadoIdentifier) {
             const createdOrden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
             if (!createdOrden) throw new Error("No se pudo crear la nueva orden");
             newOrden = createdOrden;
         }
-    
+
         const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
-        
-    
+
+
         // Preparar el objeto para actualizar la zona
         let zonaUpdate;
         if (nuevaZona) {
@@ -355,7 +355,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             // Si no hay zona, desconectarla
             zonaUpdate = { disconnect: true };
         }
-    
+
         return this.modelClient.update({
             where: { ordenId: ordenActual.id },
             data: {
@@ -367,8 +367,8 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 orden: { connect: { id: newOrden.id } },
                 Zona: zonaUpdate,
                 subZona: nuevaSubZona,
-                instrumentoType: data.instrumentoTypeIdentifier ? 
-                    { connect: { identifier: data.instrumentoTypeIdentifier } } : 
+                instrumentoType: data.instrumentoTypeIdentifier ?
+                    { connect: { identifier: data.instrumentoTypeIdentifier } } :
                     undefined,
                 latitude: punto ? punto[1] : null,
                 longitude: punto ? punto[0] : null,
@@ -594,6 +594,22 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         return this.modelClient.findMany({
             where,
             select: selectOptions,
+            orderBy: [
+                { fecha_de_salida: { sort: "asc", nulls: "first" } },
+                { fecha_de_ingreso: "asc" },
+                { 
+                    orden: {
+                        ordenNumber: "asc"
+                    }
+                },
+                { 
+                    orden: {
+                        juzgado: {
+                            identifier: "asc"
+                        }
+                    }
+                }
+            ],
         });
     }
 }

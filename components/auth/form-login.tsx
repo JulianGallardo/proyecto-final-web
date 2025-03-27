@@ -79,7 +79,7 @@ export default function LoginForm() {
                             {/* Contenido adicional bajo el logo */}
                             <div className="text-blue-700 text-center mt-2">
                                 <h2 className="text-lg md:text-xl font-medium">Portal de Acceso</h2>
-                                <p className="text-xs md:text-sm text-gray-600 mt-1">Acceda al sistema de notificaciones judiciales</p>
+                                <p className="text-xs md:text-sm text-gray-600 mt-1">Acceda al sistema de notificaciones</p>
                             </div>
                         </div>
                         

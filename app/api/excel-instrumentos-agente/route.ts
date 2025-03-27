@@ -42,19 +42,17 @@ interface BorderStyle {
     color: { rgb: string };
 }
 
-// Define XLSX Range type
 interface Range {
     s: { r: number; c: number }; // start (row, column)
     e: { r: number; c: number }; // end (row, column)
 }
 
-// Define type for column width
 interface ColumnWidth {
     wch?: number;
 }
 
-// Define type for worksheet with additional properties
 interface StyledWorksheet {
+    //@eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
     
     '!cols'?: ColumnWidth[];

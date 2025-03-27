@@ -42,6 +42,12 @@ interface BorderStyle {
     color: { rgb: string };
 }
 
+// Define XLSX Range type
+interface Range {
+    s: { r: number; c: number }; // start (row, column)
+    e: { r: number; c: number }; // end (row, column)
+}
+
 // Define type for column width
 interface ColumnWidth {
     wch?: number;
@@ -50,9 +56,10 @@ interface ColumnWidth {
 // Define type for worksheet with additional properties
 interface StyledWorksheet {
     [key: string]: any;
+    
     '!cols'?: ColumnWidth[];
     '!ref'?: string;
-    '!merges'?: any[];
+    '!merges'?: Range[];
 }
 
 export async function GET(request: NextRequest) {
@@ -108,7 +115,7 @@ export async function GET(request: NextRequest) {
         });
 
         // Generate filename
-        let filename = `${agente.user.name} ${agente.user.lastname}-${fechaDesde || 'sinFecha'}`;
+        const filename = `${agente.user.name} ${agente.user.lastname}-${fechaDesde || 'sinFecha'}`;
 
         // Return Excel file
         return new NextResponse(excelBuffer, {
@@ -246,7 +253,7 @@ function createStyleObjects(): { baseStyle: CellStyle; headerStyle: CellStyle } 
 function applyStyleToCell(worksheet: StyledWorksheet, row: number, col: number, style: CellStyle) {
     const cell = XLSX.utils.encode_cell({ r: row, c: col });
     if (worksheet[cell]) {
-        (worksheet[cell] as any).s = style;
+        worksheet[cell].s = style;
     }
 }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import { Input } from '../ui/input';

@@ -18,7 +18,6 @@ interface ErrorExcelViewProps extends ErrorListProps {
     cancelEditing: () => void;
 }
 
-/** Error Excel View Component with Inline Editing */
 export default function ErrorExcelView({
     title,
     instrumentErrors,
@@ -167,7 +166,7 @@ export default function ErrorExcelView({
                                         <td className={`px-3 py-2 border border-gray-300 text-sm ${error.error.includes("Juzgado") ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
                                             {error.juzgadoIdentifier || 'N/A'}
                                         </td>
-                                        <td className={`px-3 py-2 border border-gray-300 text-sm ${error.error.includes("tipo de instrumento") ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
+                                        <td className={`px-3 py-2 border border-gray-300 text-sm ${error.error.includes("tipo de instrumento") || error.error.includes("Tipo de instrumento inválido")  ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
                                             {error.instrumentoTypeIdentifier || 'N/A'}
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
@@ -176,7 +175,7 @@ export default function ErrorExcelView({
                                         <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
                                             {error.urgencia || UrgenciaInstrumento.NORMAL}
                                         </td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
+                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 w-80">
                                             {error.domicilio_denunciado || 'N/A'}
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">

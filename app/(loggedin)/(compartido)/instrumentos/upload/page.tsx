@@ -184,7 +184,7 @@ export default function PDFUploadProcess() {
 
   return (
     <div className="flex flex-col items-center w-full h-full py-4 gap-2 px-2 overflow-x-hidden">
-      <div className="flex flex-col gap-4 w-full max-w-3xl">
+      <div className="flex flex-col gap-4 w-full ">
         <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit">
           <Button variant="outline" className="flex flex-row w-fit gap-2">
             <ChevronLeftIcon className="h-4 w-4" />
@@ -192,78 +192,77 @@ export default function PDFUploadProcess() {
           </Button>
         </Link>
 
-        <Card className="w-full max-w-3xl shadow-md">
-          <CardContent className="p-8">
-            {step === 1 && (
-              <StepFileUpload
-                file={file}
-                onFileChange={setFile}
-                onNext={handleFileUpload}
+        <div className="w-full  shadow-md">
+
+          {step === 1 && (
+            <StepFileUpload
+              file={file}
+              onFileChange={setFile}
+              onNext={handleFileUpload}
+            />
+          )}
+
+          {step === 2 && (
+            <StepErrorReview
+              deleteInstrumento={deleteInstrumentErrorData}
+              errors={instrumentosConErrores}
+              editInstrumentDataError={editInstrumentDataError}
+              deleteAllErrors={deleteAllInstrumentDataError}
+              onBack={() => setStep(1)}
+              onNext={() => setStep(3)}
+            />
+          )}
+
+          {step === 3 && (
+            <StepDataReview
+              data={data}
+              editInstrumentData={editInstrumentData}
+              deleteInstrumentData={deleteInstrumentData}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onNextPage={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onPrevPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onBack={() => setStep(1)}
+              onConfirm={confirmUpload}
+            />
+          )}
+
+          {step === 4 && (
+            isPending ? (
+              <SaveInstrument />
+            ) : (
+              <ConfirmStep
+                onClick={() => {
+                  setFile(null);
+                  setData([]);
+                  setInstrumentosConErrores([]);
+                  setStep(1);
+                  setCurrentPage(1);
+                  setErrorMessage(null); // Reset error state
+                }}
               />
-            )}
+            )
+          )}
 
-            {step === 2 && (
-              <StepErrorReview
-                deleteInstrumento={deleteInstrumentErrorData}
-                errors={instrumentosConErrores}
-                editInstrumentDataError={editInstrumentDataError}
-                deleteAllErrors={deleteAllInstrumentDataError}
-                onBack={() => setStep(1)}
-                onNext={() => setStep(3)}
-              />
-            )}
-
-            {step === 3 && (
-              <StepDataReview
-                data={data}
-                editInstrumentData={editInstrumentData}
-                deleteInstrumentData={deleteInstrumentData}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onNextPage={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                onPrevPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                onBack={() => setStep(1)}
-                onConfirm={confirmUpload}
-              />
-            )}
-
-            {step === 4 && (
-              isPending ? (
-                <SaveInstrument />
-              ) : (
-                <ConfirmStep
-                  onClick={() => {
-                    setFile(null);
-                    setData([]);
-                    setInstrumentosConErrores([]);
-                    setStep(1);
-                    setCurrentPage(1);
-                    setErrorMessage(null); // Reset error state
-                  }}
-                />
-              )
-            )}
-
-            {step === 5 && (
-              <div className="flex flex-col gap-4">
-                <h2 className="text-2xl font-bold">Error al cargar los instrumentos</h2>
-                {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-                <Button
-                  onClick={() => {
-                    setFile(null);
-                    setData([]);
-                    setInstrumentosConErrores([]);
-                    setStep(1);
-                    setCurrentPage(1);
-                    setErrorMessage(null); // Reset error state
-                  }}
-                >
-                  Volver
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          {step === 5 && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-2xl font-bold">Error al cargar los instrumentos</h2>
+              {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+              <Button
+                onClick={() => {
+                  setFile(null);
+                  setData([]);
+                  setInstrumentosConErrores([]);
+                  setStep(1);
+                  setCurrentPage(1);
+                  setErrorMessage(null); // Reset error state
+                }}
+              >
+                Volver
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 import { InstrumentoDTO, InstrumentoExtendido, } from "@/types/instrumentoTypes"
 import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
-import { TablaInstrumentos } from "./Tabla/tabla-instrumento"
+import { TablaInstrumentos } from "./Views/Tabla/tabla-instrumento"
 import CustomDialog from "./Dialogs/dialog"
 import { FormularioInstrumento } from "./Forms/formulario-instrumento"
 import useInfoInstrumentos from "@/hooks/useInfoInstrumentos"
@@ -15,6 +15,8 @@ import { toast } from "@/hooks/use-toast";
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ExtendedZone } from "@/types/ZoneTypes"
+import { ListIcon, TableIcon } from "lucide-react"
+import InstrumentoExcelView from "./Views/Excel/InstrumentExcelView"
 
 
 interface CrudInstrumentosProps {
@@ -24,9 +26,10 @@ interface CrudInstrumentosProps {
     zonas: ExtendedZone[]
 }
 
-export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes , zonas}: Readonly<CrudInstrumentosProps>) {
+export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zonas }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
     const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
+    const [viewMode, setViewMode] = useState<'list' | 'excel'>('list')
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
@@ -93,7 +96,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes , zo
         if (!instrumentoEditando) return
 
         try {
-            
+
             const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.identifier, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
             if (!instrumentoActualizado) return
         } catch (error) {
@@ -180,6 +183,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes , zo
 
     return (
         <div className="space-y-4 w-full h-full">
+
             <CustomDialog
                 dialogTitle={instrumentoEditando ? `Editar Instrumento ${instrumentoEditando.orden.ordenNumber} ${instrumentoEditando.orden.juzgado.identifier}` : "Crear Instrumento"}
                 dialogDescription={instrumentoEditando ? "Edita los campos del instrumento" : "Crea un nuevo instrumento"}
@@ -218,6 +222,28 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes , zo
                 }
             />
 
+            <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 hidden md:inline">Vista:</span>
+                <Button
+                    variant={viewMode === 'list' ? "default" : "outline"}
+                    size="sm"
+                    className={viewMode === 'list' ? "bg-blue-500 hover:bg-blue-600" : ""}
+                    onClick={() => setViewMode('list')}
+                >
+                    <ListIcon className="h-4 w-4 mr-1" />
+                    Lista
+                </Button>
+                <Button
+                    variant={viewMode === 'excel' ? "default" : "outline"}
+                    size="sm"
+                    className={viewMode === 'excel' ? "bg-green-500 hover:bg-green-600" : ""}
+                    onClick={() => setViewMode('excel')}
+                >
+                    <TableIcon className="h-4 w-4 mr-1" />
+                    Excel
+                </Button>
+            </div>
+
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <Button
                     onClick={onCreate}
@@ -242,12 +268,21 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes , zo
 
 
             <div className="flex flex-grow overflow:hidde justify-center gap-4">
-                <TablaInstrumentos
-                    data={instrumentos}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-
-                />
+            {
+                viewMode === 'list' ? (
+                    <TablaInstrumentos
+                        data={instrumentos}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                    />
+                ) : (
+                    <InstrumentoExcelView
+                        data={instrumentos}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                    />
+                )
+            }
             </div>
 
 

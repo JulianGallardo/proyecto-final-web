@@ -1,7 +1,7 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import AccionesList from "./acciones-list";
-import { Button } from "../../ui/button";
+import { Button } from "@/components/ui/button";
 import IndicadorFecha from "./indicador-fecha";
 import { UrgenciaInstrumento } from "@prisma/client";
 import { Check } from "lucide-react";

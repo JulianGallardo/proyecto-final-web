@@ -43,7 +43,7 @@ export default function ExcelDataView({
                     <thead>
                         <tr className="bg-gray-100 ">
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Carátula</th>
-                            
+
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Codigo</th>
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Juzgado</th>
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Tipo de Instrumento</th>
@@ -73,7 +73,7 @@ export default function ExcelDataView({
                                             }
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300 w-fit">
-                                            
+
                                             <Select
                                                 value={editedData.juzgadoIdentifier}
                                                 onValueChange={(value) => handleInputChange('juzgadoIdentifier', value)}
@@ -174,7 +174,7 @@ export default function ExcelDataView({
                                             {juzgados.find(juzgado => juzgado.identifier === error.juzgadoIdentifier)?.name ?? 'N/A'}
                                         </td>
                                         <td className={`px-3 py-2 border border-gray-300 text-sm text-gray-900`}>
-                                            {error.instrumentoTypeIdentifier || 'N/A'}
+                                            {instrumentoTypes.find(type => type.identifier === error.instrumentoTypeIdentifier)?.name ?? 'N/A'}
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
                                             {error.fecha_de_ingreso ? new Date(error.fecha_de_ingreso).toLocaleDateString() : 'N/A'}

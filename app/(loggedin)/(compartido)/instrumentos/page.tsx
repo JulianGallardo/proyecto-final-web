@@ -4,7 +4,7 @@ import { auth } from "@/auth"
 import NoAutenticado from "@/components/error/errorNoAutenticado"
 import FiltrosList from "@/components/instrumentos/Filtros/filtros-list";
 import { TableSkeleton } from "@/components/instrumentos/Skeletons/list-skeleton";
-import ServerSideTable from "@/components/instrumentos/Tabla/server-side-table";
+import ServerSideTable from "@/components/instrumentos/Views/Tabla/server-side-table";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { Suspense } from "react";
 

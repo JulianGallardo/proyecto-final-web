@@ -1,6 +1,6 @@
 import {getInstrumentosPaginated, getTotalPagesInstrumentosPaginated } from "@/actions/instrumentos-actions";
 import PaginationInstruments from "./Pagination";
-import { CrudInstrumentos } from "../crud-instrumento";
+import { CrudInstrumentos } from "../../crud-instrumento";
 import { Juzgado, InstrumentoType } from "@prisma/client";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { ExtendedZone } from "@/types/ZoneTypes";

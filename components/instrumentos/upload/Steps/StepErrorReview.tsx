@@ -153,12 +153,12 @@ export default function StepErrorReview({
     }
 
     return (
-        <div className="flex flex-col w-full gap-4">
-            <div className="flex justify-between items-center">
+        <div className="flex flex-col w-full gap-4 ">
+            <div className="flex flex-col md:flex-row md:justify-between items-center gap-2">
                 <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
                 {errors.length > 0 && (
                     <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500">Vista:</span>
+                        <span className="text-sm text-gray-500 hidden md:inline">Vista:</span>
                         <Button
                             variant={viewMode === 'list' ? "default" : "outline"}
                             size="sm"
@@ -249,7 +249,7 @@ export default function StepErrorReview({
                 </div>
             )}
 
-            <div className="flex justify-between mt-6">
+            <div className="flex flex-col md:flex-row gap-2 justify-between mt-6">
                 <Button
                     className="bg-blue-500 hover:bg-blue-600"
                     onClick={onBack}

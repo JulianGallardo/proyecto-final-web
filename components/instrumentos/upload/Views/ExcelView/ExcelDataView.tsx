@@ -36,13 +36,12 @@ export default function ExcelDataView({
     cancelEditing
 }: Readonly<ExcelDataViewProps>) {
     return (
-        <div className="flex flex-col w-full gap-6 p-4 bg-white rounded-lg shadow-md border border-gray-200">
-            <h3 className="text-xl font-bold text-gray-800 border-b border-gray-300 pb-2">{title}</h3>
+        <div className="flex flex-col w-full gap-6 p-4">
 
-            <div className="w-full overflow-x-auto">
-                <table className="w-full border-collapse ">
+            <div className="w-full overflow-x-auto ">
+                <table className="w-full border-collapse rounded-lg ">
                     <thead>
-                        <tr className="bg-gray-100">
+                        <tr className="bg-gray-100 ">
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Carátula</th>
                             
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Codigo</th>

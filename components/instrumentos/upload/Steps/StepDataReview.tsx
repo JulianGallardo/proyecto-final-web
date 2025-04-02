@@ -190,28 +190,29 @@ export default function StepDataReview({
 
             />
 
-
-            <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Vista:</span>
-                <Button
-                    variant={viewMode === 'list' ? "default" : "outline"}
-                    size="sm"
-                    className={viewMode === 'list' ? "bg-blue-500 hover:bg-blue-600" : ""}
-                    onClick={() => setViewMode('list')}
-                >
-                    <ListIcon className="h-4 w-4 mr-1" />
-                    Lista
-                </Button>
-                <Button
-                    variant={viewMode === 'excel' ? "default" : "outline"}
-                    size="sm"
-                    className={viewMode === 'excel' ? "bg-green-500 hover:bg-green-600" : ""}
-                    onClick={() => setViewMode('excel')}
-                >
-                    <TableIcon className="h-4 w-4 mr-1" />
-                    Excel
-                </Button>
+            <div className="flex flex-col md:flex-row md:justify-between items-center gap-2 mb-4">
+                <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 hidden md:inline">Vista:</span>
+                    <Button
+                        variant={viewMode === 'list' ? "default" : "outline"}
+                        size="sm"
+                        className={viewMode === 'list' ? "bg-blue-500 hover:bg-blue-600" : ""}
+                        onClick={() => setViewMode('list')}
+                    >
+                        <ListIcon className="h-4 w-4 mr-1" />
+                        Lista
+                    </Button>
+                    <Button
+                        variant={viewMode === 'excel' ? "default" : "outline"}
+                        size="sm"
+                        className={viewMode === 'excel' ? "bg-green-500 hover:bg-green-600" : ""}
+                        onClick={() => setViewMode('excel')}
+                    >
+                        <TableIcon className="h-4 w-4 mr-1" />
+                        Excel
+                    </Button>
+                </div>
             </div>
             <div className="flex flex-col gap-4 w-full">
 

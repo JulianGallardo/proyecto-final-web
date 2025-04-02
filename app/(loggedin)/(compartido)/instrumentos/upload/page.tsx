@@ -182,23 +182,28 @@ export default function PDFUploadProcess() {
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
 
   return (
-    <div className="flex flex-col items-center w-full h-full py-4 gap-2 px-2 overflow-x-hidden">
-      <div className="flex flex-col gap-4 w-full ">
-        <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit">
-          <Button variant="outline" className="flex flex-row w-fit gap-2">
-            <ChevronLeftIcon className="h-4 w-4" />
-            Volver al listado
-          </Button>
-        </Link>
+    <div className="flex flex-col items-center w-full h-full p-4 gap-2  ">
+      <div className="flex flex-col gap-4 w-full   ">
 
-        <div className="w-full  shadow-md">
+        <div className="flex flex-row items-center justify-end w-full">
+          <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit">
+            <Button variant="outline" className="flex flex-row w-fit gap-2">
+              <ChevronLeftIcon className="h-4 w-4" />
+              Volver al listado
+            </Button>
+          </Link>
+        </div>
+
+
+        <div className="w-full h-full flex flex-col gap-4 rounded-lg px-4 pb-6  ">
 
           {step === 1 && (
-            <StepFileUpload
-              file={file}
-              onFileChange={setFile}
-              onNext={handleFileUpload}
-            />
+              <StepFileUpload
+                file={file}
+                onFileChange={setFile}
+                onNext={handleFileUpload}
+
+              />
           )}
 
           {step === 2 && (

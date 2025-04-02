@@ -35,7 +35,7 @@ export default function ErrorExcelView({
         <div className="flex flex-col w-full gap-6 p-4 bg-white rounded-lg shadow-md border border-gray-200">
             <h3 className="text-xl font-bold text-gray-800 border-b border-gray-300 pb-2">{title}</h3>
 
-            <div className="w-full">
+            <div className="w-full overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="bg-gray-100">

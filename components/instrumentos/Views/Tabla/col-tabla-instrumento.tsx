@@ -11,7 +11,7 @@ interface ColumnsProps {
 }
 
 
-const DemoraCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
+export const DemoraCell = ({ row }: { row: Row<InstrumentoExtendido> }) => {
     const fechaEntrada: Date = row.getValue("fecha_de_ingreso");
     const fechaSalida: Date = row.getValue("fecha_de_salida");
     const urgencia: UrgenciaInstrumento = row.getValue("urgencia");

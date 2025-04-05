@@ -1,9 +1,16 @@
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  ColumnDef,
+} from "@tanstack/react-table";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { CheckIcon, XIcon, Edit, Delete } from "lucide-react";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+import { DemoraCell } from "../Tabla/col-tabla-instrumento";
 
 interface InstrumentoExcelViewProps {
   data: InstrumentoExtendido[];
@@ -11,7 +18,7 @@ interface InstrumentoExcelViewProps {
   onDelete: (instrumento: InstrumentoExtendido) => void;
 }
 
-export default function InstrumentoExcelView({ data, onEdit, onDelete }: Readonly<InstrumentoExcelViewProps>) {
+export default function InstrumentoExcelView({ data, onEdit, onDelete }: InstrumentoExcelViewProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editedData, setEditedData] = useState<InstrumentoExtendido | null>(null);
 
@@ -20,111 +27,262 @@ export default function InstrumentoExcelView({ data, onEdit, onDelete }: Readonl
     setEditedData({ ...data[index] });
   };
 
+  const cancelEditing = () => {
+    setEditingIndex(null);
+    setEditedData(null);
+  };
+
+  const saveEditedData = () => {
+    if (editedData) onEdit(editedData);
+    cancelEditing();
+  };
+
   const handleInputChange = (field: keyof InstrumentoExtendido, value: any) => {
     if (editedData) {
       setEditedData({ ...editedData, [field]: value });
     }
   };
 
-  const saveEditedData = () => {
-    if (editedData) {
-      onEdit(editedData);
-    }
-    setEditingIndex(null);
-    setEditedData(null);
-  };
+  const columns: ColumnDef<InstrumentoExtendido>[] = [
+    {
+      header: "Carátula",
+      accessorKey: "caratula",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <Input
+            value={editedData?.caratula || ""}
+            onChange={(e) => handleInputChange("caratula", e.target.value)}
+            className="text-center"
+          />
+        ) : (
+          row.original.caratula
+        ),
+    },
+    {
+      header: "Código",
+      accessorKey: "codigoInstrumento",
+    },
+    {
+      header: "Prioridad",
+      accessorKey: "prioridad",
+      cell: DemoraCell
+    },
+    {
+      header: "Juzgado",
+      accessorKey: "orden.juzgado.name",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <Select
+            value={editedData?.orden.juzgado.identifier}
+            onValueChange={(value) =>
+              handleInputChange("orden", {
+                ...editedData!.orden,
+                juzgado: { identifier: value, name: "" },
+              })
+            }
+          >
+            <SelectTrigger className="text-center">
+              <SelectValue placeholder="Seleccionar juzgado" />
+            </SelectTrigger>
+            <SelectContent>
+              {/* Opciones aquí */}
+            </SelectContent>
+          </Select>
+        ) : (
+          row.original.orden.juzgado.name
+        ),
+    },
+    {
+      header: "Nº de Orden",
+      accessorKey: "orden.ordenNumber",
+      cell: ({ row }) => row.original.orden.ordenNumber,
+    },
+    {
+      header: "Tipo",
+      accessorKey: "instrumentoType.name",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <Select
+            value={editedData?.instrumentoType.identifier}
+            onValueChange={(value) =>
+              handleInputChange("instrumentoType", {
+                ...editedData!.instrumentoType,
+                identifier: value,
+              })
+            }
+          >
+            <SelectTrigger className="text-center">
+              <SelectValue placeholder="Seleccionar tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              {/* Opciones aquí */}
+            </SelectContent>
+          </Select>
+        ) : (
+          row.original.instrumentoType.name
+        ),
+    },
+    {
+      header: "Ingreso",
+      accessorKey: "fecha_de_ingreso",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <Input
+            type="date"
+            value={
+              editedData?.fecha_de_ingreso
+                ? new Date(editedData.fecha_de_ingreso)
+                    .toISOString()
+                    .split("T")[0]
+                : ""
+            }
+            onChange={(e) =>
+              handleInputChange("fecha_de_ingreso", new Date(e.target.value))
+            }
+          />
+        ) : (
+          new Date(row.original.fecha_de_ingreso).toLocaleDateString()
+        ),
+    },
+    {
+      header: "Descarga",
+      accessorKey: "fecha_de_salida",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <Input
+            type="date"
+            value={
+              editedData?.fecha_de_salida
+                ? new Date(editedData.fecha_de_salida)
+                    .toISOString()
+                    .split("T")[0]
+                : ""
+            }
+            onChange={(e) =>
+              handleInputChange(
+                "fecha_de_salida",
+                e.target.value ? new Date(e.target.value) : null
+              )
+            }
+          />
+        ) : row.original.fecha_de_salida ? (
+          new Date(row.original.fecha_de_salida).toLocaleDateString()
+        ) : (
+          "N/A"
+        ),
+    },
+    {
+      header: "Urgencia",
+      accessorKey: "urgencia",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <Select
+            value={editedData?.urgencia}
+            onValueChange={(value) => handleInputChange("urgencia", value)}
+          >
+            <SelectTrigger className="text-center">
+              <SelectValue placeholder="Urgencia" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="NORMAL">Normal</SelectItem>
+              <SelectItem value="URGENTE">Urgente</SelectItem>
+            </SelectContent>
+          </Select>
+        ) : (
+          row.original.urgencia
+        ),
+    },
+    {
+      header: "Domicilio",
+      accessorKey: "domicilio_denunciado",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <Input
+            value={editedData?.domicilio_denunciado || ""}
+            onChange={(e) =>
+              handleInputChange("domicilio_denunciado", e.target.value)
+            }
+          />
+        ) : (
+          row.original.domicilio_denunciado
+        ),
+    },
+    {
+      header: "Zona",
+      accessorKey: "zoneName",
+    },
+    {
+      header: "Subzona",
+      accessorKey: "subZona",
+    },
+    {
+      header: "Observaciones",
+      accessorKey: "observaciones",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <Input
+            value={editedData?.observaciones || ""}
+            onChange={(e) =>
+              handleInputChange("observaciones", e.target.value)
+            }
+          />
+        ) : (
+          row.original.observaciones || "N/A"
+        ),
+    },
+    {
+      header: "Acciones",
+      cell: ({ row }) =>
+        row.index === editingIndex ? (
+          <div className="flex gap-2 justify-center">
+            <Button onClick={saveEditedData}>
+              <CheckIcon className="h-4 w-4" />
+            </Button>
+            <Button onClick={cancelEditing}>
+              <XIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2 justify-center">
+            <Button onClick={() => startEditing(row.index)}>
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button onClick={() => onDelete(row.original)}>
+              <Delete className="h-4 w-4" />
+            </Button>
+          </div>
+        ),
+    },
+  ];
 
-  const cancelEditing = () => {
-    setEditingIndex(null);
-    setEditedData(null);
-  };
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
-    <div className="flex flex-col w-full gap-6 p-4">
-      <table className="w-full border-collapse rounded-lg">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="px-3 py-2 border">Carátula</th>
-            <th className="px-3 py-2 border">Código</th>
-            <th className="px-3 py-2 border">Juzgado</th>
-            <th className="px-3 py-2 border">Tipo de Instrumento</th>
-            <th className="px-3 py-2 border">Fecha Ingreso</th>
-            <th className="px-3 py-2 border">Urgencia</th>
-            <th className="px-3 py-2 border">Domicilio</th>
-            <th className="px-3 py-2 border">Observaciones</th>
-            <th className="px-3 py-2 border">Acciones</th>
-          </tr>
+    <div className="overflow-auto p-4">
+      <table className="min-w-full border text-center text-sm">
+        <thead className="bg-gray-100">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <th key={header.id} className="px-4 py-2 border">
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                </th>
+              ))}
+            </tr>
+          ))}
         </thead>
         <tbody>
-          {data.map((instrumento, index) => (
-            <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-              {editingIndex === index && editedData ? (
-                <>
-                  <td className="px-3 py-2 border">
-                    <Input value={editedData.caratula} onChange={(e) => handleInputChange("caratula", e.target.value)} />
-                  </td>
-                  <td className="px-3 py-2 border">{editedData.codigoInstrumento}</td>
-                  <td className="px-3 py-2 border">
-                    <Select value={editedData.orden.juzgado.identifier} onValueChange={(value) => handleInputChange("orden", { ...editedData.orden, juzgado: { identifier: value, name: "" } })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar juzgado" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {/* Opciones de juzgado */}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-3 py-2 border">
-                    <Select value={editedData.instrumentoType.identifier} onValueChange={(value) => handleInputChange("instrumentoType", { ...editedData.instrumentoType, identifier: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {/* Opciones de tipo */}
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-3 py-2 border">
-                    <Input type="date" value={new Date(editedData.fecha_de_ingreso).toISOString().split("T")[0]} onChange={(e) => handleInputChange("fecha_de_ingreso", new Date(e.target.value))} />
-                  </td>
-                  <td className="px-3 py-2 border">
-                    <Select value={editedData.urgencia} onValueChange={(value) => handleInputChange("urgencia", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Urgencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="NORMAL">Normal</SelectItem>
-                        <SelectItem value="URGENTE">Urgente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </td>
-                  <td className="px-3 py-2 border">
-                    <Input value={editedData.domicilio_denunciado} onChange={(e) => handleInputChange("domicilio_denunciado", e.target.value)} />
-                  </td>
-                  <td className="px-3 py-2 border">
-                    <Input value={editedData.observaciones || ""} onChange={(e) => handleInputChange("observaciones", e.target.value)} />
-                  </td>
-                  <td className="px-3 py-2 border">
-                    <Button onClick={saveEditedData}><CheckIcon /></Button>
-                    <Button onClick={cancelEditing}><XIcon /></Button>
-                  </td>
-                </>
-              ) : (
-                <>
-                  <td className="px-3 py-2 border">{instrumento.caratula}</td>
-                  <td className="px-3 py-2 border">{instrumento.codigoInstrumento}</td>
-                  <td className="px-3 py-2 border">{instrumento.orden.juzgado.name}</td>
-                  <td className="px-3 py-2 border">{instrumento.instrumentoType.name}</td>
-                  <td className="px-3 py-2 border">{new Date(instrumento.fecha_de_ingreso).toLocaleDateString()}</td>
-                  <td className="px-3 py-2 border">{instrumento.urgencia}</td>
-                  <td className="px-3 py-2 border">{instrumento.domicilio_denunciado}</td>
-                  <td className="px-3 py-2 border">{instrumento.observaciones || "N/A"}</td>
-                  <td className="px-3 py-2 border">
-                    <Button onClick={() => startEditing(index)}><Edit /></Button>
-                    <Button onClick={() => onDelete(instrumento)}><Delete /></Button>
-                  </td>
-                </>
-              )}
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id} className="border-b">
+              {row.getVisibleCells().map((cell) => (
+                <td key={cell.id} className="px-4 py-2 border whitespace-nowrap">
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
+              ))}
             </tr>
           ))}
         </tbody>

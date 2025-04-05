@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 
 import { DateTime } from "luxon";
 import { EstadoEntrega, EstadoInstrumento } from "@prisma/client";
+import { InstrumentoExtendido, InstrumentoDTO } from "@/types/instrumentoTypes";
+import { ExtendedZone } from "@/types/ZoneTypes";
 
 
 export function cn(...inputs: ClassValue[]) {
@@ -73,3 +75,31 @@ export const getEntregasStatusColor = (estado: EstadoEntrega) => {
       return 'bg-gray-100 text-gray-800 border-gray-500';
   }
 };
+
+export const convertToDto = (instrumento: InstrumentoExtendido | undefined,zonas:ExtendedZone[]): InstrumentoDTO | undefined => {
+        if (!instrumento) {
+            return undefined
+        }
+
+
+        const instrumentoDto: InstrumentoDTO = {
+            fecha_de_ingreso: instrumento.fecha_de_ingreso,
+            fecha_de_salida: instrumento.fecha_de_salida,
+            caratula: instrumento.caratula,
+            urgencia: instrumento.urgencia,
+            domicilio_denunciado: instrumento.domicilio_denunciado,
+            juzgadoIdentifier: instrumento.orden.juzgado.identifier,
+            instrumentoTypeIdentifier: instrumento.instrumentoType.identifier,
+            codigo: instrumento.codigoInstrumento,
+            tipoDeCarga: instrumento.cargaInstrumento,
+            observaciones: instrumento.observaciones ?? "",
+            estado: instrumento.estado,
+            punto: (instrumento.latitude && instrumento.longitude) ? [instrumento.latitude, instrumento.longitude] : null,
+            zona: zonas.find(
+                (zone) => zone.zoneName === instrumento.zoneName
+            ) ?? null,
+            subZona: instrumento.subZona ?? null
+        }
+
+        return instrumentoDto
+    }

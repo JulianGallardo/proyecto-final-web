@@ -17,6 +17,7 @@ import { useEffect, useState } from "react"
 import { ExtendedZone } from "@/types/ZoneTypes"
 import { ListIcon, TableIcon } from "lucide-react"
 import InstrumentoExcelView from "./Views/Excel/InstrumentExcelView"
+import { convertToDto } from "@/lib/utils"
 
 
 interface CrudInstrumentosProps {
@@ -90,11 +91,20 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
         setIsOpenAlert(true)
     }
 
+    const onEditExcel = (instrumento: InstrumentoExtendido) => {
+        setInstrumentoEditando(instrumento)
+    }
+
 
 
     const handleEditar = async (instrumentoEditado: InstrumentoDTO) => {
-        if (!instrumentoEditando) return
+        
+        console.log("Instrumento editado", instrumentoEditado)
+        if (!instrumentoEditando ) return
 
+        console.log("Pasoooooooo")
+
+        
         try {
 
             const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.identifier, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
@@ -150,34 +160,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
         setIsOpenAlert(false)
     }
 
-    const convertToDto = (instrumento: InstrumentoExtendido | undefined): InstrumentoDTO | undefined => {
-        if (!instrumento) {
-            return undefined
-        }
-
-
-        const instrumentoDto: InstrumentoDTO = {
-            fecha_de_ingreso: instrumento.fecha_de_ingreso,
-            fecha_de_salida: instrumento.fecha_de_salida,
-            caratula: instrumento.caratula,
-            urgencia: instrumento.urgencia,
-            domicilio_denunciado: instrumento.domicilio_denunciado,
-            juzgadoIdentifier: instrumento.orden.juzgado.identifier,
-            instrumentoTypeIdentifier: instrumento.instrumentoType.identifier,
-            codigo: instrumento.codigoInstrumento,
-            tipoDeCarga: instrumento.cargaInstrumento,
-            observaciones: instrumento.observaciones ?? "",
-            estado: instrumento.estado,
-            punto: (instrumento.latitude && instrumento.longitude) ? [instrumento.latitude, instrumento.longitude] : null,
-            zona: zonas.find(
-                (zone) => zone.zoneName === instrumento.zoneName
-            ) ?? null,
-            subZona: instrumento.subZona ?? null
-        }
-
-        return instrumentoDto
-    }
-
+    
 
 
 
@@ -192,7 +175,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                         instrumentoTypes={instrumentoTypes}
                         Juzgados={Juzgados}
                         onSubmit={instrumentoEditando ? handleEditar : handleCrear}
-                        instrumento={convertToDto(instrumentoEditando)}
+                        instrumento={convertToDto(instrumentoEditando,zonas)}
                         zonas={
                             zonas
                         }
@@ -278,7 +261,8 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 ) : (
                     <InstrumentoExcelView
                         data={instrumentos}
-                        onEdit={onEdit}
+                        saveChanges={handleEditar}
+                        onEdit={onEditExcel}
                         onDelete={onDelete}
                         Juzgados={Juzgados}
                         instrumentoTypes={instrumentoTypes}

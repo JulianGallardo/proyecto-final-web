@@ -274,13 +274,13 @@ export function getColumns({
             cell: ({ row }) =>
                 row.index === editingIndex ? (
                     <Input
-                        value={editedData?.observaciones ?? ""}
+                        defaultValue={editedData?.observaciones ?? ""}
                         onChange={(e) =>
                             handleInputChange("observaciones", e.target.value)
                         }
                     />
                 ) : (
-                    row.original.observaciones || "N/A"
+                    row.original.observaciones
                 ),
         },
         {
@@ -292,7 +292,14 @@ export function getColumns({
                             <TooltipTrigger asChild>
                                 <Button
                                     className="bg-green-500 hover:bg-green-600"
-                                    onClick={saveEditedData}
+                                    onClick={(
+                                        e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+                                    ) => {
+                                        e.stopPropagation();
+                                        saveEditedData();
+                                    }
+                                    }
+
                                 >
                                     <CheckIcon className="h-4 w-4 text-white" />
                                 </Button>

@@ -5,7 +5,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -14,57 +14,85 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
+import { InstrumentoDTO, InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import NoResults from "@/components/shared/noResults";
 import { getColumns } from "./colTablaInstrumentView";
 import { ExtendedZone } from "@/types/ZoneTypes";
+import { convertToDto } from "@/lib/utils";
 
 interface InstrumentoExcelViewProps {
   data: InstrumentoExtendido[];
+  saveChanges: (instrumento: InstrumentoDTO) => void;
   onEdit: (instrumento: InstrumentoExtendido) => void;
   onDelete: (instrumento: InstrumentoExtendido) => void;
   Juzgados: JuzgadoDto[];
   instrumentoTypes: InstrumentoTypeDTO[];
   zonas?: ExtendedZone[];
-
 }
 
 export default function InstrumentoExcelView({
   data,
+  saveChanges,
   onEdit,
   onDelete,
   Juzgados,
   instrumentoTypes,
   zonas,
-
-}: InstrumentoExcelViewProps) {
+}: Readonly<InstrumentoExcelViewProps>) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editedData, setEditedData] = useState<InstrumentoExtendido | null>(null);
 
-  const startEditing = (index: number) => {
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleInputChange = useCallback(
+    <K extends keyof InstrumentoExtendido>(field: K, value: InstrumentoExtendido[K]) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        setEditedData((prev) => {
+          if (!prev) return prev;
+          return { ...prev, [field]: value };
+        });
+      }, 500); // Ajustá el tiempo de debounce a gusto
+    },
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
+  const startEditing = useCallback((index: number) => {
+    onEdit(data[index]);
     setEditingIndex(index);
     setEditedData({ ...data[index] });
-  };
+  }, [data]);
 
-  const cancelEditing = () => {
+  const cancelEditing = useCallback(() => {
     setEditingIndex(null);
     setEditedData(null);
-  };
+  }, []);
 
   const saveEditedData = () => {
-    if (editedData) onEdit(editedData);
+    if (!editedData || !zonas) return;
+
+    const instrumentoDto = convertToDto(editedData, zonas);
+    if (instrumentoDto) {
+      saveChanges(instrumentoDto);
+    }
     cancelEditing();
   };
 
-  const handleInputChange = (field: keyof InstrumentoExtendido, value: any) => {
-    if (editedData) {
-      setEditedData({ ...editedData, [field]: value });
-    }
-  };
 
   const table = useReactTable({
     data,
-    columns:getColumns({
+    columns: getColumns({
       editingIndex,
       editedData,
       startEditing,
@@ -98,10 +126,7 @@ export default function InstrumentoExcelView({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                className="hover:bg-gray-100 transition-colors text-center"
-              >
+              <TableRow key={row.id} className="hover:bg-gray-100 transition-colors text-center">
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className="px-3 py-2 whitespace-nowrap">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}

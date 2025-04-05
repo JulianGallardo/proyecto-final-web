@@ -1,5 +1,3 @@
-// components/tabla/col-tabla-instrumento.ts
-
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
@@ -17,6 +15,9 @@ import { CheckIcon, XIcon, Edit, Trash2 as Delete } from "lucide-react";
 import { DemoraCell } from "../Tabla/col-tabla-instrumento";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { useState } from "react";
+import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 interface GetColumnsProps {
     editingIndex: number | null;
@@ -41,12 +42,9 @@ export function getColumns({
     onDelete,
     Juzgados,
     instrumentoTypes,
-    zonas
+    zonas,
 }: GetColumnsProps): ColumnDef<InstrumentoExtendido>[] {
-
-
     const [selectedZone, setSelectedZone] = useState<ExtendedZone | null>(null);
-    const [selectedJuzgado, setSelectedJuzgado] = useState<JuzgadoDto | null>(null);
 
     return [
         {
@@ -78,27 +76,24 @@ export function getColumns({
             cell: ({ row }) =>
                 row.index === editingIndex ? (
                     <Select
-                        value={editedData?.orden.juzgado.identifier}
+                        value={editedData?.orden.juzgado.identifier ?? ""}
                         onValueChange={(value) => {
-                            setSelectedJuzgado(Juzgados.find((juzgado) => juzgado.identifier === value) ?? null);
+                            const juzgado = Juzgados.find((j) => j.identifier === value);
                             handleInputChange("orden", {
                                 ...editedData!.orden,
-                                juzgado: { identifier: value, name: "" },
-                            });}
-
-                        }
+                                juzgado: { identifier: value, name: juzgado?.name ?? "" },
+                            });
+                        }}
                     >
                         <SelectTrigger className="text-center">
                             <SelectValue placeholder="Seleccionar juzgado" />
                         </SelectTrigger>
                         <SelectContent>
-                            {
-                                Juzgados.map((juzgado) => (
-                                    <SelectItem key={juzgado.identifier} value={juzgado.identifier}>
-                                        {juzgado.name}
-                                    </SelectItem>
-                                ))
-                            }
+                            {Juzgados.map((juzgado) => (
+                                <SelectItem key={juzgado.identifier} value={juzgado.identifier}>
+                                    {juzgado.name}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 ) : (
@@ -108,11 +103,7 @@ export function getColumns({
         {
             header: "Nº de Orden",
             accessorKey: "orden.ordenNumber",
-            cell: ({ row }) => row.original.orden.juzgado.identifier === selectedJuzgado?.identifier ? (
-                row.original.orden.ordenNumber
-            ) : (
-                "A calcular"
-            )
+            cell: ({ row }) => row.original.orden.ordenNumber ?? "A calcular",
         },
         {
             header: "Tipo",
@@ -120,25 +111,24 @@ export function getColumns({
             cell: ({ row }) =>
                 row.index === editingIndex ? (
                     <Select
-                        value={editedData?.instrumentoType.identifier}
-                        onValueChange={(value) =>
+                        value={editedData?.instrumentoType.identifier ?? ""}
+                        onValueChange={(value) => {
+                            const tipo = instrumentoTypes.find((t) => t.identifier === value);
                             handleInputChange("instrumentoType", {
-                                ...editedData!.instrumentoType,
                                 identifier: value,
-                            })
-                        }
+                                name: tipo?.name ?? "",
+                            });
+                        }}
                     >
                         <SelectTrigger className="text-center">
                             <SelectValue placeholder="Seleccionar tipo" />
                         </SelectTrigger>
                         <SelectContent>
-                            {
-                                instrumentoTypes.map((tipo) => (
-                                    <SelectItem key={tipo.identifier} value={tipo.identifier}>
-                                        {tipo.name}
-                                    </SelectItem>
-                                ))
-                            }
+                            {instrumentoTypes.map((tipo) => (
+                                <SelectItem key={tipo.identifier} value={tipo.identifier}>
+                                    {tipo.name}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 ) : (
@@ -196,7 +186,7 @@ export function getColumns({
             cell: ({ row }) =>
                 row.index === editingIndex ? (
                     <Select
-                        value={editedData?.urgencia}
+                        value={editedData?.urgencia ?? ""}
                         onValueChange={(value) => handleInputChange("urgencia", value)}
                     >
                         <SelectTrigger className="text-center">
@@ -213,14 +203,15 @@ export function getColumns({
         },
         {
             header: "Domicilio",
-            accessorKey: "domicilio_denunciado",
             cell: ({ row }) =>
                 row.index === editingIndex ? (
-                    <Input
-                        value={editedData?.domicilio_denunciado || ""}
-                        onChange={(e) =>
-                            handleInputChange("domicilio_denunciado", e.target.value)
-                        }
+                    <AddressAutocomplete
+                        defaultValue={editedData?.domicilio_denunciado ?? ""}
+                        onChange={(value) => {
+                            handleInputChange("domicilio_denunciado", value);
+                        }}
+                        miUbicacion={false}
+                        placeHolder="Buscar domicilio"
                     />
                 ) : (
                     row.original.domicilio_denunciado
@@ -231,16 +222,12 @@ export function getColumns({
             cell: ({ row }) =>
                 row.index === editingIndex ? (
                     <Select
-                        value={editedData?.zoneName ?? undefined}
+                        value={editedData?.zoneName ?? ""}
                         onValueChange={(value) => {
-                            const zona= zonas?.find((zona) => zona.zoneName === value)
-                            console.log(zona)
-                            handleInputChange("zoneName", zona?.zoneName);
+                            const zona = zonas?.find((z) => z.zoneName === value);
+                            handleInputChange("zoneName", zona?.zoneName ?? "");
                             setSelectedZone(zona ?? null);
-                        }
-
-
-                        }
+                        }}
                     >
                         <SelectTrigger className="text-center">
                             <SelectValue placeholder="Seleccionar zona" />
@@ -262,29 +249,24 @@ export function getColumns({
             cell: ({ row }) =>
                 row.index === editingIndex ? (
                     <Select
-                        value={editedData?.subZona ?? undefined}
-                        onValueChange={(value) => {
-                            handleInputChange("subZona", value);
-                        }
-
-                        }
+                        value={editedData?.subZona ?? ""}
+                        onValueChange={(value) => handleInputChange("subZona", value)}
                     >
                         <SelectTrigger className="text-center">
                             <SelectValue placeholder="Seleccionar subZona" />
                         </SelectTrigger>
                         <SelectContent>
-                            {selectedZone?.SubZonas.map((subZona) => (
-                                <SelectItem key={subZona.id} value={subZona.zoneName}>
-                                    {subZona.zoneName}
+                            {selectedZone?.SubZonas.map((sub) => (
+                                <SelectItem key={sub.id} value={sub.zoneName}>
+                                    {sub.zoneName}
                                 </SelectItem>
                             ))}
                             <SelectItem value="automatica">Automática</SelectItem>
                         </SelectContent>
                     </Select>
                 ) : (
-                    row.original.subZona || "N/A"
+                    row.original.subZona ?? "N/A"
                 ),
-
         },
         {
             header: "Observaciones",
@@ -292,7 +274,7 @@ export function getColumns({
             cell: ({ row }) =>
                 row.index === editingIndex ? (
                     <Input
-                        value={editedData?.observaciones || ""}
+                        value={editedData?.observaciones ?? ""}
                         onChange={(e) =>
                             handleInputChange("observaciones", e.target.value)
                         }
@@ -306,21 +288,61 @@ export function getColumns({
             cell: ({ row }) =>
                 row.index === editingIndex ? (
                     <div className="flex gap-2 justify-center">
-                        <Button onClick={saveEditedData}>
-                            <CheckIcon className="h-4 w-4" />
-                        </Button>
-                        <Button onClick={cancelEditing}>
-                            <XIcon className="h-4 w-4" />
-                        </Button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    className="bg-green-500 hover:bg-green-600"
+                                    onClick={saveEditedData}
+                                >
+                                    <CheckIcon className="h-4 w-4 text-white" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Guardar cambios</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    className="bg-red-500 hover:bg-red-600"
+                                    onClick={cancelEditing}
+                                >
+                                    <XIcon className="h-4 w-4 text-white" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Cancelar</p>
+                            </TooltipContent>
+                        </Tooltip>
                     </div>
                 ) : (
                     <div className="flex gap-2 justify-center">
-                        <Button onClick={() => startEditing(row.index)}>
-                            <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button onClick={() => onDelete(row.original)}>
-                            <Delete className="h-4 w-4" />
-                        </Button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    className="bg-blue-500 hover:bg-blue-600"
+                                    onClick={() => startEditing(row.index)}
+                                >
+                                    <Edit className="h-4 w-4 text-white" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Editar</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    className="bg-red-500 hover:bg-red-600"
+                                    onClick={() => onDelete(row.original)}
+                                >
+                                    <Delete className="h-4 w-4 text-white" />
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Eliminar</p>
+                            </TooltipContent>
+                        </Tooltip>
                     </div>
                 ),
         },

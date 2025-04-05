@@ -4,11 +4,8 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  ColumnDef,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableHeader,
@@ -17,22 +14,29 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { CheckIcon, XIcon, Edit, Trash2 } from "lucide-react";
-import { InstrumentoExtendido } from "@/types/instrumentoTypes";
+import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import NoResults from "@/components/shared/noResults";
 import { getColumns } from "./colTablaInstrumentView";
+import { ExtendedZone } from "@/types/ZoneTypes";
 
 interface InstrumentoExcelViewProps {
   data: InstrumentoExtendido[];
   onEdit: (instrumento: InstrumentoExtendido) => void;
   onDelete: (instrumento: InstrumentoExtendido) => void;
+  Juzgados: JuzgadoDto[];
+  instrumentoTypes: InstrumentoTypeDTO[];
+  zonas?: ExtendedZone[];
+
 }
 
 export default function InstrumentoExcelView({
   data,
   onEdit,
   onDelete,
+  Juzgados,
+  instrumentoTypes,
+  zonas,
+
 }: InstrumentoExcelViewProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editedData, setEditedData] = useState<InstrumentoExtendido | null>(null);
@@ -68,6 +72,9 @@ export default function InstrumentoExcelView({
       saveEditedData,
       handleInputChange,
       onDelete,
+      Juzgados,
+      instrumentoTypes,
+      zonas,
     }),
     getCoreRowModel: getCoreRowModel(),
   });

@@ -280,6 +280,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                         data={instrumentos}
                         onEdit={onEdit}
                         onDelete={onDelete}
+                        Juzgados={Juzgados}
+                        instrumentoTypes={instrumentoTypes}
+                        zonas={zonas}
+                        
                     />
                 )
             }

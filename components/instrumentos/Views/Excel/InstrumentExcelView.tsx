@@ -19,6 +19,7 @@ import NoResults from "@/components/shared/noResults";
 import { getColumns } from "./colTablaInstrumentView";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { convertToDto } from "@/lib/utils";
+import { FormProvider, useForm } from "react-hook-form";
 
 interface InstrumentoExcelViewProps {
   data: InstrumentoExtendido[];
@@ -40,49 +41,33 @@ export default function InstrumentoExcelView({
   zonas,
 }: Readonly<InstrumentoExcelViewProps>) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editedData, setEditedData] = useState<InstrumentoExtendido | null>(null);
-
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleInputChange = useCallback(
-    <K extends keyof InstrumentoExtendido>(field: K, value: InstrumentoExtendido[K]) => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-
-      timeoutRef.current = setTimeout(() => {
-        setEditedData((prev) => {
-          if (!prev) return prev;
-          return { ...prev, [field]: value };
-        });
-      }, 500); // Ajustá el tiempo de debounce a gusto
-    },
-    []
-  );
+  const form = useForm<InstrumentoExtendido>({
+    defaultValues: data[editingIndex ?? 0], // lo actualizás dinámicamente abajo
+    mode: "onChange",
+  });
 
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+    if (editingIndex !== null) {
+      form.reset(data[editingIndex]);
+    }
+  }, [editingIndex]);
+
 
   const startEditing = useCallback((index: number) => {
     onEdit(data[index]);
     setEditingIndex(index);
-    setEditedData({ ...data[index] });
   }, [data]);
 
   const cancelEditing = useCallback(() => {
     setEditingIndex(null);
-    setEditedData(null);
   }, []);
 
   const saveEditedData = () => {
-    if (!editedData || !zonas) return;
+    if (!zonas) return;
+    
+    const instrumentoDto = convertToDto( form.getValues(), zonas);
 
-    const instrumentoDto = convertToDto(editedData, zonas);
+
     if (instrumentoDto) {
       saveChanges(instrumentoDto);
     }
@@ -94,15 +79,14 @@ export default function InstrumentoExcelView({
     data,
     columns: getColumns({
       editingIndex,
-      editedData,
       startEditing,
       cancelEditing,
       saveEditedData,
-      handleInputChange,
       onDelete,
       Juzgados,
       instrumentoTypes,
-      zonas,
+      zonas
+
     }),
     getCoreRowModel: getCoreRowModel(),
   });
@@ -112,30 +96,33 @@ export default function InstrumentoExcelView({
       {data.length === 0 ? (
         <NoResults />
       ) : (
-        <Table className="w-full text-sm text-gray-700">
-          <TableHeader className="bg-gray-50 border-b">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="text-center">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="px-3 py-2 text-gray-600 font-semibold text-center">
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-gray-100 transition-colors text-center">
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="px-3 py-2 whitespace-nowrap">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <FormProvider {...form}>
+          <Table className="w-full text-sm text-gray-700">
+            <TableHeader className="bg-gray-50 border-b">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="text-center">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="px-3 py-2 text-gray-600 font-semibold text-center">
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} className="hover:bg-gray-100 transition-colors text-center">
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className="px-3 py-2 whitespace-nowrap">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+        </FormProvider>
       )}
     </div>
   );

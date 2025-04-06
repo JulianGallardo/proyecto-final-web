@@ -1,5 +1,5 @@
 import { getJuzgadosPaginated, getJuzgadosTotalPages } from "@/actions/instrumentos-actions";
-import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
+import PaginationInstruments from "@/components/shared/Pagination";
 import JuzgadosList from "@/components/juzgados/juzgados-list"
 import ListCardSkeleton from "@/components/shared/listCardSkeleton";
 import { Suspense } from "react";

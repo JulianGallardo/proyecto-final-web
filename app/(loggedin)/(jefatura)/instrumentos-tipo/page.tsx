@@ -1,6 +1,6 @@
 import { getTypesPaginated, getTypeTotalPages } from "@/actions/instrumentos-actions";
 import TypeList from "@/components/instrumentos-tipo/type-list";
-import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
+import PaginationInstruments from "@/components/shared/Pagination";
 import ListCardSkeleton from "@/components/shared/listCardSkeleton";
 import { Suspense } from "react";
 

@@ -13,7 +13,8 @@ interface ErrorExcelViewProps extends ErrorListProps {
     editingIndex: number | null;
     editedData: InstrumentoDTO | null;
     startEditing: (index: number) => void;
-    handleInputChange: (field: keyof InstrumentoDTO, value: any) => void; 
+    handleInputChange: (field: keyof InstrumentoDTO, value: any) => void;  // eslint-disable-line
+                                               
     saveEditedData: () => void;
     cancelEditing: () => void;
 }

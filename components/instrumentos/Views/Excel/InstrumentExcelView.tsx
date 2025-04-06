@@ -5,7 +5,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Table,
   TableHeader,
@@ -78,10 +78,10 @@ export default function InstrumentoExcelView({
   const table = useReactTable({
     data,
     columns: getColumns({
-      editingIndex,
+      editingIndex: editingIndex ?? -1,
       startEditing,
       cancelEditing,
-      saveEditedData,
+      saveChanges: saveEditedData,
       onDelete,
       Juzgados,
       instrumentoTypes,

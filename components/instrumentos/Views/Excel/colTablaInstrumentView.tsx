@@ -1,320 +1,133 @@
-"use client";
-
 import { ColumnDef } from "@tanstack/react-table";
-import { Controller, useFormContext } from "react-hook-form";
-import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
-import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectTrigger,
-    SelectValue,
-    SelectContent,
-    SelectItem,
-} from "@/components/ui/select";
+import { InstrumentoDTO, InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, XIcon, Edit, Trash2 as Delete } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
+import { CheckIcon, XIcon, Edit, Trash2 as Delete } from "lucide-react";
 import { ExtendedZone } from "@/types/ZoneTypes";
-import { DemoraCell } from "../Tabla/col-tabla-instrumento";
 
-interface GetColumnsProps {
-    editingIndex: number | null;
-    startEditing: (index: number) => void;
-    cancelEditing: () => void;
-    saveEditedData: () => void;
-    onDelete: (instrumento: InstrumentoExtendido) => void;
-    Juzgados: JuzgadoDto[];
-    instrumentoTypes: InstrumentoTypeDTO[];
-    zonas?: ExtendedZone[];
-}
+import {
+    CaratulaCell,
+    JuzgadoCell,
+    TipoCell,
+    IngresoCell,
+    DescargaCell,
+    UrgenciaCell,
+    DomicilioCell,
+    ZonaCell,
+    SubZonaCell,
+    ObservacionesCell,
+} from "./cellComponentsExcelView";
+import IndicadorFecha from "@/components/shared/indicador-fecha";
 
-export function getColumns({
+export const getColumns = ({
     editingIndex,
-    startEditing,
-    cancelEditing,
-    saveEditedData,
-    onDelete,
     Juzgados,
     instrumentoTypes,
     zonas,
-}: GetColumnsProps): ColumnDef<InstrumentoExtendido>[] {
-    return [
+    saveChanges,
+    cancelEditing,
+    startEditing,
+    onDelete,
+}: {
+    editingIndex: number;
+    Juzgados: JuzgadoDto[];
+    instrumentoTypes: InstrumentoTypeDTO[];
+    zonas?: ExtendedZone[];
+    saveChanges: () => void;
+    cancelEditing: () => void;
+    startEditing: (index: number) => void;
+    onDelete: (instrumento: InstrumentoExtendido) => void;
+}): ColumnDef<InstrumentoExtendido>[] => [
         {
-            header: "Carátula",
             accessorKey: "caratula",
-            cell: ({ row }) => {
-                const { control } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller name="caratula" control={control} render={({ field }) => <Input {...field} className="text-center" />} />
-                ) : (
-                    row.original.caratula
-                );
-            },
+            header: "Carátula",
+            cell: ({ row }) => <CaratulaCell row={row} editingIndex={editingIndex} />,
         },
         {
-            header: "Código",
             accessorKey: "codigoInstrumento",
+            header: "Codigo",
+            cell: ({ row }) => <p>{row.original.codigoInstrumento}</p>,
         },
         {
+            accessorKey: "Prioridad",
             header: "Prioridad",
-            accessorKey: "prioridad",
-            cell: DemoraCell,
+            cell: ({ row }) => <IndicadorFecha fecha={row.original.fecha_de_ingreso} urgencia={row.original.urgencia}/>,
         },
+        
         {
+            accessorKey: "orden.juzgado",
             header: "Juzgado",
-            accessorKey: "orden.juzgado.name",
-            cell: ({ row }) => {
-                const { control, setValue } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller
-                        name="orden.juzgado.identifier"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value}
-                                onValueChange={(value) => {
-                                    const juzgado = Juzgados.find((j) => j.identifier === value);
-                                    field.onChange(value);
-                                    setValue("orden.juzgado.name", juzgado?.name ?? "");
-                                }}
-                            >
-                                <SelectTrigger className="text-center">
-                                    <SelectValue placeholder="Seleccionar juzgado" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {Juzgados.map((juzgado) => (
-                                        <SelectItem key={juzgado.identifier} value={juzgado.identifier}>
-                                            {juzgado.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                ) : (
-                    row.original.orden.juzgado.name
-                );
-            },
+            cell: ({ row }) => (
+                <JuzgadoCell row={row} editingIndex={editingIndex} Juzgados={Juzgados} />
+            ),
         },
         {
-            header: "Nº de Orden",
-            accessorKey: "orden.ordenNumber",
-            cell: ({ row }) => row.original.orden.ordenNumber ?? "A calcular",
+            accessorKey: "N ° de orden", 
+            header: "N ° de orden",
+            cell: ({ row }) => <p>{row.original.orden.ordenNumber}</p>,
         },
         {
+            accessorKey: "instrumentoType",
             header: "Tipo",
-            accessorKey: "instrumentoType.name",
-            cell: ({ row }) => {
-                const { control, setValue } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller
-                        name="instrumentoType.identifier"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value}
-                                onValueChange={(value) => {
-                                    const tipo = instrumentoTypes.find((t) => t.identifier === value);
-                                    field.onChange(value);
-                                    setValue("instrumentoType.name", tipo?.name ?? "");
-                                }}
-                            >
-                                <SelectTrigger className="text-center">
-                                    <SelectValue placeholder="Seleccionar tipo" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {instrumentoTypes.map((tipo) => (
-                                        <SelectItem key={tipo.identifier} value={tipo.identifier}>
-                                            {tipo.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                ) : (
-                    row.original.instrumentoType.name
-                );
-            },
+            cell: ({ row }) => (
+                <TipoCell
+                    row={row}
+                    editingIndex={editingIndex}
+                    instrumentoTypes={instrumentoTypes}
+                />
+            ),
         },
         {
-            header: "Ingreso",
             accessorKey: "fecha_de_ingreso",
-            cell: ({ row }) => {
-                const { control } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller
-                        name="fecha_de_ingreso"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="date"
-                                value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
-                                onChange={(e) => field.onChange(new Date(e.target.value))}
-                            />
-                        )}
-                    />
-                ) : (
-                    new Date(row.original.fecha_de_ingreso).toLocaleDateString()
-                );
-            },
+            header: "Ingreso",
+            cell: ({ row }) => <IngresoCell row={row} editingIndex={editingIndex} />,
         },
         {
-            header: "Descarga",
             accessorKey: "fecha_de_salida",
-            cell: ({ row }) => {
-                const { control } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller
-                        name="fecha_de_salida"
-                        control={control}
-                        render={({ field }) => (
-                            <Input
-                                type="date"
-                                value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
-                                onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
-                            />
-                        )}
-                    />
-                ) : row.original.fecha_de_salida ? (
-                    new Date(row.original.fecha_de_salida).toLocaleDateString()
-                ) : (
-                    "N/A"
-                );
-            },
+            header: "Descarga",
+            cell: ({ row }) => <DescargaCell row={row} editingIndex={editingIndex} />,
         },
         {
-            header: "Urgencia",
             accessorKey: "urgencia",
-            cell: ({ row }) => {
-                const { control } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller
-                        name="urgencia"
-                        control={control}
-                        render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger className="text-center">
-                                    <SelectValue placeholder="Urgencia" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="NORMAL">Normal</SelectItem>
-                                    <SelectItem value="URGENTE">Urgente</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                ) : (
-                    row.original.urgencia
-                );
-            },
+            header: "Urgencia",
+            cell: ({ row }) => <UrgenciaCell row={row} editingIndex={editingIndex} />,
         },
         {
+            accessorKey: "domicilio_denunciado",
             header: "Domicilio",
-            cell: ({ row }) => {
-                const { setValue } = useFormContext();
-                return row.index === editingIndex ? (
-                    <AddressAutocomplete
-                        defaultValue={row.original.domicilio_denunciado ?? ""}
-                        onChange={(value) => setValue("domicilio_denunciado", value)}
-                        miUbicacion={false}
-                        placeHolder="Buscar domicilio"
-                    />
-                ) : (
-                    row.original.domicilio_denunciado
-                );
-            },
+            cell: ({ row }) => <DomicilioCell row={row} editingIndex={editingIndex} />,
         },
         {
+            accessorKey: "zoneName",
             header: "Zona",
-            cell: ({ row }) => {
-                const { control } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller
-                        name="zoneName"
-                        control={control}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value}
-                                onValueChange={(value) => {
-                                    field.onChange(value);
-                                    
-                                }}
-                            >
-                                <SelectTrigger className="text-center">
-                                    <SelectValue placeholder="Seleccionar zona" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {zonas?.map((zona) => (
-                                        <SelectItem key={zona.zoneName} value={zona.zoneName}>
-                                            {zona.zoneName}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                ) : (
-                    row.original.zoneName ?? "N/A"
-                );
-            },
+            cell: ({ row }) => <ZonaCell row={row} editingIndex={editingIndex} zonas={zonas} />,
         },
         {
-            header: "Subzona",
-            cell: ({ row }) => {
-                const { control, getValues } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller
-                        name="subZona"
-                        control={control}
-                        render={({ field }) => (
-                            <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger className="text-center">
-                                    <SelectValue placeholder="Seleccionar subZona" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {zonas?.find((z) => z.zoneName === getValues("zoneName"))?.SubZonas.map((sub) => (
-                                        <SelectItem key={sub.id} value={sub.zoneName}>
-                                            {sub.zoneName}
-                                        </SelectItem>
-                                    ))}
-                                    <SelectItem value="automatica">Automática</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                ) : (
-                    row.original.subZona ?? "N/A"
-                );
-            },
+            accessorKey: "subZona",
+            header: "SubZona",
+            cell: ({ row }) => (
+                <SubZonaCell row={row} editingIndex={editingIndex} zonas={zonas} />
+            ),
         },
         {
-            header: "Observaciones",
             accessorKey: "observaciones",
-            cell: ({ row }) => {
-                const { control } = useFormContext();
-                return row.index === editingIndex ? (
-                    <Controller
-                        name="observaciones"
-                        control={control}
-                        render={({ field }) => <Input {...field} />}
-                    />
-                ) : (
-                    row.original.observaciones
-                );
-            },
+            header: "Observaciones",
+            cell: ({ row }) => <ObservacionesCell row={row} editingIndex={editingIndex} />,
         },
+
         {
+            accessorKey: "acciones",
             header: "Acciones",
-            cell: ({ row }) =>
-                row.index === editingIndex ? (
+            cell: ({ row }) => {
+                const isEditing = row.index === editingIndex;
+
+                return isEditing ? (
                     <div className="flex gap-2 justify-center">
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <Button
                                     className="bg-green-500 hover:bg-green-600"
-                                    onClick={saveEditedData}
+                                    onClick={() => saveChanges()}
                                 >
                                     <CheckIcon className="h-4 w-4 text-white" />
                                 </Button>
@@ -327,7 +140,7 @@ export function getColumns({
                             <TooltipTrigger asChild>
                                 <Button
                                     className="bg-red-500 hover:bg-red-600"
-                                    onClick={cancelEditing}
+                                    onClick={() => cancelEditing()}
                                 >
                                     <XIcon className="h-4 w-4 text-white" />
                                 </Button>
@@ -366,7 +179,8 @@ export function getColumns({
                             </TooltipContent>
                         </Tooltip>
                     </div>
-                ),
+                );
+            },
         },
+
     ];
-}

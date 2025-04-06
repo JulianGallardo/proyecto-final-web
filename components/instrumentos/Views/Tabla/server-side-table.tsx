@@ -1,5 +1,5 @@
 import {getInstrumentosPaginated, getTotalPagesInstrumentosPaginated } from "@/actions/instrumentos-actions";
-import PaginationInstruments from "./Pagination";
+import PaginationInstruments from "../../../shared/Pagination";
 import { CrudInstrumentos } from "../../crud-instrumento";
 import { Juzgado, InstrumentoType } from "@prisma/client";
 import SearchParamsInstrumentos from "@/types/searchParams";

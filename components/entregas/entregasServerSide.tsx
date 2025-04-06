@@ -46,9 +46,9 @@ import { canEdit } from "@/permissions/hasPermissions";
 import { Resource } from "@/permissions/typePermissions";
 import { parseDate } from "@/lib/utils";
 import { getEntregasPaginated, getTotalPages } from "@/actions/entrega-instrumentos-actions";
-import PaginationInstruments from "../instrumentos/Tabla/Pagination";
+import PaginationInstruments from "../shared/Pagination";
 import EntregasList from "./entregasList";
-import { SearchX } from "@mynaui/icons-react";
+import { SearchX } from "@mynaui/icons-react"; 
 import EntregasSkeleton from "./entregasListSkeleton";
 import DateSelector from "./datePicker";
 

@@ -59,7 +59,7 @@ export default function StepDataReview({
         setEditedData({ ...paginatedData[index] });
     };
 
-    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => {
+    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => { // eslint-disable-line
         if (editedData) {
             setEditedData({
                 ...editedData,
@@ -224,7 +224,6 @@ export default function StepDataReview({
                 }
                 {viewMode === 'excel' &&
                     <ExcelDataView
-                        title="Datos procesados"
                         data={paginatedData}
                         onCancelarCarga={onCancelarCarga}
                         juzgados={juzgados}

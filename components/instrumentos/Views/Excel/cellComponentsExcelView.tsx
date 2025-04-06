@@ -8,12 +8,13 @@ import {
     SelectItem,
 } from "@/components/ui/select";
 import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
-import { InstrumentoTypeDTO } from "@/types/instrumentoTypes";
+import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 
 import { ExtendedZone } from "@/types/ZoneTypes";
+import { Row } from "@tanstack/react-table";
 
 
-export const CaratulaCell = ({ row, editingIndex }: { row: any; editingIndex: number }) => {
+export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
     if (row.index !== editingIndex) return row.original.caratula;
 
@@ -31,7 +32,7 @@ export const JuzgadoCell = ({
     editingIndex,
     Juzgados,
 }: {
-    row: any;
+    row: Row<InstrumentoExtendido>;
     editingIndex: number;
     Juzgados: JuzgadoDto[];
 }) => {
@@ -72,7 +73,7 @@ export const TipoCell = ({
     editingIndex,
     instrumentoTypes,
 }: {
-    row: any;
+    row: Row<InstrumentoExtendido>;
     editingIndex: number;
     instrumentoTypes: InstrumentoTypeDTO[];
 }) => {
@@ -108,7 +109,7 @@ export const TipoCell = ({
     );
 };
 
-export const IngresoCell = ({ row, editingIndex }: { row: any; editingIndex: number }) => {
+export const IngresoCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
     if (row.index !== editingIndex)
         return new Date(row.original.fecha_de_ingreso).toLocaleDateString();
@@ -128,7 +129,7 @@ export const IngresoCell = ({ row, editingIndex }: { row: any; editingIndex: num
     );
 };
 
-export const DescargaCell = ({ row, editingIndex }: { row: any; editingIndex: number }) => {
+export const DescargaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
     if (row.index !== editingIndex)
         return row.original.fecha_de_salida
@@ -150,7 +151,7 @@ export const DescargaCell = ({ row, editingIndex }: { row: any; editingIndex: nu
     );
 };
 
-export const UrgenciaCell = ({ row, editingIndex }: { row: any; editingIndex: number }) => {
+export const UrgenciaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
     if (row.index !== editingIndex) return row.original.urgencia;
 
@@ -173,7 +174,7 @@ export const UrgenciaCell = ({ row, editingIndex }: { row: any; editingIndex: nu
     );
 };
 
-export const DomicilioCell = ({ row, editingIndex }: { row: any; editingIndex: number }) => {
+export const DomicilioCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { setValue } = useFormContext();
     if (row.index !== editingIndex) return row.original.domicilio_denunciado;
 
@@ -194,7 +195,7 @@ export const ZonaCell = ({
     editingIndex,
     zonas,
 }: {
-    row: any;
+    row: Row<InstrumentoExtendido>;
     editingIndex: number;
     zonas?: ExtendedZone[];
 }) => {
@@ -229,7 +230,7 @@ export const SubZonaCell = ({
     editingIndex,
     zonas,
 }: {
-    row: any;
+    row: Row<InstrumentoExtendido>;
     editingIndex: number;
     zonas?: ExtendedZone[];
 }) => {
@@ -271,7 +272,7 @@ export const SubZonaCell = ({
 
 
 
-export const ObservacionesCell = ({ row, editingIndex }: { row: any; editingIndex: number }) => {
+export const ObservacionesCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
     if (row.index !== editingIndex) return row.original.observaciones;
 

@@ -13,7 +13,7 @@ interface ErrorExcelViewProps extends ErrorListProps {
     editingIndex: number | null;
     editedData: InstrumentoDTO | null;
     startEditing: (index: number) => void;
-    handleInputChange: (field: keyof InstrumentoDTO, value: any) => void;
+    handleInputChange: (field: keyof InstrumentoDTO, value: any) => void; 
     saveEditedData: () => void;
     cancelEditing: () => void;
 }
@@ -132,7 +132,7 @@ export default function ErrorExcelView({
                                         <td className="px-3 py-2 border border-gray-300">
                                             <Input
                                                 value={editedData.observaciones || ''}
-                                                onChange={(e: { target: { value: any; }; }) => handleInputChange('observaciones', e.target.value)}
+                                                onChange={(e: { target: { value: any; }; }) => handleInputChange('observaciones', e.target.value)} // eslint-disable-line
                                                 className="w-full text-sm"
 
                                             />

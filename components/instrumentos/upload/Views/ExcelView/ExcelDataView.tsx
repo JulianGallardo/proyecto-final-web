@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 interface ExcelDataViewProps {
     juzgados: Juzgado[];
     data: InstrumentoDTO[];
-    title: string;
     onCancelarCarga: (error: InstrumentoDTO) => void;
 
 
@@ -23,7 +22,6 @@ interface ExcelDataViewProps {
 }
 
 export default function ExcelDataView({
-    title,
     data,
     onCancelarCarga,
     juzgados,
@@ -139,7 +137,7 @@ export default function ExcelDataView({
                                         <td className="px-3 py-2 border border-gray-300 w-fit">
                                             <Input
                                                 value={editedData.observaciones || ''}
-                                                onChange={(e: { target: { value: any; }; }) => handleInputChange('observaciones', e.target.value)}
+                                                onChange={(e: { target: { value: any; }; }) => handleInputChange('observaciones', e.target.value)}  // eslint-disable-line
                                                 className="w-full text-sm"
 
                                             />

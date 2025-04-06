@@ -130,7 +130,7 @@ export default function StepErrorReview({
         setEditedData({ ...errors[index] });
     }
 
-    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => {
+    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => { // eslint-disable-line
         if (editedData) {
             setEditedData({
                 ...editedData,

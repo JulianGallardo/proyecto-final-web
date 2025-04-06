@@ -99,10 +99,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
 
     const handleEditar = async (instrumentoEditado: InstrumentoDTO) => {
         
-        console.log("Instrumento editado", instrumentoEditado)
-        if (!instrumentoEditando ) return
-
-        console.log("Pasoooooooo")
+        if (!instrumentoEditando ) return;
 
         
         try {

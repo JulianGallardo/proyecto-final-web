@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { InstrumentoDTO, InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
+import {  InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CheckIcon, XIcon, Edit, Trash2 as Delete } from "lucide-react";
@@ -64,7 +64,7 @@ export const getColumns = ({
         {
             accessorKey: "N ° de orden", 
             header: "N ° de orden",
-            cell: ({ row }) => <p>{row.original.orden.ordenNumber}</p>,
+            cell: ({ row }) => <p className="w-20" >{row.original.orden.ordenNumber}</p>,
         },
         {
             accessorKey: "instrumentoType",

@@ -178,12 +178,14 @@ export const DomicilioCell = ({ row, editingIndex }: { row: any; editingIndex: n
     if (row.index !== editingIndex) return row.original.domicilio_denunciado;
 
     return (
-        <AddressAutocomplete
-            defaultValue={row.original.domicilio_denunciado ?? ""}
-            onChange={(value) => setValue("domicilio_denunciado", value)}
-            miUbicacion={false}
-            placeHolder="Buscar domicilio"
-        />
+        <div className="min-w-80">
+            <AddressAutocomplete
+                defaultValue={row.original.domicilio_denunciado ?? ""}
+                onChange={(value) => setValue("domicilio_denunciado", value)}
+                miUbicacion={false}
+                placeHolder="Buscar domicilio"
+            />
+        </div >
     );
 };
 
@@ -204,7 +206,7 @@ export const ZonaCell = ({
             name="zoneName"
             control={control}
             render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange} defaultValue="automatica">
+                <Select value={field.value ?? "automatica"} onValueChange={field.onChange} defaultValue="automatica">
                     <SelectTrigger className="text-center">
                         <SelectValue placeholder="Seleccionar zona" />
                     </SelectTrigger>
@@ -231,34 +233,43 @@ export const SubZonaCell = ({
     editingIndex: number;
     zonas?: ExtendedZone[];
 }) => {
-    const { control, getValues } = useFormContext();
+    const { control, watch } = useFormContext();
     if (row.index !== editingIndex) return row.original.subZona ?? "N/A";
 
-    const selectedZone = getValues("zoneName");
+    const selectedZone = watch("zoneName");
     const subzonas = zonas?.find((z) => z.zoneName === selectedZone)?.SubZonas || [];
+
+
+
 
     return (
         <Controller
             name="subZona"
             control={control}
             render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
+                <Select value={field.value ?? "automatica"} onValueChange={field.onChange}>
                     <SelectTrigger className="text-center">
-                        <SelectValue placeholder="Seleccionar subZona" />
+                        <SelectValue
+                            placeholder="Seleccionar subZona"
+                            defaultValue={field.value}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         {subzonas.map((sub) => (
                             <SelectItem key={sub.id} value={sub.zoneName}>
-                                {sub.zoneName}
+                                {sub.zoneName.replace(/_/g, " ")}
                             </SelectItem>
                         ))}
                         <SelectItem value="automatica">Automática</SelectItem>
+                        <SelectItem value="Sin_SubZona">Sin Subzona</SelectItem>
                     </SelectContent>
                 </Select>
             )}
         />
     );
 };
+
+
 
 export const ObservacionesCell = ({ row, editingIndex }: { row: any; editingIndex: number }) => {
     const { control } = useFormContext();
@@ -268,7 +279,7 @@ export const ObservacionesCell = ({ row, editingIndex }: { row: any; editingInde
         <Controller
             name="observaciones"
             control={control}
-            render={({ field }) => <Input {...field} />}
+            render={({ field }) => <Input className="min-w-80" {...field} />}
         />
     );
 };

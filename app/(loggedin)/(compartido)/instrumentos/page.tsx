@@ -12,7 +12,7 @@ import { Suspense } from "react";
 
 export default async function InsturmentosPage(props: Readonly<{
   searchParams?: Promise<SearchParamsInstrumentos>
-  
+
 }>) {
   const session = await auth()
   const searchParams = await props.searchParams;
@@ -20,13 +20,17 @@ export default async function InsturmentosPage(props: Readonly<{
   if (!session) {
     return <div><NoAutenticado /></div>
   }
-  
+
 
 
   const instrumentTypesData = await getInstrumentTypes();
   const juzgadosData = await getJuzgados();
   const zonasData = await getAll();
-  const [instrumentTypes, juzgados,zonas] = await Promise.all([instrumentTypesData, juzgadosData,zonasData]);
+  const [instrumentTypes, juzgados, zonas] = await Promise.all([instrumentTypesData, juzgadosData, zonasData]);
+
+  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+
+  zonas.sort((a, b) => collator.compare(a.zoneName, b.zoneName));
 
 
   return (
@@ -36,7 +40,7 @@ export default async function InsturmentosPage(props: Readonly<{
         (a, b) => a.zoneName.localeCompare(b.zoneName)
       ).map(
         (zona) => (zona.zoneName)
-      )}/>
+      )} />
       <Suspense fallback={<TableSkeleton />}>
         <ServerSideTable
           Juzgados={juzgados}

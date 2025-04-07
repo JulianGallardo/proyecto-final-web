@@ -23,6 +23,7 @@ import ExitDateFilter from "./exit-date-filter";
 import FilterTag from "./filter-tag";
 import Filtro from "./filtro";
 import { useFilters, FilterConfig } from "@/contexts/filtersContext";
+import debounce from "lodash/debounce";
 
 interface FiltroListProps {
   Juzgados: Juzgado[];
@@ -30,7 +31,11 @@ interface FiltroListProps {
   Zonas: string[];
 }
 
-export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readonly<FiltroListProps>) {
+export default function FiltrosList({
+  Juzgados,
+  InstrumentTypes,
+  Zonas,
+}: Readonly<FiltroListProps>) {
   const searchParams = useSearchParams();
   const {
     filters,
@@ -38,13 +43,9 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
     setFilterConfigs,
     applyFilter,
     clearFilter,
-    isFilterActive
+    isFilterActive,
   } = useFilters();
 
-
-
-
-  // Configuration of filters
   const filtrosConfig: FilterConfig[] = useMemo(
     () => [
       { param: "desde", displayName: "Desde", type: "date" },
@@ -57,20 +58,29 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
         param: "juzgado",
         displayName: "Identificador de Juzgado",
         type: "select",
-        options: Juzgados.map((j) => ({ value: j.identifier, label: j.identifier })),
+        options: Juzgados.map((j) => ({
+          value: j.identifier,
+          label: j.identifier,
+        })),
       },
       {
         param: "instrumentType",
         displayName: "Tipo de Instrumento",
         type: "select",
-        options: InstrumentTypes.map((i) => ({ value: i.name, label: i.name })),
+        options: InstrumentTypes.map((i) => ({
+          value: i.name,
+          label: i.name,
+        })),
       },
       { param: "codigo", displayName: "Código", type: "text" },
       {
         param: "urgencia",
         displayName: "Urgencia",
         type: "select",
-        options: [{ value: "NORMAL", label: "Normal" }, { value: "URGENTE", label: "Urgente" }],
+        options: [
+          { value: "NORMAL", label: "Normal" },
+          { value: "URGENTE", label: "Urgente" },
+        ],
       },
       {
         param: "estado",
@@ -95,59 +105,78 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
     [Juzgados, InstrumentTypes, Zonas]
   );
 
-
-
-
   useEffect(() => {
     if (Object.keys(filters).length === 0 || filterConfigs.length === 0) {
       setFilterConfigs(filtrosConfig);
     }
   }, [filtrosConfig, setFilterConfigs, filterConfigs.length, filters]);
 
+  const debouncedApplyFilter = useMemo(() => {
+    return debounce((param: string, value: string | null) => {
+      applyFilter(param, value);
+    }, 500);
+  }, [applyFilter]);
 
-  const customInputs = useCallback((param: string) => {
-    if (param === "exitDate") {
-      return <ExitDateFilter param={param} />;
-    }
+  useEffect(() => {
+    return () => {
+      debouncedApplyFilter.cancel();
+    };
+  }, [debouncedApplyFilter]);
 
-    const config = filtrosConfig.find((f) => f.param === param);
-    return (
-      <Input
-        type={config?.type}
-        placeholder={config?.displayName}
-        className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring focus:ring-blue-500 focus:outline-none"
-        onChange={(e) => {
-          if (param === "ordenNumber") {
-            if (Number(e.target.value) < 0 || isNaN(Number(e.target.value))) {
-              e.target.value = "0";
+  const customInputs = useCallback(
+    (param: string) => {
+      if (param === "exitDate") {
+        return <ExitDateFilter param={param} />;
+      }
+
+      const config = filtrosConfig.find((f) => f.param === param);
+      return (
+        <Input
+          type={config?.type}
+          placeholder={config?.displayName}
+          className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:ring focus:ring-blue-500 focus:outline-none"
+          onChange={(e) => {
+            const value = e.target.value;
+
+            if (param === "ordenNumber") {
+              if (Number(value) < 0 || isNaN(Number(value))) {
+                e.target.value = "0";
+              } else {
+                debouncedApplyFilter(param, value);
+              }
             } else {
-              applyFilter(param, e.target.value);
+              debouncedApplyFilter(param, value);
             }
-          } else {
-            applyFilter(param, e.target.value);
-          }
-        }}
-        defaultValue={searchParams.get(param) ?? ""}
-        value={searchParams.get(param) ?? ""} // Controlled input to sync with searchParams
-      />
-    );
-  }, [filtrosConfig, applyFilter, searchParams]);
+          }}
+          defaultValue={searchParams.get(param) ?? ""}
+        />
+      );
+    },
+    [filtrosConfig, debouncedApplyFilter, searchParams]
+  );
 
-  const calculateFilterTagValue = useCallback((key: string) => {
-    if (key === "desde" || key === "hasta") {
-      return parseDate(searchParams.get(key) as string) || "";
-    }
-    if (key === "exitDate") {
-      const value = searchParams.get(key)?.replace(/\+/g, " ");
-      return value === "No registrada" ? "No registrada" : parseDate(value as string) || "";
-    }
-    return searchParams.get(key) ?? "";
-  }, [searchParams]);
+  const debouncedSelectFilter = useMemo(() => {
+    return debounce((param: string, value: string) => {
+      applyFilter(param, value);
+    }, 300);
+  }, [applyFilter]);
 
-  // State for active filters, using isFilterActive from context
+  const calculateFilterTagValue = useCallback(
+    (key: string) => {
+      if (key === "desde" || key === "hasta") {
+        return parseDate(searchParams.get(key) as string) || "";
+      }
+      if (key === "exitDate") {
+        const value = searchParams.get(key)?.replace(/\+/g, " ");
+        return value === "No registrada" ? "No registrada" : parseDate(value as string) || "";
+      }
+      return searchParams.get(key) ?? "";
+    },
+    [searchParams]
+  );
+
   const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({});
 
-  // Sync activeFilters with search params
   useEffect(() => {
     const newActiveFilters = Object.fromEntries(
       filtrosConfig.map((f) => [f.param, isFilterActive(f.param)])
@@ -155,17 +184,19 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
     setActiveFilters(newActiveFilters);
   }, [searchParams, filtrosConfig, isFilterActive]);
 
-  // Handle filter toggle
-  const toggleFilter = useCallback((param: string) => {
-    setActiveFilters((prev) => ({
-      ...prev,
-      [param]: !prev[param],
-    }));
+  const toggleFilter = useCallback(
+    (param: string) => {
+      setActiveFilters((prev) => ({
+        ...prev,
+        [param]: !prev[param],
+      }));
 
-    if (activeFilters[param]) {
-      clearFilter(param);
-    }
-  }, [activeFilters, clearFilter]);
+      if (activeFilters[param]) {
+        clearFilter(param);
+      }
+    },
+    [activeFilters, clearFilter]
+  );
 
   return (
     <div className="w-full mx-auto">
@@ -176,14 +207,10 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
         defaultValue="filtros"
       >
         <AccordionItem value="filtros">
-          <AccordionTrigger
-            className="flex items-center justify-between px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-t-lg"
-          >
+          <AccordionTrigger className="flex items-center justify-between px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium rounded-t-lg">
             Filtros
           </AccordionTrigger>
-          <AccordionContent
-            className="p-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
-          >
+          <AccordionContent className="p-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             {filtrosConfig.map((filtro) => (
               <Filtro
                 key={filtro.param}
@@ -194,7 +221,7 @@ export default function FiltrosList({ Juzgados, InstrumentTypes, Zonas }: Readon
                 {filtro.type === "select" ? (
                   <Select
                     value={searchParams.get(filtro.param) ?? ""}
-                    onValueChange={(value) => applyFilter(filtro.param, value)}
+                    onValueChange={(value) => debouncedSelectFilter(filtro.param, value)}
                   >
                     <SelectTrigger className="w-full border border-gray-300 rounded-md shadow-sm bg-white px-3 py-2 hover:ring hover:ring-blue-500 focus:ring focus:ring-blue-500 focus:outline-none">
                       <SelectValue placeholder={`Seleccione ${filtro.displayName}`} className="text-sm text-gray-700" />

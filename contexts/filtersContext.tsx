@@ -55,7 +55,6 @@ export function FilterProvider({ children }: Readonly<{ children: ReactNode }>) 
         // Intentar cargar filtros desde localStorage por sección
         const savedFilters = localStorage.getItem(`app-filters-${sectionPath}`);
 
-        console.log(sectionPath);
         
         if (savedFilters) {
           const parsedFilters = JSON.parse(savedFilters);

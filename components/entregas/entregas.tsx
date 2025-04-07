@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { SearchX } from "@mynaui/icons-react";
 import { getEntregasPaginated, getTotalPages } from "@/actions/entrega-instrumentos-actions";
 import { EntregaInstrumentosDto } from "@/types/entregasType";
-import PaginationInstruments from "@/components/instrumentos/Tabla/Pagination";
+import PaginationInstruments from "../shared/Pagination";
 import { useSearchParams } from "next/navigation";
 import { parseDate } from "@/lib/utils";
 import EntregasList from "./entregasList";

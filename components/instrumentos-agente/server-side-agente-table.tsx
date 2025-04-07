@@ -1,5 +1,5 @@
 import { getInstrumentosPaginatedByAgent, getTotalPagesInstrumentosPaginatedByAgent } from "@/actions/instrumentos-actions";
-import PaginationInstruments from "../instrumentos/Tabla/Pagination";
+import PaginationInstruments from "../shared/Pagination";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { TablaInstrumentosAgente } from "./tabla-instrumentos-agente";
 

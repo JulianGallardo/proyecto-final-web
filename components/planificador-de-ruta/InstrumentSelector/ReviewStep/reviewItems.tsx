@@ -3,7 +3,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/
 import { Box, FileText, Hash, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Map } from "@mynaui/icons-react";
-import IndicadorFecha from "@/components/instrumentos/Tabla/indicador-fecha";
+import IndicadorFecha from "@/components/shared/indicador-fecha";
 
 interface InstrumentReviewItemProps {
     instrument: InstrumentoExtendido;

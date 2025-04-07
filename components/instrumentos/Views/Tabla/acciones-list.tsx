@@ -20,7 +20,6 @@ export default function AccionesList({ Instrumento, onEdit, onDelete }: Readonly
   return (
     <div className="flex flex-row gap-4 items-center justify-center  p-2 w-full h-full">
 
-      {/* Botón ver mas */}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -37,7 +36,6 @@ export default function AccionesList({ Instrumento, onEdit, onDelete }: Readonly
         </TooltipContent>
       </Tooltip>
 
-      {/* Botón Editar */}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -52,7 +50,6 @@ export default function AccionesList({ Instrumento, onEdit, onDelete }: Readonly
         </TooltipContent>
       </Tooltip>
 
-      {/* Botón Eliminar */}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button

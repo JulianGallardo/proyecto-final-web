@@ -265,7 +265,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             }
         }
 
-        console.log("Zona automática:", data.zona);
 
         // Determinar si usamos zona manual o automática
         if (data.zona === null) {

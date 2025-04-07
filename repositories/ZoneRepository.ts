@@ -45,7 +45,10 @@ export default class ZoneRepository extends BaseRepository<Zone> {
 
     async getAll() {
         return this.modelClient.findMany({
-            select: this._select
+            select: this._select,
+            orderBy: {
+                zoneName: "asc"
+            }
         });
     }
 

@@ -76,6 +76,7 @@ export default function AddressAutocomplete({
       }));
 
       setResults(mappedResults);
+      console.log("Resultados:", mappedResults);
 
       // Si no hay resultados, mostrar el mensaje por unos segundos
       if (mappedResults.length === 0) {

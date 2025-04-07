@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { InstrumentoType, Juzgado } from "@prisma/client";
-import { FileIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { FileIcon, ChevronLeftIcon, ChevronRightIcon, ListIcon, TableIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
 import CustomDialog from "../../Dialogs/dialog";
@@ -14,6 +14,7 @@ import { parseDate } from "@/lib/utils";
 import CustomAlert from "../../Dialogs/alert";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { toast } from "@/hooks/use-toast";
+import ExcelDataView from "../Views/ExcelView/ExcelDataView";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -45,9 +46,40 @@ export default function StepDataReview({
     const { setIsOpenAlert } = useCustomAlert();
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoDTO | undefined>(undefined);
     const [instrumentoCancelando, setInstrumentoCancelando] = useState<InstrumentoDTO | undefined>(undefined);
+    const [viewMode, setViewMode] = useState<'list' | 'excel'>('list');
 
     const [instrumentoTypes, setInstrumentoTypes] = useState<InstrumentoType[]>([]);
     const [juzgados, setJuzgados] = useState<Juzgado[]>([]);
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editedData, setEditedData] = useState<InstrumentoDTO | null>(null);
+
+    // Funciones para manejar la edición en la vista Excel
+    const startEditing = (index: number) => {
+        setEditingIndex(index);
+        setEditedData({ ...paginatedData[index] });
+    };
+
+    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => { // eslint-disable-line
+        if (editedData) {
+            setEditedData({
+                ...editedData,
+                [field]: value
+            });
+        }
+    };
+
+    const saveEditedData = () => {
+        if (editedData) {
+            editInstrumentData(editedData);
+            setEditingIndex(null);
+            setEditedData(null);
+        }
+    };
+
+    const cancelEditing = () => {
+        setEditingIndex(null);
+        setEditedData(null);
+    };
 
     useEffect(() => {
         const fetchInstrumentoTypes = async () => {
@@ -65,7 +97,7 @@ export default function StepDataReview({
     }, []);
 
     useEffect(() => {
-        if(data.length === 0) {
+        if (data.length === 0) {
             toast({
                 title: "Error",
                 description: "No hay instrumentos disponibles para cargar, volviendo atras...",
@@ -96,9 +128,7 @@ export default function StepDataReview({
     }
 
 
-    //Cancelar carga
-
-    const onCancelarCarga = (instrumento:InstrumentoDTO) => {
+    const onCancelarCarga = (instrumento: InstrumentoDTO) => {
         setInstrumentoCancelando(instrumento);
         setIsOpenAlert(true);
     }
@@ -131,7 +161,7 @@ export default function StepDataReview({
                         Juzgados={juzgados}
                         onSubmit={handleEditar}
                         instrumento={instrumentoEditando}
-                        
+
                     />
                 }
                 customClose={true}
@@ -160,13 +190,54 @@ export default function StepDataReview({
 
             />
 
-
-            <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
+            <div className="flex flex-col md:flex-row md:justify-between items-center gap-2 mb-4">
+                <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-500 hidden md:inline">Vista:</span>
+                    <Button
+                        variant={viewMode === 'list' ? "default" : "outline"}
+                        size="sm"
+                        className={viewMode === 'list' ? "bg-blue-500 hover:bg-blue-600" : ""}
+                        onClick={() => setViewMode('list')}
+                    >
+                        <ListIcon className="h-4 w-4 mr-1" />
+                        Lista
+                    </Button>
+                    <Button
+                        variant={viewMode === 'excel' ? "default" : "outline"}
+                        size="sm"
+                        className={viewMode === 'excel' ? "bg-green-500 hover:bg-green-600" : ""}
+                        onClick={() => setViewMode('excel')}
+                    >
+                        <TableIcon className="h-4 w-4 mr-1" />
+                        Excel
+                    </Button>
+                </div>
+            </div>
             <div className="flex flex-col gap-4 w-full">
 
-                {paginatedData.map((item, index) => (
-                    <InstrumentoDataView key={index} instrumento={item} handleSetInstrumentoEditando={handleSetInstrumentoEditando} onCancel={onCancelarCarga} />
-                ))}
+                {
+                    viewMode === 'list' &&
+                    paginatedData.map((item, index) => (
+                        <InstrumentoDataView key={index} instrumento={item} handleSetInstrumentoEditando={handleSetInstrumentoEditando} onCancel={onCancelarCarga} />
+                    ))
+                }
+                {viewMode === 'excel' &&
+                    <ExcelDataView
+                        data={paginatedData}
+                        onCancelarCarga={onCancelarCarga}
+                        juzgados={juzgados}
+                        instrumentoTypes={instrumentoTypes}
+                        editingIndex={editingIndex}
+                        editedData={editedData}
+                        startEditing={startEditing}
+                        handleInputChange={handleInputChange}
+                        saveEditedData={saveEditedData}
+                        cancelEditing={cancelEditing}
+                    />
+                }
+
+
             </div>
             <div className="flex items-center justify-between mt-4">
                 <Button variant="outline" onClick={onPrevPage} disabled={currentPage === 1}>
@@ -212,7 +283,7 @@ function InstrumentoDataView({ instrumento, handleSetInstrumentoEditando, onCanc
                             <span className="text-sm text-gray-700"><strong>Fecha de salida:</strong> {instrumento.fecha_de_salida ? parseDate(instrumento.fecha_de_salida.toISOString()) : "Sin fecha"}</span>
                             <span className="text-sm text-gray-700"><strong>Domicilio Denunciado:</strong> {instrumento.domicilio_denunciado}</span>
                             <span className="text-sm text-gray-700"><strong>Codigo:</strong> {instrumento.codigo}</span>
-                            
+
                             <div className="flex flex-col md:flex-row md:justify-between gap-2">
                                 <Button className="w-full bg-blue-600 hover:bg-blue-700 transition-all" onClick={() => handleSetInstrumentoEditando(instrumento)}>
                                     Modificar información

@@ -1,15 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
-import { InstrumentoDTO, InstrumentoDtoWithError, } from "@/types/instrumentoTypes";
-import { ChevronLeftIcon, ChevronRightIcon, FileIcon } from "lucide-react";
+import { InstrumentoDTO, InstrumentoDtoWithError } from "@/types/instrumentoTypes";
+import { ChevronLeftIcon, ChevronRightIcon, TableIcon, ListIcon } from "lucide-react";
 import CustomDialog from "../../Dialogs/dialog";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
 import { useEffect, useState } from "react";
 import { getInstrumentTypes, getJuzgados } from "@/actions/instrumentos-actions";
-import { EstadoInstrumento, InstrumentoType, Juzgado } from "@prisma/client";
+import { EstadoInstrumento, InstrumentoType, Juzgado} from "@prisma/client";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../../Dialogs/alert";
-import { Delete, Edit } from "@mynaui/icons-react";
+import { Delete} from "@mynaui/icons-react";
+import ErrorExcelView from "../Views/ExcelView/ExcelErrorView";
+import ErrorList from "../Views/ListView/ErrorListView";
 
 export default function StepErrorReview({
     deleteInstrumento,
@@ -27,18 +29,20 @@ export default function StepErrorReview({
     onNext: () => void;
 }>) {
 
-
-
     const { setIsOpen } = useCustomDialog();
     const { setIsOpenAlert } = useCustomAlert();
 
+    const [viewMode, setViewMode] = useState<'list' | 'excel'>('list');
 
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoDTO | undefined>(undefined);
     const [instrumentoCancelando, setInstrumentoCancelando] = useState<InstrumentoDTO | undefined>(undefined);
 
-
     const [instrumentoTypes, setInstrumentoTypes] = useState<InstrumentoType[]>([]);
     const [juzgados, setJuzgados] = useState<Juzgado[]>([]);
+
+    // Para la edición inline en modo Excel
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editedData, setEditedData] = useState<InstrumentoDTO | null>(null);
 
     useEffect(() => {
         const fetchInstrumentoTypes = async () => {
@@ -55,7 +59,6 @@ export default function StepErrorReview({
         fetchJuzgados();
     }, []);
 
-
     const handleClose = () => {
         setInstrumentoEditando(undefined);
         setIsOpen(false);
@@ -64,7 +67,6 @@ export default function StepErrorReview({
     const handleEditar = async (newData: InstrumentoDTO): Promise<void> => {
         editInstrumentDataError(newData);
         setIsOpen(false);
-
     }
 
     const handleSetInstrumentoEditando = (instrumento: InstrumentoDTO) => {
@@ -72,19 +74,16 @@ export default function StepErrorReview({
         setIsOpen(true);
     }
 
-
     const onCancelarCarga = (instrumento: InstrumentoDTO) => {
         setInstrumentoCancelando(instrumento);
         setIsOpenAlert(true);
     }
-
 
     const handleCancelarCarga = () => {
         if (!instrumentoCancelando) {
             deleteAllErrors();
         }
         else {
-
             deleteInstrumento(instrumentoCancelando);
         }
         setIsOpenAlert(false);
@@ -96,7 +95,7 @@ export default function StepErrorReview({
     }
 
     const onCancelarCargaTodos = () => {
-        setIsOpenAlert(true)
+        setIsOpenAlert(true);
     }
 
     const onNextStep = () => {
@@ -125,10 +124,62 @@ export default function StepErrorReview({
         onNext();
     }
 
+    // Funciones para la edición inline en la vista Excel
+    const startEditing = (index: number) => {
+        setEditingIndex(index);
+        setEditedData({ ...errors[index] });
+    }
+
+    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => { // eslint-disable-line
+        if (editedData) {
+            setEditedData({
+                ...editedData,
+                [field]: value
+            });
+        }
+    }
+
+    const saveEditedData = () => {
+        if (editedData) {
+            editInstrumentDataError(editedData);
+            setEditingIndex(null);
+            setEditedData(null);
+        }
+    }
+
+    const cancelEditing = () => {
+        setEditingIndex(null);
+        setEditedData(null);
+    }
 
     return (
-        <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
+        <div className="flex flex-col w-full gap-4 ">
+            <div className="flex flex-col md:flex-row md:justify-between items-center gap-2">
+                <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
+                {errors.length > 0 && (
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-500 hidden md:inline">Vista:</span>
+                        <Button
+                            variant={viewMode === 'list' ? "default" : "outline"}
+                            size="sm"
+                            className={viewMode === 'list' ? "bg-blue-500 hover:bg-blue-600" : ""}
+                            onClick={() => setViewMode('list')}
+                        >
+                            <ListIcon className="h-4 w-4 mr-1" />
+                            Lista
+                        </Button>
+                        <Button
+                            variant={viewMode === 'excel' ? "default" : "outline"}
+                            size="sm"
+                            className={viewMode === 'excel' ? "bg-green-500 hover:bg-green-600" : ""}
+                            onClick={() => setViewMode('excel')}
+                        >
+                            <TableIcon className="h-4 w-4 mr-1" />
+                            Excel
+                        </Button>
+                    </div>
+                )}
+            </div>
 
             <CustomDialog
                 dialogTitle={"Completar Información"}
@@ -164,28 +215,41 @@ export default function StepErrorReview({
                         </Button>
                     </div>
                 }
-
             />
 
-            {errors.length > 0 && (
+            {errors.length > 0 && viewMode === 'list' && (
                 <ErrorList
                     title="Información incompleta"
                     instrumentErrors={errors}
                     handleSetInstrumentoEditando={handleSetInstrumentoEditando}
                     onCancelarCarga={onCancelarCarga}
-
                 />
             )}
 
-            {
-                errors.length === 0 && (
-                    <div className="bg-green-100 p-4 rounded-lg">
-                        <p className="text-green-600">No se han encontrado errores en los datos procesados</p>
-                    </div>
-                )
-            }
+            {errors.length > 0 && viewMode === 'excel' && (
+                <ErrorExcelView
+                    title="Información incompleta"
+                    instrumentErrors={errors}
+                    handleSetInstrumentoEditando={handleSetInstrumentoEditando}
+                    onCancelarCarga={onCancelarCarga}
+                    juzgados={juzgados}
+                    instrumentoTypes={instrumentoTypes}
+                    editingIndex={editingIndex}
+                    editedData={editedData}
+                    startEditing={startEditing}
+                    handleInputChange={handleInputChange}
+                    saveEditedData={saveEditedData}
+                    cancelEditing={cancelEditing}
+                />
+            )}
 
-            <div className="flex justify-between mt-6">
+            {errors.length === 0 && (
+                <div className="bg-green-100 p-4 rounded-lg">
+                    <p className="text-green-600">No se han encontrado errores en los datos procesados</p>
+                </div>
+            )}
+
+            <div className="flex flex-col md:flex-row gap-2 justify-between mt-6">
                 <Button
                     className="bg-blue-500 hover:bg-blue-600"
                     onClick={onBack}
@@ -194,11 +258,10 @@ export default function StepErrorReview({
                     Volver
                 </Button>
                 {errors.length > 1 &&
-                    < Button
+                    <Button
                         className="bg-red-500 hover:bg-red-600"
                         onClick={onCancelarCargaTodos}
                     >
-
                         Cancelar todos
                         <Delete className="h-4 w-4" />
                     </Button>
@@ -211,89 +274,8 @@ export default function StepErrorReview({
                     <ChevronRightIcon className="h-4 w-4" />
                 </Button>
             </div>
-        </div >
-    );
-}
-
-interface ErrorListProps {
-    title: string;
-    instrumentErrors: InstrumentoDtoWithError[];
-    handleSetInstrumentoEditando: (instrumento: InstrumentoDTO) => void;
-    onCancelarCarga: (instrumento: InstrumentoDTO) => void;
-}
-
-/** Error List Component */
-function ErrorList({ title, instrumentErrors, handleSetInstrumentoEditando, onCancelarCarga }: Readonly<ErrorListProps>) {
-    return (
-        <div className="flex flex-col gap-6 p-4 bg-red-50 rounded-lg shadow-md">
-            <h3 className="text-xl font-bold text-red-700 border-b border-red-300 pb-2">{title}</h3>
-            <ul className="space-y-4">
-                {instrumentErrors.map((error, index) => (
-                    <li
-                        key={"Instrument_with_errors" + index}
-                        className="flex flex-col gap-3 bg-red-100 p-4 rounded-lg shadow-sm border border-red-200 hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3">
-                            <FileIcon className="h-6 w-6 text-red-600" />
-                            <span className="text-base font-medium text-gray-900">{error.caratula}</span>
-                        </div>
-                        <div className="flex flex-col gap-3 ">
-                            <div className="flex flex-row items-center gap-2">
-                                <Edit className="h-6 w-6 text-red-600" />
-                                <span className="text-sm font-medium text-red-600">Ocurrieron los siguientes errores:</span>
-                                <span className="text-sm font-medium text-red-600">{error.error}</span>
-
-
-                            </div>
-                            <div className="flex flex-col gap-2">
-
-                                {
-                                    error.error === "Juzgado y tipo de instrumento inválidos" && (
-                                        <>
-                                            <span className="text-sm font-medium text-red-600">
-                                                Juzgado en pdf: {error.juzgadoIdentifier}
-                                            </span><span className="text-sm font-medium text-red-600">
-                                                Tipo de instrumento en pdf: {error.instrumentoTypeIdentifier}
-                                            </span>
-                                        </>
-                                    )
-                                }
-                                {
-                                    error.error === "Tipo de instrumento inválido" && (
-                                        <span className="text-sm font-medium text-red-600">
-                                            Tipo de instrumento en pdf: {error.instrumentoTypeIdentifier}
-                                        </span>
-                                    )
-                                }
-                                {
-                                    error.error === "Juzgado inválido" && (
-                                        <span className="text-sm font-medium text-red-600">
-                                            Juzgado en pdf: {error.juzgadoIdentifier}
-                                        </span>
-                                    )
-                                }
-
-                            </div>
-                        </div>
-                        <div className="flex flex-col md:flex-row md:justify-between gap-2">
-                            <Button
-                                className="px-4 py-2 text-sm font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
-                                onClick={() => handleSetInstrumentoEditando(error)}
-                            >
-                                Completar Información
-                            </Button>
-                            <Button
-                                className="px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1"
-                                onClick={() => onCancelarCarga(error)}
-                            >
-                                Cancelar Carga
-                            </Button>
-                        </div>
-                    </li>
-                ))}
-            </ul>
         </div>
     );
 }
-
 
 

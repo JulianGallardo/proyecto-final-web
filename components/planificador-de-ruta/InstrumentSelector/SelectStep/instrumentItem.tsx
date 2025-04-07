@@ -2,7 +2,7 @@
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Checkbox } from "@/components/ui/checkbox";
-import IndicadorFecha from "@/components/instrumentos/Tabla/indicador-fecha";
+import IndicadorFecha from "@/components/shared/indicador-fecha";
 import { Card } from "@/components/ui/card";
 import { MapPin, FileText, Box, Hash, Map } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";

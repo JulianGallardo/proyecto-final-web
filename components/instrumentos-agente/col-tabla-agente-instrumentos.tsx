@@ -3,7 +3,7 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { Button } from "../ui/button";
 import { UrgenciaInstrumento } from "@prisma/client";
 import { Check } from "lucide-react";
-import IndicadorFecha from "../instrumentos/Tabla/indicador-fecha";
+import IndicadorFecha from "../shared/indicador-fecha";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Eye } from "@mynaui/icons-react";
 import Link from "next/link";

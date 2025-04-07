@@ -51,7 +51,7 @@ async function getSubzoneInCoords(lat: number, long: number, zoneId: string) {
         return result; // Retornar el nombre de la subzona encontrada o null si no pertenece a ninguna
     } catch (e) {
         console.log(e);
-        return null;
+        throw new Error("Error al obtener la subzona en coordenadas");
     }
 }
 

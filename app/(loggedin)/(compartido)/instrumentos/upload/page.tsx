@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeftIcon } from "lucide-react";
 import Link from "next/link";
 import { extractTextFromPDFAndParse } from "@/lib/readPdf";
@@ -183,87 +182,91 @@ export default function PDFUploadProcess() {
   const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
 
   return (
-    <div className="flex flex-col items-center w-full h-full py-4 gap-2 px-2 overflow-x-hidden">
-      <div className="flex flex-col gap-4 w-full max-w-3xl">
-        <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit">
-          <Button variant="outline" className="flex flex-row w-fit gap-2">
-            <ChevronLeftIcon className="h-4 w-4" />
-            Volver al listado
-          </Button>
-        </Link>
+    <div className="flex flex-col items-center w-full h-full p-4 gap-2  ">
+      <div className="flex flex-col gap-4 w-full   ">
 
-        <Card className="w-full max-w-3xl shadow-md">
-          <CardContent className="p-8">
-            {step === 1 && (
+        <div className="flex flex-row items-center justify-end w-full">
+          <Link href="/instrumentos" className="flex flex-row items-center gap-2 w-fit">
+            <Button variant="outline" className="flex flex-row w-fit gap-2">
+              <ChevronLeftIcon className="h-4 w-4" />
+              Volver al listado
+            </Button>
+          </Link>
+        </div>
+
+
+        <div className="w-full h-full flex flex-col gap-4 rounded-lg px-4 pb-6  ">
+
+          {step === 1 && (
               <StepFileUpload
                 file={file}
                 onFileChange={setFile}
                 onNext={handleFileUpload}
+
               />
-            )}
+          )}
 
-            {step === 2 && (
-              <StepErrorReview
-                deleteInstrumento={deleteInstrumentErrorData}
-                errors={instrumentosConErrores}
-                editInstrumentDataError={editInstrumentDataError}
-                deleteAllErrors={deleteAllInstrumentDataError}
-                onBack={() => setStep(1)}
-                onNext={() => setStep(3)}
+          {step === 2 && (
+            <StepErrorReview
+              deleteInstrumento={deleteInstrumentErrorData}
+              errors={instrumentosConErrores}
+              editInstrumentDataError={editInstrumentDataError}
+              deleteAllErrors={deleteAllInstrumentDataError}
+              onBack={() => setStep(1)}
+              onNext={() => setStep(3)}
+            />
+          )}
+
+          {step === 3 && (
+            <StepDataReview
+              data={data}
+              editInstrumentData={editInstrumentData}
+              deleteInstrumentData={deleteInstrumentData}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onNextPage={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onPrevPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              onBack={() => setStep(1)}
+              onConfirm={confirmUpload}
+            />
+          )}
+
+          {step === 4 && (
+            isPending ? (
+              <SaveInstrument />
+            ) : (
+              <ConfirmStep
+                onClick={() => {
+                  setFile(null);
+                  setData([]);
+                  setInstrumentosConErrores([]);
+                  setStep(1);
+                  setCurrentPage(1);
+                  setErrorMessage(null); // Reset error state
+                }}
               />
-            )}
+            )
+          )}
 
-            {step === 3 && (
-              <StepDataReview
-                data={data}
-                editInstrumentData={editInstrumentData}
-                deleteInstrumentData={deleteInstrumentData}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onNextPage={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                onPrevPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                onBack={() => setStep(1)}
-                onConfirm={confirmUpload}
-              />
-            )}
-
-            {step === 4 && (
-              isPending ? (
-                <SaveInstrument />
-              ) : (
-                <ConfirmStep
-                  onClick={() => {
-                    setFile(null);
-                    setData([]);
-                    setInstrumentosConErrores([]);
-                    setStep(1);
-                    setCurrentPage(1);
-                    setErrorMessage(null); // Reset error state
-                  }}
-                />
-              )
-            )}
-
-            {step === 5 && (
-              <div className="flex flex-col gap-4">
-                <h2 className="text-2xl font-bold">Error al cargar los instrumentos</h2>
-                {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-                <Button
-                  onClick={() => {
-                    setFile(null);
-                    setData([]);
-                    setInstrumentosConErrores([]);
-                    setStep(1);
-                    setCurrentPage(1);
-                    setErrorMessage(null); // Reset error state
-                  }}
-                >
-                  Volver
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          {step === 5 && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-2xl font-bold">Error al cargar los instrumentos</h2>
+              {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+              <Button
+                onClick={() => {
+                  setFile(null);
+                  setData([]);
+                  setInstrumentosConErrores([]);
+                  setStep(1);
+                  setCurrentPage(1);
+                  setErrorMessage(null); // Reset error state
+                }}
+              >
+                Volver
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

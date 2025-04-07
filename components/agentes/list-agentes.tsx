@@ -9,7 +9,7 @@ import CustomDialog from "../instrumentos/Dialogs/dialog";
 import { FormularioNuevoAgente } from "./Forms/addNewAgenteForm";
 import { createAgente, deleteAgente } from "@/actions/user-actions";
 import { toast } from "@/hooks/use-toast";
-import PaginationInstruments from "../instrumentos/Tabla/Pagination";
+import PaginationInstruments from "../shared/Pagination";
 import { Map } from "lucide-react";
 import Link from "next/link";
 import CustomAlert from "../instrumentos/Dialogs/alert";

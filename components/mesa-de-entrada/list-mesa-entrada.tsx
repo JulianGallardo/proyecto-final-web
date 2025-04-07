@@ -7,7 +7,7 @@ import { Plus, SadCircle } from "@mynaui/icons-react";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import CustomDialog from "../instrumentos/Dialogs/dialog";
 import { toast } from "@/hooks/use-toast";
-import PaginationInstruments from "../instrumentos/Tabla/Pagination";
+import PaginationInstruments from "../shared/Pagination";
 import CustomAlert from "../instrumentos/Dialogs/alert";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { useState } from "react";

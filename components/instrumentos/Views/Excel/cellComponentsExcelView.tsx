@@ -12,7 +12,6 @@ import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTyp
 
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { Row } from "@tanstack/react-table";
-import { useEffect } from "react";
 
 
 export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {

@@ -12,6 +12,7 @@ import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTyp
 
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { Row } from "@tanstack/react-table";
+import { useEffect } from "react";
 
 
 export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
@@ -175,18 +176,35 @@ export const UrgenciaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
 };
 
 export const DomicilioCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
-    const { setValue } = useFormContext();
+    const { control } = useFormContext();
+    
+    
+
     if (row.index !== editingIndex) return row.original.domicilio_denunciado;
 
+
+    
+
     return (
-        <div className="min-w-80">
-            <AddressAutocomplete
-                defaultValue={row.original.domicilio_denunciado ?? ""}
-                onChange={(value) => setValue("domicilio_denunciado", value)}
-                miUbicacion={false}
-                placeHolder="Buscar domicilio"
-            />
-        </div >
+        <Controller
+            name="domicilio_denunciado"
+            control={control}
+            render={({ field }) => (
+                <div className="min-w-80">
+                    <AddressAutocomplete
+                        defaultValue={row.original.domicilio_denunciado ?? ""}
+                        onChange={(value) => {
+                            field.onChange(value);
+
+
+                        }}
+                        miUbicacion={false}
+                        placeHolder="Buscar domicilio"
+                    />
+                </div>
+            )}
+        />
+
     );
 };
 
@@ -200,7 +218,11 @@ export const ZonaCell = ({
     zonas?: ExtendedZone[];
 }) => {
     const { control } = useFormContext();
+
+
+
     if (row.index !== editingIndex) return row.original.zoneName ?? "N/A";
+
 
     return (
         <Controller

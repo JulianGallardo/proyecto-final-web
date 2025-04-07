@@ -67,6 +67,18 @@ export default function InstrumentoExcelView({
     
     const instrumentoDto = convertToDto( form.getValues(), zonas);
 
+    console.log("instrumentoDto", instrumentoDto);  
+
+    if (instrumentoDto && data[editingIndex ?? 0]?.domicilio_denunciado !== instrumentoDto.domicilio_denunciado) {
+      instrumentoDto.zona = null;
+      instrumentoDto.subZona = null;
+      instrumentoDto.punto = null;
+    }
+
+    if(instrumentoDto && instrumentoDto.subZona === "automatica"){
+      instrumentoDto.subZona = null;
+    }
+
 
     if (instrumentoDto) {
       saveChanges(instrumentoDto);

@@ -112,7 +112,7 @@ export default function InstrumentoExcelView({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="text-center">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="px-3 py-2 text-gray-600 font-semibold text-center">
+                    <TableHead key={header.id} className="w-fit px-3 py-2 text-gray-600 font-semibold text-center">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}

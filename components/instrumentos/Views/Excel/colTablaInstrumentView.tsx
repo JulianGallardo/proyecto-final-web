@@ -8,16 +8,11 @@ import { ExtendedZone } from "@/types/ZoneTypes";
 import {
     CaratulaCell,
     JuzgadoCell,
-    TipoCell,
-    IngresoCell,
-    DescargaCell,
-    UrgenciaCell,
     DomicilioCell,
     ZonaCell,
     SubZonaCell,
     ObservacionesCell,
 } from "./cellComponentsExcelView";
-import IndicadorFecha from "@/components/shared/indicador-fecha";
 
 export const getColumns = ({
     editingIndex,
@@ -48,11 +43,6 @@ export const getColumns = ({
             header: "Codigo",
             cell: ({ row }) => <p>{row.original.codigoInstrumento}</p>,
         },
-        {
-            accessorKey: "Prioridad",
-            header: "Prioridad",
-            cell: ({ row }) => <IndicadorFecha fecha={row.original.fecha_de_ingreso} urgencia={row.original.urgencia}/>,
-        },
         
         {
             accessorKey: "orden.juzgado",
@@ -64,33 +54,7 @@ export const getColumns = ({
         {
             accessorKey: "N ° de orden", 
             header: "N ° de orden",
-            cell: ({ row }) => <p className="w-20" >{row.original.orden.ordenNumber}</p>,
-        },
-        {
-            accessorKey: "instrumentoType",
-            header: "Tipo",
-            cell: ({ row }) => (
-                <TipoCell
-                    row={row}
-                    editingIndex={editingIndex}
-                    instrumentoTypes={instrumentoTypes}
-                />
-            ),
-        },
-        {
-            accessorKey: "fecha_de_ingreso",
-            header: "Ingreso",
-            cell: ({ row }) => <IngresoCell row={row} editingIndex={editingIndex} />,
-        },
-        {
-            accessorKey: "fecha_de_salida",
-            header: "Descarga",
-            cell: ({ row }) => <DescargaCell row={row} editingIndex={editingIndex} />,
-        },
-        {
-            accessorKey: "urgencia",
-            header: "Urgencia",
-            cell: ({ row }) => <UrgenciaCell row={row} editingIndex={editingIndex} />,
+            cell: ({ row }) => <p  >{row.original.orden.ordenNumber}</p>,
         },
         {
             accessorKey: "domicilio_denunciado",

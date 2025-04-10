@@ -13,20 +13,23 @@ import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTyp
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { Row } from "@tanstack/react-table";
 
-
 export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
-    if (row.index !== editingIndex) return row.original.caratula;
+    if (row.index !== editingIndex)
+        return (
+            <div className="flex items-center justify-center  ">
+                <p className="max-w-52 text-xs whitespace-normal">{row.original.caratula}</p>
+            </div>
+        )
 
     return (
         <Controller
             name="caratula"
             control={control}
-            render={({ field }) => <Input {...field} className="text-center" />}
+            render={({ field }) => <Input {...field} className=" h-full text-xs flex items-center justify-center p-2" />}
         />
     );
 };
-
 export const JuzgadoCell = ({
     row,
     editingIndex,
@@ -37,7 +40,7 @@ export const JuzgadoCell = ({
     Juzgados: JuzgadoDto[];
 }) => {
     const { control, setValue } = useFormContext();
-    if (row.index !== editingIndex) return row.original.orden.juzgado.name;
+    if (row.index !== editingIndex) return row.original.orden.juzgado.identifier;
 
     return (
         <Controller
@@ -58,7 +61,7 @@ export const JuzgadoCell = ({
                     <SelectContent>
                         {Juzgados.map((juzgado) => (
                             <SelectItem key={juzgado.identifier} value={juzgado.identifier}>
-                                {juzgado.name}
+                                {juzgado.identifier}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -176,13 +179,13 @@ export const UrgenciaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
 
 export const DomicilioCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
-    
-    
+
+
 
     if (row.index !== editingIndex) return row.original.domicilio_denunciado;
 
 
-    
+
 
     return (
         <Controller
@@ -301,7 +304,7 @@ export const ObservacionesCell = ({ row, editingIndex }: { row: Row<InstrumentoE
         <Controller
             name="observaciones"
             control={control}
-            render={({ field }) => <Input className="min-w-80" {...field} />}
+            render={({ field }) => <Input className="min-w-50" {...field} />}
         />
     );
 };

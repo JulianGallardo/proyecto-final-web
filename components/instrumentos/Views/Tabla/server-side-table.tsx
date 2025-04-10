@@ -1,9 +1,9 @@
-import {getInstrumentosPaginated, getTotalPagesInstrumentosPaginated } from "@/actions/instrumentos-actions";
-import PaginationInstruments from "../../../shared/Pagination";
-import { CrudInstrumentos } from "../../crud-instrumento";
+import { Suspense } from "react";
 import { Juzgado, InstrumentoType } from "@prisma/client";
 import SearchParamsInstrumentos from "@/types/searchParams";
 import { ExtendedZone } from "@/types/ZoneTypes";
+import InstrumentsDataLoader from "./instruments-data-loader";
+import { TableSkeleton } from "../../Skeletons/list-skeleton";
 
 interface ServerSideTableProps {
   searchParams: SearchParamsInstrumentos;
@@ -13,25 +13,27 @@ interface ServerSideTableProps {
   zonas: ExtendedZone[];
 }
 
-export default async function ServerSideTable({
+export default function ServerSideTable({
   searchParams,
   currentPage,
   Juzgados,
   instrumentosType,
   zonas,
 }: Readonly<ServerSideTableProps>) {
-
-
-  const instrumentos = await getInstrumentosPaginated(searchParams, currentPage);
-  const totalPages = await getTotalPagesInstrumentosPaginated(searchParams);
+  // Crear una cadena única basada en los searchParams para usar como key
+  const searchParamsKey = JSON.stringify(searchParams);
 
   return (
-    <div className="flex flex-col  bg-white border-gray-200 gap-4">
-      
-      <CrudInstrumentos instrumentos={instrumentos} Juzgados={Juzgados} instrumentoTypes={instrumentosType} zonas={zonas} />
-      <PaginationInstruments totalPages={totalPages} />
-
-
+    <div className="flex flex-col bg-white border-gray-200 gap-4">
+      <Suspense key={searchParamsKey} fallback={<TableSkeleton />}>
+        <InstrumentsDataLoader
+          searchParams={searchParams}
+          currentPage={currentPage}
+          Juzgados={Juzgados}
+          instrumentosType={instrumentosType}
+          zonas={zonas}
+        />
+      </Suspense>
     </div>
   );
 }

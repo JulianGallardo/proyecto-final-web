@@ -17,7 +17,6 @@ import {
 export const getColumns = ({
     editingIndex,
     Juzgados,
-    instrumentoTypes,
     zonas,
     saveChanges,
     cancelEditing,

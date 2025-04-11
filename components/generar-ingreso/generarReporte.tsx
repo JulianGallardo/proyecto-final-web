@@ -2,7 +2,7 @@
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import SeleccionarFechaAgente from "./seleccionarFechaAgente";
 import { useEffect, useState } from "react";
-import { getInstrumentosByAgent } from "@/actions/instrumentos-actions";
+import { getInstrumentosByAgent, getInstrumentosByAgentCreatedDate } from "@/actions/instrumentos-actions";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { TablaInstrumentosReporte } from "./tabla-instrumentos-reporte";
 import DescargarExcelButton from "./descargar-excel-button";
@@ -26,10 +26,7 @@ export default function GenerarReporte(
             const fetchInstrumentos = async () => {
                 setIsLoading(true);
                 try {
-                    const resultado = await getInstrumentosByAgent({
-                        desde: fechaSeleccionada.toISOString().split('T')[0],
-                        hasta: fechaSeleccionada.toISOString().split('T')[0],
-                    }, agenteSeleccionado.id);
+                    const resultado = await getInstrumentosByAgentCreatedDate(agenteSeleccionado.id, new Date(fechaSeleccionada.toISOString().split('T')[0]), new Date(fechaSeleccionada.toISOString().split('T')[0]));
                     setInstrumentos(resultado);
                 } catch (error) {
                     console.error("Error fetching instrumentos:", error);

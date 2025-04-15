@@ -117,6 +117,7 @@ export default function AddressAutocomplete({
       try {
         
         const position = await new Promise<GeolocationPosition>((resolve, reject) =>
+          /* eslint-disable */
           navigator.geolocation.getCurrentPosition(resolve, reject)
         );
 

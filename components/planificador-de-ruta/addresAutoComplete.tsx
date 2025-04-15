@@ -13,6 +13,7 @@ interface AddressAutocompleteProps {
   miUbicacion?: boolean;
   defaultValue?: string;
   setCoords?: (lat: number, lon: number) => void;
+  autoFocus?: boolean | undefined;
 }
 
 interface Place {
@@ -41,6 +42,7 @@ export default function AddressAutocomplete({
   setCoords,
   defaultValue = "",
   miUbicacion = true,
+  autoFocus
 }: Readonly<AddressAutocompleteProps>) {
   const [query, setQuery] = useState<string>(defaultValue);
   const [results, setResults] = useState<PlaceResult[]>([]);
@@ -165,6 +167,7 @@ export default function AddressAutocomplete({
           id="search"
           placeholder={placeHolder}
           value={query}
+          autoFocus={autoFocus}
           onChange={(e) => {
             const newValue = e.target.value;
             setQuery(newValue);

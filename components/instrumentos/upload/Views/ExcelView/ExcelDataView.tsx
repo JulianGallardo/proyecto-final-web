@@ -6,18 +6,17 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { CheckIcon, XIcon, Edit, Delete } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useState } from "react";
 
 interface ExcelDataViewProps {
     juzgados: Juzgado[];
     data: InstrumentoDTO[];
     onCancelarCarga: (error: InstrumentoDTO) => void;
-
-
     instrumentoTypes: InstrumentoType[];
     editingIndex: number | null;
     editedData: InstrumentoDTO | null;
     startEditing: (index: number) => void;
-    handleInputChange: (field: keyof InstrumentoDTO, value: any) => void;// eslint-disable-line
+    handleInputChange: (field: keyof InstrumentoDTO, value: any) => void;
     saveEditedData: () => void;
     cancelEditing: () => void;
 }
@@ -34,15 +33,171 @@ export default function ExcelDataView({
     saveEditedData,
     cancelEditing
 }: Readonly<ExcelDataViewProps>) {
+    // Estado para la celda específica que se está editando
+    const [editingCell, setEditingCell] = useState<{
+        index: number | null,
+        field: keyof InstrumentoDTO | null
+    }>({ index: null, field: null });
+
+    // Campos que pueden ser editados con doble clic
+    const editableFields: Array<keyof InstrumentoDTO> = [
+        'caratula', 
+        'juzgadoIdentifier', 
+        'instrumentoTypeIdentifier', 
+        'fecha_de_ingreso', 
+        'urgencia', 
+        'domicilio_denunciado', 
+        'observaciones'
+    ];
+
+    // Función para iniciar la edición de una celda específica
+    const startCellEditing = (index: number, field: keyof InstrumentoDTO) => {
+        if (editingIndex === null) {
+            startEditing(index);
+            setEditingCell({ index, field });
+        } else if (editingIndex === index) {
+            setEditingCell({ index, field });
+        }
+    };
+
+    // Función para manejar el doble clic en una celda
+    const handleDoubleClick = (index: number, field: keyof InstrumentoDTO) => {
+        if (editableFields.includes(field)) {
+            startCellEditing(index, field);
+        }
+    };
+
+    // Función para renderizar el contenido de una celda según su modo (visualización o edición)
+    const renderCell = (item: InstrumentoDTO, index: number, field: keyof InstrumentoDTO) => {
+        const isEditing = editingIndex === index && editedData;
+        const isSpecificCellEditing = isEditing && (editingCell.index === index && editingCell.field === field);
+        
+        // Renderizar celda en modo edición
+        if (isEditing) {
+            switch (field) {
+                case 'caratula':
+                    return (
+                        <Input
+                            value={editedData.caratula}
+                            onChange={(e) => handleInputChange('caratula', e.target.value)}
+                            className="w-full text-sm"
+                            autoFocus={isSpecificCellEditing || undefined}
+                        />
+                    );
+                case 'juzgadoIdentifier':
+                    return (
+                        <Select
+                            value={editedData.juzgadoIdentifier}
+                            onValueChange={(value) => handleInputChange('juzgadoIdentifier', value)}
+                        >
+                            <SelectTrigger className="w-full text-sm" autoFocus={isSpecificCellEditing || undefined}>
+                                <SelectValue placeholder="Seleccionar juzgado" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {juzgados.map((juzgado) => (
+                                    <SelectItem key={juzgado.identifier} value={juzgado.identifier}>
+                                        {juzgado.identifier}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    );
+                case 'instrumentoTypeIdentifier':
+                    return (
+                        <Select
+                            value={editedData.instrumentoTypeIdentifier}
+                            onValueChange={(value) => handleInputChange('instrumentoTypeIdentifier', value)}
+                        >
+                            <SelectTrigger className="w-full text-sm" autoFocus={isSpecificCellEditing || undefined}>
+                                <SelectValue placeholder="Seleccionar tipo" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {instrumentoTypes.map((type) => (
+                                    <SelectItem key={type.identifier} value={type.identifier}>
+                                        {type.identifier}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    );
+                case 'fecha_de_ingreso':
+                    return (
+                        <Input
+                            type="date"
+                            value={editedData.fecha_de_ingreso ? new Date(editedData.fecha_de_ingreso).toISOString().split('T')[0] : ''}
+                            onChange={(e) => handleInputChange('fecha_de_ingreso', new Date(e.target.value))}
+                            className="w-full text-sm"
+                            autoFocus={isSpecificCellEditing || undefined}
+                        />
+                    );
+                case 'urgencia':
+                    return (
+                        <Select
+                            value={editedData.urgencia}
+                            onValueChange={(value) => handleInputChange('urgencia', value)}
+                        >
+                            <SelectTrigger className="w-full text-sm" autoFocus={isSpecificCellEditing || undefined}>
+                                <SelectValue placeholder="Urgencia" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={UrgenciaInstrumento.NORMAL}>Normal</SelectItem>
+                                <SelectItem value={UrgenciaInstrumento.URGENTE}>Urgente</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    );
+                case 'domicilio_denunciado':
+                    return (
+                        <AddressAutocomplete
+                            defaultValue={editedData.domicilio_denunciado || ''}
+                            onChange={(value) => handleInputChange('domicilio_denunciado', value)}
+                            miUbicacion={false}
+                            autoFocus={isSpecificCellEditing || undefined}
+                        />
+                    );
+                case 'observaciones':
+                    return (
+                        <Input
+                            value={editedData.observaciones || ''}
+                            onChange={(e) => handleInputChange('observaciones', e.target.value)}
+                            className="w-full text-sm"
+                            autoFocus={isSpecificCellEditing || undefined}
+                        />
+                    );
+                default:
+                    return null;
+            }
+        }
+        
+        // Renderizar celda en modo visualización
+        switch (field) {
+            case 'caratula':
+                return item.caratula;
+            case 'codigo':
+                return item.codigo;
+            case 'juzgadoIdentifier':
+                return juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'N/A';
+            case 'instrumentoTypeIdentifier':
+                return instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'N/A';
+            case 'fecha_de_ingreso':
+                return item.fecha_de_ingreso ? new Date(item.fecha_de_ingreso).toLocaleDateString() : 'N/A';
+            case 'urgencia':
+                return item.urgencia || UrgenciaInstrumento.NORMAL;
+            case 'domicilio_denunciado':
+                return item.domicilio_denunciado || 'N/A';
+            case 'observaciones':
+                return item.observaciones || 'N/A';
+            default:
+                return null;
+        }
+    };
+
     return (
         <div className="flex flex-col w-full gap-6 p-4">
-
-            <div className="w-full overflow-x-auto ">
-                <table className="w-full border-collapse rounded-lg ">
+            <div className="w-full overflow-x-auto">
+                <table className="w-full border-collapse rounded-lg">
                     <thead>
-                        <tr className="bg-gray-100 ">
+                        <tr className="bg-gray-100">
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Carátula</th>
-
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Codigo</th>
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Juzgado</th>
                             <th className="px-3 py-2 border border-gray-300 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Tipo de Instrumento</th>
@@ -54,97 +209,57 @@ export default function ExcelDataView({
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((error, index) => (
+                        {data.map((item, index) => (
                             <tr key={"excel_row_" + index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                {editingIndex === index && editedData ? (
-                                    // Modo edición
-                                    <>
-                                        <td className="px-3 py-2 border border-gray-300">
-                                            <Input
-                                                value={editedData.caratula}
-                                                onChange={(e) => handleInputChange('caratula', e.target.value)}
-                                                className="w-full text-sm"
-                                            />
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm">
-                                            {
-                                                editedData.codigo || 'N/A'
-                                            }
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 w-fit">
-
-                                            <Select
-                                                value={editedData.juzgadoIdentifier}
-                                                onValueChange={(value) => handleInputChange('juzgadoIdentifier', value)}
-                                            >
-                                                <SelectTrigger className="w-full text-sm">
-                                                    <SelectValue placeholder="Seleccionar juzgado" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {juzgados.map((juzgado) => (
-                                                        <SelectItem key={juzgado.identifier} value={juzgado.identifier}>
-                                                            {juzgado.identifier}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 w-fit">
-                                            <Select
-                                                value={editedData.instrumentoTypeIdentifier}
-                                                onValueChange={(value) => handleInputChange('instrumentoTypeIdentifier', value)}
-                                            >
-                                                <SelectTrigger className="w-full text-sm">
-                                                    <SelectValue placeholder="Seleccionar tipo" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {instrumentoTypes.map((type) => (
-                                                        <SelectItem key={type.identifier} value={type.identifier}>
-                                                            {type.identifier}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 w-fit">
-                                            <Input
-                                                type="date"
-                                                value={editedData.fecha_de_ingreso ? new Date(editedData.fecha_de_ingreso).toISOString().split('T')[0] : ''}
-                                                onChange={(e) => handleInputChange('fecha_de_ingreso', new Date(e.target.value))}
-                                                className="w-full text-sm"
-                                            />
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 w-fit">
-                                            <Select
-                                                value={editedData.urgencia}
-                                                onValueChange={(value) => handleInputChange('urgencia', value)}
-                                            >
-                                                <SelectTrigger className="w-full text-sm">
-                                                    <SelectValue placeholder="Urgencia" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={UrgenciaInstrumento.NORMAL}>Normal</SelectItem>
-                                                    <SelectItem value={UrgenciaInstrumento.URGENTE}>Urgente</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 w-80">
-                                            <AddressAutocomplete
-                                                defaultValue={editedData.domicilio_denunciado || ''}
-                                                onChange={(value) => handleInputChange('domicilio_denunciado', value)}
-                                                miUbicacion={false}
-                                            />
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 w-fit">
-                                            <Input
-                                                value={editedData.observaciones || ''}
-                                                onChange={(e: { target: { value: any; }; }) => handleInputChange('observaciones', e.target.value)}  // eslint-disable-line
-                                                className="w-full text-sm"
-
-                                            />
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 w-fit">
-                                            <div className="flex items-center gap-1">
+                                <td 
+                                    className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center cursor-pointer"
+                                    onDoubleClick={() => handleDoubleClick(index, 'caratula')}
+                                >
+                                    {renderCell(item, index, 'caratula')}
+                                </td>
+                                <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
+                                    {item.codigo || 'N/A'}
+                                </td>
+                                <td 
+                                    className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center cursor-pointer"
+                                    onDoubleClick={() => handleDoubleClick(index, 'juzgadoIdentifier')}
+                                >
+                                    {renderCell(item, index, 'juzgadoIdentifier')}
+                                </td>
+                                <td 
+                                    className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center cursor-pointer"
+                                    onDoubleClick={() => handleDoubleClick(index, 'instrumentoTypeIdentifier')}
+                                >
+                                    {renderCell(item, index, 'instrumentoTypeIdentifier')}
+                                </td>
+                                <td 
+                                    className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center cursor-pointer"
+                                    onDoubleClick={() => handleDoubleClick(index, 'fecha_de_ingreso')}
+                                >
+                                    {renderCell(item, index, 'fecha_de_ingreso')}
+                                </td>
+                                <td 
+                                    className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center cursor-pointer"
+                                    onDoubleClick={() => handleDoubleClick(index, 'urgencia')}
+                                >
+                                    {renderCell(item, index, 'urgencia')}
+                                </td>
+                                <td 
+                                    className="px-3 py-2 w-80 border border-gray-300 text-sm text-gray-900 text-center cursor-pointer"
+                                    onDoubleClick={() => handleDoubleClick(index, 'domicilio_denunciado')}
+                                >
+                                    {renderCell(item, index, 'domicilio_denunciado')}
+                                </td>
+                                <td 
+                                    className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center cursor-pointer"
+                                    onDoubleClick={() => handleDoubleClick(index, 'observaciones')}
+                                >
+                                    {renderCell(item, index, 'observaciones')}
+                                </td>
+                                <td className="px-3 py-2 border border-gray-300">
+                                    <div className="flex items-center gap-1">
+                                        {editingIndex === index ? (
+                                            <>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button
@@ -162,7 +277,10 @@ export default function ExcelDataView({
                                                     <TooltipTrigger asChild>
                                                         <Button
                                                             className="bg-gray-500 hover:bg-gray-600 text-white text-xs"
-                                                            onClick={cancelEditing}
+                                                            onClick={() => {
+                                                                cancelEditing();
+                                                                setEditingCell({ index: null, field: null });
+                                                            }}
                                                         >
                                                             <XIcon className="h-4 w-4 text-white" />
                                                         </Button>
@@ -171,34 +289,9 @@ export default function ExcelDataView({
                                                         <p>Cancelar</p>
                                                     </TooltipContent>
                                                 </Tooltip>
-                                            </div>
-                                        </td>
-                                    </>
-                                ) : (
-                                    // Modo visualización
-                                    <>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">{error.caratula}</td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">{error.codigo}</td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
-                                            {juzgados.find(juzgado => juzgado.identifier === error.juzgadoIdentifier)?.identifier ?? 'N/A'}
-                                        </td>
-                                        <td className={`px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center`}>
-                                            {instrumentoTypes.find(type => type.identifier === error.instrumentoTypeIdentifier)?.identifier ?? 'N/A'}
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
-                                            {error.fecha_de_ingreso ? new Date(error.fecha_de_ingreso).toLocaleDateString() : 'N/A'}
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
-                                            {error.urgencia || UrgenciaInstrumento.NORMAL}
-                                        </td>
-                                        <td className="px-3 py-2 w-80 border border-gray-300 text-sm text-gray-900 text-center">
-                                            {error.domicilio_denunciado || 'N/A'}
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
-                                            {error.observaciones || 'N/A'}
-                                        </td>
-                                        <td className="px-3 py-2 border border-gray-300">
-                                            <div className="flex items-center gap-1">
+                                            </>
+                                        ) : (
+                                            <>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button
@@ -216,7 +309,7 @@ export default function ExcelDataView({
                                                     <TooltipTrigger asChild>
                                                         <Button
                                                             className="bg-red-500 hover:bg-red-600 text-white text-xs"
-                                                            onClick={() => onCancelarCarga(error)}
+                                                            onClick={() => onCancelarCarga(item)}
                                                         >
                                                             <Delete className="h-4 w-4 text-white" />
                                                         </Button>
@@ -225,10 +318,10 @@ export default function ExcelDataView({
                                                         <p>Cancelar</p>
                                                     </TooltipContent>
                                                 </Tooltip>
-                                            </div>
-                                        </td>
-                                    </>
-                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

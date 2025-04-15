@@ -6,6 +6,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { CheckIcon, XIcon, Edit, Delete } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ErrorListProps } from "../ListView/ErrorListView";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ErrorExcelViewProps extends ErrorListProps {
     juzgados: Juzgado[];
@@ -14,7 +15,7 @@ interface ErrorExcelViewProps extends ErrorListProps {
     editedData: InstrumentoDTO | null;
     startEditing: (index: number) => void;
     handleInputChange: (field: keyof InstrumentoDTO, value: any) => void;  // eslint-disable-line
-                                               
+
     saveEditedData: () => void;
     cancelEditing: () => void;
 }
@@ -140,22 +141,32 @@ export default function ErrorExcelView({
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300">
                                             <div className="flex items-center gap-1">
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-green-500 hover:bg-green-600 text-white text-xs"
-                                                    onClick={saveEditedData}
-                                                >
-                                                    <CheckIcon className="h-3 w-3 mr-1" />
-                                                    Guardar
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-gray-500 hover:bg-gray-600 text-white text-xs"
-                                                    onClick={cancelEditing}
-                                                >
-                                                    <XIcon className="h-3 w-3 mr-1" />
-                                                    Cancelar
-                                                </Button>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-green-500 hover:bg-green-600 text-white text-xs"
+                                                            onClick={saveEditedData}
+                                                        >
+                                                            <CheckIcon className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Guardar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-gray-500 hover:bg-gray-600 text-white text-xs"
+                                                            onClick={cancelEditing}
+                                                        >
+                                                            <XIcon className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Cancelar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
                                             </div>
                                         </td>
                                     </>
@@ -167,7 +178,7 @@ export default function ErrorExcelView({
                                         <td className={`px-3 py-2 border border-gray-300 text-sm ${error.error.includes("Juzgado") ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
                                             {error.juzgadoIdentifier || 'N/A'}
                                         </td>
-                                        <td className={`px-3 py-2 border border-gray-300 text-sm ${error.error.includes("tipo de instrumento") || error.error.includes("Tipo de instrumento inválido")  ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
+                                        <td className={`px-3 py-2 border border-gray-300 text-sm ${error.error.includes("tipo de instrumento") || error.error.includes("Tipo de instrumento inválido") ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
                                             {instrumentoTypes.find(type => type.identifier === error.instrumentoTypeIdentifier)?.name ?? 'N/A'}
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
@@ -184,22 +195,32 @@ export default function ErrorExcelView({
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300">
                                             <div className="flex items-center gap-1">
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
-                                                    onClick={() => startEditing(index)}
-                                                >
-                                                    <Edit className="h-3 w-3 mr-1" />
-                                                    Editar
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-red-500 hover:bg-red-600 text-white text-xs"
-                                                    onClick={() => onCancelarCarga(error)}
-                                                >
-                                                    <Delete className="h-3 w-3 mr-1" />
-                                                    Cancelar
-                                                </Button>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
+                                                            onClick={() => startEditing(index)}
+                                                        >
+                                                            <Edit className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Editar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-red-500 hover:bg-red-600 text-white text-xs"
+                                                            onClick={() => onCancelarCarga(error)}
+                                                        >
+                                                            <Delete className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Cancelar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
                                             </div>
                                         </td>
                                     </>

@@ -5,6 +5,7 @@ import { Juzgado, InstrumentoType, UrgenciaInstrumento } from "@prisma/client";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { CheckIcon, XIcon, Edit, Delete } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ExcelDataViewProps {
     juzgados: Juzgado[];
@@ -65,7 +66,7 @@ export default function ExcelDataView({
                                                 className="w-full text-sm"
                                             />
                                         </td>
-                                        <td className="px-3 py-2 border border-gray-300">
+                                        <td className="px-3 py-2 border border-gray-300 text-sm">
                                             {
                                                 editedData.codigo || 'N/A'
                                             }
@@ -82,7 +83,7 @@ export default function ExcelDataView({
                                                 <SelectContent>
                                                     {juzgados.map((juzgado) => (
                                                         <SelectItem key={juzgado.identifier} value={juzgado.identifier}>
-                                                            {juzgado.name}
+                                                            {juzgado.identifier}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -99,7 +100,7 @@ export default function ExcelDataView({
                                                 <SelectContent>
                                                     {instrumentoTypes.map((type) => (
                                                         <SelectItem key={type.identifier} value={type.identifier}>
-                                                            {type.name}
+                                                            {type.identifier}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -144,66 +145,86 @@ export default function ExcelDataView({
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300 w-fit">
                                             <div className="flex items-center gap-1">
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-green-500 hover:bg-green-600 text-white text-xs"
-                                                    onClick={saveEditedData}
-                                                >
-                                                    <CheckIcon className="h-3 w-3 mr-1" />
-                                                    Guardar
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-gray-500 hover:bg-gray-600 text-white text-xs"
-                                                    onClick={cancelEditing}
-                                                >
-                                                    <XIcon className="h-3 w-3 mr-1" />
-                                                    Cancelar
-                                                </Button>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-green-500 hover:bg-green-600 text-white text-xs"
+                                                            onClick={saveEditedData}
+                                                        >
+                                                            <CheckIcon className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Guardar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-gray-500 hover:bg-gray-600 text-white text-xs"
+                                                            onClick={cancelEditing}
+                                                        >
+                                                            <XIcon className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Cancelar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
                                             </div>
                                         </td>
                                     </>
                                 ) : (
                                     // Modo visualización
                                     <>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">{error.caratula}</td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">{error.codigo}</td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
-                                            {juzgados.find(juzgado => juzgado.identifier === error.juzgadoIdentifier)?.name ?? 'N/A'}
+                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">{error.caratula}</td>
+                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">{error.codigo}</td>
+                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
+                                            {juzgados.find(juzgado => juzgado.identifier === error.juzgadoIdentifier)?.identifier ?? 'N/A'}
                                         </td>
-                                        <td className={`px-3 py-2 border border-gray-300 text-sm text-gray-900`}>
-                                            {instrumentoTypes.find(type => type.identifier === error.instrumentoTypeIdentifier)?.name ?? 'N/A'}
+                                        <td className={`px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center`}>
+                                            {instrumentoTypes.find(type => type.identifier === error.instrumentoTypeIdentifier)?.identifier ?? 'N/A'}
                                         </td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
+                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
                                             {error.fecha_de_ingreso ? new Date(error.fecha_de_ingreso).toLocaleDateString() : 'N/A'}
                                         </td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
+                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
                                             {error.urgencia || UrgenciaInstrumento.NORMAL}
                                         </td>
-                                        <td className="px-3 py-2 w-80 border border-gray-300 text-sm text-gray-900">
+                                        <td className="px-3 py-2 w-80 border border-gray-300 text-sm text-gray-900 text-center">
                                             {error.domicilio_denunciado || 'N/A'}
                                         </td>
-                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900">
+                                        <td className="px-3 py-2 border border-gray-300 text-sm text-gray-900 text-center">
                                             {error.observaciones || 'N/A'}
                                         </td>
                                         <td className="px-3 py-2 border border-gray-300">
                                             <div className="flex items-center gap-1">
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
-                                                    onClick={() => startEditing(index)}
-                                                >
-                                                    <Edit className="h-3 w-3 mr-1" />
-                                                    Editar
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-red-500 hover:bg-red-600 text-white text-xs"
-                                                    onClick={() => onCancelarCarga(error)}
-                                                >
-                                                    <Delete className="h-3 w-3 mr-1" />
-                                                    Cancelar
-                                                </Button>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs"
+                                                            onClick={() => startEditing(index)}
+                                                        >
+                                                            <Edit className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Editar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-red-500 hover:bg-red-600 text-white text-xs"
+                                                            onClick={() => onCancelarCarga(error)}
+                                                        >
+                                                            <Delete className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Cancelar</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
                                             </div>
                                         </td>
                                     </>

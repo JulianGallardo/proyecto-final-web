@@ -16,7 +16,7 @@ interface ExcelDataViewProps {
     editingIndex: number | null;
     editedData: InstrumentoDTO | null;
     startEditing: (index: number) => void;
-    handleInputChange: (field: keyof InstrumentoDTO, value: any) => void; //es-lint-disable-line @typescript-eslint/no-explicit-any
+    handleInputChange: (field: keyof InstrumentoDTO, value: any) => void; // eslint-disable-line
     saveEditedData: () => void;
     cancelEditing: () => void;
 }

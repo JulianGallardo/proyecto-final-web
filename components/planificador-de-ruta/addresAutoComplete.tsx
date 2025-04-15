@@ -29,7 +29,6 @@ export default function AddressAutocomplete({
   autoFocus,
 }: Readonly<AddressAutocompleteProps>) {
   const [query, setQuery] = useState<string>(defaultValue);
-  const [selected, setSelected] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [noResults, setNoResults] = useState<boolean>(false);
@@ -81,7 +80,6 @@ export default function AddressAutocomplete({
           const customAddress = `${street} ${number}, ${city}`.trim();
       
           setQuery(customAddress);
-          setSelected(true);
           onChange(customAddress);
           setNoResults(false);
       
@@ -106,7 +104,6 @@ export default function AddressAutocomplete({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
-    setSelected(false);
     onChange(value);
   };
 
@@ -118,6 +115,7 @@ export default function AddressAutocomplete({
 
     startTransition(async () => {
       try {
+        
         const position = await new Promise<GeolocationPosition>((resolve, reject) =>
           navigator.geolocation.getCurrentPosition(resolve, reject)
         );
@@ -135,7 +133,6 @@ export default function AddressAutocomplete({
           const place = data.display_name;
 
           setQuery(place);
-          setSelected(true);
           setNoResults(false);
           onChange(place);
 

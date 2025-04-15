@@ -14,7 +14,7 @@ import {
   Location,
   User,
   Table,
-  FileText 
+  FileText
 } from "@mynaui/icons-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +40,7 @@ const navItems = [
   { href: "/control", label: "Control", icon: ChartGraph, resource: Resource.CONTROL },
   { href: "/control-agente", label: "Estadísticas", icon: ChartGraph, resource: Resource.CONTROL_AGENTE },
   { href: "/entregas", label: "Entregas", icon: Package, resource: Resource.ENTREGAS },
-  { href: "/generar-ingreso", label: "Generar Ingreso", icon: FileText , resource: Resource.GENERAR_INGRESO },
+  { href: "/generar-ingreso", label: "Generar Ingreso", icon: FileText, resource: Resource.GENERAR_INGRESO },
   { href: "/instrumentos", label: "Instrumentos", icon: Package, resource: Resource.INSTRUMENTOS },
   { href: "/instrumentos-agente", label: "Mi Carpeta", icon: Package, resource: Resource.INSTRUMENTOS_AGENTE },
   { href: "/planificador-de-ruta", label: "Planificador", icon: Location, resource: Resource.PLANIFICADOR },
@@ -52,6 +52,7 @@ const navItems = [
 const personalItems = [
   { href: "/agentes", label: "Agentes", icon: Truck, resource: Resource.AGENTE },
   { href: "/mesa-de-entrada", label: "Mesa de Entrada", icon: Table, resource: Resource.AGENTE },
+  { href: "/generar-ingreso", label: "Generar Ingreso", icon: FileText, resource: Resource.GENERAR_INGRESO },
 ].sort((a, b) => a.label.localeCompare(b.label));
 
 // Sorted option items alphabetically by label
@@ -71,6 +72,10 @@ export default async function Navbar() {
     return null;
   }
 
+  const isJefatura = session.user.role === "jefatura";
+
+  const filteredPersonalItems = navItems.filter(item => item.label !== "Generar Ingreso");
+
   return (
     <nav className="flex items-center p-4 px-6 bg-gray-900 w-full shadow-lg z-50">
       <div className="flex-grow flex items-center justify-between">
@@ -82,7 +87,7 @@ export default async function Navbar() {
 
         {/* Adaptative Navigation - Desktop for large screens, auto-mobile for smaller */}
         <div className="hidden md:flex space-x-2 items-center justify-center w-full overflow-x-auto">
-          {navItems.map((item) => (
+          {(isJefatura ? filteredPersonalItems : navItems).map((item) => (
             pathname !== item.href && canView(session.user.role, item.resource) && (
               <Link key={item.href} href={item.href} className="shrink-0">
                 <Button variant="ghost" className="flex items-center text-gray-200 hover:text-blue-400 px-2 whitespace-nowrap">

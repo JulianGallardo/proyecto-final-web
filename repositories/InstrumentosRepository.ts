@@ -597,12 +597,12 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             orderBy: [
                 { fecha_de_salida: { sort: "asc", nulls: "first" } },
                 { fecha_de_ingreso: "asc" },
-                { 
+                {
                     orden: {
                         ordenNumber: "asc"
                     }
                 },
-                { 
+                {
                     orden: {
                         juzgado: {
                             identifier: "asc"
@@ -612,4 +612,45 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             ],
         });
     }
+
+
+    async getInstrumentosByAgentCreatedDate(agentId: number, startDate: Date, finishDate: Date): Promise<InstrumentoExtendido[]> {
+     
+        
+        finishDate.setUTCDate(finishDate.getUTCDate() + 1); // Add one day to include the finish date
+        
+        console.log("Start date:", startDate);
+        console.log("Finish date:", finishDate);
+        const agentZones = await prisma.agente.findUnique({
+            where: { id: agentId },
+            select: { zonas: { select: { zoneName: true } } },
+        });
+    
+        return this.modelClient.findMany({
+            where: {
+                AND: [
+                    { createdAt: { gte: startDate, lte: finishDate } },
+                    agentZones?.zonas?.length ? { zoneName: { in: agentZones.zonas.map(z => z.zoneName) } } : {}
+                ]
+            },
+            select: selectOptions,
+            orderBy: [
+                { fecha_de_salida: { sort: "asc", nulls: "first" } },
+                { fecha_de_ingreso: "asc" },
+                {
+                    orden: {
+                        ordenNumber: "asc"
+                    }
+                },
+                {
+                    orden: {
+                        juzgado: {
+                            identifier: "asc"
+                        }
+                    }
+                }
+            ],
+        });
+    }
+
 }

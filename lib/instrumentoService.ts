@@ -182,6 +182,9 @@ export default class InstrumentoService {
         return this.instrumentoRepository.getInstrumentosByAgent(agentId, searchParams);
     }
 
+    async getInstrumentosByAgentCreatedDate(agentId: number, startDate: Date, finishDate: Date){
+        return this.instrumentoRepository.getInstrumentosByAgentCreatedDate(agentId, startDate, finishDate);
+    }
 
 
 }

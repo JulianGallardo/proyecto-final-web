@@ -165,3 +165,6 @@ export async function getInstrumentosByAgent(searchParams: SearchParamsInstrumen
     return await instrumentoService.getInstrumentosByAgent(searchParams, agentId);
 }
 
+export async function getInstrumentosByAgentCreatedDate(agentId: number, startDate: Date, finishDate: Date){
+    return await instrumentoService.getInstrumentosByAgentCreatedDate(agentId, startDate, finishDate)
+}

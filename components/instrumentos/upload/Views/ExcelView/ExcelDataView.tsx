@@ -52,7 +52,6 @@ export default function ExcelDataView({
                     const foundZone = zonas.find(z => z.zoneName === automaticZone.zoneName);
                     handleInputChange('zona', foundZone);
 
-                    console.log("Zona encontrada:", foundZone);
 
                     // Get subzone if zone exists
                     if (foundZone?.id) {
@@ -61,9 +60,9 @@ export default function ExcelDataView({
                             editedData.punto?.[1] ?? 0,
                             foundZone.id
                         ).then(subzone => {
-                            
+
                             if (subzone) {
-                                
+
                                 handleInputChange('subZona', subzone);
                             }
                         });
@@ -103,7 +102,7 @@ export default function ExcelDataView({
         }
     };
 
-    
+
 
     // Función para renderizar el contenido de una celda según su modo (visualización o edición)
     const renderCell = (item: InstrumentoDTO, index: number, field: keyof InstrumentoDTO) => {
@@ -288,104 +287,103 @@ export default function ExcelDataView({
 
     return (
         <div className="flex flex-col w-full gap-4 p-2">
-            <div className="w-full overflow-auto max-h-[calc(100vh-12rem)]">
-                <table className="w-full border-collapse rounded-lg table-fixed text-xs">
+            <div className="w-full h-full">
+                <table className="w-full border-collapse rounded-lg text-sm">
                     <thead className="sticky top-0 z-10">
                         <tr className="bg-gray-100">
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Carátula</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Codigo</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Juzgado</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Tipo</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Fecha</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Urgencia</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-2/12">Domicilio</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Zona</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">SubZona</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Obs.</th>
-                            <th className="px-2 py-1 border border-gray-300 text-left font-medium text-gray-600 uppercase tracking-wider w-1/12">Acciones</th>
+                            <th className="px-2 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-2/12">Carátula</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Codigo</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[7%]">Juzgado</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Tipo</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Fecha</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Urg.</th>
+                            <th className="px-2 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-1/12">Domicilio</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Zona</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">SubZona</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-2/12">Obs.</th>
+                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[8%]">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {data.map((item, index) => (
                             <tr key={"excel_row_" + index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 cursor-pointer"
                                     onDoubleClick={() => handleDoubleClick(index, 'caratula')}
                                     title={item.caratula}
                                 >
                                     {renderCell(item, index, 'caratula')}
                                 </td>
-                                <td className="px-2 py-1 border border-gray-300 text-gray-900 text-center truncate" title={item.codigo || 'N/A'}>
+                                <td className="px-2 py-2 border border-gray-300 text-gray-900 text-center" title={item.codigo || 'N/A'}>
                                     {item.codigo || 'N/A'}
                                 </td>
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
                                     onDoubleClick={() => handleDoubleClick(index, 'juzgadoIdentifier')}
                                     title={juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'N/A'}
                                 >
                                     {renderCell(item, index, 'juzgadoIdentifier')}
                                 </td>
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
                                     onDoubleClick={() => handleDoubleClick(index, 'instrumentoTypeIdentifier')}
                                     title={instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'N/A'}
                                 >
                                     {renderCell(item, index, 'instrumentoTypeIdentifier')}
                                 </td>
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
                                     onDoubleClick={() => handleDoubleClick(index, 'fecha_de_ingreso')}
                                     title={item.fecha_de_ingreso ? new Date(item.fecha_de_ingreso).toLocaleDateString() : 'N/A'}
                                 >
                                     {renderCell(item, index, 'fecha_de_ingreso')}
                                 </td>
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
                                     onDoubleClick={() => handleDoubleClick(index, 'urgencia')}
                                     title={item.urgencia || UrgenciaInstrumento.NORMAL}
                                 >
                                     {renderCell(item, index, 'urgencia')}
                                 </td>
-
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 cursor-pointer w-fit text-center"
                                     onDoubleClick={() => handleDoubleClick(index, 'domicilio_denunciado')}
                                     title={item.domicilio_denunciado || 'N/A'}
                                 >
                                     {renderCell(item, index, 'domicilio_denunciado')}
                                 </td>
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
                                     onDoubleClick={() => handleDoubleClick(index, 'zona')}
                                     title={item.zona?.zoneName || 'N/A'}
                                 >
                                     {renderCell(item, index, 'zona')}
                                 </td>
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
                                     onDoubleClick={() => handleDoubleClick(index, 'subZona')}
                                     title={item.subZona ? item.subZona.replace(/_/g, " ") : 'N/A'}
                                 >
                                     {renderCell(item, index, 'subZona')}
                                 </td>
                                 <td
-                                    className="px-2 py-1 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
                                     onDoubleClick={() => handleDoubleClick(index, 'observaciones')}
                                     title={item.observaciones || 'N/A'}
                                 >
                                     {renderCell(item, index, 'observaciones')}
                                 </td>
-                                <td className="px-2 py-1 border border-gray-300">
-                                    <div className="flex items-center justify-center gap-1">
+                                <td className="px-2 py-2 border border-gray-300">
+                                    <div className="flex items-center justify-center gap-2">
                                         {editingIndex === index ? (
                                             <>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button
-                                                            className="bg-green-500 hover:bg-green-600 text-white h-6 w-6 p-0"
+                                                            className="bg-green-500 hover:bg-green-600 text-white h-8 w-8 p-0"
                                                             onClick={saveEditedData}
                                                         >
-                                                            <CheckIcon className="h-3 w-3 text-white" />
+                                                            <CheckIcon className="h-4 w-4 text-white" />
                                                         </Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
@@ -395,13 +393,13 @@ export default function ExcelDataView({
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button
-                                                            className="bg-gray-500 hover:bg-gray-600 text-white h-6 w-6 p-0"
+                                                            className="bg-gray-500 hover:bg-gray-600 text-white h-8 w-8 p-0"
                                                             onClick={() => {
                                                                 cancelEditing();
                                                                 setEditingCell({ index: null, field: null });
                                                             }}
                                                         >
-                                                            <XIcon className="h-3 w-3 text-white" />
+                                                            <XIcon className="h-4 w-4 text-white" />
                                                         </Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
@@ -414,10 +412,10 @@ export default function ExcelDataView({
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button
-                                                            className="bg-blue-500 hover:bg-blue-600 text-white h-6 w-6 p-0"
+                                                            className="bg-blue-500 hover:bg-blue-600 text-white h-8 w-8 p-0"
                                                             onClick={() => startEditing(index)}
                                                         >
-                                                            <Edit className="h-3 w-3 text-white" />
+                                                            <Edit className="h-4 w-4 text-white" />
                                                         </Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
@@ -427,10 +425,10 @@ export default function ExcelDataView({
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button
-                                                            className="bg-red-500 hover:bg-red-600 text-white h-6 w-6 p-0"
+                                                            className="bg-red-500 hover:bg-red-600 text-white h-8 w-8 p-0"
                                                             onClick={() => onCancelarCarga(item)}
                                                         >
-                                                            <Delete className="h-3 w-3 text-white" />
+                                                            <Delete className="h-4 w-4 text-white" />
                                                         </Button>
                                                     </TooltipTrigger>
                                                     <TooltipContent>
@@ -447,7 +445,7 @@ export default function ExcelDataView({
                 </table>
             </div>
 
-            <div className="p-2 bg-gray-50 rounded border border-gray-200">
+            <div className="p-3 bg-gray-50 rounded border border-gray-200">
                 <p className="text-sm text-gray-600">
                     <span className="font-medium">Total de registros:</span> {data.length}
                 </p>

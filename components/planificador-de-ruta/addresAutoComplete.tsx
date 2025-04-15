@@ -60,19 +60,31 @@ export default function AddressAutocomplete({
   
       autocompleteRef.current = auto;
   
-      auto.setFields(["formatted_address", "geometry", "name"]);
+      auto.setFields(["address_components", "formatted_address", "geometry", "name"]);
+
   
       auto.addListener("place_changed", () => {
         const place = auto.getPlace();
-        if (place?.geometry) {
+        if (place?.geometry && place.address_components) {
           const lat = place.geometry.location?.lat();
           const lng = place.geometry.location?.lng();
-          const address = place.formatted_address || place.name || "";
-  
-          setQuery(address);
+      
+          const components = place.address_components;
+      
+          const street = components.find(c => c.types.includes("route"))?.long_name || "";
+          const number = components.find(c => c.types.includes("street_number"))?.long_name || "";
+          const city =
+            components.find(c => c.types.includes("locality"))?.long_name ||
+            components.find(c => c.types.includes("administrative_area_level_2"))?.long_name ||
+            "";
+      
+          const customAddress = `${street} ${number}, ${city}`.trim();
+      
+          setQuery(customAddress);
           setSelected(true);
-          onChange(address);
+          onChange(customAddress);
           setNoResults(false);
+      
           if (setCoords && lat !== undefined && lng !== undefined) {
             setCoords(lat, lng);
           }
@@ -80,6 +92,7 @@ export default function AddressAutocomplete({
           setNoResults(true);
         }
       });
+      
   
       return () => {
        

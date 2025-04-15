@@ -2,7 +2,7 @@
 import { AgenteExtendidoDto } from "@/types/agenteTypes";
 import SeleccionarFechaAgente from "./seleccionarFechaAgente";
 import { useEffect, useState } from "react";
-import { getInstrumentosByAgent, getInstrumentosByAgentCreatedDate } from "@/actions/instrumentos-actions";
+import {  getInstrumentosByAgentCreatedDate } from "@/actions/instrumentos-actions";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 import { TablaInstrumentosReporte } from "./tabla-instrumentos-reporte";
 import DescargarExcelButton from "./descargar-excel-button";

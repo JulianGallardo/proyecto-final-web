@@ -15,6 +15,8 @@ import CustomAlert from "../../Dialogs/alert";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { toast } from "@/hooks/use-toast";
 import ExcelDataView from "../Views/ExcelView/ExcelDataView";
+import { ExtendedZone } from "@/types/ZoneTypes";
+import { getAll } from "@/actions/zone-actions";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -50,6 +52,7 @@ export default function StepDataReview({
 
     const [instrumentoTypes, setInstrumentoTypes] = useState<InstrumentoType[]>([]);
     const [juzgados, setJuzgados] = useState<Juzgado[]>([]);
+    const [zonas, setZonas] = useState<ExtendedZone[]>([]); // Cambia el tipo según tu necesidad
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [editedData, setEditedData] = useState<InstrumentoDTO | null>(null);
 
@@ -59,14 +62,16 @@ export default function StepDataReview({
         setEditedData({ ...paginatedData[index] });
     };
 
-    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => { // eslint-disable-line
-        if (editedData) {
-            setEditedData({
-                ...editedData,
+    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => {
+        setEditedData((prev) => {
+            if (!prev) return prev;
+            return {
+                ...prev,
                 [field]: value
-            });
-        }
+            };
+        });
     };
+    
 
     const saveEditedData = () => {
         if (editedData) {
@@ -92,8 +97,14 @@ export default function StepDataReview({
             setJuzgados(juzgadosFetch);
         }
 
+        const fetchZonas = async () => {
+            const zonasFetch = await getAll();
+            setZonas(zonasFetch);
+        }
+
         fetchInstrumentoTypes();
         fetchJuzgados();
+        fetchZonas();
     }, []);
 
     useEffect(() => {
@@ -234,6 +245,7 @@ export default function StepDataReview({
                         handleInputChange={handleInputChange}
                         saveEditedData={saveEditedData}
                         cancelEditing={cancelEditing}
+                        zonas={zonas}
                     />
                 }
 

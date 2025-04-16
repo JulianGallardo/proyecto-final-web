@@ -106,7 +106,7 @@ export default function PDFUploadProcess() {
 
   const editInstrumentData = (instrument: InstrumentoDTO) => {
     try {
-      const index = data.findIndex((i) => i.caratula === instrument.caratula);
+      const index = data.findIndex((i) => i.codigo === instrument.codigo);
       if (index !== -1) {
         const newData = [...data];
         newData.splice(index, 1, instrument);

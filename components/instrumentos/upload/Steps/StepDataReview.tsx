@@ -76,8 +76,9 @@ export default function StepDataReview({
     const saveEditedData = () => {
         if (editedData) {
             editInstrumentData(editedData);
-            setEditingIndex(null);
+            
             setEditedData(null);
+            setEditingIndex(null);
         }
     };
 

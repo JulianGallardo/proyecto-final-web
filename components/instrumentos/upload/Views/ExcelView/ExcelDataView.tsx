@@ -52,7 +52,6 @@ export default function ExcelDataView({
                     const foundZone = zonas.find(z => z.zoneName === automaticZone.zoneName);
                     handleInputChange('zona', foundZone);
 
-
                     // Get subzone if zone exists
                     if (foundZone?.id) {
                         getSubzoneInCoords(
@@ -60,9 +59,7 @@ export default function ExcelDataView({
                             editedData.punto?.[1] ?? 0,
                             foundZone.id
                         ).then(subzone => {
-
                             if (subzone) {
-
                                 handleInputChange('subZona', subzone);
                             }
                         });
@@ -101,8 +98,6 @@ export default function ExcelDataView({
             startCellEditing(index, field);
         }
     };
-
-
 
     // Función para renderizar el contenido de una celda según su modo (visualización o edición)
     const renderCell = (item: InstrumentoDTO, index: number, field: keyof InstrumentoDTO) => {
@@ -201,10 +196,8 @@ export default function ExcelDataView({
                     {
                         return (
                             <Select value={editedData.zona?.zoneName ?? "automatica"} onValueChange={(value) => {
-
                                 const selectedZona = zonas.find(z => z.zoneName === value);
                                 handleInputChange('zona', selectedZona);
-
                             }
                             }>
                                 <SelectTrigger className="text-center">
@@ -222,7 +215,6 @@ export default function ExcelDataView({
                         );
                     }
                 case 'subZona': {
-
                     const subzonas = zonas?.find(z => z.zoneName === editedData.zona?.zoneName)?.SubZonas || [];
                     return (
                         <Select value={editedData.subZona ?? "automatica"} onValueChange={(value) => handleInputChange('subZona', value)}>
@@ -287,162 +279,169 @@ export default function ExcelDataView({
 
     return (
         <div className="flex flex-col w-full gap-4 p-2">
-            <div className="w-full h-full">
-                <table className="w-full border-collapse rounded-lg text-sm">
-                    <thead className="sticky top-0 z-10">
-                        <tr className="bg-gray-100">
-                            <th className="px-2 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-2/12">Carátula</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Codigo</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[7%]">Juzgado</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Tipo</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Fecha</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Urg.</th>
-                            <th className="px-2 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-1/12">Domicilio</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">Zona</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[6%]">SubZona</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-2/12">Obs.</th>
-                            <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[8%]">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.map((item, index) => (
-                            <tr key={"excel_row_" + index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 cursor-pointer"
-                                    onDoubleClick={() => handleDoubleClick(index, 'caratula')}
-                                    title={item.caratula}
-                                >
-                                    {renderCell(item, index, 'caratula')}
-                                </td>
-                                <td className="px-2 py-2 border border-gray-300 text-gray-900 text-center" title={item.codigo || 'N/A'}>
-                                    {item.codigo || 'N/A'}
-                                </td>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
-                                    onDoubleClick={() => handleDoubleClick(index, 'juzgadoIdentifier')}
-                                    title={juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'N/A'}
-                                >
-                                    {renderCell(item, index, 'juzgadoIdentifier')}
-                                </td>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
-                                    onDoubleClick={() => handleDoubleClick(index, 'instrumentoTypeIdentifier')}
-                                    title={instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'N/A'}
-                                >
-                                    {renderCell(item, index, 'instrumentoTypeIdentifier')}
-                                </td>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
-                                    onDoubleClick={() => handleDoubleClick(index, 'fecha_de_ingreso')}
-                                    title={item.fecha_de_ingreso ? new Date(item.fecha_de_ingreso).toLocaleDateString() : 'N/A'}
-                                >
-                                    {renderCell(item, index, 'fecha_de_ingreso')}
-                                </td>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
-                                    onDoubleClick={() => handleDoubleClick(index, 'urgencia')}
-                                    title={item.urgencia || UrgenciaInstrumento.NORMAL}
-                                >
-                                    {renderCell(item, index, 'urgencia')}
-                                </td>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 cursor-pointer w-fit text-center"
-                                    onDoubleClick={() => handleDoubleClick(index, 'domicilio_denunciado')}
-                                    title={item.domicilio_denunciado || 'N/A'}
-                                >
-                                    {renderCell(item, index, 'domicilio_denunciado')}
-                                </td>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
-                                    onDoubleClick={() => handleDoubleClick(index, 'zona')}
-                                    title={item.zona?.zoneName || 'N/A'}
-                                >
-                                    {renderCell(item, index, 'zona')}
-                                </td>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
-                                    onDoubleClick={() => handleDoubleClick(index, 'subZona')}
-                                    title={item.subZona ? item.subZona.replace(/_/g, " ") : 'N/A'}
-                                >
-                                    {renderCell(item, index, 'subZona')}
-                                </td>
-                                <td
-                                    className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer"
-                                    onDoubleClick={() => handleDoubleClick(index, 'observaciones')}
-                                    title={item.observaciones || 'N/A'}
-                                >
-                                    {renderCell(item, index, 'observaciones')}
-                                </td>
-                                <td className="px-2 py-2 border border-gray-300">
-                                    <div className="flex items-center justify-center gap-2">
-                                        {editingIndex === index ? (
-                                            <>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            className="bg-green-500 hover:bg-green-600 text-white h-8 w-8 p-0"
-                                                            onClick={saveEditedData}
-                                                        >
-                                                            <CheckIcon className="h-4 w-4 text-white" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Guardar</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            className="bg-gray-500 hover:bg-gray-600 text-white h-8 w-8 p-0"
-                                                            onClick={() => {
-                                                                cancelEditing();
-                                                                setEditingCell({ index: null, field: null });
-                                                            }}
-                                                        >
-                                                            <XIcon className="h-4 w-4 text-white" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Cancelar</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            className="bg-blue-500 hover:bg-blue-600 text-white h-8 w-8 p-0"
-                                                            onClick={() => startEditing(index)}
-                                                        >
-                                                            <Edit className="h-4 w-4 text-white" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Editar</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            className="bg-red-500 hover:bg-red-600 text-white h-8 w-8 p-0"
-                                                            onClick={() => onCancelarCarga(item)}
-                                                        >
-                                                            <Delete className="h-4 w-4 text-white" />
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Cancelar</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </>
-                                        )}
-                                    </div>
-                                </td>
+            {/* Responsive container for the table */}
+            <div className="w-full overflow-x-auto md:overflow-x-visible">
+                {/* Table container with adjustable height for desktop */}
+                <div className="w-full h-full overflow-y-auto">
+                    <table className="w-full h-full border-collapse rounded-lg text-sm table-fixed ">
+                        <thead className="sticky top-0 z-10">
+                            <tr className="bg-gray-100">
+                                {/* Desktop optimized widths */}
+                                <th className="px-2 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[15%] w-[150px]">Carátula</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[8%] w-[80px]">Codigo</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[7%] w-[100px]">Juzgado</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[6%] w-[80px]">Tipo</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[12%] w-[100px]">Fecha</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[5%] w-[60px]">Urg.</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[15%] w-[180px]">Domicilio</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[7%] w-[100px]">Zona</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[7%] w-[100px]">SubZona</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[8%] w-[150px]">Obs.</th>
+                                <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[8%] w-[100px]">Acciones</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {data.map((item, index) => (
+                                <tr key={"excel_row_" + index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 cursor-pointer truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'caratula')}
+                                        title={item.caratula}
+                                    >
+                                        {renderCell(item, index, 'caratula')}
+                                    </td>
+                                    <td className="px-2 py-2 border border-gray-300 text-gray-900 text-center truncate" title={item.codigo || 'N/A'}>
+                                        {item.codigo || 'N/A'}
+                                    </td>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'juzgadoIdentifier')}
+                                        title={juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'N/A'}
+                                    >
+                                        {renderCell(item, index, 'juzgadoIdentifier')}
+                                    </td>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'instrumentoTypeIdentifier')}
+                                        title={instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'N/A'}
+                                    >
+                                        {renderCell(item, index, 'instrumentoTypeIdentifier')}
+                                    </td>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'fecha_de_ingreso')}
+                                        title={item.fecha_de_ingreso ? new Date(item.fecha_de_ingreso).toLocaleDateString() : 'N/A'}
+                                    >
+                                        {renderCell(item, index, 'fecha_de_ingreso')}
+                                    </td>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'urgencia')}
+                                        title={item.urgencia || UrgenciaInstrumento.NORMAL}
+                                    >
+                                        {renderCell(item, index, 'urgencia')}
+                                    </td>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 cursor-pointer text-center truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'domicilio_denunciado')}
+                                        title={item.domicilio_denunciado || 'N/A'}
+                                    >
+                                        <div className="max-w-full mx-auto overflow-hidden text-ellipsis">
+                                            {renderCell(item, index, 'domicilio_denunciado')}
+                                        </div>
+                                    </td>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'zona')}
+                                        title={item.zona?.zoneName || 'N/A'}
+                                    >
+                                        {renderCell(item, index, 'zona')}
+                                    </td>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'subZona')}
+                                        title={item.subZona ? item.subZona.replace(/_/g, " ") : 'N/A'}
+                                    >
+                                        {renderCell(item, index, 'subZona')}
+                                    </td>
+                                    <td
+                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        onDoubleClick={() => handleDoubleClick(index, 'observaciones')}
+                                        title={item.observaciones || 'N/A'}
+                                    >
+                                        {renderCell(item, index, 'observaciones')}
+                                    </td>
+                                    <td className="px-2 py-2 border border-gray-300">
+                                        <div className="flex items-center justify-center gap-2">
+                                            {editingIndex === index ? (
+                                                <>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                className="bg-green-500 hover:bg-green-600 text-white h-8 w-8 p-0"
+                                                                onClick={saveEditedData}
+                                                            >
+                                                                <CheckIcon className="h-4 w-4 text-white" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Guardar</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                className="bg-gray-500 hover:bg-gray-600 text-white h-8 w-8 p-0"
+                                                                onClick={() => {
+                                                                    cancelEditing();
+                                                                    setEditingCell({ index: null, field: null });
+                                                                }}
+                                                            >
+                                                                <XIcon className="h-4 w-4 text-white" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Cancelar</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                className="bg-blue-500 hover:bg-blue-600 text-white h-8 w-8 p-0"
+                                                                onClick={() => startEditing(index)}
+                                                            >
+                                                                <Edit className="h-4 w-4 text-white" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Editar</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                className="bg-red-500 hover:bg-red-600 text-white h-8 w-8 p-0"
+                                                                onClick={() => onCancelarCarga(item)}
+                                                            >
+                                                                <Delete className="h-4 w-4 text-white" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Cancelar</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div className="p-3 bg-gray-50 rounded border border-gray-200">

@@ -62,7 +62,7 @@ export default function StepDataReview({
         setEditedData({ ...paginatedData[index] });
     };
 
-    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => {
+    const handleInputChange = (field: keyof InstrumentoDTO, value: any) => { // eslint-disable-line
         setEditedData((prev) => {
             if (!prev) return prev;
             return {

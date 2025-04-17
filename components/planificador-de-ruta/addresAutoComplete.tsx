@@ -1,10 +1,13 @@
 "use client";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Input } from "../ui/input";
-import { useDebouncedCallback } from "use-debounce";
 import { LocateFixed, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
-import { cn } from "@/lib/utils"; // Shadcn utility for className merging
+import { cn } from "@/lib/utils";
+import { useJsApiLoader, Libraries } from "@react-google-maps/api";
+
+const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+const libraries: Libraries = ["places"];
 
 interface AddressAutocompleteProps {
   placeHolder?: string;
@@ -13,25 +16,7 @@ interface AddressAutocompleteProps {
   miUbicacion?: boolean;
   defaultValue?: string;
   setCoords?: (lat: number, lon: number) => void;
-}
-
-interface Place {
-  display_name: string;
-  address: {
-    city: string;
-    country: string;
-    road: string;
-    house_number: string;
-    state: string;
-  };
-  lat: number;
-  lon: number;
-}
-
-interface PlaceResult {
-  name: string;
-  lat: string;
-  lon: string;
+  autoFocus?: boolean;
 }
 
 export default function AddressAutocomplete({
@@ -41,84 +26,85 @@ export default function AddressAutocomplete({
   setCoords,
   defaultValue = "",
   miUbicacion = true,
+  autoFocus,
 }: Readonly<AddressAutocompleteProps>) {
   const [query, setQuery] = useState<string>(defaultValue);
-  const [results, setResults] = useState<PlaceResult[]>([]);
-  const [selected, setSelected] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [noResults, setNoResults] = useState<boolean>(false);
-  const bbox = "-62.5,-39.0,-61.5,-38.5";
 
-  async function fetchPlaces(searchText: string, controller: AbortController) {
-    if (!searchText) {
-      setResults([]);
-      setNoResults(false);
-      return;
-    }
+  const inputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-    setIsSearching(true);
-    setNoResults(false);
-
-    try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-        searchText
-      )}&addressdetails=1&countrycodes=AR&limit=5&bounded=1&viewbox=${bbox}`;
-      const response = await fetch(url, { signal: controller.signal });
-      const data: Place[] = await response.json();
-
-      const mappedResults = data.map((place) => ({
-        name: [place.address.road, place.address.house_number, place.address.city, place.address.state, place.address.country]
-          .filter(Boolean)
-          .join(", "),
-        lat: place.lat.toString(),
-        lon: place.lon.toString(),
-      }));
-
-      setResults(mappedResults);
-      console.log("Resultados:", mappedResults);
-
-      // Si no hay resultados, mostrar el mensaje por unos segundos
-      if (mappedResults.length === 0) {
-        setNoResults(true);
-
-       
-
-        
-      } else {
-        setNoResults(false);
-      }
-    } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") return;
-      console.error("Error fetching places:", error);
-      setNoResults(true);
-
-     
-    } finally {
-      setIsSearching(false);
-    }
-  }
-
-  
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey,
+    libraries,
+    id: "google-map-script",
+  });
+  useEffect(() => { setTimeout(() => (document.body.style.pointerEvents = ""), 0); }, []);
 
   useEffect(() => {
-    setQuery(defaultValue);
-  }, [defaultValue]);
+    if (isLoaded && inputRef.current) {
+      const bahiaBounds = new window.google.maps.LatLngBounds(
+        new window.google.maps.LatLng(-39.3, -62.5),
+        new window.google.maps.LatLng(-38.65, -61.0)
+      );
+  
+      const auto = new google.maps.places.Autocomplete(inputRef.current, {
+        types: ["geocode"],
+        componentRestrictions: { country: "AR" },
+        bounds: bahiaBounds,
+        strictBounds: true,
+      });
+  
+      autocompleteRef.current = auto;
+  
+      auto.setFields(["address_components", "formatted_address", "geometry", "name"]);
 
-  const handleSearch = useDebouncedCallback((searchText: string) => {
-    const controller = new AbortController();
-    fetchPlaces(searchText, controller);
-    onChange(searchText);
-    return () => controller.abort();
-  }, 500);
+  
+      auto.addListener("place_changed", () => {
+        const place = auto.getPlace();
+        if (place?.geometry && place.address_components) {
+          const lat = place.geometry.location?.lat();
+          const lng = place.geometry.location?.lng();
+      
+          const components = place.address_components;
+      
+          const street = components.find(c => c.types.includes("route"))?.long_name || "";
+          const number = components.find(c => c.types.includes("street_number"))?.long_name || "";
+          const city =
+            components.find(c => c.types.includes("locality"))?.long_name ||
+            components.find(c => c.types.includes("administrative_area_level_2"))?.long_name ||
+            "";
+      
+          const customAddress = `${street} ${number}, ${city}`.trim();
+      
+          setQuery(customAddress);
+          onChange(customAddress);
+          setNoResults(false);
+      
+          if (setCoords && lat !== undefined && lng !== undefined) {
+            setCoords(lat, lng);
+          }
+        } else {
+          setNoResults(true);
+        }
+      });
+      
+  
+      return () => {
+       
+        if (autocompleteRef.current) {
+          google.maps.event.clearInstanceListeners(autocompleteRef.current);
+        }
+      };
+    }
+  }, [isLoaded]);
 
-  const handleSelectPlace = (place: PlaceResult) => {
-    setQuery(place.name);
-    setResults([]);
-    setSelected(true);
-    setNoResults(false);
-    onChange(place.name);
-    if (setCoords) setCoords(parseFloat(place.lat), parseFloat(place.lon));
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    onChange(value);
   };
 
   const getCurrentLocation = () => {
@@ -129,31 +115,49 @@ export default function AddressAutocomplete({
 
     startTransition(async () => {
       try {
+        
         const position = await new Promise<GeolocationPosition>((resolve, reject) =>
           /* eslint-disable */
           navigator.geolocation.getCurrentPosition(resolve, reject)
         );
+
         const { latitude, longitude } = position.coords;
+
         const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`;
+        setIsSearching(true);
+
         const response = await fetch(url);
         const data = await response.json();
+        setIsSearching(false);
 
         if (data.display_name) {
-          const addressComponents = [data.address.road, data.address.house_number, data.address.city, data.address.state, data.address.country];
-          const place = addressComponents.filter(Boolean).join(", ");
+          const place = data.display_name;
+
           setQuery(place);
-          setSelected(true);
           setNoResults(false);
           onChange(place);
+
+          if (setCoords) {
+            setCoords(latitude, longitude);
+          }
+        } else {
+          setNoResults(true);
         }
       } catch (error) {
+        setIsSearching(false);
         alert("No se pudo obtener la ubicación: " + (error instanceof Error ? error.message : "Error desconocido"));
       }
     });
   };
 
+  useEffect(() => {
+    if (defaultValue && defaultValue !== query) {
+      setQuery(defaultValue);
+    }
+  }, [defaultValue]);
+
   return (
-    <div className="relative w-full mx-auto text-gray-400">
+    <div className="relative w-full z-50">
       <div className="relative flex items-center gap-2">
         {Icon && (
           <span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -162,30 +166,18 @@ export default function AddressAutocomplete({
         )}
 
         <Input
-          id="search"
+          ref={inputRef}
+          type="text"
           placeholder={placeHolder}
-          value={query}
-          onChange={(e) => {
-            const newValue = e.target.value;
-            setQuery(newValue);
-            // Si el usuario comienza a escribir, desactivamos el estado "selected"
-            // para permitir la búsqueda de nuevas direcciones
-            if (selected && newValue !== query) {
-              setSelected(false);
-            }
-            handleSearch(newValue);
-          }}
           className={cn(
-            `${Icon ? "pl-10" : "pl-3"} h-10 w-full text-black`,
-            "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+            "w-full py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-500",
+            Icon ? "pl-10" : "",
+            miUbicacion ? "pr-10" : ""
           )}
+          value={query}
+          onChange={handleInputChange}
+          autoFocus={autoFocus}
         />
-
-        {isSearching && (
-          <div className="absolute right-2 top-1/2 -translate-y-1/2">
-            <Loader2 className="h-4 w-4 text-gray-500 animate-spin" />
-          </div>
-        )}
 
         {miUbicacion && (
           <Button
@@ -193,6 +185,7 @@ export default function AddressAutocomplete({
             disabled={isPending}
             className="p-2 bg-gray-200 hover:bg-gray-300 rounded-md transition-colors"
             title="Usar mi ubicación"
+            type="button"
           >
             {isPending ? (
               <Loader2 className="h-5 w-5 text-gray-600 animate-spin" />
@@ -203,35 +196,6 @@ export default function AddressAutocomplete({
         )}
       </div>
 
-      {query && !isSearching && (
-        <div className="absolute top-full left-0 w-full mt-1 z-10">
-          {results.length > 0 && (
-            <ul className={cn(
-              "rounded-md border border-gray-200 bg-white shadow-lg",
-              "max-h-60 overflow-y-auto text-gray-900"
-            )}>
-              {results.map((place, index) => (
-                <li
-                  key={index}
-                  onClick={() => handleSelectPlace(place)}
-                  className={cn(
-                    "px-4 py-2 text-sm",
-                    "hover:bg-gray-50 hover:text-blue-600",
-                    "cursor-pointer transition-colors duration-150",
-                    "border-b border-gray-100 last:border-b-0",
-                    "truncate"
-                  )}
-                >
-                  {place.name}
-                </li>
-              ))}
-            </ul>
-          )
-          }
-        </div>
-      )}
-
-     
       {noResults && !isSearching && (
         <div className="w-full p-2">
           <p className="text-sm text-red-500">No se encontraron resultados.</p>

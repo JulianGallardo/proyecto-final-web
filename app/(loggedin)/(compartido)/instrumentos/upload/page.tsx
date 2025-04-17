@@ -95,7 +95,7 @@ export default function PDFUploadProcess() {
       return; // Skip if required fields are missing
     }
 
-    const index = instrumentosConErrores.findIndex((i) => i.caratula === instrument.caratula);
+    const index = instrumentosConErrores.findIndex((i) => i.codigo === instrument.codigo);
     if (index !== -1) {
       const newErrors = [...instrumentosConErrores];
       newErrors.splice(index, 1);
@@ -106,7 +106,7 @@ export default function PDFUploadProcess() {
 
   const editInstrumentData = (instrument: InstrumentoDTO) => {
     try {
-      const index = data.findIndex((i) => i.caratula === instrument.caratula);
+      const index = data.findIndex((i) => i.codigo === instrument.codigo);
       if (index !== -1) {
         const newData = [...data];
         newData.splice(index, 1, instrument);
@@ -126,7 +126,7 @@ export default function PDFUploadProcess() {
 
   const deleteInstrumentData = (instrument: InstrumentoDTO) => {
     try {
-      const index = data.findIndex((i) => i.caratula === instrument.caratula);
+      const index = data.findIndex((i) => i.codigo === instrument.codigo);
       if (index !== -1) {
         const newData = [...data];
         newData.splice(index, 1);
@@ -146,7 +146,7 @@ export default function PDFUploadProcess() {
 
   const deleteInstrumentErrorData = (instrument: InstrumentoDTO) => {
     try {
-      const index = instrumentosConErrores.findIndex((i) => i.caratula === instrument.caratula);
+      const index = instrumentosConErrores.findIndex((i) => i.codigo === instrument.codigo);
       if (index !== -1) {
         const newData = [...instrumentosConErrores];
         newData.splice(index, 1);

@@ -211,9 +211,9 @@ function configureColumnWidths(): ColumnWidth[] {
         { wch: 5 },   // Número de orden
         { wch: 8 },   // Juzgado
         { wch: 40 },   // Carátula (recortada a 50 caracteres)
-        { wch: 18 },   // Tipo
+        { wch: 12 },   // Tipo
         { wch: 25 },   // Domicilio
-        { wch: 15 },   // Fecha de salida
+        { wch: 10 },   // Fecha de salida
         { wch: 20 },   // Observaciones
     ];
 }

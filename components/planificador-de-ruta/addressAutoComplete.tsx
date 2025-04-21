@@ -123,7 +123,8 @@ export default function AddressAutoComplete({
     startTransition(async () => {
       try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject) //es-lint-disable-line
+          /* eslint-disable */
+          navigator.geolocation.getCurrentPosition(resolve, reject) 
         );
         const { latitude, longitude } = position.coords;
         const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`;

@@ -186,7 +186,7 @@ function formatDate(dateInput: Date | string | null | undefined): string {
         // Create date from string
         date = new Date(dateInput);
         // Add one day to fix the timezone offset issue
-        date.setDate(date.getDate() + 1);
+        date.setDate(date.getDate());
     }
     
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;

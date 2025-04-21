@@ -269,7 +269,7 @@ export default function ExcelDataView({
             case 'domicilio_denunciado':
                 return item.domicilio_denunciado || 'N/A';
             case 'zona':
-                return item.zona?.zoneName || 'N/A';
+                return item.zona?.zoneName ?? 'N/A';
             case 'subZona':
                 return item.subZona ? item.subZona.replace(/_/g, " ") : 'N/A';
             case 'observaciones':
@@ -355,7 +355,7 @@ export default function ExcelDataView({
                                     <td
                                         className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
                                         onDoubleClick={() => handleDoubleClick(index, 'zona')}
-                                        title={item.zona?.zoneName || 'N/A'}
+                                        title={item.zona?.zoneName ?? 'N/A'}
                                     >
                                         {renderCell(item, index, 'zona')}
                                     </td>

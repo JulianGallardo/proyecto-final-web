@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import { InstrumentoDTO, InstrumentoDtoWithError } from "@/types/instrumentoTypes";
-import { ChevronLeftIcon, ChevronRightIcon, TableIcon, ListIcon } from "lucide-react";
+import { ChevronLeftIcon, ChevronRightIcon, } from "lucide-react";
 import CustomDialog from "../../Dialogs/dialog";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
 import { useEffect, useState } from "react";
@@ -11,7 +11,6 @@ import { useCustomAlert } from "@/hooks/useCustomAlert";
 import CustomAlert from "../../Dialogs/alert";
 import { Delete} from "@mynaui/icons-react";
 import ErrorExcelView from "../Views/ExcelView/ExcelErrorView";
-import ErrorList from "../Views/ListView/ErrorListView";
 
 export default function StepErrorReview({
     deleteInstrumento,

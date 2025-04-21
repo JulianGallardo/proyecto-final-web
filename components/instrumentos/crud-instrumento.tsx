@@ -2,7 +2,6 @@
 import { InstrumentoDTO, InstrumentoExtendido, } from "@/types/instrumentoTypes"
 import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
-import { TablaInstrumentos } from "./Views/Tabla/tabla-instrumento"
 import CustomDialog from "./Dialogs/dialog"
 import { FormularioInstrumento } from "./Forms/formulario-instrumento"
 import useInfoInstrumentos from "@/hooks/useInfoInstrumentos"
@@ -15,7 +14,6 @@ import { toast } from "@/hooks/use-toast";
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ExtendedZone } from "@/types/ZoneTypes"
-import { ListIcon, TableIcon } from "lucide-react"
 import InstrumentoExcelView from "./Views/Excel/InstrumentExcelView"
 import { convertToDto } from "@/lib/utils"
 
@@ -30,7 +28,6 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zonas }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
     const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
-    const [viewMode, setViewMode] = useState<'list' | 'excel'>('list')
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
@@ -182,7 +179,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 onClose={handleClose}
             />
             <CustomAlert
-                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.orden.ordenNumber ?? "") + " " + (instrumentoEliminando?.orden.juzgado.identifier || "")}
+                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.orden.ordenNumber ?? "") + " " + (instrumentoEliminando?.orden.juzgado.identifier ?? "")}
                 AlertDescription="¿Estás seguro de que deseas eliminar este instrumento?"
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">

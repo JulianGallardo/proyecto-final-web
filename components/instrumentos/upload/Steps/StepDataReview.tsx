@@ -3,14 +3,11 @@ import { Button } from "@/components/ui/button";
 import { useCustomDialog } from "@/hooks/useCustomDialog";
 import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { InstrumentoType, Juzgado } from "@prisma/client";
-import { FileIcon, ChevronLeftIcon, ChevronRightIcon, ListIcon, TableIcon } from "lucide-react";
+import {  ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FormularioInstrumento } from "../../Forms/formulario-instrumento";
 import CustomDialog from "../../Dialogs/dialog";
-import { Accordion } from "@/components/ui/accordion";
-import { AccordionContent, AccordionItem, AccordionTrigger } from "@radix-ui/react-accordion";
-import { ArrowDown } from "@mynaui/icons-react";
-import { parseDate } from "@/lib/utils";
+
 import CustomAlert from "../../Dialogs/alert";
 import { useCustomAlert } from "@/hooks/useCustomAlert";
 import { toast } from "@/hooks/use-toast";

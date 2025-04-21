@@ -31,6 +31,7 @@ interface InstrumentoExcelViewProps {
   Juzgados: JuzgadoDto[];
   instrumentoTypes: InstrumentoTypeDTO[];
   zonas?: ExtendedZone[];
+  onEditDialog: (instrumento: InstrumentoExtendido) => void;
 }
 
 export default function InstrumentoExcelView({
@@ -41,6 +42,7 @@ export default function InstrumentoExcelView({
   Juzgados,
   instrumentoTypes,
   zonas,
+  onEditDialog,
 }: Readonly<InstrumentoExcelViewProps>) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -98,7 +100,8 @@ export default function InstrumentoExcelView({
       onDelete,
       Juzgados,
       instrumentoTypes,
-      zonas
+      zonas,
+      onEditDialog,
 
     }),
     getCoreRowModel: getCoreRowModel(),

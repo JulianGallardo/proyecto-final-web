@@ -15,7 +15,7 @@ import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, Delete, Edit, Eye, XIcon } from "lucide-react";
+import { CheckIcon, Delete, Edit, Eye, PlusCircle, XIcon } from "lucide-react";
 
 export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
@@ -320,6 +320,7 @@ export const AccionesCell = ({
     startEditing,
     saveChanges,
     cancelEditing,
+    onEditDialog,
 }: {
     row: Row<InstrumentoExtendido>;
     editingIndex: number;
@@ -327,15 +328,29 @@ export const AccionesCell = ({
     startEditing: (index: number) => void;
     saveChanges: () => void;
     cancelEditing: () => void;
+    onEditDialog: (instrumento:InstrumentoExtendido) => void;
 }) => {
 
     const router = useRouter();
 
     const isEditing = row.index === editingIndex;
-    
+
 
     return isEditing ? (
         <div className="flex gap-2 justify-center">
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        className="bg-yellow-500 hover:bg-yellow-600"
+                        onClick={() => onEditDialog(row.original)}
+                    >
+                        <PlusCircle className="h-4 w-4 text-white" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Más Opciones</p>
+                </TooltipContent>
+            </Tooltip>
 
             <Tooltip>
                 <TooltipTrigger asChild>

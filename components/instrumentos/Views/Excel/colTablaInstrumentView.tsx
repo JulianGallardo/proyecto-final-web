@@ -22,6 +22,7 @@ export const getColumns = ({
     saveChanges,
     cancelEditing,
     startEditing,
+    onEditDialog,
     onDelete,
 }: {
     editingIndex: number;
@@ -31,6 +32,7 @@ export const getColumns = ({
     saveChanges: () => void;
     cancelEditing: () => void;
     startEditing: (index: number) => void;
+    onEditDialog: (instrumento:InstrumentoExtendido) => void;
     onDelete: (instrumento: InstrumentoExtendido) => void;
 }): ColumnDef<InstrumentoExtendido>[] => [
         {
@@ -116,6 +118,7 @@ export const getColumns = ({
                     cancelEditing={cancelEditing}
                     saveChanges={saveChanges}
                     onDelete={onDelete}
+                    onEditDialog={onEditDialog}
 
                 />
             

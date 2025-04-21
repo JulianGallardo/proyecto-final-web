@@ -30,7 +30,7 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zonas }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
     const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
-    
+    const [viewMode, setViewMode] = useState<'list' | 'excel'>('list')
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
@@ -81,6 +81,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
         setIsOpen(true)
     }
 
+    const onEdit = (instrumento: InstrumentoExtendido) => {
+        setInstrumentoEditando(instrumento)
+        setIsOpen(true)
+    }
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
         setInstrumentoEliminando(instrumento)
@@ -198,7 +202,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 }
             />
 
-            
+          
 
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <Button
@@ -233,6 +237,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                     onDelete={onDelete}
                     Juzgados={Juzgados}
                     instrumentoTypes={instrumentoTypes}
+                    onEditDialog={onEdit}
                     zonas={zonas}
 
                 />

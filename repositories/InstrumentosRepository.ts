@@ -283,7 +283,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         }
 
 
-        console.log("Zona automática:", nuevaZona);
         return { punto, nuevaZona, nuevaSubZona };
     }
 
@@ -299,8 +298,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
         const { punto, nuevaZona, nuevaSubZona } = await this.getNewZoneAndCoordinates(data);
 
-        console.log(orden);
-        console.log(data);
 
         try {
             return await this.modelClient.create({

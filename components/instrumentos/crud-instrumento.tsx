@@ -30,7 +30,7 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zonas }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
     const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
-    const [viewMode, setViewMode] = useState<'list' | 'excel'>('list')
+    
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
@@ -81,10 +81,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
         setIsOpen(true)
     }
 
-    const onEdit = (instrumento: InstrumentoExtendido) => {
-        setInstrumentoEditando(instrumento)
-        setIsOpen(true)
-    }
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
         setInstrumentoEliminando(instrumento)
@@ -98,10 +94,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
 
 
     const handleEditar = async (instrumentoEditado: InstrumentoDTO) => {
-        
-        if (!instrumentoEditando ) return;
 
-        
+        if (!instrumentoEditando) return;
+
+
         try {
 
             const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.identifier, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
@@ -157,7 +153,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
         setIsOpenAlert(false)
     }
 
-    
+
 
 
 
@@ -172,7 +168,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                         instrumentoTypes={instrumentoTypes}
                         Juzgados={Juzgados}
                         onSubmit={instrumentoEditando ? handleEditar : handleCrear}
-                        instrumento={convertToDto(instrumentoEditando,zonas)}
+                        instrumento={convertToDto(instrumentoEditando, zonas)}
                         zonas={
                             zonas
                         }
@@ -202,27 +198,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 }
             />
 
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500 hidden md:inline">Vista:</span>
-                <Button
-                    variant={viewMode === 'list' ? "default" : "outline"}
-                    size="sm"
-                    className={viewMode === 'list' ? "bg-blue-500 hover:bg-blue-600" : ""}
-                    onClick={() => setViewMode('list')}
-                >
-                    <ListIcon className="h-4 w-4 mr-1" />
-                    Lista
-                </Button>
-                <Button
-                    variant={viewMode === 'excel' ? "default" : "outline"}
-                    size="sm"
-                    className={viewMode === 'excel' ? "bg-green-500 hover:bg-green-600" : ""}
-                    onClick={() => setViewMode('excel')}
-                >
-                    <TableIcon className="h-4 w-4 mr-1" />
-                    Excel
-                </Button>
-            </div>
+            
 
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <Button
@@ -248,26 +224,19 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
 
 
             <div className="flex flex-grow overflow:hidde justify-center gap-4">
-            {
-                viewMode === 'list' ? (
-                    <TablaInstrumentos
-                        data={instrumentos}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                    />
-                ) : (
-                    <InstrumentoExcelView
-                        data={instrumentos}
-                        saveChanges={handleEditar}
-                        onEdit={onEditExcel}
-                        onDelete={onDelete}
-                        Juzgados={Juzgados}
-                        instrumentoTypes={instrumentoTypes}
-                        zonas={zonas}
-                        
-                    />
-                )
-            }
+
+
+                <InstrumentoExcelView
+                    data={instrumentos}
+                    saveChanges={handleEditar}
+                    onEdit={onEditExcel}
+                    onDelete={onDelete}
+                    Juzgados={Juzgados}
+                    instrumentoTypes={instrumentoTypes}
+                    zonas={zonas}
+
+                />
+
             </div>
 
 

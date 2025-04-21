@@ -22,6 +22,7 @@ interface ExcelDataViewProps {
     saveEditedData: () => void;
     cancelEditing: () => void;
     zonas: ExtendedZone[];
+    onEditDialog: (instrumento: InstrumentoDTO) => void;
 }
 
 export default function ExcelDataView({
@@ -35,7 +36,8 @@ export default function ExcelDataView({
     handleInputChange,
     saveEditedData,
     cancelEditing,
-    zonas
+    zonas,
+    onEditDialog
 }: Readonly<ExcelDataViewProps>) {
     // Estado para la celda específica que se está editando
     const [editingCell, setEditingCell] = useState<{
@@ -375,6 +377,19 @@ export default function ExcelDataView({
                                         <div className="flex items-center justify-center gap-2">
                                             {editingIndex === index ? (
                                                 <>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                className="bg-yellow-500 hover:bg-yellow-600 text-white h-8 w-8 p-0"
+                                                                onClick={() => onEditDialog(item)}
+                                                            >
+                                                                <Edit className="h-4 w-4 text-white" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Más Opciones</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
                                                     <Tooltip>
                                                         <TooltipTrigger asChild>
                                                             <Button

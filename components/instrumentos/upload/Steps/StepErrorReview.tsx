@@ -32,7 +32,6 @@ export default function StepErrorReview({
     const { setIsOpen } = useCustomDialog();
     const { setIsOpenAlert } = useCustomAlert();
 
-    const [viewMode, setViewMode] = useState<'list' | 'excel'>('list');
 
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoDTO | undefined>(undefined);
     const [instrumentoCancelando, setInstrumentoCancelando] = useState<InstrumentoDTO | undefined>(undefined);
@@ -156,29 +155,7 @@ export default function StepErrorReview({
         <div className="flex flex-col w-full gap-4 ">
             <div className="flex flex-col md:flex-row md:justify-between items-center gap-2">
                 <h2 className="text-2xl font-semibold text-gray-800">Datos procesados</h2>
-                {errors.length > 0 && (
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500 hidden md:inline">Vista:</span>
-                        <Button
-                            variant={viewMode === 'list' ? "default" : "outline"}
-                            size="sm"
-                            className={viewMode === 'list' ? "bg-blue-500 hover:bg-blue-600" : ""}
-                            onClick={() => setViewMode('list')}
-                        >
-                            <ListIcon className="h-4 w-4 mr-1" />
-                            Lista
-                        </Button>
-                        <Button
-                            variant={viewMode === 'excel' ? "default" : "outline"}
-                            size="sm"
-                            className={viewMode === 'excel' ? "bg-green-500 hover:bg-green-600" : ""}
-                            onClick={() => setViewMode('excel')}
-                        >
-                            <TableIcon className="h-4 w-4 mr-1" />
-                            Excel
-                        </Button>
-                    </div>
-                )}
+                
             </div>
 
             <CustomDialog
@@ -217,16 +194,9 @@ export default function StepErrorReview({
                 }
             />
 
-            {errors.length > 0 && viewMode === 'list' && (
-                <ErrorList
-                    title="Información incompleta"
-                    instrumentErrors={errors}
-                    handleSetInstrumentoEditando={handleSetInstrumentoEditando}
-                    onCancelarCarga={onCancelarCarga}
-                />
-            )}
+            
 
-            {errors.length > 0 && viewMode === 'excel' && (
+            {errors.length > 0  && (
                 <ErrorExcelView
                     title="Información incompleta"
                     instrumentErrors={errors}
@@ -240,6 +210,7 @@ export default function StepErrorReview({
                     handleInputChange={handleInputChange}
                     saveEditedData={saveEditedData}
                     cancelEditing={cancelEditing}
+                    onEditDialog={handleSetInstrumentoEditando}
                 />
             )}
 

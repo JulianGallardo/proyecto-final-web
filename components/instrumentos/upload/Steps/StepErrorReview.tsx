@@ -69,6 +69,8 @@ export default function StepErrorReview({
 
     const handleSetInstrumentoEditando = (instrumento: InstrumentoDTO) => {
         setInstrumentoEditando(instrumento);
+        setEditingIndex(null);
+        setEditedData(null);
         setIsOpen(true);
     }
 

@@ -131,6 +131,7 @@ export default function StepDataReview({
 
 
     const handleSetInstrumentoEditando = (instrumento: InstrumentoDTO) => {
+        cancelEditing();
         setInstrumentoEditando(instrumento);
         setIsOpen(true);
     }

@@ -189,7 +189,7 @@ function formatDate(dateInput: Date | string | null | undefined): string {
         date.setDate(date.getDate() + 1);
     }
     
-    return date.toLocaleDateString('es-AR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
 }
 
 // Function to prepare worksheet data from instruments - limiting caratula to 50 chars

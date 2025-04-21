@@ -1,6 +1,6 @@
 import { Flag, Home } from "@mynaui/icons-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import AddressAutocomplete from "../addresAutoComplete";
+import AddressAutocomplete from "../addressAutoComplete";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 

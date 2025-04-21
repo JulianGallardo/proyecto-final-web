@@ -7,7 +7,7 @@ import {
     SelectContent,
     SelectItem,
 } from "@/components/ui/select";
-import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
+import AddressAutocomplete from "@/components/planificador-de-ruta/addressAutoComplete";
 import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 
 import { ExtendedZone } from "@/types/ZoneTypes";

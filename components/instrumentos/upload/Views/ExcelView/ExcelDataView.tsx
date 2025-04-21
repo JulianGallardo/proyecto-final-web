@@ -1,4 +1,4 @@
-import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
+import AddressAutocomplete from "@/components/planificador-de-ruta/addressAutoComplete";
 import { Button } from "@/components/ui/button";
 import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { Juzgado, InstrumentoType, UrgenciaInstrumento } from "@prisma/client";
@@ -51,7 +51,7 @@ export default function ExcelDataView({
             // Get the zone based on coordinates
             getZoneInCoords(editedData.punto[0], editedData.punto[1]).then((automaticZone) => {
                 if (automaticZone) {
-                    const foundZone = zonas.find(z => z.zoneName === automaticZone.zoneName);
+                    const foundZone = zonas.find(z => z.zoneName === automaticZone.zone?.zoneName);
                     handleInputChange('zona', foundZone);
 
                     // Get subzone if zone exists
@@ -62,7 +62,7 @@ export default function ExcelDataView({
                             foundZone.id
                         ).then(subzone => {
                             if (subzone) {
-                                handleInputChange('subZona', subzone);
+                                handleInputChange('subZona', subzone.subzone);
                             }
                         });
                     }

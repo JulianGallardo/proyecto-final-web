@@ -1,4 +1,4 @@
-import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
+import AddressAutocomplete from "@/components/planificador-de-ruta/addressAutoComplete";
 import { Button } from "@/components/ui/button";
 import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { Juzgado, InstrumentoType, UrgenciaInstrumento } from "@prisma/client";

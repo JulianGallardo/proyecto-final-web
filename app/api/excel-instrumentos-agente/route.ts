@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import XLSX from "xlsx-js-style"
-import { getInstrumentosByAgent, getInstrumentosByAgentCreatedDate } from "@/actions/instrumentos-actions";
+import {  getInstrumentosByAgentCreatedDate } from "@/actions/instrumentos-actions";
 import { getAgenteById } from "@/actions/user-actions";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 

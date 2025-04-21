@@ -1,8 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
-import {  InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
+import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { CheckIcon, XIcon, Edit, Trash2 as Delete } from "lucide-react";
+
 import { ExtendedZone } from "@/types/ZoneTypes";
 
 import {
@@ -12,7 +11,9 @@ import {
     ZonaCell,
     SubZonaCell,
     ObservacionesCell,
+    AccionesCell,
 } from "./cellComponentsExcelView";
+import { DemoraCell } from "../Tabla/col-tabla-instrumento";
 
 export const getColumns = ({
     editingIndex,
@@ -33,6 +34,32 @@ export const getColumns = ({
     onDelete: (instrumento: InstrumentoExtendido) => void;
 }): ColumnDef<InstrumentoExtendido>[] => [
         {
+            accessorKey: "demora",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Prioridad
+                    </Button>
+                );
+            },
+            cell: DemoraCell,
+
+        },
+        {
+            accessorKey: "fecha_de_ingreso",
+
+        },
+        {
+            accessorKey: "fecha_de_salida",
+        },
+        {
+            accessorKey: "urgencia",
+
+        },
+        {
             accessorKey: "caratula",
             header: "Carátula",
             cell: ({ row }) => <CaratulaCell row={row} editingIndex={editingIndex} />,
@@ -42,7 +69,7 @@ export const getColumns = ({
             header: "Codigo",
             cell: ({ row }) => <p>{row.original.codigoInstrumento}</p>,
         },
-        
+
         {
             accessorKey: "orden.juzgado",
             header: "Juzgado",
@@ -51,8 +78,8 @@ export const getColumns = ({
             ),
         },
         {
-            accessorKey: "N ° de orden", 
-            header: "N ° de orden",
+            accessorKey: "N ° de orden",
+            header: "N°",
             cell: ({ row }) => <p  >{row.original.orden.ordenNumber}</p>,
         },
         {
@@ -81,69 +108,17 @@ export const getColumns = ({
         {
             accessorKey: "acciones",
             header: "Acciones",
-            cell: ({ row }) => {
-                const isEditing = row.index === editingIndex;
+            cell: ({ row }) => 
+                <AccionesCell
+                    row={row}
+                    editingIndex={editingIndex}
+                    startEditing={startEditing}
+                    cancelEditing={cancelEditing}
+                    saveChanges={saveChanges}
+                    onDelete={onDelete}
 
-                return isEditing ? (
-                    <div className="flex gap-2 justify-center">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    className="bg-green-500 hover:bg-green-600"
-                                    onClick={() => saveChanges()}
-                                >
-                                    <CheckIcon className="h-4 w-4 text-white" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Guardar cambios</p>
-                            </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    className="bg-red-500 hover:bg-red-600"
-                                    onClick={() => cancelEditing()}
-                                >
-                                    <XIcon className="h-4 w-4 text-white" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Cancelar</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </div>
-                ) : (
-                    <div className="flex gap-2 justify-center">
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    className="bg-blue-500 hover:bg-blue-600"
-                                    onClick={() => startEditing(row.index)}
-                                >
-                                    <Edit className="h-4 w-4 text-white" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Editar</p>
-                            </TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button
-                                    className="bg-red-500 hover:bg-red-600"
-                                    onClick={() => onDelete(row.original)}
-                                >
-                                    <Delete className="h-4 w-4 text-white" />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Eliminar</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </div>
-                );
-            },
+                />
+            
         },
 
     ];

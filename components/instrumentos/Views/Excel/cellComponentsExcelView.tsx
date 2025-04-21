@@ -12,6 +12,10 @@ import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTyp
 
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { Row } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { CheckIcon, Delete, Edit, Eye, XIcon } from "lucide-react";
 
 export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
@@ -306,5 +310,103 @@ export const ObservacionesCell = ({ row, editingIndex }: { row: Row<InstrumentoE
             control={control}
             render={({ field }) => <Input className="min-w-50" {...field} />}
         />
+    );
+};
+
+export const AccionesCell = ({
+    row,
+    editingIndex,
+    onDelete,
+    startEditing,
+    saveChanges,
+    cancelEditing,
+}: {
+    row: Row<InstrumentoExtendido>;
+    editingIndex: number;
+    onDelete: (instrumento: InstrumentoExtendido) => void;
+    startEditing: (index: number) => void;
+    saveChanges: () => void;
+    cancelEditing: () => void;
+}) => {
+
+    const router = useRouter();
+
+    const isEditing = row.index === editingIndex;
+    
+
+    return isEditing ? (
+        <div className="flex gap-2 justify-center">
+
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        className="bg-green-500 hover:bg-green-600"
+                        onClick={() => saveChanges()}
+                    >
+                        <CheckIcon className="h-4 w-4 text-white" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Guardar cambios</p>
+                </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        className="bg-red-500 hover:bg-red-600"
+                        onClick={() => cancelEditing()}
+                    >
+                        <XIcon className="h-4 w-4 text-white" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Cancelar</p>
+                </TooltipContent>
+            </Tooltip>
+        </div>
+    ) : (
+        <div className="flex gap-2 justify-center">
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        className="bg-green-500 hover:bg-green-600"
+                        onClick={() =>
+                            router.push(`/instrumentos/ver/${row.original.codigoInstrumento}`)
+                        }
+                    >
+                        <Eye className="h-4 w-4 text-white" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Ver mas</p>
+                </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        className="bg-blue-500 hover:bg-blue-600"
+                        onClick={() => startEditing(row.index)}
+                    >
+                        <Edit className="h-4 w-4 text-white" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Editar</p>
+                </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Button
+                        className="bg-red-500 hover:bg-red-600"
+                        onClick={() => onDelete(row.original)}
+                    >
+                        <Delete className="h-4 w-4 text-white" />
+                    </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                    <p>Eliminar</p>
+                </TooltipContent>
+            </Tooltip>
+        </div>
     );
 };

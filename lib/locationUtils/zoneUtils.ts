@@ -22,7 +22,7 @@ interface SubzoneResult {
 
 interface CoordinatesResult {
   success: boolean;
-  coordinates?: number[];
+  coordinates?: [number, number];
   error?: string;
 }
 

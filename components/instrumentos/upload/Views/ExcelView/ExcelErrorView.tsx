@@ -1,9 +1,9 @@
-import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
+import AddressAutocomplete from "@/components/planificador-de-ruta/addressAutoComplete";
 import { Button } from "@/components/ui/button";
 import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { Juzgado, InstrumentoType, UrgenciaInstrumento } from "@prisma/client";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { CheckIcon, XIcon, Edit, Delete } from "lucide-react";
+import { CheckIcon, XIcon, Edit, Delete, PlusCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ErrorListProps } from "../ListView/ErrorListView";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -18,6 +18,7 @@ interface ErrorExcelViewProps extends ErrorListProps {
     handleInputChange: (field: keyof InstrumentoDTO, value: any) => void;  // eslint-disable-line
     saveEditedData: () => void;
     cancelEditing: () => void;
+    onEditDialog: (instrumento: InstrumentoDTO) => void;
 }
 
 export default function ErrorExcelView({
@@ -31,7 +32,8 @@ export default function ErrorExcelView({
     startEditing,
     handleInputChange,
     saveEditedData,
-    cancelEditing
+    cancelEditing,
+    onEditDialog
 }: Readonly<ErrorExcelViewProps>) {
     // Estado para la celda específica que se está editando
     const [editingCell, setEditingCell] = useState<{
@@ -260,6 +262,19 @@ export default function ErrorExcelView({
                                     <div className="flex items-center gap-1">
                                         {editingIndex === index ? (
                                             <>
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs"
+                                                            onClick={()=>onEditDialog(error)}
+                                                        >
+                                                            <PlusCircle className="h-4 w-4 text-white" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Más opciones</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
                                                         <Button

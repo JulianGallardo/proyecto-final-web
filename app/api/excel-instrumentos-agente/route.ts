@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import XLSX from "xlsx-js-style"
-import { getInstrumentosByAgent } from "@/actions/instrumentos-actions";
+import {  getInstrumentosByAgentCreatedDate } from "@/actions/instrumentos-actions";
 import { getAgenteById } from "@/actions/user-actions";
 import { InstrumentoExtendido } from "@/types/instrumentoTypes";
 
@@ -58,6 +58,20 @@ interface StyledWorksheet {
     '!cols'?: ColumnWidth[];
     '!ref'?: string;
     '!merges'?: Range[];
+    '!printHeader'?: [number, number];
+    '!pageSetup'?: {
+        orientation?: 'landscape' | 'portrait';
+        paperSize?: number;
+        fitToWidth?: number;
+        fitToHeight?: number;
+        scale?: number;
+        margins?: {
+            left?: number;
+            right?: number;
+            top?: number;
+            bottom?: number;
+        };
+    };
 }
 
 export async function GET(request: NextRequest) {
@@ -71,8 +85,20 @@ export async function GET(request: NextRequest) {
         delete searchParams.hasta;
 
         // Fetch instruments and agent data
-        const instrumentos = await getInstrumentosByAgent(searchParams, agenteId);
+        const instrumentos = await getInstrumentosByAgentCreatedDate(agenteId, new Date(fechaDesde), new Date(fechaDesde));
         const agente = await getAgenteById(agenteId);
+
+        // Sort instrumentos by juzgado and ordenNumber
+        instrumentos.sort((a, b) => {
+            // First sort by juzgado identifier
+            const juzgadoCompare = a.orden.juzgado.identifier.localeCompare(b.orden.juzgado.identifier);
+            if (juzgadoCompare !== 0) return juzgadoCompare;
+            
+            // Then by ordenNumber (as numbers)
+            const numA = typeof a.orden.ordenNumber === 'string' ? parseInt(a.orden.ordenNumber) : a.orden.ordenNumber;
+            const numB = typeof b.orden.ordenNumber === 'string' ? parseInt(b.orden.ordenNumber) : b.orden.ordenNumber;
+            return numA - numB;
+        });
 
         // Prepare worksheet data
         const worksheetData = prepareWorksheetData(instrumentos);
@@ -83,6 +109,21 @@ export async function GET(request: NextRequest) {
         
         // Configure column widths
         worksheet['!cols'] = configureColumnWidths();
+
+        // Configure page setup (landscape mode with small margins)
+        worksheet['!pageSetup'] = {
+            orientation: 'landscape',
+            paperSize: 9, // A4
+            fitToWidth: 1,
+            fitToHeight: 0, // auto
+            scale: 90, // Scale to 90% to ensure fit
+            margins: {
+                left: 0.3,
+                right: 0.3,
+                top: 0.5,
+                bottom: 0.5
+            }
+        };
 
         // Add header metadata
         addHeaderMetadata(worksheet, agente, instrumentos, fechaDesde);
@@ -96,6 +137,9 @@ export async function GET(request: NextRequest) {
             s: { r: 0, c: range.s.c },
             e: { r: range.e.r, c: range.e.c }
         });
+        
+        // Configure print area and title rows
+        worksheet['!printHeader'] = [1, 7]; // Repeat rows 1-7 as header on every page
         
         // Create and apply styles
         const { baseStyle, headerStyle } = createStyleObjects();
@@ -142,18 +186,18 @@ function formatDate(dateInput: Date | string | null | undefined): string {
         // Create date from string
         date = new Date(dateInput);
         // Add one day to fix the timezone offset issue
-        date.setDate(date.getDate() + 1);
+        date.setDate(date.getDate());
     }
     
-    return date.toLocaleDateString('es-AR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
 }
 
-// Function to prepare worksheet data from instruments
+// Function to prepare worksheet data from instruments - limiting caratula to 50 chars
 function prepareWorksheetData(instrumentos: InstrumentoExtendido[]) {
     return instrumentos.map(instrumento => ({
-        "Número de orden": instrumento.orden.ordenNumber,
+        "Nº": instrumento.orden.ordenNumber,
         "Juzgado": instrumento.orden.juzgado.identifier,
-        "Carátula": instrumento.caratula,
+        "Carátula": instrumento.caratula.length > 50 ? instrumento.caratula.substring(0, 50) + '...' : instrumento.caratula,
         "Tipo de instrumento": instrumento.instrumentoType.name,
         "Domicilio": instrumento.domicilio_denunciado,
         "Fecha de salida": formatDate(instrumento.fecha_de_salida),
@@ -161,20 +205,20 @@ function prepareWorksheetData(instrumentos: InstrumentoExtendido[]) {
     }));
 }
 
-// Function to configure column widths
+// Function to configure column widths - optimized for landscape printing
 function configureColumnWidths(): ColumnWidth[] {
     return [
-        { wch: 15 },   // Número de orden
-        { wch: 20 },   // Juzgado
-        { wch: 100 },  // Carátula
-        { wch: 20 },   // Tipo
-        { wch: 30 },   // Domicilio
-        { wch: 20 },   // Fecha de salida
-        { wch: 30 },   // Observaciones
+        { wch: 5 },   // Número de orden
+        { wch: 8 },   // Juzgado
+        { wch: 40 },   // Carátula (recortada a 50 caracteres)
+        { wch: 12 },   // Tipo
+        { wch: 25 },   // Domicilio
+        { wch: 10 },   // Fecha de salida
+        { wch: 20 },   // Observaciones
     ];
 }
 
-// Function to add header metadata to the worksheet
+// Function to add header metadata to the worksheet (keeping original format)
 function addHeaderMetadata(
     worksheet: StyledWorksheet, 
     agente: Agent, 
@@ -216,10 +260,10 @@ function addHeaderMetadata(
     ], { origin: 'G1' });
 }
 
-// Function to create style objects
+// Function to create style objects with smaller font sizes
 function createStyleObjects(): { baseStyle: CellStyle; headerStyle: CellStyle } {
     const baseStyle: CellStyle = {
-        font: { sz: 11 },
+        font: { sz: 8 }, // Reduced from 11 to 8
         border: {
             top: { style: 'medium', color: { rgb: "000000" } },
             bottom: { style: 'medium', color: { rgb: "000000" } },
@@ -230,7 +274,7 @@ function createStyleObjects(): { baseStyle: CellStyle; headerStyle: CellStyle } 
     };
     
     const headerStyle: CellStyle = {
-        font: { bold: true, sz: 11 },
+        font: { bold: true, sz: 8 }, // Reduced from 11 to 8
         fill: { 
             fgColor: { rgb: "DDDDDD" },
             patternType: 'solid'
@@ -259,14 +303,20 @@ function applyStyleToTitleRows(worksheet: StyledWorksheet, baseStyle: CellStyle)
     // Style for title rows in columns 1-2
     for (let i = 0; i < 5; i++) {
         for (let j = 1; j < 3; j++) {
-            applyStyleToCell(worksheet, i, j, baseStyle);
+            const titleStyle = {...baseStyle};
+            // Make title text slightly bigger
+            if (j === 1) titleStyle.font = {...baseStyle.font, bold: true, sz: 9};
+            applyStyleToCell(worksheet, i, j, titleStyle);
         }
     }
 
     // Style for title rows in columns 5-6
     for (let i = 0; i < 3; i++) {
         for (let j = 5; j < 7; j++) {
-            applyStyleToCell(worksheet, i, j, baseStyle);
+            const titleStyle = {...baseStyle};
+            // Make title text slightly bigger
+            if (j === 5) titleStyle.font = {...baseStyle.font, bold: true, sz: 9};
+            applyStyleToCell(worksheet, i, j, titleStyle);
         }
     }
 }

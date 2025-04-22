@@ -2,7 +2,6 @@
 import { InstrumentoDTO, InstrumentoExtendido, } from "@/types/instrumentoTypes"
 import { createInstrumento, deleteInstrumento, updateInstrumento } from "@/actions/instrumentos-actions"
 import { InstrumentoType, Juzgado } from "@prisma/client"
-import { TablaInstrumentos } from "./Views/Tabla/tabla-instrumento"
 import CustomDialog from "./Dialogs/dialog"
 import { FormularioInstrumento } from "./Forms/formulario-instrumento"
 import useInfoInstrumentos from "@/hooks/useInfoInstrumentos"
@@ -15,7 +14,6 @@ import { toast } from "@/hooks/use-toast";
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { ExtendedZone } from "@/types/ZoneTypes"
-import { ListIcon, TableIcon } from "lucide-react"
 import InstrumentoExcelView from "./Views/Excel/InstrumentExcelView"
 import { convertToDto } from "@/lib/utils"
 
@@ -30,7 +28,6 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zonas }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
     const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
-    const [viewMode, setViewMode] = useState<'list' | 'excel'>('list')
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
@@ -98,10 +95,10 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
 
 
     const handleEditar = async (instrumentoEditado: InstrumentoDTO) => {
-        
-        if (!instrumentoEditando ) return;
 
-        
+        if (!instrumentoEditando) return;
+
+
         try {
 
             const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.identifier, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
@@ -157,7 +154,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
         setIsOpenAlert(false)
     }
 
-    
+
 
 
 
@@ -172,7 +169,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                         instrumentoTypes={instrumentoTypes}
                         Juzgados={Juzgados}
                         onSubmit={instrumentoEditando ? handleEditar : handleCrear}
-                        instrumento={convertToDto(instrumentoEditando,zonas)}
+                        instrumento={convertToDto(instrumentoEditando, zonas)}
                         zonas={
                             zonas
                         }
@@ -182,7 +179,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 onClose={handleClose}
             />
             <CustomAlert
-                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.orden.ordenNumber ?? "") + " " + (instrumentoEliminando?.orden.juzgado.identifier || "")}
+                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.orden.ordenNumber ?? "") + " " + (instrumentoEliminando?.orden.juzgado.identifier ?? "")}
                 AlertDescription="¿Estás seguro de que deseas eliminar este instrumento?"
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">
@@ -202,27 +199,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 }
             />
 
-            <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500 hidden md:inline">Vista:</span>
-                <Button
-                    variant={viewMode === 'list' ? "default" : "outline"}
-                    size="sm"
-                    className={viewMode === 'list' ? "bg-blue-500 hover:bg-blue-600" : ""}
-                    onClick={() => setViewMode('list')}
-                >
-                    <ListIcon className="h-4 w-4 mr-1" />
-                    Lista
-                </Button>
-                <Button
-                    variant={viewMode === 'excel' ? "default" : "outline"}
-                    size="sm"
-                    className={viewMode === 'excel' ? "bg-green-500 hover:bg-green-600" : ""}
-                    onClick={() => setViewMode('excel')}
-                >
-                    <TableIcon className="h-4 w-4 mr-1" />
-                    Excel
-                </Button>
-            </div>
+          
 
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <Button
@@ -248,26 +225,20 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
 
 
             <div className="flex flex-grow overflow:hidde justify-center gap-4">
-            {
-                viewMode === 'list' ? (
-                    <TablaInstrumentos
-                        data={instrumentos}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                    />
-                ) : (
-                    <InstrumentoExcelView
-                        data={instrumentos}
-                        saveChanges={handleEditar}
-                        onEdit={onEditExcel}
-                        onDelete={onDelete}
-                        Juzgados={Juzgados}
-                        instrumentoTypes={instrumentoTypes}
-                        zonas={zonas}
-                        
-                    />
-                )
-            }
+
+
+                <InstrumentoExcelView
+                    data={instrumentos}
+                    saveChanges={handleEditar}
+                    onEdit={onEditExcel}
+                    onDelete={onDelete}
+                    Juzgados={Juzgados}
+                    instrumentoTypes={instrumentoTypes}
+                    onEditDialog={onEdit}
+                    zonas={zonas}
+
+                />
+
             </div>
 
 

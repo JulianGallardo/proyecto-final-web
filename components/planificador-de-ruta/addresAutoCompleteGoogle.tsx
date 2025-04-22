@@ -19,7 +19,7 @@ interface AddressAutocompleteProps {
   autoFocus?: boolean;
 }
 
-export default function AddressAutocomplete({
+export default function AddressAutocompleteGoogle({
   placeHolder = "",
   Icon,
   onChange,

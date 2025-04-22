@@ -1,7 +1,7 @@
 import { instrumentSchema } from "@/lib/zod";
 import { z } from "zod";
 import { UseFormReturn } from "react-hook-form"
-import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
+import AddressAutocomplete from "@/components/planificador-de-ruta/addressAutoComplete";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";

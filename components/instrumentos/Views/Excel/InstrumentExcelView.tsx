@@ -3,6 +3,8 @@
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
+  SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import { useState, useCallback, useEffect } from "react";
@@ -29,6 +31,7 @@ interface InstrumentoExcelViewProps {
   Juzgados: JuzgadoDto[];
   instrumentoTypes: InstrumentoTypeDTO[];
   zonas?: ExtendedZone[];
+  onEditDialog: (instrumento: InstrumentoExtendido) => void;
 }
 
 export default function InstrumentoExcelView({
@@ -39,8 +42,10 @@ export default function InstrumentoExcelView({
   Juzgados,
   instrumentoTypes,
   zonas,
+  onEditDialog,
 }: Readonly<InstrumentoExcelViewProps>) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const form = useForm<InstrumentoExtendido>({
     defaultValues: data[editingIndex ?? 0], // lo actualizás dinámicamente abajo
     mode: "onChange",
@@ -64,8 +69,8 @@ export default function InstrumentoExcelView({
 
   const saveEditedData = () => {
     if (!zonas) return;
-    
-    const instrumentoDto = convertToDto( form.getValues(), zonas);
+
+    const instrumentoDto = convertToDto(form.getValues(), zonas);
 
     if (instrumentoDto && data[editingIndex ?? 0]?.domicilio_denunciado !== instrumentoDto.domicilio_denunciado) {
       instrumentoDto.zona = null;
@@ -73,7 +78,7 @@ export default function InstrumentoExcelView({
       instrumentoDto.punto = null;
     }
 
-    if(instrumentoDto && instrumentoDto.subZona === "automatica"){
+    if (instrumentoDto && instrumentoDto.subZona === "automatica") {
       instrumentoDto.subZona = null;
     }
 
@@ -95,10 +100,24 @@ export default function InstrumentoExcelView({
       onDelete,
       Juzgados,
       instrumentoTypes,
-      zonas
+      zonas,
+      onEditDialog,
 
     }),
     getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    initialState: {
+      columnVisibility: {
+        fecha_de_ingreso: false,
+        fecha_de_salida: false,
+        estado: false,
+        urgencia: false
+      }
+    },
+    state: {
+      sorting,
+    },
   });
 
   return (

@@ -1,4 +1,4 @@
-import AddressAutocomplete from "@/components/planificador-de-ruta/addresAutoComplete";
+import AddressAutocomplete from "@/components/planificador-de-ruta/addressAutoComplete";
 import { Button } from "@/components/ui/button";
 import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { Juzgado, InstrumentoType, UrgenciaInstrumento } from "@prisma/client";
@@ -22,6 +22,7 @@ interface ExcelDataViewProps {
     saveEditedData: () => void;
     cancelEditing: () => void;
     zonas: ExtendedZone[];
+    onEditDialog: (instrumento: InstrumentoDTO) => void;
 }
 
 export default function ExcelDataView({
@@ -35,7 +36,8 @@ export default function ExcelDataView({
     handleInputChange,
     saveEditedData,
     cancelEditing,
-    zonas
+    zonas,
+    onEditDialog
 }: Readonly<ExcelDataViewProps>) {
     // Estado para la celda específica que se está editando
     const [editingCell, setEditingCell] = useState<{
@@ -49,7 +51,7 @@ export default function ExcelDataView({
             // Get the zone based on coordinates
             getZoneInCoords(editedData.punto[0], editedData.punto[1]).then((automaticZone) => {
                 if (automaticZone) {
-                    const foundZone = zonas.find(z => z.zoneName === automaticZone.zoneName);
+                    const foundZone = zonas.find(z => z.zoneName === automaticZone.zone?.zoneName);
                     handleInputChange('zona', foundZone);
 
                     // Get subzone if zone exists
@@ -60,7 +62,7 @@ export default function ExcelDataView({
                             foundZone.id
                         ).then(subzone => {
                             if (subzone) {
-                                handleInputChange('subZona', subzone);
+                                handleInputChange('subZona', subzone.subzone);
                             }
                         });
                     }
@@ -267,7 +269,7 @@ export default function ExcelDataView({
             case 'domicilio_denunciado':
                 return item.domicilio_denunciado || 'N/A';
             case 'zona':
-                return item.zona?.zoneName || 'N/A';
+                return item.zona?.zoneName ?? 'N/A';
             case 'subZona':
                 return item.subZona ? item.subZona.replace(/_/g, " ") : 'N/A';
             case 'observaciones':
@@ -353,7 +355,7 @@ export default function ExcelDataView({
                                     <td
                                         className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
                                         onDoubleClick={() => handleDoubleClick(index, 'zona')}
-                                        title={item.zona?.zoneName || 'N/A'}
+                                        title={item.zona?.zoneName ?? 'N/A'}
                                     >
                                         {renderCell(item, index, 'zona')}
                                     </td>
@@ -375,6 +377,19 @@ export default function ExcelDataView({
                                         <div className="flex items-center justify-center gap-2">
                                             {editingIndex === index ? (
                                                 <>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                className="bg-yellow-500 hover:bg-yellow-600 text-white h-8 w-8 p-0"
+                                                                onClick={() => onEditDialog(item)}
+                                                            >
+                                                                <Edit className="h-4 w-4 text-white" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Más Opciones</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
                                                     <Tooltip>
                                                         <TooltipTrigger asChild>
                                                             <Button

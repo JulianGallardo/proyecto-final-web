@@ -22,7 +22,8 @@ export default function CustomDialog({ propDialogTrigger, propDialogContent, dia
             <DialogTrigger asChild>
                 {propDialogTrigger}
             </DialogTrigger>
-            <DialogContent onInteractOutside={(e) => {
+            <DialogContent /***
+             * onInteractOutside={(e) => {
                 const hasPacItem = e.composedPath().some((el: EventTarget) => {
                     if ('classList' in el) {
                         return Array.from((el as Element).classList).includes('pac-item');
@@ -34,7 +35,8 @@ export default function CustomDialog({ propDialogTrigger, propDialogContent, dia
                 if (hasPacItem) {
                     e.preventDefault();
                 }
-            }} className="max-h-screen overflow-y-auto sm:max-w-[425px] md:max-w-[600px] lg:max-w-[800px] sm:rounded-none md:rounded-md " >
+            }}
+                **/ className="max-h-screen overflow-y-auto sm:max-w-[425px] md:max-w-[600px] lg:max-w-[800px] sm:rounded-none md:rounded-md " >
 
                 <DialogHeader>
                     <DialogTitle>{dialogTitle}</DialogTitle>

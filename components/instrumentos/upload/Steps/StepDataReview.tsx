@@ -22,25 +22,17 @@ export default function StepDataReview({
     deleteInstrumentData,
     editInstrumentData,
     data,
-    currentPage,
-    totalPages,
-    onNextPage,
-    onPrevPage,
     onBack,
     onConfirm
 }: Readonly<{
     deleteInstrumentData: (instrumento: InstrumentoDTO) => void;
     editInstrumentData: (instrumento: InstrumentoDTO) => void;
     data: InstrumentoDTO[];
-    currentPage: number;
-    totalPages: number;
-    onNextPage: () => void;
-    onPrevPage: () => void;
     onBack: () => void;
     onConfirm: () => void;
 }>) {
 
-    const paginatedData = data.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    
     const { setIsOpen } = useCustomDialog();
     const { setIsOpenAlert } = useCustomAlert();
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoDTO | undefined>(undefined);
@@ -55,7 +47,7 @@ export default function StepDataReview({
     // Funciones para manejar la edición en la vista Excel
     const startEditing = (index: number) => {
         setEditingIndex(index);
-        setEditedData({ ...paginatedData[index] });
+        setEditedData(data[index]);
     };
 
     const handleInputChange = (field: keyof InstrumentoDTO, value: any) => { // eslint-disable-line
@@ -207,7 +199,7 @@ export default function StepDataReview({
 
 
                 <ExcelDataView
-                    data={paginatedData}
+                    data={data}
                     onCancelarCarga={onCancelarCarga}
                     juzgados={juzgados}
                     instrumentoTypes={instrumentoTypes}
@@ -224,15 +216,7 @@ export default function StepDataReview({
 
 
             </div>
-            <div className="flex items-center justify-between mt-4">
-                <Button variant="outline" onClick={onPrevPage} disabled={currentPage === 1}>
-                    <ChevronLeftIcon className="h-4 w-4" />
-                </Button>
-                <span className="text-sm text-gray-600">Página {currentPage} de {totalPages}</span>
-                <Button variant="outline" onClick={onNextPage} disabled={currentPage === totalPages}>
-                    <ChevronRightIcon className="h-4 w-4" />
-                </Button>
-            </div>
+            
             <div className="flex justify-between mt-6">
                 <Button className="bg-blue-500 hover:bg-blue-600" onClick={onBack}>
                     <ChevronLeftIcon className="h-4 w-4" />

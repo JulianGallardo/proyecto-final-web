@@ -259,9 +259,9 @@ export default function ExcelDataView({
             case 'codigo':
                 return item.codigo;
             case 'juzgadoIdentifier':
-                return juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'N/A';
+                return juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'No encontrado';
             case 'instrumentoTypeIdentifier':
-                return instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'N/A';
+                return instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'No encontrado';
             case 'fecha_de_ingreso':
                 return item.fecha_de_ingreso ? new Date(item.fecha_de_ingreso).toLocaleDateString() : 'N/A';
             case 'urgencia':
@@ -316,16 +316,16 @@ export default function ExcelDataView({
                                         {item.codigo || 'N/A'}
                                     </td>
                                     <td
-                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        className={"px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate " + (item.juzgadoIdentifier === "No encontrado" && "bg-red-300 ")}
                                         onDoubleClick={() => handleDoubleClick(index, 'juzgadoIdentifier')}
-                                        title={juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'N/A'}
+                                        title={juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'No encontrado'}
                                     >
                                         {renderCell(item, index, 'juzgadoIdentifier')}
                                     </td>
                                     <td
-                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        className={"px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate " + (item.instrumentoTypeIdentifier === "No nomenclado" && "bg-red-300")}
                                         onDoubleClick={() => handleDoubleClick(index, 'instrumentoTypeIdentifier')}
-                                        title={instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'N/A'}
+                                        title={instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'No nomenclado'}
                                     >
                                         {renderCell(item, index, 'instrumentoTypeIdentifier')}
                                     </td>

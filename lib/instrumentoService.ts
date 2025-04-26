@@ -34,7 +34,7 @@ export default class InstrumentoService {
 
         if (!juzgado || !instrumentoType) {
             return {    
-                fecha_de_ingreso: new Date(parseDataToYear(instrumento.altaDisponibilidad)),
+                fecha_de_ingreso: new Date(instrumento.altaDisponibilidad),
                 fecha_de_salida: null,
                 caratula: instrumento.caratula,
                 urgencia: instrumento.estado === "URGENTE" ? "URGENTE" : "NORMAL",
@@ -54,7 +54,7 @@ export default class InstrumentoService {
         }
 
         return {
-            fecha_de_ingreso: new Date(parseDataToYear(instrumento.altaDisponibilidad)),
+            fecha_de_ingreso: new Date(instrumento.altaDisponibilidad),
             fecha_de_salida: null,
             caratula: instrumento.caratula,
             urgencia: instrumento.estado === "URGENTE" ? "URGENTE" : "NORMAL",

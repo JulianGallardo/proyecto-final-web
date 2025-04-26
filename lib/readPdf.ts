@@ -20,7 +20,7 @@ function parseTextToJson(text: string): object[] {
         const codigoMatch = RegExp(/Código:\s+([A-Z0-9]+)/).exec(entry)?.[1]?.trim();
         const estadoMatch = RegExp(/(?:Procesada|Pendiente)/).exec(entry)?.[0]?.trim();
 
-        
+
 
         return {
             organismo: organismoMatch ?? "",
@@ -49,6 +49,18 @@ function parseTextToJson(text: string): object[] {
             entry.organismo = entry.organismo.replace(/(BAHIA BLANCA).*$/i, "$1").trim();
         }
 
+        // Usar fecha actual con timezone de Argentina para altaDisponibilidad
+        const today = new Date();
+        const formatter = new Intl.DateTimeFormat('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+        const [{ value: day }, , { value: month }, , { value: year }] = formatter.formatToParts(today);
+        
+        entry.altaDisponibilidad = `${year}-${month}-${day} ${today.getHours()}:${today.getMinutes()}`;
+
         return entry;
     }).filter((entry) => {
         // Filtrar entradas innecesarias
@@ -57,12 +69,15 @@ function parseTextToJson(text: string): object[] {
                 (value) =>
                     !value ||
                     value === "about:blank" ||
-                    /^\d{4}-\d{2}-\d{2}$/.test(value) || // Fechas solas
-                    /about:blank/i.test(value) || // Cualquier variante de "about:blank"
-                    /^\d{1,2}\/\d{1,2}\/\d{2,4}, \d{1,2}:\d{2}$/.test(value) // Formato de fecha y hora (ej. 16/1/25, 19:09)
+                    /^\d{4}-\d{2}-\d{2}$/.test(value) ||
+                    /about:blank/i.test(value) ||
+                    /^\d{1,2}\/\d{1,2}\/\d{2,4}, \d{1,2}:\d{2}$/.test(value)
             );
         return !isBlank;
     });
+
+
+
 
 
 

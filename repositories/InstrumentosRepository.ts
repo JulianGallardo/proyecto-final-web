@@ -465,7 +465,6 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     
     async createInstrumentos(instrumentos: InstrumentoDTO[]): Promise<InstrumentoExtendido[]> {
         if (!instrumentos.length) return [];
-        const createdInstruments: InstrumentoExtendido[] = [];
         const createdOrders: { ordenId: string, juzgadoIdentifier: string }[] = [];
     
         try {
@@ -541,7 +540,13 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     
                 // Flatten the results from all juzgados
                 return results.flat();
-            });
+            }
+            ,{
+                maxWait: 20000, // Maximum wait time for the transaction
+                timeout: 20000, // Timeout for each individual operation
+                isolationLevel: 'Serializable', // Transaction isolation level
+            }
+        );
         } catch (error) {
             console.error("Error creating instruments batch:", error);
             

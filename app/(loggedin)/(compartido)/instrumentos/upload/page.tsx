@@ -34,9 +34,9 @@ export default function PDFUploadProcess() {
 
       if (!result || typeof result !== "object") throw new Error("Error al procesar el PDF");
 
-      const  filteredInstrument  = result 
+      const filteredInstrument = result
 
-      if (filteredInstrument.length === 0 ) {
+      if (filteredInstrument.length === 0) {
         throw new Error("Los instrumentos en el PDF ya están cargados.");
       }
 
@@ -84,7 +84,7 @@ export default function PDFUploadProcess() {
     }
   };
 
-  
+
 
   const editInstrumentData = (instrument: InstrumentoDTO) => {
     try {
@@ -106,12 +106,19 @@ export default function PDFUploadProcess() {
     }
   };
 
-  const deleteInstrumentData = (instrument: InstrumentoDTO) => {
+  const deleteInstrumentData = (instrumentos: InstrumentoDTO[]) => {
+    if (!instrumentos || instrumentos.length === 0) return;
+
     try {
-      const index = data.findIndex((i) => i.codigo === instrument.codigo);
-      if (index !== -1) {
+
+      const indexes = instrumentos.map((instrumento) => data.findIndex((i) => i.codigo === instrumento.codigo));
+      if (indexes.length > 0) {
         const newData = [...data];
-        newData.splice(index, 1);
+        indexes.forEach((index) => {
+          if (index !== -1) {
+            newData.splice(index, 1);
+          }
+        });
         setData(newData);
       }
     } catch (error) {
@@ -124,10 +131,11 @@ export default function PDFUploadProcess() {
         duration: 3000,
       });
     }
-  };
+  }
 
 
-  
+
+
 
 
   return (
@@ -147,12 +155,12 @@ export default function PDFUploadProcess() {
         <div className="w-full h-full flex flex-col gap-4 rounded-lg px-4 pb-6  ">
 
           {step === 1 && (
-              <StepFileUpload
-                file={file}
-                onFileChange={setFile}
-                onNext={handleFileUpload}
+            <StepFileUpload
+              file={file}
+              onFileChange={setFile}
+              onNext={handleFileUpload}
 
-              />
+            />
           )}
 
 

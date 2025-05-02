@@ -16,7 +16,6 @@ import { ExtendedZone } from "@/types/ZoneTypes";
 import { getAll } from "@/actions/zone-actions";
 
 
-const ITEMS_PER_PAGE = 10;
 
 export default function StepDataReview({
     deleteInstrumentData,
@@ -25,7 +24,7 @@ export default function StepDataReview({
     onBack,
     onConfirm
 }: Readonly<{
-    deleteInstrumentData: (instrumento: InstrumentoDTO) => void;
+    deleteInstrumentData: (instrumento: InstrumentoDTO[]) => void;
     editInstrumentData: (instrumento: InstrumentoDTO) => void;
     data: InstrumentoDTO[];
     onBack: () => void;
@@ -36,7 +35,7 @@ export default function StepDataReview({
     const { setIsOpen } = useCustomDialog();
     const { setIsOpenAlert } = useCustomAlert();
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoDTO | undefined>(undefined);
-    const [instrumentoCancelando, setInstrumentoCancelando] = useState<InstrumentoDTO | undefined>(undefined);
+    const [instrumentoCancelando, setInstrumentoCancelando] = useState<InstrumentoDTO[] | undefined>(undefined);
 
     const [instrumentoTypes, setInstrumentoTypes] = useState<InstrumentoType[]>([]);
     const [juzgados, setJuzgados] = useState<Juzgado[]>([]);
@@ -130,13 +129,19 @@ export default function StepDataReview({
 
 
     const onCancelarCarga = (instrumento: InstrumentoDTO) => {
-        setInstrumentoCancelando(instrumento);
+        setInstrumentoCancelando([instrumento]);
+        setIsOpenAlert(true);
+    }
+
+    const onCancelarCargaMultiple = (instrumentos: InstrumentoDTO[]) => {
+        setInstrumentoCancelando(instrumentos);
         setIsOpenAlert(true);
     }
 
 
     const handleEliminar = () => {
         if (!instrumentoCancelando) return;
+
         deleteInstrumentData(instrumentoCancelando);
         setIsOpenAlert(false);
     }
@@ -171,7 +176,7 @@ export default function StepDataReview({
 
             <CustomAlert
                 AlertTitle={"Cancelar Carga"}
-                AlertDescription="¿Estás seguro de que deseas cancelar la carga del instrumento?"
+                AlertDescription="¿Estás seguro de que deseas cancelar la carga?"
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">
                         <Button
@@ -211,6 +216,7 @@ export default function StepDataReview({
                     cancelEditing={cancelEditing}
                     zonas={zonas}
                     onEditDialog={handleSetInstrumentoEditando}
+                    onCancelarCargaMultiple={onCancelarCargaMultiple}
 
                 />
 

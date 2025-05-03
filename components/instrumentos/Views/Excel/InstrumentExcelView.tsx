@@ -142,7 +142,7 @@ export default function InstrumentoExcelView({
               {table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="hover:bg-gray-100 transition-colors text-center">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="px-3 py-2 whitespace-nowrap">
+                    <TableCell key={cell.id} className="px-3 py-2 ">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

@@ -15,7 +15,8 @@ import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, Delete, Edit, Eye, PlusCircle, XIcon } from "lucide-react";
+import { CheckIcon, Delete, Edit, Eye, MoreVertical, PlusCircle, XIcon } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
@@ -186,7 +187,13 @@ export const DomicilioCell = ({ row, editingIndex }: { row: Row<InstrumentoExten
 
 
 
-    if (row.index !== editingIndex) return row.original.domicilio_denunciado;
+    if (row.index !== editingIndex)
+        return <p className="min-w-52 text-xs whitespace-normal">
+            {
+                row.original.domicilio_denunciado?.length > 30
+                    ? row.original.domicilio_denunciado.slice(0, 30) + "..."
+                    : row.original.domicilio_denunciado
+            }</p>
 
 
 
@@ -196,7 +203,7 @@ export const DomicilioCell = ({ row, editingIndex }: { row: Row<InstrumentoExten
             name="domicilio_denunciado"
             control={control}
             render={({ field }) => (
-                <div className="min-w-80">
+                <div className="min-w-52">
                     <AddressAutocomplete
                         defaultValue={row.original.domicilio_denunciado ?? ""}
                         onChange={(value) => {
@@ -302,7 +309,12 @@ export const SubZonaCell = ({
 
 export const ObservacionesCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
-    if (row.index !== editingIndex) return row.original.observaciones;
+    if (row.index !== editingIndex)
+        return (
+            <div className="flex items-center justify-center truncate  ">
+                <p className=" text-xs min-w-28 whitespace-normal">{row.original.observaciones}</p>
+            </div>
+        );
 
     return (
         <Controller
@@ -328,100 +340,91 @@ export const AccionesCell = ({
     startEditing: (index: number) => void;
     saveChanges: () => void;
     cancelEditing: () => void;
-    onEditDialog: (instrumento:InstrumentoExtendido) => void;
+    onEditDialog: (instrumento: InstrumentoExtendido) => void;
 }) => {
-
     const router = useRouter();
-
     const isEditing = row.index === editingIndex;
 
+    if (isEditing) {
+        return (
+            <div className="flex gap-1 justify-center flex-wrap md:flex-nowrap">
+                
 
-    return isEditing ? (
-        <div className="flex gap-2 justify-center">
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        className="bg-yellow-500 hover:bg-yellow-600"
-                        onClick={() => onEditDialog(row.original)}
-                    >
-                        <PlusCircle className="h-4 w-4 text-white" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Más Opciones</p>
-                </TooltipContent>
-            </Tooltip>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            size="sm"
+                            className="bg-green-500 hover:bg-green-600 p-1"
+                            onClick={saveChanges}
+                        >
+                            <CheckIcon className="h-3 w-3 text-white" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Guardar cambios</p>
+                    </TooltipContent>
+                </Tooltip>
 
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        className="bg-green-500 hover:bg-green-600"
-                        onClick={() => saveChanges()}
-                    >
-                        <CheckIcon className="h-4 w-4 text-white" />
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            size="sm"
+                            className="bg-red-500 hover:bg-red-600 p-1"
+                            onClick={cancelEditing}
+                        >
+                            <XIcon className="h-3 w-3 text-white" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Cancelar</p>
+                    </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            size="sm"
+                            className="bg-yellow-500 hover:bg-yellow-600 p-1"
+                            onClick={() => onEditDialog(row.original)}
+                        >
+                            <PlusCircle className="h-3 w-3 text-white" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Más Opciones</p>
+                    </TooltipContent>
+                </Tooltip>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex justify-center">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="p-2">
+                        <MoreVertical className="h-4 w-4" />
                     </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Guardar cambios</p>
-                </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        className="bg-red-500 hover:bg-red-600"
-                        onClick={() => cancelEditing()}
-                    >
-                        <XIcon className="h-4 w-4 text-white" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Cancelar</p>
-                </TooltipContent>
-            </Tooltip>
-        </div>
-    ) : (
-        <div className="flex gap-2 justify-center">
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        className="bg-green-500 hover:bg-green-600"
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem
                         onClick={() =>
                             router.push(`/instrumentos/ver/${row.original.codigoInstrumento}`)
                         }
                     >
-                        <Eye className="h-4 w-4 text-white" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Ver mas</p>
-                </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        className="bg-blue-500 hover:bg-blue-600"
-                        onClick={() => startEditing(row.index)}
-                    >
-                        <Edit className="h-4 w-4 text-white" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Editar</p>
-                </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Button
-                        className="bg-red-500 hover:bg-red-600"
+                        <Eye className="h-4 w-4 mr-2" /> Ver más
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => startEditing(row.index)}>
+                        <Edit className="h-4 w-4 mr-2" /> Editar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
                         onClick={() => onDelete(row.original)}
+                        className="text-red-600"
                     >
-                        <Delete className="h-4 w-4 text-white" />
-                    </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Eliminar</p>
-                </TooltipContent>
-            </Tooltip>
+                        <Delete className="h-4 w-4 mr-2" /> Eliminar
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
     );
 };

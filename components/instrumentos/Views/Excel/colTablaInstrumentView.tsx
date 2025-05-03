@@ -10,7 +10,6 @@ import {
     DomicilioCell,
     ZonaCell,
     SubZonaCell,
-    ObservacionesCell,
     AccionesCell,
 } from "./cellComponentsExcelView";
 import { DemoraCell } from "../Tabla/col-tabla-instrumento";

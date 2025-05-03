@@ -343,7 +343,7 @@ export const ObservacionesCell = ({ row, editingIndex }: { row: Row<InstrumentoE
         return (
             <div className="w-full">
                 <p className="text-xs line-clamp-2 max-w-[120px] sm:max-w-[150px]">
-                    {row.original.observaciones || "N/A"}
+                    {row.original.observaciones ?? "N/A"}
                 </p>
             </div>
         );

@@ -12,4 +12,5 @@ export default interface SearchParamsInstrumentos {
     urgencia?: string;
     estado?: string;
     zona?: string;
+    orderBy?: string;
 }

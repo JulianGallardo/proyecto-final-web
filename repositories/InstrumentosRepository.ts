@@ -169,15 +169,24 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number): Promise<InstrumentoExtendido[]> {
         const where = this.buildWhereClause(searchParams);
 
-        const orderByDemora = {
-            fecha_de_salida: { sort: "asc", nulls: "first" },
-            fecha_de_ingreso: "asc",
-        };
+        const orderByDemora = [
+            { fecha_de_salida: { sort: "asc", nulls: "first" } },
+            { fecha_de_ingreso: "asc" },
+        ]
 
-        const orderByBatchLoad = {
-            batchId: "asc",
-            batchOrderId: "asc",
-        };
+        const orderByBatchLoad = [
+            
+            { batchId: "asc" },
+            { batchOrderId: "asc" },
+        ];
+
+        let orderBy: any = orderByBatchLoad; // Default order by batch load
+
+        if (searchParams.orderBy === "Demora") {
+            orderBy = orderByDemora;
+        }
+
+
 
 
 
@@ -186,10 +195,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             skip: (page - 1) * this.itemsPerPage,
             take: this.itemsPerPage,
             select: selectOptions,
-            orderBy: [
-                { batchId: "asc" },
-                { batchOrderId: "asc" }  // asegúrate de usar el nombre real del campo en la DB
-            ]
+            orderBy: orderBy
         });
     }
 

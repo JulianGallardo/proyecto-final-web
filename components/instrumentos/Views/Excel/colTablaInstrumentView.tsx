@@ -101,11 +101,6 @@ export const getColumns = ({
                 <SubZonaCell row={row} editingIndex={editingIndex} zonas={zonas} />
             ),
         },
-        {
-            accessorKey: "observaciones",
-            header: "Observaciones",
-            cell: ({ row }) => <ObservacionesCell row={row} editingIndex={editingIndex} />,
-        },
 
         {
             accessorKey: "acciones",

@@ -22,8 +22,8 @@ export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
     const { control } = useFormContext();
     if (row.index !== editingIndex)
         return (
-            <div className="flex items-center justify-center  ">
-                <p className="max-w-52 text-xs whitespace-normal">{row.original.caratula}</p>
+            <div className="flex items-center justify-center">
+                <p className="text-xs line-clamp-2 w-fit sm:w-auto max-w-[120px] sm:max-w-[150px] md:max-w-[200px]  lg:max-w-[300px]">{row.original.caratula}</p>
             </div>
         )
 
@@ -31,10 +31,16 @@ export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
         <Controller
             name="caratula"
             control={control}
-            render={({ field }) => <Input {...field} className=" h-full text-xs flex items-center justify-center p-2" />}
+            render={({ field }) => (
+                <Input 
+                    {...field} 
+                    className="h-8 text-xs py-1 px-2 w-full " 
+                />
+            )}
         />
     );
 };
+
 export const JuzgadoCell = ({
     row,
     editingIndex,
@@ -45,7 +51,12 @@ export const JuzgadoCell = ({
     Juzgados: JuzgadoDto[];
 }) => {
     const { control, setValue } = useFormContext();
-    if (row.index !== editingIndex) return row.original.orden.juzgado.identifier;
+    if (row.index !== editingIndex) 
+        return (
+            <div className="text-xs truncate max-w-[100px]">
+                {row.original.orden.juzgado.identifier}
+            </div>
+        );
 
     return (
         <Controller
@@ -60,8 +71,8 @@ export const JuzgadoCell = ({
                         setValue("orden.juzgado.name", juzgado?.name ?? "");
                     }}
                 >
-                    <SelectTrigger className="text-center">
-                        <SelectValue placeholder="Seleccionar juzgado" />
+                    <SelectTrigger className="text-xs h-8 px-2 w-full max-w-[120px] sm:max-w-[160px]">
+                        <SelectValue placeholder="Juzgado" />
                     </SelectTrigger>
                     <SelectContent>
                         {Juzgados.map((juzgado) => (
@@ -86,7 +97,12 @@ export const TipoCell = ({
     instrumentoTypes: InstrumentoTypeDTO[];
 }) => {
     const { control, setValue } = useFormContext();
-    if (row.index !== editingIndex) return row.original.instrumentoType.name;
+    if (row.index !== editingIndex) 
+        return (
+            <div className="text-xs truncate max-w-[100px] sm:max-w-[120px]">
+                {row.original.instrumentoType.name}
+            </div>
+        );
 
     return (
         <Controller
@@ -101,8 +117,8 @@ export const TipoCell = ({
                         setValue("instrumentoType.name", tipo?.name ?? "");
                     }}
                 >
-                    <SelectTrigger className="text-center">
-                        <SelectValue placeholder="Seleccionar tipo" />
+                    <SelectTrigger className="text-xs h-8 px-2 w-full max-w-[120px] sm:max-w-[160px]">
+                        <SelectValue placeholder="Tipo" />
                     </SelectTrigger>
                     <SelectContent>
                         {instrumentoTypes.map((tipo) => (
@@ -120,7 +136,11 @@ export const TipoCell = ({
 export const IngresoCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
     if (row.index !== editingIndex)
-        return new Date(row.original.fecha_de_ingreso).toLocaleDateString();
+        return (
+            <div className="text-xs whitespace-nowrap">
+                {new Date(row.original.fecha_de_ingreso).toLocaleDateString()}
+            </div>
+        );
 
     return (
         <Controller
@@ -129,6 +149,7 @@ export const IngresoCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendi
             render={({ field }) => (
                 <Input
                     type="date"
+                    className="text-xs h-8 py-1 px-2 w-full max-w-[120px]"
                     value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
                     onChange={(e) => field.onChange(new Date(e.target.value))}
                 />
@@ -140,9 +161,13 @@ export const IngresoCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendi
 export const DescargaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
     if (row.index !== editingIndex)
-        return row.original.fecha_de_salida
-            ? new Date(row.original.fecha_de_salida).toLocaleDateString()
-            : "N/A";
+        return (
+            <div className="text-xs whitespace-nowrap">
+                {row.original.fecha_de_salida
+                    ? new Date(row.original.fecha_de_salida).toLocaleDateString()
+                    : "N/A"}
+            </div>
+        );
 
     return (
         <Controller
@@ -151,6 +176,7 @@ export const DescargaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
             render={({ field }) => (
                 <Input
                     type="date"
+                    className="text-xs h-8 py-1 px-2 w-full max-w-[120px]"
                     value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
                     onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
                 />
@@ -161,7 +187,12 @@ export const DescargaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
 
 export const UrgenciaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
-    if (row.index !== editingIndex) return row.original.urgencia;
+    if (row.index !== editingIndex) 
+        return (
+            <div className="text-xs">
+                {row.original.urgencia}
+            </div>
+        );
 
     return (
         <Controller
@@ -169,7 +200,7 @@ export const UrgenciaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
             control={control}
             render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="text-center">
+                    <SelectTrigger className="text-xs h-8 px-2 w-full max-w-[100px]">
                         <SelectValue placeholder="Urgencia" />
                     </SelectTrigger>
                     <SelectContent>
@@ -185,39 +216,32 @@ export const UrgenciaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
 export const DomicilioCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
 
-
-
     if (row.index !== editingIndex)
-        return <p className="min-w-52 text-xs whitespace-normal">
-            {
-                row.original.domicilio_denunciado?.length > 30
-                    ? row.original.domicilio_denunciado.slice(0, 30) + "..."
-                    : row.original.domicilio_denunciado
-            }</p>
-
-
-
+        return (
+            <div className="w-full justify-center items-center flex">
+                <p className="text-xs line-clamp-2 max-w-[120px] sm:max-w-[150px] md:max-w-[200px] ">
+                    {row.original.domicilio_denunciado || "N/A"}
+                </p>
+            </div>
+        );
 
     return (
         <Controller
             name="domicilio_denunciado"
             control={control}
             render={({ field }) => (
-                <div className="min-w-52">
+                <div className="w-full ">
                     <AddressAutocomplete
                         defaultValue={row.original.domicilio_denunciado ?? ""}
                         onChange={(value) => {
                             field.onChange(value);
-
-
                         }}
                         miUbicacion={false}
-                        placeHolder="Buscar domicilio"
+                        placeHolder="Domicilio"
                     />
                 </div>
             )}
         />
-
     );
 };
 
@@ -232,10 +256,12 @@ export const ZonaCell = ({
 }) => {
     const { control } = useFormContext();
 
-
-
-    if (row.index !== editingIndex) return row.original.zoneName ?? "N/A";
-
+    if (row.index !== editingIndex) 
+        return (
+            <div className="text-xs truncate max-w-[100px]">
+                {row.original.zoneName ?? "N/A"}
+            </div>
+        );
 
     return (
         <Controller
@@ -243,8 +269,8 @@ export const ZonaCell = ({
             control={control}
             render={({ field }) => (
                 <Select value={field.value ?? "automatica"} onValueChange={field.onChange} defaultValue="automatica">
-                    <SelectTrigger className="text-center">
-                        <SelectValue placeholder="Seleccionar zona" />
+                    <SelectTrigger className="text-xs h-8 px-2 w-full max-w-[100px] sm:max-w-[130px]">
+                        <SelectValue placeholder="Zona" />
                     </SelectTrigger>
                     <SelectContent>
                         {zonas?.map((zona) => (
@@ -252,7 +278,7 @@ export const ZonaCell = ({
                                 {zona.zoneName}
                             </SelectItem>
                         ))}
-                        <SelectItem value="automatica">Automática</SelectItem>
+                        <SelectItem value="automatica">Auto</SelectItem>
                     </SelectContent>
                 </Select>
             )}
@@ -270,13 +296,15 @@ export const SubZonaCell = ({
     zonas?: ExtendedZone[];
 }) => {
     const { control, watch } = useFormContext();
-    if (row.index !== editingIndex) return row.original.subZona ?? "N/A";
+    if (row.index !== editingIndex) 
+        return (
+            <div className="text-xs truncate max-w-[100px]">
+                {row.original.subZona ?? "N/A"}
+            </div>
+        );
 
     const selectedZone = watch("zoneName");
     const subzonas = zonas?.find((z) => z.zoneName === selectedZone)?.SubZonas || [];
-
-
-
 
     return (
         <Controller
@@ -284,9 +312,9 @@ export const SubZonaCell = ({
             control={control}
             render={({ field }) => (
                 <Select value={field.value ?? "automatica"} onValueChange={field.onChange}>
-                    <SelectTrigger className="text-center">
+                    <SelectTrigger className="text-xs h-8 px-2 w-full max-w-[100px] sm:max-w-[130px]">
                         <SelectValue
-                            placeholder="Seleccionar subZona"
+                            placeholder="SubZona"
                             defaultValue={field.value}
                         />
                     </SelectTrigger>
@@ -296,8 +324,8 @@ export const SubZonaCell = ({
                                 {sub.zoneName.replace(/_/g, " ")}
                             </SelectItem>
                         ))}
-                        <SelectItem value="automatica">Automática</SelectItem>
-                        <SelectItem value="Sin_SubZona">Sin Subzona</SelectItem>
+                        <SelectItem value="automatica">Auto</SelectItem>
+                        <SelectItem value="Sin_SubZona">Sin Sub</SelectItem>
                     </SelectContent>
                 </Select>
             )}
@@ -305,14 +333,14 @@ export const SubZonaCell = ({
     );
 };
 
-
-
 export const ObservacionesCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
     if (row.index !== editingIndex)
         return (
-            <div className="flex items-center justify-center truncate  ">
-                <p className=" text-xs min-w-28 whitespace-normal">{row.original.observaciones}</p>
+            <div className="w-full">
+                <p className="text-xs line-clamp-2 max-w-[120px] sm:max-w-[150px]">
+                    {row.original.observaciones || "N/A"}
+                </p>
             </div>
         );
 
@@ -320,7 +348,12 @@ export const ObservacionesCell = ({ row, editingIndex }: { row: Row<InstrumentoE
         <Controller
             name="observaciones"
             control={control}
-            render={({ field }) => <Input className="min-w-50" {...field} />}
+            render={({ field }) => (
+                <Input 
+                    {...field} 
+                    className="text-xs h-8 py-1 px-2 w-full max-w-[120px] sm:max-w-[150px]" 
+                />
+            )}
         />
     );
 };
@@ -347,21 +380,19 @@ export const AccionesCell = ({
 
     if (isEditing) {
         return (
-            <div className="flex gap-1 justify-center flex-wrap md:flex-nowrap">
-                
-
+            <div className="flex gap-1 justify-center">
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
                             size="sm"
-                            className="bg-green-500 hover:bg-green-600 p-1"
+                            className="bg-green-500 hover:bg-green-600 p-0 h-6 w-6"
                             onClick={saveChanges}
                         >
                             <CheckIcon className="h-3 w-3 text-white" />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Guardar cambios</p>
+                        <p className="text-xs">Guardar</p>
                     </TooltipContent>
                 </Tooltip>
 
@@ -369,14 +400,14 @@ export const AccionesCell = ({
                     <TooltipTrigger asChild>
                         <Button
                             size="sm"
-                            className="bg-red-500 hover:bg-red-600 p-1"
+                            className="bg-red-500 hover:bg-red-600 p-0 h-6 w-6"
                             onClick={cancelEditing}
                         >
                             <XIcon className="h-3 w-3 text-white" />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Cancelar</p>
+                        <p className="text-xs">Cancelar</p>
                     </TooltipContent>
                 </Tooltip>
 
@@ -384,14 +415,14 @@ export const AccionesCell = ({
                     <TooltipTrigger asChild>
                         <Button
                             size="sm"
-                            className="bg-yellow-500 hover:bg-yellow-600 p-1"
+                            className="bg-yellow-500 hover:bg-yellow-600 p-0 h-6 w-6"
                             onClick={() => onEditDialog(row.original)}
                         >
                             <PlusCircle className="h-3 w-3 text-white" />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Más Opciones</p>
+                        <p className="text-xs">Más</p>
                     </TooltipContent>
                 </Tooltip>
             </div>
@@ -402,26 +433,30 @@ export const AccionesCell = ({
         <div className="flex justify-center">
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="p-2">
+                    <Button variant="outline" className="h-7 w-7 p-0">
                         <MoreVertical className="h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-36">
                     <DropdownMenuItem
                         onClick={() =>
                             router.push(`/instrumentos/ver/${row.original.codigoInstrumento}`)
                         }
+                        className="text-xs py-1.5"
                     >
-                        <Eye className="h-4 w-4 mr-2" /> Ver más
+                        <Eye className="h-3 w-3 mr-2" /> Ver más
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => startEditing(row.index)}>
-                        <Edit className="h-4 w-4 mr-2" /> Editar
+                    <DropdownMenuItem 
+                        onClick={() => startEditing(row.index)}
+                        className="text-xs py-1.5"
+                    >
+                        <Edit className="h-3 w-3 mr-2" /> Editar
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         onClick={() => onDelete(row.original)}
-                        className="text-red-600"
+                        className="text-red-600 text-xs py-1.5"
                     >
-                        <Delete className="h-4 w-4 mr-2" /> Eliminar
+                        <Delete className="h-3 w-3 mr-2" /> Eliminar
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

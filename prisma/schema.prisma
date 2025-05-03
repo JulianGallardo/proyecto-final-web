@@ -222,8 +222,10 @@ enum SubZona {
 model Instrumento {
   codigoInstrumento String    @unique
   cargaInstrumento  TipoCarga
+
   batchId           String?
   batchOrderId      Int?
+  batchCreatedAt   DateTime?
 
   ordenId Int   @unique
   orden   Orden @relation(fields: [ordenId], references: [id], onDelete: Cascade)

@@ -175,9 +175,10 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         ]
 
         const orderByBatchLoad = [
-            
+            { batchCreatedAt: "asc" },
             { batchId: "asc" },
             { batchOrderId: "asc" },
+
         ];
 
         let orderBy: any = orderByBatchLoad; // Default order by batch load
@@ -358,11 +359,13 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 console.warn(`Advertencia en la geolocalización: ${error}. Se continuará con los datos disponibles.`);
             }
 
+            const batchCreatedAt = new Date();
             const batchId = crypto.randomUUID();
             const batchOrderId = 1;
 
             return await this.modelClient.create({
                 data: {
+                    batchCreatedAt:batchCreatedAt,
                     batchId: batchId,
                     batchOrderId: batchOrderId,
                     codigoInstrumento: data.codigo,
@@ -492,6 +495,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         if (!instrumentos.length) return [];
         const createdOrders: { ordenId: string, juzgadoIdentifier: string }[] = [];
         const batchId = crypto.randomUUID();
+        const batchCreatedAt = new Date();
 
 
         instrumentos.forEach((instrumento, index) => {
@@ -537,6 +541,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                                 // Create the instrument with its unique order
                                 const createdInstrument = await this.modelClient.create({
                                     data: {
+                                        batchCreatedAt: batchCreatedAt,
                                         batchId: instrumento.batchId,
                                         batchOrderId: instrumento.batchOrderId,
                                         codigoInstrumento: instrumento.codigo,

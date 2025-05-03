@@ -21,27 +21,27 @@ enum Role {
 }
 
 model User {
-  id       String    @id @default(cuid())
-  name     String?
-  lastname String?
-  email    String    @unique
-  password String?
-  telefono BigInt?
-  accounts Account[]
-  role     Role      @default(agente)
-  agente   Agente?
-  User     Token[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String    @id @default(cuid())
+  name      String?
+  lastname  String?
+  email     String    @unique
+  password  String?
+  telefono  BigInt?
+  accounts  Account[]
+  role      Role      @default(agente)
+  agente    Agente?
+  User      Token[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Token {
   id String @id @default(cuid())
-  
+
   hashedToken String
-  expiration DateTime
-  userId String
-  User User @relation(fields: [userId], references: [id])
+  expiration  DateTime
+  userId      String
+  User        User     @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -65,12 +65,12 @@ enum EstadoEntrega {
 }
 
 model EntregaInstrumentos {
-  id            Int         @id @default(autoincrement())
-  agenteId      Int?
-  agente        Agente?      @relation(fields: [agenteId], references: [id])
-  agenteFullName    String
-  instrumentoId String
-  instrumento   Instrumento @relation(fields: [instrumentoId], references: [codigoInstrumento], onDelete: Cascade)
+  id             Int         @id @default(autoincrement())
+  agenteId       Int?
+  agente         Agente?     @relation(fields: [agenteId], references: [id])
+  agenteFullName String
+  instrumentoId  String
+  instrumento    Instrumento @relation(fields: [instrumentoId], references: [codigoInstrumento], onDelete: Cascade)
 
   estado EstadoEntrega @default(PENDIENTE_DE_PROCESAR)
 
@@ -149,20 +149,19 @@ model Zone {
 }
 
 model SubZone {
-  id        String @id @default(cuid())
-  zoneName  String 
-  type      String @default("Feature")
+  id       String @id @default(cuid())
+  zoneName String
+  type     String @default("Feature")
 
-  geometryId   String        @unique
-  geometry     Geometry      @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
+  geometryId String   @unique
+  geometry   Geometry @relation(fields: [geometryId], references: [id], onDelete: Cascade) // Cascade en relación con Geometry
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   zonaId String
-  Zona      Zone? @relation(fields: [zonaId], references: [id])
+  Zona   Zone?  @relation(fields: [zonaId], references: [id])
 }
-
 
 model Juzgado {
   id         Int    @id @default(autoincrement())
@@ -223,8 +222,11 @@ enum SubZona {
 model Instrumento {
   codigoInstrumento String    @unique
   cargaInstrumento  TipoCarga
-  ordenId           Int       @unique
-  orden             Orden     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  batchId           String?
+  batchOrderId      Int?
+
+  ordenId Int   @unique
+  orden   Orden @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
   fecha_de_ingreso DateTime  @default(now())
   fecha_de_salida  DateTime?
@@ -250,8 +252,8 @@ model Instrumento {
   latitude  Float?
   longitude Float?
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@id([cargaInstrumento, codigoInstrumento, ordenId])
 }

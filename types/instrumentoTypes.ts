@@ -30,6 +30,9 @@ export interface InstrumentoDTO {
   zona: ExtendedZone | null;
   subZona: string | null;
 
+  batchId?: string;
+  batchOrderId?: number;
+
   observaciones:string;
 }
 

@@ -48,7 +48,6 @@ export function AddressInputs({
                 </Label>
                 <AddressAutocomplete
                     placeHolder="Ingrese el punto de inicio"
-                    Icon={Home}
                     onChange={handleStartPointChange}
                 />
             </div>
@@ -76,7 +75,6 @@ export function AddressInputs({
                 {endPointOption === "custom" && (
                     <AddressAutocomplete
                         placeHolder="Ingrese el punto final"
-                        Icon={Flag}
                         onChange={onEndPointChange}
                     />
                 )}

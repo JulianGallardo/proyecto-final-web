@@ -28,6 +28,8 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zonas }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
     const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
+    const [instrumentosEliminando, setInstrumentosEliminando] = useState<InstrumentoExtendido[]>([])
+    const [multipleDelete, setMultipleDelete] = useState<boolean>(false)
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
@@ -85,6 +87,13 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
         setInstrumentoEliminando(instrumento)
+        setMultipleDelete(false)
+        setIsOpenAlert(true)
+    }
+
+    const onDeleteMultiple = (instrumentos: InstrumentoExtendido[]) => {
+        setInstrumentosEliminando(instrumentos)
+        setMultipleDelete(true)
         setIsOpenAlert(true)
     }
 
@@ -127,30 +136,69 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
 
 
     const handleEliminar = async () => {
-        if (!instrumentoEliminando) {
+        if (multipleDelete) {
+            // Handle multiple delete
+            if (!instrumentosEliminando.length) {
+                toast({
+                    title: "Error",
+                    description: "Ha ocurrido un error al eliminar los instrumentos",
+                    className: "bg-red-500 text-white",
+                    duration: 3000,
+                });
+                setIsOpenAlert(false)
+                return
+            }
+
+            let success = true;
+            for (const instrumento of instrumentosEliminando) {
+                const result = await deleteInstrumento(instrumento.orden.juzgado.identifier, instrumento.orden.ordenNumber);
+                if (!result) success = false;
+            }
+
+            if (success) {
+                toast({
+                    title: "Éxito",
+                    description: `${instrumentosEliminando.length} instrumentos eliminados correctamente`,
+                    className: "bg-green-500 text-white",
+                    duration: 3000,
+                });
+            } else {
+                toast({
+                    title: "Advertencia",
+                    description: "Algunos instrumentos no pudieron ser eliminados",
+                    className: "bg-yellow-500 text-white",
+                    duration: 3000,
+                });
+            }
+            setInstrumentosEliminando([]);
+        } else {
+            // Handle single delete (existing code)
+            if (!instrumentoEliminando) {
+                toast({
+                    title: "Error",
+                    description: "Ha ocurrido un error al eliminar el instrumento",
+                    className: "bg-red-500 text-white",
+                    duration: 3000,
+                });
+                setIsOpenAlert(false)
+                return
+            }
+            const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.orden.juzgado.identifier, instrumentoEliminando.orden.ordenNumber)
+            if (!instrumentoEliminado) return
             toast({
-                title: "Error",
-                description: "Ha ocurrido un error al eliminar el instrumento",
-                className: "bg-red-500 text-white",
+                title: "Éxito",
+                description: "Instrumento eliminado correctamente",
+                className: "bg-green-500 text-white",
                 duration: 3000,
             });
-            setIsOpenAlert(false)
-            return
+            setInstrumentoEditando(undefined)
         }
-        const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.orden.juzgado.identifier, instrumentoEliminando.orden.ordenNumber)
-        if (!instrumentoEliminado) return
         setIsOpenAlert(false)
-        setInstrumentoEditando(undefined)
-        toast({
-            title: "Éxito",
-            description: "Instrumento eliminado correctamente",
-            className: "bg-green-500 text-white",
-            duration: 3000,
-        });
     }
 
     const cancelEliminar = () => {
         setInstrumentoEliminando(undefined)
+        setInstrumentosEliminando([])
         setIsOpenAlert(false)
     }
 
@@ -179,8 +227,12 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 onClose={handleClose}
             />
             <CustomAlert
-                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.orden.ordenNumber ?? "") + " " + (instrumentoEliminando?.orden.juzgado.identifier ?? "")}
-                AlertDescription="¿Estás seguro de que deseas eliminar este instrumento?"
+                AlertTitle={multipleDelete
+                    ? `Eliminar ${instrumentosEliminando.length} instrumentos`
+                    : `Eliminar Instrumento ${instrumentoEliminando?.orden.ordenNumber ?? ""} ${instrumentoEliminando?.orden.juzgado.identifier ?? ""}`}
+                AlertDescription={multipleDelete
+                    ? "¿Estás seguro de que deseas eliminar los instrumentos seleccionados?"
+                    : "¿Estás seguro de que deseas eliminar este instrumento?"}
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">
                         <Button
@@ -199,7 +251,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 }
             />
 
-          
 
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <Button
@@ -232,6 +283,7 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                     saveChanges={handleEditar}
                     onEdit={onEditExcel}
                     onDelete={onDelete}
+                    onDeleteMultiple={onDeleteMultiple}
                     Juzgados={Juzgados}
                     instrumentoTypes={instrumentoTypes}
                     onEditDialog={onEdit}

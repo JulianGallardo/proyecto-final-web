@@ -24,7 +24,7 @@ import { ExtendedZone } from "@/types/ZoneTypes";
 import { convertToDto } from "@/lib/utils";
 import { FormProvider, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Trash2, Loader2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 interface InstrumentoExcelViewProps {
   data: InstrumentoExtendido[];

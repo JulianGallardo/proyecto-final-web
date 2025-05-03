@@ -23,6 +23,18 @@ interface PlaceResult {
   lon: string;
 }
 
+interface RawPlace {
+  address: {
+    road?: string;
+    house_number?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  };
+  lat: string | number;
+  lon: string | number;
+}
+
 export default function AddressAutoComplete({
   placeHolder = "",
   onChange,
@@ -38,6 +50,18 @@ export default function AddressAutoComplete({
 
   const bbox = "-62.5,-39.0,-61.5,-38.5";
 
+  const formatPlaceName = (address: RawPlace["address"]): string => {
+    return [
+      address.road,
+      address.house_number,
+      address.city,
+      address.state,
+      address.country,
+    ]
+      .filter(Boolean)
+      .join(", ");
+  };
+
   const fetchPlaces = async (searchText: string) => {
     if (!searchText) {
       setResults([]);
@@ -49,20 +73,19 @@ export default function AddressAutoComplete({
       const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
         searchText
       )}&addressdetails=1&countrycodes=AR&limit=5&bounded=1&viewbox=${bbox}`;
-      const response = await fetch(url);
-      const data = await response.json();
 
-      const mapped = data.map((place: any) => ({
-        name: [place.address.road, place.address.house_number, place.address.city, place.address.state, place.address.country]
-          .filter(Boolean)
-          .join(", "),
+      const response = await fetch(url);
+      const data: RawPlace[] = await response.json();
+
+      const mapped: PlaceResult[] = data.map((place) => ({
+        name: formatPlaceName(place.address),
         lat: place.lat.toString(),
         lon: place.lon.toString(),
       }));
 
       setResults(mapped);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching places:", error);
     } finally {
       setLoading(false);
     }
@@ -74,6 +97,11 @@ export default function AddressAutoComplete({
   }, 500);
 
   const getCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      console.warn("Geolocalización no soportada por este navegador.");
+      return;
+    }
+
     setIsPending(true);
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) =>
@@ -81,23 +109,22 @@ export default function AddressAutoComplete({
       );
 
       const { latitude, longitude } = position.coords;
+
       const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`;
       const response = await fetch(url);
       const data = await response.json();
 
-      if (data.display_name) {
-        const place = [data.address.road, data.address.house_number, data.address.city, data.address.state, data.address.country]
-          .filter(Boolean)
-          .join(", ");
-        setQuery(place);
-        onChange(place);
+      if (data.address) {
+        const placeName = formatPlaceName(data.address);
+        setQuery(placeName);
+        onChange(placeName);
       }
 
       if (setCoords) {
         setCoords(latitude, longitude);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error obteniendo ubicación:", error);
     } finally {
       setIsPending(false);
     }
@@ -108,7 +135,10 @@ export default function AddressAutoComplete({
   }, [defaultValue]);
 
   return (
-    <Combobox value={query} onChange={(value: string) => { setQuery(value); onChange(value); }}>
+    <Combobox value={query} onChange={(value: string) => {
+      setQuery(value);
+      onChange(value);
+    }}>
       <div className="relative w-full">
         <div className="flex gap-2">
           <ComboboxInput

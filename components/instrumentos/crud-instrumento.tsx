@@ -133,80 +133,72 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
             className: "bg-green-500 text-white",
             duration: 3000,
         });
-        
+
         setIsCreating(false)
         setIsOpen(false)
         setInstrumentoEditando(undefined)
     }
 
     const handleEliminar = async () => {
-        setIsLoading(true)
-        
-        if (multipleDelete) {
-            // Handle multiple delete
-            if (!instrumentosEliminando.length) {
-                toast({
-                    title: "Error",
-                    description: "Ha ocurrido un error al eliminar los instrumentos",
-                    className: "bg-red-500 text-white",
-                    duration: 3000,
-                });
-                setIsLoading(false)
-                setIsOpenAlert(false)
-                return
-            }
+        setIsLoading(true);
 
-            let success = true;
-            for (const instrumento of instrumentosEliminando) {
-                const result = await deleteInstrumento(instrumento.orden.juzgado.identifier, instrumento.orden.ordenNumber);
-                if (!result) success = false;
-            }
-
-            if (success) {
-                toast({
-                    title: "Éxito",
-                    description: `${instrumentosEliminando.length} instrumentos eliminados correctamente`,
-                    className: "bg-green-500 text-white",
-                    duration: 3000,
-                });
-            } else {
-                toast({
-                    title: "Advertencia",
-                    description: "Algunos instrumentos no pudieron ser eliminados",
-                    className: "bg-yellow-500 text-white",
-                    duration: 3000,
-                });
-            }
-            setInstrumentosEliminando([]);
-        } else {
-            // Handle single delete
-            if (!instrumentoEliminando) {
-                toast({
-                    title: "Error",
-                    description: "Ha ocurrido un error al eliminar el instrumento",
-                    className: "bg-red-500 text-white",
-                    duration: 3000,
-                });
-                setIsLoading(false)
-                setIsOpenAlert(false)
-                return
-            }
-            const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.orden.juzgado.identifier, instrumentoEliminando.orden.ordenNumber)
-            if (!instrumentoEliminado) {
-                setIsLoading(false)
-                return
-            }
+        const mostrarToast = (title: string, description: string, color: "red" | "green" | "yellow") => {
             toast({
-                title: "Éxito",
-                description: "Instrumento eliminado correctamente",
-                className: "bg-green-500 text-white",
+                title,
+                description,
+                className: `bg-${color}-500 text-white`,
                 duration: 3000,
             });
-            setInstrumentoEditando(undefined)
+        };
+
+        const finalizarProceso = () => {
+            setIsLoading(false);
+            setIsOpenAlert(false);
+        };
+
+        if (multipleDelete) {
+            if (!instrumentosEliminando.length) {
+                mostrarToast("Error", "Ha ocurrido un error al eliminar los instrumentos", "red");
+                return finalizarProceso();
+            }
+
+            const resultados = await Promise.all(
+                instrumentosEliminando.map(i =>
+                    deleteInstrumento(i.orden.juzgado.identifier, i.orden.ordenNumber)
+                )
+            );
+
+            const todosExitosos = resultados.every(Boolean);
+
+            mostrarToast(
+                todosExitosos ? "Éxito" : "Advertencia",
+                todosExitosos
+                    ? `${instrumentosEliminando.length} instrumentos eliminados correctamente`
+                    : "Algunos instrumentos no pudieron ser eliminados",
+                todosExitosos ? "green" : "yellow"
+            );
+
+            setInstrumentosEliminando([]);
+        } else {
+            if (!instrumentoEliminando) {
+                mostrarToast("Error", "Ha ocurrido un error al eliminar el instrumento", "red");
+                return finalizarProceso();
+            }
+
+            const eliminado = await deleteInstrumento(
+                instrumentoEliminando.orden.juzgado.identifier,
+                instrumentoEliminando.orden.ordenNumber
+            );
+
+            if (!eliminado) return finalizarProceso();
+
+            mostrarToast("Éxito", "Instrumento eliminado correctamente", "green");
+            setInstrumentoEditando(undefined);
         }
-        setIsLoading(false)
-        setIsOpenAlert(false)
-    }
+
+        finalizarProceso();
+    };
+
 
     const cancelEliminar = () => {
         setInstrumentoEliminando(undefined)

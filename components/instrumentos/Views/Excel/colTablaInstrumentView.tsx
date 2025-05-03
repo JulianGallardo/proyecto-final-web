@@ -35,7 +35,6 @@ export function getColumns({
   saveChanges,
   onDelete,
   Juzgados,
-  instrumentoTypes,
   zonas,
   onEditDialog,
   isSaving = false,

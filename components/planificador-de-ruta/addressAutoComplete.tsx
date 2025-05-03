@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react";
+import { useEffect, useState, useRef } from "react";
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions, Portal } from "@headlessui/react";
 import { LocateFixed, Loader2 } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -15,6 +15,7 @@ interface AddressAutocompleteProps {
   defaultValue?: string;
   miUbicacion?: boolean;
   autoFocus?: boolean;
+  inTable?: boolean;
 }
 
 interface PlaceResult {
@@ -42,11 +43,14 @@ export default function AddressAutoComplete({
   defaultValue = "",
   miUbicacion = true,
   autoFocus = false,
+  inTable = false,
 }: Readonly<AddressAutocompleteProps>) {
   const [query, setQuery] = useState(defaultValue);
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [isPending, setIsPending] = useState(false);
   const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
 
   const bbox = "-62.5,-39.0,-61.5,-38.5";
 
@@ -60,6 +64,15 @@ export default function AddressAutoComplete({
     ]
       .filter(Boolean)
       .join(", ");
+  };
+
+  const handleSelectPlace = (place: PlaceResult) => {
+    setQuery(place.name);
+    setResults([]);
+    onChange(place.name);
+    console.log("Selected place:", place.name);
+    console.log("Selected coordinates:", place.lat, place.lon);
+    if (setCoords) setCoords(parseFloat(place.lat), parseFloat(place.lon));
   };
 
   const fetchPlaces = async (searchText: string) => {
@@ -135,15 +148,29 @@ export default function AddressAutoComplete({
     setQuery(defaultValue);
   }, [defaultValue]);
 
+  // Update dropdown position when input changes or results appear
+  useEffect(() => {
+    if (inputRef.current && inTable && results.length > 0) {
+      const rect = inputRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [inputRef, results, inTable, query]);
+
   return (
     <Combobox value={query} onChange={(value: string) => {
       setQuery(value);
       onChange(value);
+      handleSelectPlace(results.find((place) => place.name === value) || { name: "", lat: "", lon: "" });
     }}>
       <div className="relative w-full">
         <div className="flex gap-2">
           <ComboboxInput
             as={Input}
+            ref={inputRef}
             className="w-full"
             placeholder={placeHolder}
             displayValue={(val: string) => val}
@@ -170,7 +197,7 @@ export default function AddressAutoComplete({
           )}
         </div>
 
-        {results.length > 0 && (
+        {(results.length > 0 && !inTable) && (
           <ComboboxOptions className="absolute z-50 mt-1 w-full rounded-md bg-white shadow-lg max-h-60 overflow-y-auto border border-gray-200 text-sm">
             {results.map((place, idx) => (
               <ComboboxOption
@@ -182,11 +209,43 @@ export default function AddressAutoComplete({
                     active ? "bg-gray-100 text-blue-600" : "text-gray-900"
                   )
                 }
+
               >
                 {place.name}
               </ComboboxOption>
             ))}
           </ComboboxOptions>
+        )}
+        
+        {(results.length > 0 && inTable) && (
+          <Portal>
+            <div 
+              style={{
+                position: 'absolute',
+                top: `${position.top}px`,
+                left: `${position.left}px`,
+                width: `${position.width}px`,
+                zIndex: 50
+              }}
+            >
+              <ComboboxOptions className="rounded-md bg-white shadow-lg max-h-60 overflow-y-auto border border-gray-200 text-sm">
+                {results.map((place, idx) => (
+                  <ComboboxOption
+                    key={idx}
+                    value={place.name}
+                    className={({ active }) =>
+                      cn(
+                        "px-4 py-2 cursor-pointer truncate",
+                        active ? "bg-gray-100 text-blue-600" : "text-gray-900"
+                      )
+                    }
+                  >
+                    {place.name}
+                  </ComboboxOption>
+                ))}
+              </ComboboxOptions>
+            </div>
+          </Portal>
         )}
 
         {loading && (

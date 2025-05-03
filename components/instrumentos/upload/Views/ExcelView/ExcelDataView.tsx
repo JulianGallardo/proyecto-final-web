@@ -240,6 +240,7 @@ export default function ExcelDataView({
                                     handleInputChange('punto', coords);
                                 }
                             }}
+                            inTable={true}
                         />
                     );
                 case 'zona':

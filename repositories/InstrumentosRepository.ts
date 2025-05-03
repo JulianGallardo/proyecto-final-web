@@ -175,7 +175,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         ]
 
         const orderByBatchLoad = [
-            { batchCreatedAt: "asc" },
+            { batchCreatedAt: "desc" },
             { batchId: "asc" },
             { batchOrderId: "asc" },
 

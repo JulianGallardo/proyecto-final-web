@@ -32,7 +32,7 @@ interface FormularioInstrumentoProps {
 
 // Componente principal
 export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes, zonas, isLoading = false }: Readonly<FormularioInstrumentoProps>) {
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
+
   const [isOpen, setIsOpen] = React.useState(false)
   const [selectedZona, setSelectedZona] = React.useState<ExtendedZone | null>(instrumento?.zona || null)
 
@@ -56,7 +56,7 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
   })
 
   async function handleSubmit(values: z.infer<typeof instrumentSchema>) {
-    setIsSubmitting(true)
+
     const Juzgado = Juzgados.find(juzgado => juzgado.identifier === values.juzgado)
     const instrumentoType = instrumentoTypes.find(instrumentType => instrumentType.identifier === values.instrumentType)
 
@@ -88,13 +88,9 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       subZona: values.subZona ?? null
     }
 
-    try {
-      await onSubmit(
-        instrumentoToSubmit
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+    await onSubmit(
+      instrumentoToSubmit
+    )
   }
 
   const buttonText = instrumento ? "Actualizar" : "Crear"

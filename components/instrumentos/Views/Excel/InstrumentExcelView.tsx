@@ -55,7 +55,7 @@ export default function InstrumentoExcelView({
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const form = useForm<InstrumentoExtendido>({
-    defaultValues: data[editingIndex ?? 0], 
+    defaultValues: data[editingIndex ?? 0],
     mode: "onChange",
   });
 
@@ -96,7 +96,7 @@ export default function InstrumentoExcelView({
     }
 
     if (instrumentoDto) {
-      await saveChanges(instrumentoDto);
+      saveChanges(instrumentoDto);
     }
     setIsSaving(false);
     cancelEditing();
@@ -105,11 +105,11 @@ export default function InstrumentoExcelView({
   // Handle deletion of selected rows
   const handleDeleteSelected = () => {
     if (!onDeleteMultiple) return;
-    
+
     const selectedInstrumentos = Object.keys(rowSelection)
       .map(index => data[parseInt(index)])
       .filter(Boolean);
-    
+
     if (selectedInstrumentos.length > 0) {
       onDeleteMultiple(selectedInstrumentos);
     }
@@ -156,8 +156,8 @@ export default function InstrumentoExcelView({
       {selectedCount > 0 && onDeleteMultiple && (
         <div className="flex justify-between items-center bg-gray-100 p-2 rounded-md">
           <span>{selectedCount} {selectedCount === 1 ? 'instrumento' : 'instrumentos'} seleccionados</span>
-          <Button 
-            variant="destructive" 
+          <Button
+            variant="destructive"
             onClick={handleDeleteSelected}
             className="bg-red-500 hover:bg-red-600"
           >
@@ -166,7 +166,7 @@ export default function InstrumentoExcelView({
           </Button>
         </div>
       )}
-      
+
       <div className="overflow-x-auto shadow-lg w-full rounded-xl border border-gray-200">
         {data.length === 0 ? (
           <NoResults />
@@ -186,8 +186,8 @@ export default function InstrumentoExcelView({
               </TableHeader>
               <TableBody>
                 {table.getRowModel().rows.map((row) => (
-                  <TableRow 
-                    key={row.id} 
+                  <TableRow
+                    key={row.id}
                     className={`hover:bg-gray-100 transition-colors text-center ${row.getIsSelected() ? 'bg-blue-50' : ''}`}
                     data-state={row.getIsSelected() && "selected"}
                   >

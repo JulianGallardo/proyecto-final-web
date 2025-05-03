@@ -3,7 +3,6 @@ import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
-import { parseDataToYear } from "./utils";
 import { EstadoInstrumento, InstrumentoType, Juzgado, TipoCarga } from "@prisma/client";
 
 export default class InstrumentoService {
@@ -115,7 +114,7 @@ export default class InstrumentoService {
 
     async deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {
         try {
-            const instrumentPromises = instrumentos.map(async (instrumento, index) => {
+            const instrumentPromises = instrumentos.map(async (instrumento) => {
                 try {
                     const instrumentoDto = await this.getInstrumentoDto(instrumento);
 
@@ -136,21 +135,21 @@ export default class InstrumentoService {
                 } catch (e) {
                     console.error(`Error procesando instrumento: ${instrumento.caratula}. Error: ${(e as Error).message}`);
                     return {
-                        ...(instrumento as any),
-                        error: (e as Error).message,
-                        fecha_de_ingreso: new Date(),
+                        fecha_de_ingreso: new Date(instrumento.altaDisponibilidad),
                         fecha_de_salida: null,
-                        domicilio_denunciado: "",
-                        juzgadoIdentifier: "",
-                        instrumentoTypeIdentifier: "",
-                        tipoDeCarga: "MANUAL",
-                        codigo: "",
-                        urgencia: "NORMAL",
-                        estado: "PENDIENTE",
+                        caratula: instrumento.caratula,
+                        urgencia: instrumento.estado === "URGENTE" ? "URGENTE" : "NORMAL",
+                        domicilio_denunciado: instrumento.destinatarioPostal,
+                        juzgadoIdentifier: "Error",
+                        instrumentoTypeIdentifier: "Error",
+                        error: `Error procesando instrumento: ${(e as Error).message}`,
+                        tipoDeCarga: TipoCarga.PDF,
+                        codigo: instrumento.codigo,
+                        estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
+                        observaciones: "",
                         punto: null,
                         zona: null,
-                        subZona: null,
-                        observaciones: ""
+                        subZona: null
                     } as InstrumentoDtoWithError;
                 }
             });

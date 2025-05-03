@@ -32,9 +32,9 @@ export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
             name="caratula"
             control={control}
             render={({ field }) => (
-                <Input 
-                    {...field} 
-                    className="h-8 text-xs py-1 px-2 w-full " 
+                <Input
+                    {...field}
+                    className="h-8 text-xs py-1 px-2 w-full "
                 />
             )}
         />
@@ -51,10 +51,12 @@ export const JuzgadoCell = ({
     Juzgados: JuzgadoDto[];
 }) => {
     const { control, setValue } = useFormContext();
-    if (row.index !== editingIndex) 
+    if (row.index !== editingIndex)
         return (
-            <div className="text-xs truncate max-w-[100px]">
-                {row.original.orden.juzgado.identifier}
+            <div className="flex items-center justify-center">
+                <p className="text-xs truncate max-w-[100px] sm:max-w-[120px]">
+                    {row.original.orden.juzgado.identifier}
+                </p>
             </div>
         );
 
@@ -97,7 +99,7 @@ export const TipoCell = ({
     instrumentoTypes: InstrumentoTypeDTO[];
 }) => {
     const { control, setValue } = useFormContext();
-    if (row.index !== editingIndex) 
+    if (row.index !== editingIndex)
         return (
             <div className="text-xs truncate max-w-[100px] sm:max-w-[120px]">
                 {row.original.instrumentoType.name}
@@ -187,7 +189,7 @@ export const DescargaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtend
 
 export const UrgenciaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
     const { control } = useFormContext();
-    if (row.index !== editingIndex) 
+    if (row.index !== editingIndex)
         return (
             <div className="text-xs">
                 {row.original.urgencia}
@@ -256,7 +258,7 @@ export const ZonaCell = ({
 }) => {
     const { control } = useFormContext();
 
-    if (row.index !== editingIndex) 
+    if (row.index !== editingIndex)
         return (
             <div className="text-xs truncate max-w-[100px]">
                 {row.original.zoneName ?? "N/A"}
@@ -296,10 +298,12 @@ export const SubZonaCell = ({
     zonas?: ExtendedZone[];
 }) => {
     const { control, watch } = useFormContext();
-    if (row.index !== editingIndex) 
+    if (row.index !== editingIndex)
         return (
-            <div className="text-xs truncate max-w-[100px]">
-                {row.original.subZona ?? "N/A"}
+            <div className=" w-full justify-center items-center flex ">
+                <p className="text-xs line-clamp-2 max-w-[120px] sm:max-w-[150px] md:max-w-[200px] ">
+                    {row.original.subZona ?? "N/A"}
+                </p>
             </div>
         );
 
@@ -349,9 +353,9 @@ export const ObservacionesCell = ({ row, editingIndex }: { row: Row<InstrumentoE
             name="observaciones"
             control={control}
             render={({ field }) => (
-                <Input 
-                    {...field} 
-                    className="text-xs h-8 py-1 px-2 w-full max-w-[120px] sm:max-w-[150px]" 
+                <Input
+                    {...field}
+                    className="text-xs h-8 py-1 px-2 w-full max-w-[120px] sm:max-w-[150px]"
                 />
             )}
         />
@@ -446,7 +450,7 @@ export const AccionesCell = ({
                     >
                         <Eye className="h-3 w-3 mr-2" /> Ver más
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                         onClick={() => startEditing(row.index)}
                         className="text-xs py-1.5"
                     >

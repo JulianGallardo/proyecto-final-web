@@ -20,21 +20,18 @@ import InformacionBasica from "./form-info-basica"
 import Ubicacion from "./form-ubicacion"
 import { Loader2 } from "lucide-react"
 
+// Add isLoading to the props
 interface FormularioInstrumentoProps {
   instrumento?: InstrumentoDTO,
   onSubmit: (data: InstrumentoDTO) => Promise<void>,
   Juzgados: Juzgado[],
   instrumentoTypes: InstrumentoType[]
-  zonas?: ExtendedZone[]
+  zonas?: ExtendedZone[],
+  isLoading?: boolean
 }
 
-
-
-
-
-
 // Componente principal
-export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes, zonas }: Readonly<FormularioInstrumentoProps>) {
+export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrumentoTypes, zonas, isLoading = false }: Readonly<FormularioInstrumentoProps>) {
   const [isSubmitting, setIsSubmitting] = React.useState(false)
   const [isOpen, setIsOpen] = React.useState(false)
   const [selectedZona, setSelectedZona] = React.useState<ExtendedZone | null>(instrumento?.zona || null)
@@ -91,8 +88,6 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
       subZona: values.subZona ?? null
     }
 
-    
-
     try {
       await onSubmit(
         instrumentoToSubmit
@@ -125,17 +120,19 @@ export function FormularioInstrumento({ instrumento, onSubmit, Juzgados, instrum
         <div className="col-span-full mt-4">
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="bg-blue-500 hover:bg-blue-600 w-full"
           >
-            {isSubmitting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Guardando...
+              </>
             ) : (
               `${buttonText} Instrumento`
             )}
           </Button>
         </div>
-
       </form>
     </Form>
   )

@@ -2,6 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { DemoraCell } from "../Tabla/col-tabla-instrumento";
 
@@ -24,6 +25,7 @@ interface GetColumnsProps {
   instrumentoTypes: InstrumentoTypeDTO[];
   zonas?: ExtendedZone[];
   onEditDialog: (instrumento: InstrumentoExtendido) => void;
+  isSaving?: boolean;
 }
 
 export function getColumns({
@@ -36,6 +38,7 @@ export function getColumns({
   instrumentoTypes,
   zonas,
   onEditDialog,
+  isSaving = false,
 }: GetColumnsProps): ColumnDef<InstrumentoExtendido>[] {
   return [
     {
@@ -124,17 +127,46 @@ export function getColumns({
     {
       accessorKey: "acciones",
       header: "Acciones",
-      cell: ({ row }) => (
-        <AccionesCell
-          row={row}
-          editingIndex={editingIndex}
-          startEditing={startEditing}
-          cancelEditing={cancelEditing}
-          saveChanges={saveChanges}
-          onDelete={onDelete}
-          onEditDialog={onEditDialog}
-        />
-      ),
+      cell: ({ row }) => {
+        const index = row.index;
+        const isEditing = index === editingIndex;
+
+        if (isEditing) {
+          return (
+            <div className="flex space-x-2">
+              <Button
+                onClick={saveChanges}
+                className="bg-green-500 hover:bg-green-600"
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  "Guardar"
+                )}
+              </Button>
+              <Button onClick={cancelEditing} disabled={isSaving}>
+                Cancelar
+              </Button>
+            </div>
+          );
+        }
+
+        return (
+          <AccionesCell
+            row={row}
+            editingIndex={editingIndex}
+            startEditing={startEditing}
+            cancelEditing={cancelEditing}
+            saveChanges={saveChanges}
+            onDelete={onDelete}
+            onEditDialog={onEditDialog}
+          />
+        );
+      },
     },
   ];
 }

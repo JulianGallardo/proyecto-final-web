@@ -124,11 +124,7 @@ export default class InstrumentoService {
                     );
 
                     if (isInDb) {
-                        // Opcional: si querés marcar que ya existe en DB como error
-                        return {
-                            ...(instrumentoDto as InstrumentoDtoWithError),
-                            error: "Instrumento ya existe en la base de datos",
-                        };
+                       return;
                     }
 
                     return instrumentoDto;

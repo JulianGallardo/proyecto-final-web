@@ -73,7 +73,7 @@ export const JuzgadoCell = ({
                         setValue("orden.juzgado.name", juzgado?.name ?? "");
                     }}
                 >
-                    <SelectTrigger className="text-xs h-8 px-2 w-full ">
+                    <SelectTrigger className="text-xs h-8 px-2 w-full max-w-[120px] sm:max-w-[160px]">
                         <SelectValue placeholder="Juzgado" />
                     </SelectTrigger>
                     <SelectContent>
@@ -221,7 +221,7 @@ export const DomicilioCell = ({ row, editingIndex }: { row: Row<InstrumentoExten
     if (row.index !== editingIndex)
         return (
             <div className="w-full justify-center items-center flex">
-                <p className="text-xs line-clamp-2 max-w-[120px] sm:max-w-[150px] md:max-w-[200px] ">
+                <p className="text-xs line-clamp-2  md:max-w-[150px] lg:max-w-[200px] ">
                     {row.original.domicilio_denunciado || "N/A"}
                 </p>
             </div>

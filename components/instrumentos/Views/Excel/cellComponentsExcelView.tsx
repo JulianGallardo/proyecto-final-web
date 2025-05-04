@@ -73,7 +73,7 @@ export const JuzgadoCell = ({
                         setValue("orden.juzgado.name", juzgado?.name ?? "");
                     }}
                 >
-                    <SelectTrigger className="text-xs h-8 px-2 w-full max-w-[120px] sm:max-w-[160px]">
+                    <SelectTrigger className="text-xs h-8 px-2 w-full ">
                         <SelectValue placeholder="Juzgado" />
                     </SelectTrigger>
                     <SelectContent>

@@ -2,7 +2,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { InstrumentoExtendido, InstrumentoTypeDTO } from "@/types/instrumentoTypes";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { DemoraCell } from "../Tabla/col-tabla-instrumento";
 

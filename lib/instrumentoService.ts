@@ -124,7 +124,7 @@ export default class InstrumentoService {
                     );
 
                     if (isInDb) {
-                       return;
+                       return; // Skip if already in DB
                     }
 
                     return instrumentoDto;

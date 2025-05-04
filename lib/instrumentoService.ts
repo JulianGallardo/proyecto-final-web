@@ -150,9 +150,15 @@ export default class InstrumentoService {
                 }
             });
 
-            const processedInstruments: (InstrumentoDTO|InstrumentoDtoWithError)[] = await Promise.all(instrumentPromises);
+            // Process all instrument promises concurrently
+            // and filter out undefined results (already in DB)
+            const processedInstruments = await Promise.all(instrumentPromises);
 
-            return processedInstruments;
+            // Filter out undefined results (already in DB)
+
+            const processedInstrumentsFiltered: (InstrumentoDTO|InstrumentoDtoWithError)[] = processedInstruments.filter((instrumento) => instrumento !== undefined);
+
+            return processedInstrumentsFiltered;
         } catch (error) {
             console.error("Error general en deleteDuplicatePdfEntries:", (error as Error).message);
             return [];

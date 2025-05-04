@@ -28,7 +28,7 @@ import { Trash2 } from "lucide-react";
 
 interface InstrumentoExcelViewProps {
   data: InstrumentoExtendido[];
-  saveChanges: (instrumento: InstrumentoDTO) => void;
+  saveChanges: (instrumento: InstrumentoDTO) => Promise<void>;
   onEdit: (instrumento: InstrumentoExtendido) => void;
   onDelete: (instrumento: InstrumentoExtendido) => void;
   onDeleteMultiple?: (instrumentos: InstrumentoExtendido[]) => void;
@@ -96,7 +96,7 @@ export default function InstrumentoExcelView({
     }
 
     if (instrumentoDto) {
-      saveChanges(instrumentoDto);
+      await saveChanges(instrumentoDto);
     }
     setIsSaving(false);
     cancelEditing();

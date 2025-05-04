@@ -19,7 +19,7 @@ interface GetColumnsProps {
   editingIndex: number;
   startEditing: (index: number) => void;
   cancelEditing: () => void;
-  saveChanges: () => void;
+  saveChanges: () => Promise<void>;
   onDelete: (instrumento: InstrumentoExtendido) => void;
   Juzgados: JuzgadoDto[];
   instrumentoTypes: InstrumentoTypeDTO[];
@@ -127,33 +127,7 @@ export function getColumns({
       accessorKey: "acciones",
       header: "Acciones",
       cell: ({ row }) => {
-        const index = row.index;
-        const isEditing = index === editingIndex;
-
-        if (isEditing) {
-          return (
-            <div className="flex space-x-2">
-              <Button
-                onClick={saveChanges}
-                className="bg-green-500 hover:bg-green-600"
-                disabled={isSaving}
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Guardando...
-                  </>
-                ) : (
-                  "Guardar"
-                )}
-              </Button>
-              <Button onClick={cancelEditing} disabled={isSaving}>
-                Cancelar
-              </Button>
-            </div>
-          );
-        }
-
+      
         return (
           <AccionesCell
             row={row}
@@ -163,6 +137,7 @@ export function getColumns({
             saveChanges={saveChanges}
             onDelete={onDelete}
             onEditDialog={onEditDialog}
+            isSaving={isSaving}
           />
         );
       },

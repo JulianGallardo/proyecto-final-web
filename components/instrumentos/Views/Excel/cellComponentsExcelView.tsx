@@ -15,7 +15,7 @@ import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, Delete, Edit, Eye, MoreVertical, PlusCircle, XIcon } from "lucide-react";
+import { CheckIcon, Delete, Edit, Eye, Loader2, MoreVertical, PlusCircle, XIcon } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export const CaratulaCell = ({ row, editingIndex }: { row: Row<InstrumentoExtendido>; editingIndex: number }) => {
@@ -370,6 +370,7 @@ export const AccionesCell = ({
     saveChanges,
     cancelEditing,
     onEditDialog,
+    isSaving,
 }: {
     row: Row<InstrumentoExtendido>;
     editingIndex: number;
@@ -378,6 +379,7 @@ export const AccionesCell = ({
     saveChanges: () => void;
     cancelEditing: () => void;
     onEditDialog: (instrumento: InstrumentoExtendido) => void;
+    isSaving: boolean;
 }) => {
     const router = useRouter();
     const isEditing = row.index === editingIndex;
@@ -389,10 +391,15 @@ export const AccionesCell = ({
                     <TooltipTrigger asChild>
                         <Button
                             size="sm"
-                            className="bg-green-500 hover:bg-green-600 p-0 h-6 w-6"
+                            className="bg-green-500 hover:bg-green-600 p-0 h-10 w-6"
                             onClick={saveChanges}
+                            disabled={isSaving}
                         >
-                            <CheckIcon className="h-3 w-3 text-white" />
+                            {isSaving ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                                <CheckIcon className="h-3 w-3 text-white" />
+                            )}
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -404,8 +411,9 @@ export const AccionesCell = ({
                     <TooltipTrigger asChild>
                         <Button
                             size="sm"
-                            className="bg-red-500 hover:bg-red-600 p-0 h-6 w-6"
+                            className="bg-red-500 hover:bg-red-600 p-0 h-10 w-6"
                             onClick={cancelEditing}
+                            disabled={isSaving}
                         >
                             <XIcon className="h-3 w-3 text-white" />
                         </Button>
@@ -419,14 +427,15 @@ export const AccionesCell = ({
                     <TooltipTrigger asChild>
                         <Button
                             size="sm"
-                            className="bg-yellow-500 hover:bg-yellow-600 p-0 h-6 w-6"
+                            className="bg-yellow-500 hover:bg-yellow-600 p-0 h-10 w-6"
                             onClick={() => onEditDialog(row.original)}
+                            disabled={isSaving}
                         >
                             <PlusCircle className="h-3 w-3 text-white" />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p className="text-xs">Más</p>
+                        <p className="text-xs">Más opciones</p>
                     </TooltipContent>
                 </Tooltip>
             </div>

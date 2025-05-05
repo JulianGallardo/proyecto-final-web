@@ -16,7 +16,7 @@ import { useEffect, useState } from "react"
 import { ExtendedZone } from "@/types/ZoneTypes"
 import InstrumentoExcelView from "./Views/Excel/InstrumentExcelView"
 import { convertToDto } from "@/lib/utils"
-
+import { Loader2 } from "lucide-react"
 
 interface CrudInstrumentosProps {
     instrumentos: InstrumentoExtendido[]
@@ -28,6 +28,10 @@ interface CrudInstrumentosProps {
 export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zonas }: Readonly<CrudInstrumentosProps>) {
     const [instrumentoEditando, setInstrumentoEditando] = useState<InstrumentoExtendido | undefined>(undefined)
     const [instrumentoEliminando, setInstrumentoEliminando] = useState<InstrumentoExtendido | undefined>(undefined)
+    const [instrumentosEliminando, setInstrumentosEliminando] = useState<InstrumentoExtendido[]>([])
+    const [multipleDelete, setMultipleDelete] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isCreating, setIsCreating] = useState<boolean>(false)
 
     const { setIsOpen } = useCustomDialog()
     const { setIsOpenAlert } = useCustomAlert()
@@ -38,8 +42,6 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
         setInstrumentoTypes(instrumentoTypes)
     }, [Juzgados, instrumentoTypes])
 
-
-
     const handleClose = (open: boolean) => {
         if (!open) {
             setIsOpen(false)
@@ -49,11 +51,14 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
             setIsOpen(open)
     }
 
-
     const handleCrear = async (nuevoInstrumento: InstrumentoDTO) => {
+        setIsCreating(true)
         try {
             const instrumentoCreado = await createInstrumento(nuevoInstrumento)
-            if (!instrumentoCreado) return
+            if (!instrumentoCreado) {
+                setIsCreating(false)
+                return
+            }
         } catch (error) {
             toast({
                 title: "Error",
@@ -61,6 +66,8 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 className: "bg-red-500 text-white",
                 duration: 3000,
             });
+            setIsCreating(false)
+            return
         }
 
         toast({
@@ -69,9 +76,9 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
             className: "bg-green-500 text-white",
             duration: 3000,
         });
+        setIsCreating(false)
         setIsOpen(false)
     }
-
 
     const onCreate = () => {
         setInstrumentoEditando(undefined)
@@ -85,6 +92,13 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
 
     const onDelete = (instrumento: InstrumentoExtendido) => {
         setInstrumentoEliminando(instrumento)
+        setMultipleDelete(false)
+        setIsOpenAlert(true)
+    }
+
+    const onDeleteMultiple = (instrumentos: InstrumentoExtendido[]) => {
+        setInstrumentosEliminando(instrumentos)
+        setMultipleDelete(true)
         setIsOpenAlert(true)
     }
 
@@ -92,17 +106,16 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
         setInstrumentoEditando(instrumento)
     }
 
-
-
     const handleEditar = async (instrumentoEditado: InstrumentoDTO) => {
-
         if (!instrumentoEditando) return;
-
+        setIsCreating(true)
 
         try {
-
             const instrumentoActualizado = await updateInstrumento(instrumentoEditando.orden.juzgado.identifier, instrumentoEditando.orden.ordenNumber, instrumentoEditado)
-            if (!instrumentoActualizado) return
+            if (!instrumentoActualizado) {
+                setIsCreating(false)
+                return
+            }
         } catch (error) {
             toast({
                 title: "Error",
@@ -110,9 +123,9 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                 className: "bg-red-500 text-white",
                 duration: 3000,
             });
-
+            setIsCreating(false)
+            return
         }
-
 
         toast({
             title: "Éxito",
@@ -121,46 +134,80 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
             duration: 3000,
         });
 
+        setIsCreating(false)
         setIsOpen(false)
         setInstrumentoEditando(undefined)
     }
 
-
     const handleEliminar = async () => {
-        if (!instrumentoEliminando) {
+        setIsLoading(true);
+
+        const mostrarToast = (title: string, description: string, color: "red" | "green" | "yellow") => {
             toast({
-                title: "Error",
-                description: "Ha ocurrido un error al eliminar el instrumento",
-                className: "bg-red-500 text-white",
+                title,
+                description,
+                className: `bg-${color}-500 text-white`,
                 duration: 3000,
             });
-            setIsOpenAlert(false)
-            return
+        };
+
+        const finalizarProceso = () => {
+            setIsLoading(false);
+            setIsOpenAlert(false);
+        };
+
+        if (multipleDelete) {
+            if (!instrumentosEliminando.length) {
+                mostrarToast("Error", "Ha ocurrido un error al eliminar los instrumentos", "red");
+                return finalizarProceso();
+            }
+
+            const resultados = await Promise.all(
+                instrumentosEliminando.map(i =>
+                    deleteInstrumento(i.orden.juzgado.identifier, i.orden.ordenNumber)
+                )
+            );
+
+            const todosExitosos = resultados.every(Boolean);
+
+            mostrarToast(
+                todosExitosos ? "Éxito" : "Advertencia",
+                todosExitosos
+                    ? `${instrumentosEliminando.length} instrumentos eliminados correctamente`
+                    : "Algunos instrumentos no pudieron ser eliminados",
+                todosExitosos ? "green" : "yellow"
+            );
+
+            setInstrumentosEliminando([]);
+        } else {
+            if (!instrumentoEliminando) {
+                mostrarToast("Error", "Ha ocurrido un error al eliminar el instrumento", "red");
+                return finalizarProceso();
+            }
+
+            const eliminado = await deleteInstrumento(
+                instrumentoEliminando.orden.juzgado.identifier,
+                instrumentoEliminando.orden.ordenNumber
+            );
+
+            if (!eliminado) return finalizarProceso();
+
+            mostrarToast("Éxito", "Instrumento eliminado correctamente", "green");
+            setInstrumentoEditando(undefined);
         }
-        const instrumentoEliminado = await deleteInstrumento(instrumentoEliminando.orden.juzgado.identifier, instrumentoEliminando.orden.ordenNumber)
-        if (!instrumentoEliminado) return
-        setIsOpenAlert(false)
-        setInstrumentoEditando(undefined)
-        toast({
-            title: "Éxito",
-            description: "Instrumento eliminado correctamente",
-            className: "bg-green-500 text-white",
-            duration: 3000,
-        });
-    }
+
+        finalizarProceso();
+    };
+
 
     const cancelEliminar = () => {
         setInstrumentoEliminando(undefined)
+        setInstrumentosEliminando([])
         setIsOpenAlert(false)
     }
 
-
-
-
-
     return (
         <div className="space-y-4 w-full h-full">
-
             <CustomDialog
                 dialogTitle={instrumentoEditando ? `Editar Instrumento ${instrumentoEditando.orden.ordenNumber} ${instrumentoEditando.orden.juzgado.identifier}` : "Crear Instrumento"}
                 dialogDescription={instrumentoEditando ? "Edita los campos del instrumento" : "Crea un nuevo instrumento"}
@@ -170,36 +217,46 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                         Juzgados={Juzgados}
                         onSubmit={instrumentoEditando ? handleEditar : handleCrear}
                         instrumento={convertToDto(instrumentoEditando, zonas)}
-                        zonas={
-                            zonas
-                        }
+                        zonas={zonas}
+                        isLoading={isCreating}
                     />
                 }
                 customClose={true}
                 onClose={handleClose}
             />
             <CustomAlert
-                AlertTitle={"Eliminar Instrumento " + (instrumentoEliminando?.orden.ordenNumber ?? "") + " " + (instrumentoEliminando?.orden.juzgado.identifier ?? "")}
-                AlertDescription="¿Estás seguro de que deseas eliminar este instrumento?"
+                AlertTitle={multipleDelete
+                    ? `Eliminar ${instrumentosEliminando.length} instrumentos`
+                    : `Eliminar Instrumento ${instrumentoEliminando?.orden.ordenNumber ?? ""} ${instrumentoEliminando?.orden.juzgado.identifier ?? ""}`}
+                AlertDescription={multipleDelete
+                    ? "¿Estás seguro de que deseas eliminar los instrumentos seleccionados?"
+                    : "¿Estás seguro de que deseas eliminar este instrumento?"}
                 propAlertDialogContent={
                     <div className="flex flex-row justify-center gap-4">
                         <Button
                             className="bg-red-500 hover:bg-red-600"
                             onClick={() => handleEliminar()}
+                            disabled={isLoading}
                         >
-                            Eliminar
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Procesando...
+                                </>
+                            ) : (
+                                "Eliminar"
+                            )}
                         </Button>
                         <Button
                             className="bg-blue-500 hover:bg-blue-600"
                             onClick={() => cancelEliminar()}
+                            disabled={isLoading}
                         >
                             Cancelar
                         </Button>
                     </div>
                 }
             />
-
-          
 
             <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <Button
@@ -213,39 +270,26 @@ export function CrudInstrumentos({ instrumentos, Juzgados, instrumentoTypes, zon
                     <Button
                         className="bg-blue-500 hover:bg-blue-600 w-full"
                     >
-
-
                         Cargar instrumentos por PDF
                         <File className="h-4 w-4 text-white" />
-
                     </Button>
                 </Link>
             </div>
 
-
-
             <div className="flex flex-grow overflow:hidde justify-center gap-4">
-
-
                 <InstrumentoExcelView
                     data={instrumentos}
                     saveChanges={handleEditar}
                     onEdit={onEditExcel}
                     onDelete={onDelete}
+                    onDeleteMultiple={onDeleteMultiple}
                     Juzgados={Juzgados}
                     instrumentoTypes={instrumentoTypes}
                     onEditDialog={onEdit}
                     zonas={zonas}
-
                 />
-
             </div>
-
-
-
-
-
-        </div >
+        </div>
     )
 }
 

@@ -3,7 +3,6 @@ import InstrumentTypeRepository from "@/repositories/InstrumentTypeRepository";
 import JuzgadoRepository from "@/repositories/JuzgadoRepository";
 import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import SearchParamsInstrumentos from "@/types/searchParams";
-import { parseDataToYear } from "./utils";
 import { EstadoInstrumento, InstrumentoType, Juzgado, TipoCarga } from "@prisma/client";
 
 export default class InstrumentoService {
@@ -33,14 +32,14 @@ export default class InstrumentoService {
         const [juzgado, instrumentoType] = await Promise.all([juzgadoPromise, instrumentoTypePromise]);
 
         if (!juzgado || !instrumentoType) {
-            return {
-                fecha_de_ingreso: new Date(parseDataToYear(instrumento.altaDisponibilidad)),
+            return {    
+                fecha_de_ingreso: new Date(instrumento.altaDisponibilidad),
                 fecha_de_salida: null,
                 caratula: instrumento.caratula,
                 urgencia: instrumento.estado === "URGENTE" ? "URGENTE" : "NORMAL",
                 domicilio_denunciado: instrumento.destinatarioPostal,
-                juzgadoIdentifier: juzgado?.identifier ?? instrumento.organismo,
-                instrumentoTypeIdentifier: instrumentoType?.identifier ?? instrumentoTypeParsed,
+                juzgadoIdentifier: juzgado?.identifier ?? "No encontrado",
+                instrumentoTypeIdentifier: instrumentoType?.identifier ?? "No nomenclado" ,
                 error: this._mensajeError(juzgado, instrumentoType),
                 tipoDeCarga: TipoCarga.PDF,
                 codigo: instrumento.codigo,
@@ -54,7 +53,7 @@ export default class InstrumentoService {
         }
 
         return {
-            fecha_de_ingreso: new Date(parseDataToYear(instrumento.altaDisponibilidad)),
+            fecha_de_ingreso: new Date(instrumento.altaDisponibilidad),
             fecha_de_salida: null,
             caratula: instrumento.caratula,
             urgencia: instrumento.estado === "URGENTE" ? "URGENTE" : "NORMAL",
@@ -114,42 +113,58 @@ export default class InstrumentoService {
     }
 
     async deleteDuplicatePdfEntries(instrumentos: InstrumentPDFDTO[]) {
-        const filteredInstrument: InstrumentoDTO[] = [];
-        const instrumentosWithErrors: InstrumentoDtoWithError[] = [];
-
         try {
-            // Procesa todos los instrumentos en paralelo
-            await Promise.all(
-                instrumentos.map(async (instrumento) => {
-                    try {
-                        const instrumentoDto = await this.getInstrumentoDto(instrumento);
+            const instrumentPromises = instrumentos.map(async (instrumento) => {
+                try {
+                    const instrumentoDto = await this.getInstrumentoDto(instrumento);
 
+                    const isInDb = await this.instrumentoRepository.getInstrumentoByCode(
+                        instrumentoDto.codigo,
+                        instrumentoDto.tipoDeCarga
+                    );
 
-                        // Verifica si el instrumento ya existe en la base de datos
-                        const isInDb = await this.instrumentoRepository.getInstrumentoByCode(instrumentoDto.codigo, instrumentoDto.tipoDeCarga)
-
-                        if (isInDb) return;
-
-
-
-                        // Revisa si el juzgado y el tipo de instrumento son válidos
-                        if ("error" in instrumentoDto) {
-                            instrumentosWithErrors.push(instrumentoDto);
-                        } else {
-                            filteredInstrument.push(instrumentoDto);
-                        }
-                        return;
-                    } catch (e) {
-                        console.error(`Error procesando instrumento: ${instrumento.caratula}. Error: ${(e as Error).message}`);
+                    if (isInDb) {
+                       return; // Skip if already in DB
                     }
-                })
-            );
+
+                    return instrumentoDto;
+                } catch (e) {
+                    console.error(`Error procesando instrumento: ${instrumento.caratula}. Error: ${(e as Error).message}`);
+                    return {
+                        fecha_de_ingreso: new Date(instrumento.altaDisponibilidad),
+                        fecha_de_salida: null,
+                        caratula: instrumento.caratula,
+                        urgencia: instrumento.estado === "URGENTE" ? "URGENTE" : "NORMAL",
+                        domicilio_denunciado: instrumento.destinatarioPostal,
+                        juzgadoIdentifier: "Error",
+                        instrumentoTypeIdentifier: "Error",
+                        error: `Error procesando instrumento: ${(e as Error).message}`,
+                        tipoDeCarga: TipoCarga.PDF,
+                        codigo: instrumento.codigo,
+                        estado: EstadoInstrumento.PENDIENTE_DE_NOTIFICAR,
+                        observaciones: "",
+                        punto: null,
+                        zona: null,
+                        subZona: null
+                    } as InstrumentoDtoWithError;
+                }
+            });
+
+            // Process all instrument promises concurrently
+            // and filter out undefined results (already in DB)
+            const processedInstruments = await Promise.all(instrumentPromises);
+
+            // Filter out undefined results (already in DB)
+
+            const processedInstrumentsFiltered: (InstrumentoDTO|InstrumentoDtoWithError)[] = processedInstruments.filter((instrumento) => instrumento !== undefined);
+
+            return processedInstrumentsFiltered;
         } catch (error) {
             console.error("Error general en deleteDuplicatePdfEntries:", (error as Error).message);
+            return [];
         }
-
-        return { filteredInstrument, instrumentosWithErrors };
     }
+
 
 
     async getInstrumentosByZone(zone: string) {
@@ -178,11 +193,11 @@ export default class InstrumentoService {
         return totalPages;
     }
 
-    async getInstrumentosByAgent(searchParams: SearchParamsInstrumentos,agentId: number) { 
+    async getInstrumentosByAgent(searchParams: SearchParamsInstrumentos, agentId: number) {
         return this.instrumentoRepository.getInstrumentosByAgent(agentId, searchParams);
     }
 
-    async getInstrumentosByAgentCreatedDate(agentId: number, startDate: Date, finishDate: Date){
+    async getInstrumentosByAgentCreatedDate(agentId: number, startDate: Date, finishDate: Date) {
         return this.instrumentoRepository.getInstrumentosByAgentCreatedDate(agentId, startDate, finishDate);
     }
 

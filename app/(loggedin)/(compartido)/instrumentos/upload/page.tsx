@@ -9,19 +9,15 @@ import { createInstrumentos, deleteDuplicatePdfEntries } from "@/actions/instrum
 import { InstrumentoDTO, InstrumentoDtoWithError, InstrumentPDFDTO } from "@/types/instrumentoTypes";
 import { toast } from "@/hooks/use-toast";
 import StepDataReview from "@/components/instrumentos/upload/Steps/StepDataReview";
-import StepErrorReview from "@/components/instrumentos/upload/Steps/StepErrorReview";
 import StepFileUpload from "@/components/instrumentos/upload/Steps/StepFileUpload";
 import ConfirmStep from "@/components/instrumentos/upload/Steps/ConfirmStep";
 import SaveInstrument from "@/components/instrumentos/upload/Steps/SaveInstruments";
 
-const ITEMS_PER_PAGE = 10;
 
 export default function PDFUploadProcess() {
   const [step, setStep] = useState(1);
   const [file, setFile] = useState<File | null>(null);
-  const [data, setData] = useState<InstrumentoDTO[]>([]);
-  const [instrumentosConErrores, setInstrumentosConErrores] = useState<InstrumentoDtoWithError[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [data, setData] = useState<(InstrumentoDTO | InstrumentoDtoWithError)[]>([]);
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // Track errors explicitly
 
@@ -34,20 +30,18 @@ export default function PDFUploadProcess() {
 
       const result = await deleteDuplicatePdfEntries(parsedData);
 
+      console.log("Filtered Instrument", result);
+
       if (!result || typeof result !== "object") throw new Error("Error al procesar el PDF");
 
-      const { filteredInstrument, instrumentosWithErrors } = result as {
-        filteredInstrument: InstrumentoDTO[];
-        instrumentosWithErrors: InstrumentoDtoWithError[];
-      };
+      const filteredInstrument = result
 
-      if (filteredInstrument.length === 0 && instrumentosWithErrors.length === 0) {
+      if (filteredInstrument.length === 0) {
         throw new Error("Los instrumentos en el PDF ya están cargados.");
       }
 
       setData(filteredInstrument);
-      setInstrumentosConErrores(instrumentosWithErrors);
-      setStep(instrumentosWithErrors.length ? 2 : 3);
+      setStep(2);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Ha ocurrido un error al procesar el PDF";
       console.error(error);
@@ -64,7 +58,7 @@ export default function PDFUploadProcess() {
 
   const confirmUpload = async () => {
     try {
-      setStep(4);
+      setStep(3);
       startTransition(async () => {
         try {
           const result = await createInstrumentos(data); // Ensure the action returns a result
@@ -86,23 +80,11 @@ export default function PDFUploadProcess() {
         className: "bg-red-500 text-white",
         duration: 3000,
       });
-      setStep(5); // Move to error step on failure
+      setStep(4); // Move to error step on failure
     }
   };
 
-  const editInstrumentDataError = (instrument: InstrumentoDTO) => {
-    if (!instrument.juzgadoIdentifier || !instrument.instrumentoTypeIdentifier) {
-      return; // Skip if required fields are missing
-    }
 
-    const index = instrumentosConErrores.findIndex((i) => i.codigo === instrument.codigo);
-    if (index !== -1) {
-      const newErrors = [...instrumentosConErrores];
-      newErrors.splice(index, 1);
-      setInstrumentosConErrores(newErrors);
-      setData((prev) => [...prev, instrument]);
-    }
-  };
 
   const editInstrumentData = (instrument: InstrumentoDTO) => {
     try {
@@ -124,12 +106,19 @@ export default function PDFUploadProcess() {
     }
   };
 
-  const deleteInstrumentData = (instrument: InstrumentoDTO) => {
+  const deleteInstrumentData = (instrumentos: InstrumentoDTO[]) => {
+    if (!instrumentos || instrumentos.length === 0) return;
+
     try {
-      const index = data.findIndex((i) => i.codigo === instrument.codigo);
-      if (index !== -1) {
+
+      const indexes = instrumentos.map((instrumento) => data.findIndex((i) => i.codigo === instrumento.codigo));
+      if (indexes.length > 0) {
         const newData = [...data];
-        newData.splice(index, 1);
+        indexes.forEach((index) => {
+          if (index !== -1) {
+            newData.splice(index, 1);
+          }
+        });
         setData(newData);
       }
     } catch (error) {
@@ -142,44 +131,12 @@ export default function PDFUploadProcess() {
         duration: 3000,
       });
     }
-  };
+  }
 
-  const deleteInstrumentErrorData = (instrument: InstrumentoDTO) => {
-    try {
-      const index = instrumentosConErrores.findIndex((i) => i.codigo === instrument.codigo);
-      if (index !== -1) {
-        const newData = [...instrumentosConErrores];
-        newData.splice(index, 1);
-        setInstrumentosConErrores(newData);
-      }
-    } catch (error) {
-      console.error("Error deleting instrument error data:", error);
-      setErrorMessage("Error al eliminar el instrumento con errores");
-      toast({
-        title: "Error",
-        description: "Error al eliminar el instrumento con errores",
-        className: "bg-red-500 text-white",
-        duration: 3000,
-      });
-    }
-  };
 
-  const deleteAllInstrumentDataError = () => {
-    try {
-      setInstrumentosConErrores([]);
-    } catch (error) {
-      console.error("Error deleting all instrument errors:", error);
-      setErrorMessage("Error al eliminar todos los instrumentos con errores");
-      toast({
-        title: "Error",
-        description: "Error al eliminar todos los instrumentos con errores",
-        className: "bg-red-500 text-white",
-        duration: 3000,
-      });
-    }
-  };
 
-  const totalPages = Math.ceil(data.length / ITEMS_PER_PAGE);
+
+
 
   return (
     <div className="flex flex-col items-center w-full h-full p-4 gap-2  ">
@@ -198,40 +155,26 @@ export default function PDFUploadProcess() {
         <div className="w-full h-full flex flex-col gap-4 rounded-lg px-4 pb-6  ">
 
           {step === 1 && (
-              <StepFileUpload
-                file={file}
-                onFileChange={setFile}
-                onNext={handleFileUpload}
+            <StepFileUpload
+              file={file}
+              onFileChange={setFile}
+              onNext={handleFileUpload}
 
-              />
-          )}
-
-          {step === 2 && (
-            <StepErrorReview
-              deleteInstrumento={deleteInstrumentErrorData}
-              errors={instrumentosConErrores}
-              editInstrumentDataError={editInstrumentDataError}
-              deleteAllErrors={deleteAllInstrumentDataError}
-              onBack={() => setStep(1)}
-              onNext={() => setStep(3)}
             />
           )}
 
-          {step === 3 && (
+
+          {step === 2 && (
             <StepDataReview
               data={data}
               editInstrumentData={editInstrumentData}
               deleteInstrumentData={deleteInstrumentData}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onNextPage={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-              onPrevPage={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               onBack={() => setStep(1)}
               onConfirm={confirmUpload}
             />
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             isPending ? (
               <SaveInstrument />
             ) : (
@@ -239,16 +182,14 @@ export default function PDFUploadProcess() {
                 onClick={() => {
                   setFile(null);
                   setData([]);
-                  setInstrumentosConErrores([]);
                   setStep(1);
-                  setCurrentPage(1);
                   setErrorMessage(null); // Reset error state
                 }}
               />
             )
           )}
 
-          {step === 5 && (
+          {step === 4 && (
             <div className="flex flex-col gap-4">
               <h2 className="text-2xl font-bold">Error al cargar los instrumentos</h2>
               {errorMessage && <p className="text-red-500">{errorMessage}</p>}
@@ -256,9 +197,7 @@ export default function PDFUploadProcess() {
                 onClick={() => {
                   setFile(null);
                   setData([]);
-                  setInstrumentosConErrores([]);
                   setStep(1);
-                  setCurrentPage(1);
                   setErrorMessage(null); // Reset error state
                 }}
               >

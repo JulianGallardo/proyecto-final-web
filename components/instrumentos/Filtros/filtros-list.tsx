@@ -101,6 +101,15 @@ export default function FiltrosList({
         type: "select",
         options: Zonas.map((z) => ({ value: z, label: z })),
       },
+      {
+        param: "orderBy",
+        displayName: "Ordenar por",
+        type: "select",
+        options: [
+          { value: "Orden de carga", label: "Orden de carga" },
+          { value: "Demora", label: "Demora" },
+        ]
+      }
     ],
     [Juzgados, InstrumentTypes, Zonas]
   );

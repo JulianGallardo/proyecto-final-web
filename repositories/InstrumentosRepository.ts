@@ -11,6 +11,8 @@ const selectOptions = {
     cargaInstrumento: true,
     fecha_de_ingreso: true,
     fecha_de_salida: true,
+    batchId: true,
+    batchOrderId: true,
     caratula: true,
     domicilio_denunciado: true,
     ordenId: true,
@@ -53,7 +55,7 @@ const selectOptions = {
 
 export default class InstrumentosRepository extends BaseRepository<Instrumento> {
     private readonly ordenRepository: OrdenRepository;
-    private readonly itemsPerPage = 10;
+    private readonly itemsPerPage = 50;
 
     constructor(ordenRepository: OrdenRepository) {
         super(prisma.instrumento);
@@ -167,15 +169,34 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
     async getInstrumentosPaginated(searchParams: SearchParamsInstrumentos, page: number): Promise<InstrumentoExtendido[]> {
         const where = this.buildWhereClause(searchParams);
 
+        const orderByDemora = [
+            { fecha_de_salida: { sort: "asc", nulls: "first" } },
+            { fecha_de_ingreso: "asc" },
+        ]
+
+        const orderByBatchLoad = [
+            { batchCreatedAt: "desc" },
+            { batchId: "asc" },
+            { batchOrderId: "asc" },
+
+        ];
+
+        let orderBy: any = orderByBatchLoad; // Default order by batch load
+
+        if (searchParams.orderBy === "Demora") {
+            orderBy = orderByDemora;
+        }
+
+
+
+
+
         return this.modelClient.findMany({
             where,
             skip: (page - 1) * this.itemsPerPage,
             take: this.itemsPerPage,
             select: selectOptions,
-            orderBy: [
-                { fecha_de_salida: { sort: "asc", nulls: "first" } },
-                { fecha_de_ingreso: "asc" },
-            ],
+            orderBy: orderBy
         });
     }
 
@@ -249,7 +270,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
         let nuevaSubZona: SubZona = SubZona.Sin_SubZona;
         let success = true;
         let errorMessage = '';
-    
+
         try {
             // Obtener coordenadas si hay domicilio pero no punto
             if (data.domicilio_denunciado && data.domicilio_denunciado !== "" && data.punto === null) {
@@ -262,16 +283,16 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     errorMessage = coordinatesResult.error || 'Error al obtener coordenadas del domicilio';
                 }
             }
-    
+
             // Calcular zona y subzona automáticas si tenemos un punto
             let zonaAutomatica = undefined;
             let subZonaAutomatica: SubZona = SubZona.Sin_SubZona;
-    
+
             if (punto) {
                 const zoneResult = await getZoneInCoords(punto[0], punto[1]);
                 if (zoneResult.success && zoneResult.zone) {
                     zonaAutomatica = zoneResult.zone;
-                    
+
                     const subZoneResult = await getSubzoneInCoords(punto[0], punto[1], zonaAutomatica.id);
                     if (subZoneResult.success) {
                         subZonaAutomatica = subZoneResult.subzone as SubZona ?? SubZona.Sin_SubZona;
@@ -285,7 +306,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     errorMessage = zoneResult.error || 'Error al determinar la zona';
                 }
             }
-    
+
             // Determinar si usamos zona manual o automática
             if (data.zona === null) {
                 nuevaZona = zonaAutomatica;
@@ -293,7 +314,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 // Usar la zona seleccionada manualmente
                 nuevaZona = data.zona;
             }
-    
+
             // Determinar si usamos subzona manual o automática
             if (!data.subZona) {
                 nuevaSubZona = subZonaAutomatica;
@@ -301,45 +322,52 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 // Usar la subzona seleccionada manualmente
                 nuevaSubZona = data.subZona as SubZona;
             }
-    
-            return { 
-                punto, 
-                nuevaZona, 
+
+            return {
+                punto,
+                nuevaZona,
                 nuevaSubZona,
                 success,
                 error: errorMessage || undefined
             };
         } catch (error) {
             console.error("Error en getNewZoneAndCoordinates:", error);
-            return { 
-                punto, 
-                nuevaZona, 
+            return {
+                punto,
+                nuevaZona,
                 nuevaSubZona,
                 success: false,
                 error: "Error al procesar coordenadas y zonas"
             };
         }
     }
-    
+
     async createInstrumento(data: InstrumentoDTO): Promise<InstrumentoExtendido> {
         let orden = null;
         try {
             orden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
             if (!orden) throw new Error("No se pudo crear la orden");
-    
+
             if (data.tipoDeCarga === TipoCarga.MAN) {
                 data.codigo = (await this.calculateManualCode()).toString();
             }
-    
+
             const { punto, nuevaZona, nuevaSubZona, success, error } = await this.getNewZoneAndCoordinates(data);
-            
+
             // Si hubo un error en la geolocalización pero no es crítico, podemos continuar pero loguear
             if (!success) {
                 console.warn(`Advertencia en la geolocalización: ${error}. Se continuará con los datos disponibles.`);
             }
-    
+
+            const batchCreatedAt = new Date();
+            const batchId = crypto.randomUUID();
+            const batchOrderId = 1;
+
             return await this.modelClient.create({
                 data: {
+                    batchCreatedAt:batchCreatedAt,
+                    batchId: batchId,
+                    batchOrderId: batchOrderId,
                     codigoInstrumento: data.codigo,
                     cargaInstrumento: data.tipoDeCarga,
                     fecha_de_ingreso: data.fecha_de_ingreso,
@@ -370,31 +398,31 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             throw new Error(`No se pudo crear el instrumento: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         }
     }
-    
+
     async updateInstrumento(juzgadoIdentifier: string, ordenNumber: number, data: Partial<InstrumentoDTO>): Promise<InstrumentoExtendido | null> {
         let newOrden = null;
         let ordenActual = null;
         try {
             const juzgado = await prisma.juzgado.findUnique({ where: { identifier: juzgadoIdentifier } });
             if (!juzgado) throw new Error("No se encontró el juzgado");
-    
+
             ordenActual = await this.ordenRepository.getOrden(ordenNumber, juzgado.identifier);
             if (!ordenActual) throw new Error("No se encontró la orden");
-    
+
             newOrden = ordenActual;
             if (data.juzgadoIdentifier && juzgado.identifier !== data.juzgadoIdentifier) {
                 const createdOrden = await this.ordenRepository.createOrden(data.juzgadoIdentifier);
                 if (!createdOrden) throw new Error("No se pudo crear la nueva orden");
                 newOrden = createdOrden;
             }
-    
+
             const { punto, nuevaZona, nuevaSubZona, success, error } = await this.getNewZoneAndCoordinates(data);
-            
+
             // Si hubo un error en la geolocalización pero no es crítico, podemos continuar pero loguear
             if (!success) {
                 console.warn(`Advertencia en la geolocalización durante actualización: ${error}. Se continuará con los datos disponibles.`);
             }
-    
+
             // Preparar el objeto para actualizar la zona
             let zonaUpdate;
             if (nuevaZona) {
@@ -404,7 +432,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 // Si no hay zona, desconectarla
                 zonaUpdate = { disconnect: true };
             }
-    
+
             return this.modelClient.update({
                 where: { ordenId: ordenActual.id },
                 data: {
@@ -428,7 +456,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             });
         } catch (error) {
             console.error("Error updating instrument:", error);
-            
+
             // Si creamos una nueva orden pero falló la actualización, eliminar la orden nueva
             if (newOrden && newOrden.id !== ordenActual?.id) {
                 try {
@@ -437,16 +465,16 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     console.error("Error limpiando nueva orden tras fallo en actualización:", cleanupError);
                 }
             }
-            
+
             throw new Error(`No se pudo actualizar el instrumento: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         }
     }
-    
+
     async deleteInstrumento(juzgadoIdentifier: string, ordenNumber: number): Promise<Instrumento | null> {
         try {
             const orden = await this.ordenRepository.getOrden(ordenNumber, juzgadoIdentifier);
             if (!orden) throw new Error("No se encontró la orden");
-    
+
             return prisma.$transaction(async (prisma) => {
                 try {
                     const instrument = await prisma.instrumento.delete({ where: { ordenId: orden.id } });
@@ -462,12 +490,18 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
             throw new Error(`No se pudo eliminar el instrumento: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         }
     }
-    
+
     async createInstrumentos(instrumentos: InstrumentoDTO[]): Promise<InstrumentoExtendido[]> {
         if (!instrumentos.length) return [];
-        const createdInstruments: InstrumentoExtendido[] = [];
         const createdOrders: { ordenId: string, juzgadoIdentifier: string }[] = [];
-    
+        const batchId = crypto.randomUUID();
+        const batchCreatedAt = new Date();
+
+
+        instrumentos.forEach((instrumento, index) => {
+            instrumento.batchId = batchId;
+            instrumento.batchOrderId = index;
+        });
         try {
             // Group instruments by juzgadoIdentifier
             const groupedByJuzgado = instrumentos.reduce((acc, instrumento) => {
@@ -476,37 +510,40 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                 acc[juzgado].push(instrumento);
                 return acc;
             }, {} as Record<string, InstrumentoDTO[]>);
-    
+
             return prisma.$transaction(async (prisma) => {
                 // Process groups for different juzgados in parallel
                 const results = await Promise.all(
                     Object.entries(groupedByJuzgado).map(async ([juzgadoIdentifier, instruments]) => {
                         const instrumentsForJuzgado: InstrumentoExtendido[] = [];
-    
+
                         // Process instruments within the same juzgado sequentially to avoid race conditions
                         for (const instrumento of instruments) {
                             try {
                                 // Create or get a unique order for this instrument and juzgado
                                 const orden = await this.ordenRepository.createOrden(juzgadoIdentifier);
                                 if (!orden) throw new Error(`No se pudo crear la orden para el instrumento en el juzgado ${juzgadoIdentifier}`);
-                                
+
                                 // Track created order for potential cleanup
                                 createdOrders.push({ ordenId: orden.id.toString(), juzgadoIdentifier });
-    
+
                                 if (instrumento.tipoDeCarga === TipoCarga.MAN) {
                                     instrumento.codigo = (await this.calculateManualCode()).toString();
                                 }
-    
+
                                 const { punto, nuevaZona, nuevaSubZona, success, error } = await this.getNewZoneAndCoordinates(instrumento);
-                                
+
                                 // Si hubo un error en la geolocalización pero no es crítico, podemos continuar pero loguear
                                 if (!success) {
                                     console.warn(`Advertencia en geolocalización para instrumento en ${juzgadoIdentifier}: ${error}. Se continuará con los datos disponibles.`);
                                 }
-    
+
                                 // Create the instrument with its unique order
                                 const createdInstrument = await this.modelClient.create({
                                     data: {
+                                        batchCreatedAt: batchCreatedAt,
+                                        batchId: instrumento.batchId,
+                                        batchOrderId: instrumento.batchOrderId,
                                         codigoInstrumento: instrumento.codigo,
                                         cargaInstrumento: instrumento.tipoDeCarga,
                                         fecha_de_ingreso: instrumento.fecha_de_ingreso,
@@ -527,24 +564,30 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                                     },
                                     select: selectOptions,
                                 });
-    
+
                                 instrumentsForJuzgado.push(createdInstrument);
                             } catch (error) {
                                 console.error("Error creating individual instrument:", error);
                                 throw new Error(`No se pudo crear el instrumento para el juzgado ${juzgadoIdentifier}: ${error instanceof Error ? error.message : 'Error desconocido'}`);
                             }
                         }
-    
+
                         return instrumentsForJuzgado;
                     })
                 );
-    
+
                 // Flatten the results from all juzgados
                 return results.flat();
-            });
+            }
+                , {
+                    maxWait: 20000, // Maximum wait time for the transaction
+                    timeout: 20000, // Timeout for each individual operation
+                    isolationLevel: 'Serializable', // Transaction isolation level
+                }
+            );
         } catch (error) {
             console.error("Error creating instruments batch:", error);
-            
+
             // Intentar limpiar las órdenes creadas si algo falla
             if (createdOrders.length > 0) {
                 try {
@@ -555,7 +598,7 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
                     console.error("Error limpiando órdenes tras fallo en creación masiva:", cleanupError);
                 }
             }
-            
+
             throw new Error(`Error al crear instrumentos en lote: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         }
     }
@@ -714,17 +757,17 @@ export default class InstrumentosRepository extends BaseRepository<Instrumento> 
 
 
     async getInstrumentosByAgentCreatedDate(agentId: number, startDate: Date, finishDate: Date): Promise<InstrumentoExtendido[]> {
-     
-        
+
+
         finishDate.setUTCDate(finishDate.getUTCDate() + 1); // Add one day to include the finish date
-        
+
         console.log("Start date:", startDate);
         console.log("Finish date:", finishDate);
         const agentZones = await prisma.agente.findUnique({
             where: { id: agentId },
             select: { zonas: { select: { zoneName: true } } },
         });
-    
+
         return this.modelClient.findMany({
             where: {
                 AND: [

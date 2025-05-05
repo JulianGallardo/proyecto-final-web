@@ -3,17 +3,19 @@ import { Button } from "@/components/ui/button";
 import { InstrumentoDTO } from "@/types/instrumentoTypes";
 import { Juzgado, InstrumentoType, UrgenciaInstrumento } from "@prisma/client";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { CheckIcon, XIcon, Edit, Delete } from "lucide-react";
+import { CheckIcon, XIcon, Edit, Delete, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
 import { ExtendedZone } from "@/types/ZoneTypes";
 import { getSubzoneInCoords, getZoneInCoords } from "@/lib/locationUtils/zoneUtils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ExcelDataViewProps {
     juzgados: Juzgado[];
     data: InstrumentoDTO[];
     onCancelarCarga: (error: InstrumentoDTO) => void;
+    onCancelarCargaMultiple: (error: InstrumentoDTO[]) => void;
     instrumentoTypes: InstrumentoType[];
     editingIndex: number | null;
     editedData: InstrumentoDTO | null;
@@ -28,6 +30,7 @@ interface ExcelDataViewProps {
 export default function ExcelDataView({
     data,
     onCancelarCarga,
+    onCancelarCargaMultiple,
     juzgados,
     instrumentoTypes,
     editingIndex,
@@ -44,6 +47,51 @@ export default function ExcelDataView({
         index: number | null,
         field: keyof InstrumentoDTO | null
     }>({ index: null, field: null });
+
+    // Estado para almacenar los elementos seleccionados
+    const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+    const [selectAll, setSelectAll] = useState(false);
+
+    // Manejador para seleccionar/deseleccionar todos los elementos
+    const handleSelectAll = () => {
+        if (selectAll) {
+            // Deseleccionar todos
+            setSelectedItems(new Set());
+        } else {
+            // Seleccionar todos
+            const allIndexes = new Set<number>();
+            data.forEach((_, index) => allIndexes.add(index));
+            setSelectedItems(allIndexes);
+        }
+        setSelectAll(!selectAll);
+    };
+
+    // Manejador para seleccionar/deseleccionar un solo elemento
+    const handleSelectItem = (index: number) => {
+        const newSelectedItems = new Set(selectedItems);
+        if (newSelectedItems.has(index)) {
+            newSelectedItems.delete(index);
+        } else {
+            newSelectedItems.add(index);
+        }
+        setSelectedItems(newSelectedItems);
+
+        // Actualizar el estado de "seleccionar todos" si es necesario
+        setSelectAll(newSelectedItems.size === data.length);
+    };
+
+    // Manejador para eliminar múltiples elementos
+    const handleDeleteSelected = () => {
+        // Convertir el Set a un array y ordenar de mayor a menor para evitar problemas con los índices
+        const selectedIndexes = Array.from(selectedItems).sort((a, b) => b - a);
+
+        // Eliminar cada elemento seleccionado
+
+        onCancelarCargaMultiple(selectedIndexes.map(index => data[index]));
+        // Resetear las selecciones
+        setSelectedItems(new Set());
+        setSelectAll(false);
+    };
 
     // Effect to update zone and subzone when address changes
     useEffect(() => {
@@ -192,6 +240,7 @@ export default function ExcelDataView({
                                     handleInputChange('punto', coords);
                                 }
                             }}
+                            inTable={true}
                         />
                     );
                 case 'zona':
@@ -259,9 +308,9 @@ export default function ExcelDataView({
             case 'codigo':
                 return item.codigo;
             case 'juzgadoIdentifier':
-                return juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'N/A';
+                return juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'No encontrado';
             case 'instrumentoTypeIdentifier':
-                return instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'N/A';
+                return instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'No encontrado';
             case 'fecha_de_ingreso':
                 return item.fecha_de_ingreso ? new Date(item.fecha_de_ingreso).toLocaleDateString() : 'N/A';
             case 'urgencia':
@@ -281,13 +330,52 @@ export default function ExcelDataView({
 
     return (
         <div className="flex flex-col w-full gap-4 p-2">
+            {/* Barra de acciones para elementos seleccionados */}
+            {selectedItems.size > 0 && (
+                <div className="flex items-center justify-between bg-blue-50 p-3 rounded border border-blue-200">
+                    <div className="flex items-center gap-2">
+                        <span className="font-medium text-blue-700">{selectedItems.size} elementos seleccionados</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDeleteSelected}
+                            className="flex items-center gap-1"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Eliminar seleccionados
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                setSelectedItems(new Set());
+                                setSelectAll(false);
+                            }}
+                        >
+                            Cancelar selección
+                        </Button>
+                    </div>
+                </div>
+            )}
+
             {/* Responsive container for the table */}
             <div className="w-full overflow-x-auto md:overflow-x-visible">
                 {/* Table container with adjustable height for desktop */}
                 <div className="w-full h-full overflow-y-auto">
-                    <table className="w-full h-full border-collapse rounded-lg text-sm table-fixed ">
+                    <table className="w-full h-full border-collapse rounded-lg text-sm table-fixed">
                         <thead className="sticky top-0 z-10">
                             <tr className="bg-gray-100">
+                                {/* Checkbox para seleccionar/deseleccionar todos */}
+                                <th className="px-2 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider w-[40px]">
+                                    <div className="flex justify-center items-center">
+                                        <Checkbox
+                                            checked={selectAll}
+                                            onCheckedChange={handleSelectAll}
+                                        />
+                                    </div>
+                                </th>
                                 {/* Desktop optimized widths */}
                                 <th className="px-2 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[15%] w-[150px]">Carátula</th>
                                 <th className="px-1 py-2 border border-gray-300 text-center font-medium text-gray-600 uppercase tracking-wider md:w-[8%] w-[80px]">Codigo</th>
@@ -304,7 +392,20 @@ export default function ExcelDataView({
                         </thead>
                         <tbody>
                             {data.map((item, index) => (
-                                <tr key={"excel_row_" + index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                <tr
+                                    key={"excel_row_" + index}
+                                    className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} ${selectedItems.has(index) ? 'bg-blue-50' : ''}`}
+                                >
+                                    {/* Checkbox para seleccionar la fila */}
+                                    <td className="px-2 py-2 border border-gray-300 text-center">
+                                        <div className="flex justify-center items-center">
+                                            <Checkbox
+                                                checked={selectedItems.has(index)}
+                                                onCheckedChange={() => handleSelectItem(index)}
+                                                disabled={editingIndex === index}
+                                            />
+                                        </div>
+                                    </td>
                                     <td
                                         className="px-2 py-2 border border-gray-300 text-gray-900 cursor-pointer truncate"
                                         onDoubleClick={() => handleDoubleClick(index, 'caratula')}
@@ -316,16 +417,16 @@ export default function ExcelDataView({
                                         {item.codigo || 'N/A'}
                                     </td>
                                     <td
-                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        className={"px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate " + (item.juzgadoIdentifier === "No encontrado" && "bg-red-300 ")}
                                         onDoubleClick={() => handleDoubleClick(index, 'juzgadoIdentifier')}
-                                        title={juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'N/A'}
+                                        title={juzgados.find(juzgado => juzgado.identifier === item.juzgadoIdentifier)?.identifier ?? 'No encontrado'}
                                     >
                                         {renderCell(item, index, 'juzgadoIdentifier')}
                                     </td>
                                     <td
-                                        className="px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate"
+                                        className={"px-2 py-2 border border-gray-300 text-gray-900 text-center cursor-pointer truncate " + (item.instrumentoTypeIdentifier === "No nomenclado" && "bg-red-300")}
                                         onDoubleClick={() => handleDoubleClick(index, 'instrumentoTypeIdentifier')}
-                                        title={instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'N/A'}
+                                        title={instrumentoTypes.find(type => type.identifier === item.instrumentoTypeIdentifier)?.identifier ?? 'No nomenclado'}
                                     >
                                         {renderCell(item, index, 'instrumentoTypeIdentifier')}
                                     </td>
@@ -460,9 +561,16 @@ export default function ExcelDataView({
             </div>
 
             <div className="p-3 bg-gray-50 rounded border border-gray-200">
-                <p className="text-sm text-gray-600">
-                    <span className="font-medium">Total de registros:</span> {data.length}
-                </p>
+                <div className="flex justify-between items-center">
+                    <p className="text-sm text-gray-600">
+                        <span className="font-medium">Total de registros:</span> {data.length}
+                    </p>
+                    {selectedItems.size > 0 && (
+                        <p className="text-sm text-blue-600">
+                            <span className="font-medium">{selectedItems.size} elementos seleccionados</span>
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );
